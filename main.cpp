@@ -6,7 +6,7 @@
 
 
 void test_write() {
-    SparseVirtualFile svf("", 0.0);
+    SparseVirtualFileSystem::SparseVirtualFile svf("", 0.0);
     svf.write(8, "ABCD", 4);
     svf.write(8, "ABCD", 4);
 }
@@ -19,7 +19,7 @@ int main() {
 
 //    std::cout << "pobj " << pobj << std::endl;
 
-    SparseVirtualFile svf("", 0.0);
+    SparseVirtualFileSystem::SparseVirtualFile svf("", 0.0);
     test_write();
 
     return 0;
