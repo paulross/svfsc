@@ -138,6 +138,9 @@ namespace SparseVirtualFileSystem {
                 break;
             }
             // Remove copied and checked old block and move on.
+            if (m_overwrite) {
+                iter->second.assign(iter->second.size(), '0');
+            }
             iter = m_svf.erase(iter);
             if (len != 0 || iter == m_svf.end()) {
                 // Copy rest of new and break
@@ -186,7 +189,7 @@ namespace SparseVirtualFileSystem {
         assert(_last_file_pos_for_block(iter) > fpos);
 
         size_t fpos_end = fpos + len;
-        t_map::const_iterator next_iter = iter;
+        t_map::iterator next_iter = iter;
         while (true) {
             size_t index_iter = fpos - next_iter->first;
             while (len && index_iter < next_iter->second.size()) {
@@ -206,6 +209,9 @@ namespace SparseVirtualFileSystem {
                 ++m_bytes_total;
             }
             if (next_iter != iter) {
+                if (m_overwrite) {
+                    next_iter->second.assign(next_iter->second.size(), '0');
+                }
                 next_iter = m_svf.erase(next_iter);
             } else {
                 ++next_iter;
@@ -320,6 +326,11 @@ namespace SparseVirtualFileSystem {
         m_bytes_read = 0;
         m_time_write = std::chrono::time_point<std::chrono::system_clock>::min();
         m_time_read = std::chrono::time_point<std::chrono::system_clock>::min();
+        if (m_overwrite) {
+            for (auto &iter: m_svf) {
+                iter.second.assign(iter.second.size(), '0');
+            }
+        }
         m_svf.clear();
         SVF_ASSERT(integrity() == ERROR_NONE);
     }

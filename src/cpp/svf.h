@@ -57,10 +57,11 @@ namespace SparseVirtualFileSystem {
     public:
         // TODO: Implement coalesce strategies.
         // TODO: Implement cache limit and cache punting strategies.
-        SparseVirtualFile(const std::string &id, double mod_time, int coalesce = -1) : \
+        SparseVirtualFile(const std::string &id, double mod_time, int coalesce = -1, bool overwrite = false) : \
         m_id(id), \
         m_file_mod_time(mod_time), \
         m_coalesce(coalesce), \
+        m_overwrite(overwrite), \
         m_time_read(std::chrono::time_point<std::chrono::system_clock>::min()), \
         m_time_write(std::chrono::time_point<std::chrono::system_clock>::min()) {}
 
@@ -108,6 +109,7 @@ namespace SparseVirtualFileSystem {
 
         SparseVirtualFile operator=(const SparseVirtualFile &rhs) = delete;
 
+        ~SparseVirtualFile() { clear(); }
     private:
         std::string m_id;
         double m_file_mod_time;
@@ -116,6 +118,7 @@ namespace SparseVirtualFileSystem {
         // 0 Never coalesce
         // >0 Only coalesce if the result is < this value, say 2048 (bytes).
         int m_coalesce;
+        bool m_overwrite;
         // Total number of bytes in this SVF
         size_t m_bytes_total = 0;
         // Access statistics
