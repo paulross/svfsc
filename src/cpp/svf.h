@@ -35,6 +35,12 @@ public:
     explicit ExceptionSparseVirtualFileDiff(const std::string &in_msg) : ExceptionSparseVirtualFile(in_msg) {}
 };
 
+// Might be thrown during a write operation which fails.
+class ExceptionSparseVirtualFileWrite : public ExceptionSparseVirtualFile {
+public:
+    explicit ExceptionSparseVirtualFileWrite(const std::string &in_msg) : ExceptionSparseVirtualFile(in_msg) {}
+};
+
 // Might be thrown during a write operation where the data differs.
 class ExceptionSparseVirtualFileRead : public ExceptionSparseVirtualFile {
 public:
@@ -46,7 +52,8 @@ typedef size_t t_fpos;
 
 class SparseVirtualFile {
 public:
-    // TODO: Set read/write times to std::chrono::time_point.min()
+    // TODO: Implement coalesce strategies.
+    // TODO: Implement cache limit and cache punting strategies.
     SparseVirtualFile(const std::string &id, double mod_time, int coalesce=-1) : \
         m_id(id), \
         m_file_mod_time(mod_time), \
@@ -64,17 +71,19 @@ public:
     // Write data at file position.
     void write(t_fpos, const char *data, size_t len);
     // Read data and write to the buffer provided by the caller.
-    void read(t_fpos fpos, size_t len, char *p) const;
+    // Not const as we update m_bytes_read, m_count_read, m_time_read.
+    void read(t_fpos fpos, size_t len, char *p);
     // Create a new fragmentation list of seek/read instructions.
     std::list<std::pair<t_fpos, size_t>> need(t_fpos fpos, size_t len) const noexcept;
 
     // Information about memory used:
     // size_of() gives best guess of total memory usage.
     size_t size_of() const noexcept;
-    // bytes() gives exact number of data bytes held.
-    size_t bytes() const noexcept { return m_total_bytes; };
-    // blocks() gives exact number of blocks used.
-    size_t blocks() const noexcept { return m_svf.size(); }
+    // Gives exact number of data bytes held.
+    size_t num_bytes() const noexcept { return m_bytes_total; };
+    // Gives exact number of blocks used.
+    size_t num_blocks() const noexcept { return m_svf.size(); }
+    t_fpos last_file_position() const noexcept;
 
     // Attribute access
     const std::string id() const noexcept { return m_id; }
@@ -87,14 +96,20 @@ public:
 private:
     std::string m_id;
     double m_file_mod_time;
+    // TODO: Implement this strategy.
+    // -1 Always coalesce
+    // 0 Never coalesce
+    // >0 Only coalesce if the result is < this value, say 2048 (bytes).
     int m_coalesce;
     // Total number of bytes in this SVF
-    size_t m_total_bytes = 0;
+    size_t m_bytes_total = 0;
     // Access statistics
     size_t m_count_write = 0;
     size_t m_count_read = 0;
+    // NOTE: These include any duplicate reads/writes.
     size_t m_bytes_write = 0;
     size_t m_bytes_read = 0;
+    // Last access times
     std::chrono::time_point<std::chrono::system_clock> m_time_write;
     std::chrono::time_point<std::chrono::system_clock> m_time_read;
     // The actual SVF
@@ -104,12 +119,17 @@ private:
 private:
     // Write data at file position without checks.
     void _write(t_fpos fpos, const char *data, size_t len);
+    void _write_new_append_old(t_fpos fpos, const char *data, size_t len, t_map::iterator iter);
+    void _write_append_new_to_old(t_fpos fpos, const char *data, size_t len, t_map::iterator iter);
+    void _throw_diff(t_fpos fpos, const char *data, t_map::const_iterator iter, size_t index_iter) const;
+    t_fpos _last_file_pos_for_block(t_map::const_iterator iter) const noexcept;
     /* Check internal integrity. */
     enum ERROR_CONDITION {
         ERROR_NONE = 0,
         ERROR_EMPTY_BLOCK,
         ERROR_ADJACENT_BLOCKS,
         ERROR_BLOCKS_OVERLAP,
+        ERROR_BYTE_COUNT_MISMATCH,
     };
     ERROR_CONDITION integrity() const noexcept;
 };
