@@ -278,14 +278,22 @@ namespace SparseVirtualFileSystem {
         m_time_read = std::chrono::time_point<std::chrono::system_clock>::clock().now();
     }
 
-    std::list<std::pair<t_fpos, size_t>>
-    SparseVirtualFile::need(t_fpos fpos, size_t len) const noexcept {
+    t_seek_read SparseVirtualFile::need(t_fpos fpos, size_t len) const noexcept {
         SVF_ASSERT(integrity() == ERROR_NONE);
-        std::list<std::pair<t_fpos, size_t>> ret;
+        t_seek_read ret;
         t_map::const_iterator iter = m_svf.lower_bound(fpos);
 
         // TODO
 
+        return ret;
+    }
+
+    t_seek_read SparseVirtualFile::blocks() const noexcept {
+        SVF_ASSERT(integrity() == ERROR_NONE);
+        t_seek_read ret;
+        for (const auto &iter: m_svf) {
+            ret.push_back({ iter.first, iter.second.size() });
+        }
         return ret;
     }
 

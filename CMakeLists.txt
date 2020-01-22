@@ -13,7 +13,7 @@ link_directories(
     /Library/Frameworks/Python.framework/Versions/3.8/lib
 )
 
-add_executable(cppSVF main.cpp src/cpp/svf.h src/cpp/svf.cpp)
+add_executable(cppSVF main.cpp src/cpp/svf.h src/cpp/svf.cpp src/cpp/tests/test_svf.h src/cpp/tests/test_svf.cpp)
 
 #target_include_directories(
 #        cppSVF /Library/Frameworks/Python.framework/Versions/3.7/include/python3.7m/

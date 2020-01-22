@@ -8,7 +8,6 @@
 
 #include <string>
 #include <vector>
-#include <list>
 #include <map>
 #include <chrono>
 #include <cassert>
@@ -52,6 +51,7 @@ namespace SparseVirtualFileSystem {
 
 //typedef fpos_t t_fpos;
     typedef size_t t_fpos;
+    typedef std::vector<std::pair<t_fpos, size_t>> t_seek_read;
 
     class SparseVirtualFile {
     public:
@@ -81,7 +81,10 @@ namespace SparseVirtualFileSystem {
         void read(t_fpos fpos, size_t len, char *p);
 
         // Create a new fragmentation list of seek/read instructions.
-        std::list<std::pair<t_fpos, size_t>> need(t_fpos fpos, size_t len) const noexcept;
+        t_seek_read need(t_fpos fpos, size_t len) const noexcept;
+
+        // The existing blocks.
+        t_seek_read blocks() const noexcept;
 
         // Information about memory used:
         // size_of() gives best guess of total memory usage.
