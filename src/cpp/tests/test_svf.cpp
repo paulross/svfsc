@@ -1,0 +1,112 @@
+//
+// Created by Paul Ross on 2020-01-22.
+//
+#include <strstream>
+
+#include "test_svf.h"
+
+// Produced by, more or less:
+// print('{\n    ' + ',\n    '.join([', '.join([f'0x{v + (16 * i):02x}' for v in range(16)]) for i in range(16)]) + '\n}')
+// Imaginary file data, unique 256 bytes, unsigned char.
+static const char data[256] = {
+    0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f,
+    0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x1a, 0x1b, 0x1c, 0x1d, 0x1e, 0x1f,
+    0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27, 0x28, 0x29, 0x2a, 0x2b, 0x2c, 0x2d, 0x2e, 0x2f,
+    0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39, 0x3a, 0x3b, 0x3c, 0x3d, 0x3e, 0x3f,
+    0x40, 0x41, 0x42, 0x43, 0x44, 0x45, 0x46, 0x47, 0x48, 0x49, 0x4a, 0x4b, 0x4c, 0x4d, 0x4e, 0x4f,
+    0x50, 0x51, 0x52, 0x53, 0x54, 0x55, 0x56, 0x57, 0x58, 0x59, 0x5a, 0x5b, 0x5c, 0x5d, 0x5e, 0x5f,
+    0x60, 0x61, 0x62, 0x63, 0x64, 0x65, 0x66, 0x67, 0x68, 0x69, 0x6a, 0x6b, 0x6c, 0x6d, 0x6e, 0x6f,
+    0x70, 0x71, 0x72, 0x73, 0x74, 0x75, 0x76, 0x77, 0x78, 0x79, 0x7a, 0x7b, 0x7c, 0x7d, 0x7e, 0x7f,
+    -0x80, -0x7f, -0x7e, -0x7d, -0x7c, -0x7b, -0x7a, -0x79, -0x78, -0x77, -0x76, -0x75, -0x74, -0x73, -0x72, -0x71,
+    -0x70, -0x6f, -0x6e, -0x6d, -0x6c, -0x6b, -0x6a, -0x69, -0x68, -0x67, -0x66, -0x65, -0x64, -0x63, -0x62, -0x61,
+    -0x60, -0x5f, -0x5e, -0x5d, -0x5c, -0x5b, -0x5a, -0x59, -0x58, -0x57, -0x56, -0x55, -0x54, -0x53, -0x52, -0x51,
+    -0x50, -0x4f, -0x4e, -0x4d, -0x4c, -0x4b, -0x4a, -0x49, -0x48, -0x47, -0x46, -0x45, -0x44, -0x43, -0x42, -0x41,
+    -0x40, -0x3f, -0x3e, -0x3d, -0x3c, -0x3b, -0x3a, -0x39, -0x38, -0x37, -0x36, -0x35, -0x34, -0x33, -0x32, -0x31,
+    -0x30, -0x2f, -0x2e, -0x2d, -0x2c, -0x2b, -0x2a, -0x29, -0x28, -0x27, -0x26, -0x25, -0x24, -0x23, -0x22, -0x21,
+    -0x20, -0x1f, -0x1e, -0x1d, -0x1c, -0x1b, -0x1a, -0x19, -0x18, -0x17, -0x16, -0x15, -0x14, -0x13, -0x12, -0x11,
+    -0x10, -0xf, -0xe, -0xd, -0xc, -0xb, -0xa, -0x9, -0x8, -0x7, -0x6, -0x5, -0x4, -0x3, -0x2, -0x1,
+};
+
+
+namespace SparseVirtualFileSystem {
+
+    TestCaseWrite::TestCaseWrite(const std::string &m_test_name, const t_seek_read &m_writes,
+                                 const t_seek_read &m_expected_blocks) : TestCaseABC(m_test_name, m_writes),
+                                                                         m_expected_blocks(m_expected_blocks) {}
+
+
+    TestResult TestCaseWrite::run() const {
+        SparseVirtualFile svf("", 0.0);
+
+        // Run the test
+        auto time_start = std::chrono::high_resolution_clock::now();
+        for (const auto &write_test: m_writes) {
+            assert(write_test.first < 256);
+            assert(write_test.first + write_test.second < 256);
+            svf.write(write_test.first, data + write_test.first, write_test.second);
+        }
+        std::chrono::duration<double> time_exec = std::chrono::high_resolution_clock::now() - time_start;
+
+        // Analyse the results
+        int result = 0;
+        std::string err;
+        auto actual_blocks = svf.blocks();
+        if (m_expected_blocks.size() != actual_blocks.size()) {
+            result = 1;
+            std::ostrstream os;
+            os << "Expected " << m_expected_blocks.size() << " blocks but got " << actual_blocks.size() << " blocks";
+            err = os.str();
+        } else {
+            for (size_t i = 0; i < m_expected_blocks.size(); ++i) {
+                if (actual_blocks[i].first != m_expected_blocks[i].first) {
+                    result = 1;
+                    std::ostrstream os;
+                    os << "In block " << i << " expected fpos " << m_expected_blocks[i].first;
+                    os << " but got " << actual_blocks[i].first << " (other blocks not tested)";
+                    err = os.str();
+                    break;
+                }
+                if (actual_blocks[i].second != m_expected_blocks[i].second) {
+                    result = 1;
+                    std::ostrstream os;
+                    os << "In block " << i << " expected length " << m_expected_blocks[i].second;
+                    os << " but got " << actual_blocks[i].second << " (other blocks not tested)";
+                    err = os.str();
+                    break;
+                }
+            }
+        }
+        return TestResult(__FUNCTION__, m_test_name, result, err, time_exec.count(), svf.num_bytes());
+    }
+
+    // TODO: Specify more test cases.
+    const std::vector<TestCaseWrite> write_test_cases = {
+        {"Write no blocks", {}, {}},
+        {
+            "Write single block",
+            {
+                {8, 4}
+            },
+            {
+                {8, 4}
+            },
+        }
+    };
+
+    size_t test_write_all(t_test_results &results) {
+        size_t count = 0;
+        for (const auto& test_case: write_test_cases) {
+            results.push_back(test_case.run());
+            count += 1;
+        }
+        return count;
+    }
+
+
+    size_t test_all(t_test_results &results) {
+        size_t count = 0;
+        count += test_write_all(results);
+        return count;
+    }
+
+} // namespace SparseVirtualFileSystem

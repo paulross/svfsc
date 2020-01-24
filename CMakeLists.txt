@@ -13,10 +13,16 @@ link_directories(
     /Library/Frameworks/Python.framework/Versions/3.8/lib
 )
 
-add_executable(cppSVF main.cpp src/cpp/svf.h src/cpp/svf.cpp src/cpp/tests/test_svf.h src/cpp/tests/test_svf.cpp)
+add_executable(cppSVF main.cpp src/cpp/svf.h src/cpp/svf.cpp src/cpp/tests/test_svf.h src/cpp/tests/test_svf.cpp src/cpp/tests/test.h src/cpp/tests/test.cpp src/cpp/util/SaveStreamState.h)
+
+include_directories(
+        src/cpp
+        src/cpp/tests
+        src/cpp/util
+)
 
 #target_include_directories(
-#        cppSVF /Library/Frameworks/Python.framework/Versions/3.7/include/python3.7m/
+#        cppSVF src/cpp
 #)
 
 FIND_PACKAGE(PythonLibs 3.8 REQUIRED)
