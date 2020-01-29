@@ -3,27 +3,40 @@ project(cppSVF)
 
 set(CMAKE_CXX_STANDARD 17)
 
-add_compile_definitions(DEBUG)
+IF(CMAKE_BUILD_TYPE MATCHES DEBUG)
+    message("debug build")
+    add_compile_definitions(DEBUG)
+ELSE()
+    message("release build")
+ENDIF(CMAKE_BUILD_TYPE MATCHES DEBUG)
 
-#include_directories(
-#    /Library/Frameworks/Python.framework/Versions/3.7/include/python3.7m/
-#)
+
+add_compile_options(
+    "-Wall" "-Wpedantic" "-Wextra" "-fexceptions"
+    "$<$<CONFIG:DEBUG>:-O0;-g3;-ggdb>"
+)
 
 link_directories(
     /Library/Frameworks/Python.framework/Versions/3.8/lib
 )
 
-add_executable(cppSVF main.cpp src/cpp/svf.h src/cpp/svf.cpp src/cpp/tests/test_svf.h src/cpp/tests/test_svf.cpp src/cpp/tests/test.h src/cpp/tests/test.cpp src/cpp/util/SaveStreamState.h)
+add_executable(
+        cppSVF
+        main.cpp
+        src/cpp/svf.h
+        src/cpp/svf.cpp
+        src/cpp/tests/test_svf.h
+        src/cpp/tests/test_svf.cpp
+        src/cpp/tests/test.h
+        src/cpp/tests/test.cpp
+        src/cpp/util/SaveStreamState.h
+)
 
 include_directories(
         src/cpp
         src/cpp/tests
         src/cpp/util
 )
-
-#target_include_directories(
-#        cppSVF src/cpp
-#)
 
 FIND_PACKAGE(PythonLibs 3.8 REQUIRED)
 IF(PYTHONLIBS_FOUND)
@@ -32,7 +45,6 @@ IF(PYTHONLIBS_FOUND)
 ELSE()
     MESSAGE(FATAL_ERROR "Unable to find Python libraries.")
 ENDIF()
-#message(status " Inc: ${INCLUDE_DIRECTORIES}")
 
 
 target_link_libraries(cppSVF python3.8)

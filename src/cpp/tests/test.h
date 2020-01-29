@@ -55,4 +55,28 @@ typedef std::vector<TestResult> t_test_results;
 void write_test_results(const t_test_results &results, std::ostream &os);
 
 
+class TestCount {
+public:
+    TestCount() : m_pass(0), m_fail(0) {}
+    size_t pass() const { return m_pass; }
+    size_t fail() const { return m_fail; }
+    size_t total() const { return m_pass + m_fail; }
+    void add_result(int result) {
+        if (result) {
+            m_fail += 1;
+        } else {
+            m_pass += 1;
+        }
+    }
+    TestCount operator+=(const TestCount &rhs) {
+        m_pass += rhs.m_pass;
+        m_fail += rhs.m_fail;
+        return *this;
+    }
+private:
+    size_t m_pass;
+    size_t m_fail;
+};
+
+
 #endif //CPPSVF_TEST_H

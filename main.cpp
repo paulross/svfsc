@@ -7,13 +7,18 @@
 #include "test_svf.h"
 
 
-void test_write() {
-    SparseVirtualFileSystem::SparseVirtualFile svf("", 0.0);
-    svf.write(8, "ABCD", 4);
-    svf.write(8, "ABCD", 4);
+TestCount test_write() {
+//    SparseVirtualFileSystem::SparseVirtualFile svf("", 0.0);
+//    svf.write(8, "ABCD", 4);
+//    svf.write(8, "ABCD", 4);
+    // Count of pass/fail
     t_test_results results;
-    auto count = SparseVirtualFileSystem::test_all(results);
+
+    auto test_count = SparseVirtualFileSystem::test_all(results);
+//    test_count += SparseVirtualFileSystem::test_all(results);
+
     write_test_results(results, std::cout);
+    return test_count;
 }
 
 
@@ -25,7 +30,20 @@ int main() {
 //    std::cout << "pobj " << pobj << std::endl;
 
     SparseVirtualFileSystem::SparseVirtualFile svf("", 0.0);
-    test_write();
+
+    TestCount pass_fail;
+
+    pass_fail += test_write();
+
+    std::cout << "Test results [" << pass_fail.total() << "]";
+    std::cout << " Pass: " << pass_fail.pass();
+    std::cout << " Fail: " << pass_fail.fail();
+    if (pass_fail.fail()) {
+        std::cout << " - FAILED";
+    } else {
+        std::cout << " - PASSED";
+    }
+    std::cout << std::endl;
 
     return 0;
 }

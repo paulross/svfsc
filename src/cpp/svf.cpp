@@ -1,8 +1,9 @@
 //
 // Created by Paul Ross on 2020-01-14.
 //
+#include <iostream>
 #include <iterator>
-#include <strstream>
+#include <sstream>
 
 #include "svf.h"
 
@@ -35,7 +36,7 @@ namespace SparseVirtualFileSystem {
         auto size_before_insert = m_svf.size();
         m_svf.insert(m_svf.end(), {fpos, std::move(new_vector)});
         if (m_svf.size() != 1 + size_before_insert) {
-            std::ostrstream os;
+            std::ostringstream os;
             os << "SparseVirtualFile::write():";
             os << "Unable to insert new block at " << fpos;
             throw ExceptionSparseVirtualFileWrite(os.str());
@@ -47,10 +48,11 @@ namespace SparseVirtualFileSystem {
         assert(data);
         assert(iter != m_svf.end());
         if (*data != iter->second[index_iter]) {
-            std::ostrstream os;
+            std::ostringstream os;
             os << "SparseVirtualFile::write():";
             os << " Difference at position " << fpos;
-            os << " " << *(data) << " != " << iter->second[index_iter];
+            os << " '" << *(data) << "' != '" << iter->second[index_iter] << "'";
+            os << " Ordinal " << static_cast<int>(*data) << " != " << static_cast<int>(iter->second[index_iter]);
             throw ExceptionSparseVirtualFileDiff(os.str());
         }
     }
@@ -64,6 +66,8 @@ namespace SparseVirtualFileSystem {
         //       ^===========|    |=====|
         //  |+++++++++++++++++++++++++++++++++|
         //
+//        std::cout << "TRACE: write(): fpos = " << fpos << " len = " << len << std::endl;
+
         if (m_svf.empty()) {
             // Simple insert of new data into empty map.
             _write(fpos, data, len);
@@ -78,14 +82,20 @@ namespace SparseVirtualFileSystem {
                 // Insert new block, possibly coalescing existing blocks.
                 _write_new_append_old(fpos, data, len, iter);
             } else {
-                // Append new to existing block, possibly coalescing existing blocks.
-                _write_append_new_to_old(fpos, data, len, iter);
+                if (fpos > iter->first + iter->second.size()) {
+                    _write(fpos, data, len);
+                    m_bytes_total += len;
+                } else {
+                    // Append new to existing block, possibly coalescing existing blocks.
+                    _write_append_new_to_old(fpos, data, len, iter);
+                }
             }
         }
         m_count_write += 1;
         m_bytes_write += len;
-        m_time_write = std::chrono::time_point<std::chrono::system_clock>::clock().now();
+        m_time_write = std::chrono::system_clock::now();
         SVF_ASSERT(integrity() == ERROR_NONE);
+//        std::cout << "size now " << m_svf.size() << std::endl;
     }
 
     void SparseVirtualFile::_write_new_append_old(t_fpos fpos, const char *data, size_t len, t_map::iterator iter) {
@@ -107,9 +117,14 @@ namespace SparseVirtualFileSystem {
         size_t fpos_start = fpos;
         size_t fpos_end = fpos + len;
         t_val new_vector;
+
+//        std::cout << "_write_new_append_old():" << std::endl;
+
         while (true) {
             while (len && fpos < iter->first) {
-                // Copy new data
+                // Copy new data 'X' up to start of iter.
+                //       ^===========|  |=====|
+                //  |XXXX+++++++++++++XX++|
                 new_vector.push_back(*data);
                 ++data;
                 ++fpos;
@@ -118,23 +133,27 @@ namespace SparseVirtualFileSystem {
             }
             size_t index_iter = 0;
             while (len && _last_file_pos_for_block(iter) > fpos) {
-                // Check overlapped data matches
+                // Check overlapped data matches 'Y'
+                //       ^===========|  |=====|
+                //  |++++YYYYYYYYYYYYY++++|
                 _throw_diff(fpos, data, iter, index_iter);
-                ++index_iter;
+                new_vector.push_back(*data);
                 ++data;
                 ++fpos;
                 --len;
+                ++index_iter;
             }
-            // Copy rest of iter.
             if (_last_file_pos_for_block(iter) > fpos_end) {
+                // Copy rest of iter 'Z'
                 assert(len == 0);
-                //       ^===========|
+                //       ^=========ZZZ
                 //  |+++++++++++++|
                 // So append up to the end of iter and (maybe) go round again.
                 while (index_iter < iter->second.size()) {
                     new_vector.push_back(iter->second[index_iter]);
                     ++index_iter;
                 }
+                m_svf.erase(iter);
                 break;
             }
             // Remove copied and checked old block and move on.
@@ -142,12 +161,12 @@ namespace SparseVirtualFileSystem {
                 iter->second.assign(iter->second.size(), '0');
             }
             iter = m_svf.erase(iter);
-            if (len != 0 || iter == m_svf.end()) {
+            if (iter == m_svf.end() || iter->first > fpos + len) {
                 // Copy rest of new and break
                 while (len) {
                     new_vector.push_back(*data);
                     ++data;
-                    ++fpos; // Could just set to fpos_end
+                    ++fpos;
                     --len;
                     ++m_bytes_total;
                 }
@@ -155,13 +174,20 @@ namespace SparseVirtualFileSystem {
             }
         }
         auto size_before_insert = m_svf.size();
-        m_svf.insert(iter, {fpos_start, std::move(new_vector)});
+//        std::cout << "Inserting new vector size " << new_vector.size() << " before " << size_before_insert << std::endl;
+//        std::cout << "Inserting new vector begin() == end() " << (m_svf.begin() == m_svf.end()) << std::endl;
+        // WARN: This line should work, and does for a debug build, but not for a release buile.
+//        m_svf.insert(iter, {fpos_start, std::move(new_vector)});
+        // WARN: END
+        m_svf.insert({fpos_start, std::move(new_vector)});
         if (m_svf.size() != 1 + size_before_insert) {
-            std::ostrstream os;
+            std::ostringstream os;
             os << "SparseVirtualFile::write():";
             os << "Unable to insert new block at " << fpos_start;
             throw ExceptionSparseVirtualFileWrite(os.str());
         }
+//        std::cout << "size after " << m_svf.size() << std::endl;
+//        std::cout << "begin() == end() after " << (m_svf.begin() == m_svf.end()) << std::endl;
         assert(len == 0);
         assert(fpos == fpos_end);
         SVF_ASSERT(integrity() == ERROR_NONE);
@@ -185,20 +211,55 @@ namespace SparseVirtualFileSystem {
         assert(data);
         assert(len > 0);
         assert(iter != m_svf.end());
-        assert(iter->first <= fpos);
-        assert(_last_file_pos_for_block(iter) > fpos);
+        assert(fpos >= iter->first);
+        assert(fpos <= _last_file_pos_for_block(iter));
 
         size_t fpos_end = fpos + len;
+
         t_map::iterator next_iter = iter;
         while (true) {
+//            if (next_iter == m_svf.end()) {
+//                // Break condition: write out remainder from new and finish.
+//                while (len) {
+//                    iter->second.push_back(*data);
+//                    ++data;
+//                    ++fpos;
+//                    --len;
+//                    ++m_bytes_total;
+//                }
+//                break;
+//            }
+            if (len == 0) {
+                // Break condition: Coalese next_iter if necessary
+                if (fpos == next_iter->first) {
+                    for (size_t i = 0; i < next_iter->second.size(); ++i) {
+                        iter->second.push_back(next_iter->second[i]);
+                    }
+                    m_svf.erase(next_iter);
+                }
+                break;
+            }
             size_t index_iter = fpos - next_iter->first;
             while (len && index_iter < next_iter->second.size()) {
-                // Check overlapped data matches
+                // Check overlapped data matches, copying to iter
                 _throw_diff(fpos, data, next_iter, index_iter);
                 ++index_iter;
                 ++data;
                 ++fpos;
                 --len;
+            }
+            if (next_iter != iter) {
+                // Coalesce by copying all of next_iter to iter.
+                for (size_t i = 0; i < next_iter->second.size(); ++i) {
+                    iter->second.push_back(next_iter->second[i]);
+                }
+                // Erase next_iter as we have copied it all.
+                if (m_overwrite) {
+                    next_iter->second.assign(next_iter->second.size(), '0');
+                }
+                next_iter = m_svf.erase(next_iter);
+            } else {
+                ++next_iter;
             }
             // Write out the new data between the blocks
             while (len && (next_iter == m_svf.end() || fpos < next_iter->first)) {
@@ -207,25 +268,6 @@ namespace SparseVirtualFileSystem {
                 ++fpos;
                 --len;
                 ++m_bytes_total;
-            }
-            if (next_iter != iter) {
-                if (m_overwrite) {
-                    next_iter->second.assign(next_iter->second.size(), '0');
-                }
-                next_iter = m_svf.erase(next_iter);
-            } else {
-                ++next_iter;
-            }
-            if (next_iter == m_svf.end()) {
-                // Write out remainder from new and finish.
-                while (len) {
-                    iter->second.push_back(*data);
-                    ++data;
-                    ++fpos;
-                    --len;
-                    ++m_bytes_total;
-                }
-                break;
             }
         }
         assert(len == 0);
@@ -241,7 +283,7 @@ namespace SparseVirtualFileSystem {
         t_fpos offset = 0;
 
         if (iter == m_svf.end()) {
-            std::ostrstream os;
+            std::ostringstream os;
             os << "SparseVirtualFile::read():";
             os << " Can not read length " << len << " at position " << fpos;
             os << " as at end()";
@@ -249,7 +291,7 @@ namespace SparseVirtualFileSystem {
         }
         if (iter->first == fpos) {
             if (len > iter->second.size()) {
-                std::ostrstream os;
+                std::ostringstream os;
                 os << "SparseVirtualFile::read():";
                 os << " Can not read length " << len << " at position " << fpos;
                 os << " as only have data length " << iter->second.size();
@@ -258,7 +300,7 @@ namespace SparseVirtualFileSystem {
             // offset = 0
         } else {
             if (iter == m_svf.begin()) {
-                std::ostrstream os;
+                std::ostringstream os;
                 os << "SparseVirtualFile::read():";
                 os << " Can not read length " << len << " at position " << fpos;
                 os << " as at begin()";
@@ -266,7 +308,7 @@ namespace SparseVirtualFileSystem {
             }
             --iter;
             if (_last_file_pos_for_block(iter) > fpos + len) {
-                std::ostrstream os;
+                std::ostringstream os;
                 os << "SparseVirtualFile::read():";
                 os << " Can not read length " << len << " at position " << fpos;
                 os << " as it is past position " << iter->first;
@@ -281,7 +323,7 @@ namespace SparseVirtualFileSystem {
         }
         m_bytes_read += len;
         m_count_read += 1;
-        m_time_read = std::chrono::time_point<std::chrono::system_clock>::clock().now();
+        m_time_read = std::chrono::system_clock::now();
     }
 
     t_seek_read SparseVirtualFile::need(t_fpos fpos, size_t len) const noexcept {
@@ -296,10 +338,19 @@ namespace SparseVirtualFileSystem {
 
     t_seek_read SparseVirtualFile::blocks() const noexcept {
         SVF_ASSERT(integrity() == ERROR_NONE);
+
+//        std::cout << "blocks() m_svf.size() " << m_svf.size() << " " << std::endl;
+
+//        if (m_svf.begin() == m_svf.end()) {
+//            std::cout << "WTF 1 " << m_svf.begin()->first << " " << m_svf.begin()->second.size() << std::endl;
+//            std::cout << "WTF 2 " << m_svf.end()->first << " " << m_svf.end()->second.size() << std::endl;
+//        }
         t_seek_read ret;
-        for (const auto &iter: m_svf) {
-            ret.push_back({ iter.first, iter.second.size() });
+        for (t_map::const_iterator iter = m_svf.cbegin(); iter != m_svf.cend(); ++iter) {
+//            std::cout << "WTF iterating" << std::endl;
+            ret.push_back({ iter->first, iter->second.size() });
         }
+//        std::cout << "blocks() returns " << ret.size() << std::endl;
         return ret;
     }
 
@@ -307,8 +358,11 @@ namespace SparseVirtualFileSystem {
         SVF_ASSERT(integrity() == ERROR_NONE);
         size_t ret = sizeof(SparseVirtualFile);
 
+        // Add referenced data sizes.
         ret += m_id.size();
         for (auto &iter: m_svf) {
+            ret += sizeof(iter.first);
+            ret += sizeof(iter.second);
             ret += iter.second.size();
         }
         return ret;
@@ -380,7 +434,8 @@ namespace SparseVirtualFileSystem {
         // NOTE: do not SVF_ASSERT(integrity() == ERROR_NONE); as integrity() calls this so infinite recursion.
         assert(iter != m_svf.end());
 
-        return iter->first + iter->second.size();
+        auto ret = iter->first + iter->second.size();
+        return ret;
     }
 
 } // namespace SparseVirtualFileSystem
