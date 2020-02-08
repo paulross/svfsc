@@ -11,6 +11,10 @@ namespace SparseVirtualFileSystem {
 
     bool SparseVirtualFile::has(t_fpos fpos, size_t len) const noexcept {
         SVF_ASSERT(integrity() == ERROR_NONE);
+#ifdef SVF_THREAD_SAFE
+        std::lock_guard<std::mutex> guard(m_mutex);
+#endif
+
         if (m_svf.empty()) {
             return false;
         }
@@ -58,6 +62,9 @@ namespace SparseVirtualFileSystem {
     }
 
     void SparseVirtualFile::write(t_fpos fpos, const char *data, size_t len) {
+#ifdef SVF_THREAD_SAFE
+        std::lock_guard<std::mutex> guard(m_mutex);
+#endif
         SVF_ASSERT(integrity() == ERROR_NONE);
         // TODO: throw if !data, len == 0
         // Comments are structures like this where ==== are existing blocks and ++++ is the new block.
@@ -258,6 +265,9 @@ namespace SparseVirtualFileSystem {
 // Read data and write to the buffer provided by the caller.
 // It is up to the caller to make sure that p can contain len chars.
     void SparseVirtualFile::read(t_fpos fpos, size_t len, char *p) {
+#ifdef SVF_THREAD_SAFE
+        std::lock_guard<std::mutex> mutex(m_mutex);
+#endif
         SVF_ASSERT(integrity() == ERROR_NONE);
 
         if (m_svf.empty()) {
@@ -295,6 +305,9 @@ namespace SparseVirtualFileSystem {
 
     t_seek_read SparseVirtualFile::need(t_fpos fpos, size_t len) const noexcept {
         SVF_ASSERT(integrity() == ERROR_NONE);
+#ifdef SVF_THREAD_SAFE
+        std::lock_guard<std::mutex> mutex(m_mutex);
+#endif
         t_seek_read ret;
         t_map::const_iterator iter = m_svf.lower_bound(fpos);
 
@@ -305,24 +318,22 @@ namespace SparseVirtualFileSystem {
 
     t_seek_read SparseVirtualFile::blocks() const noexcept {
         SVF_ASSERT(integrity() == ERROR_NONE);
+#ifdef SVF_THREAD_SAFE
+        std::lock_guard<std::mutex> mutex(m_mutex);
+#endif
 
-//        std::cout << "blocks() m_svf.size() " << m_svf.size() << " " << std::endl;
-
-//        if (m_svf.begin() == m_svf.end()) {
-//            std::cout << "WTF 1 " << m_svf.begin()->first << " " << m_svf.begin()->second.size() << std::endl;
-//            std::cout << "WTF 2 " << m_svf.end()->first << " " << m_svf.end()->second.size() << std::endl;
-//        }
         t_seek_read ret;
         for (t_map::const_iterator iter = m_svf.cbegin(); iter != m_svf.cend(); ++iter) {
-//            std::cout << "WTF iterating" << std::endl;
             ret.push_back({ iter->first, iter->second.size() });
         }
-//        std::cout << "blocks() returns " << ret.size() << std::endl;
         return ret;
     }
 
     size_t SparseVirtualFile::size_of() const noexcept {
         SVF_ASSERT(integrity() == ERROR_NONE);
+#ifdef SVF_THREAD_SAFE
+        std::lock_guard<std::mutex> mutex(m_mutex);
+#endif
         size_t ret = sizeof(SparseVirtualFile);
 
         // Add referenced data sizes.
@@ -338,6 +349,9 @@ namespace SparseVirtualFileSystem {
 // m_coalesce, m_file_mod_time are unchanged.
     void SparseVirtualFile::clear() noexcept {
         SVF_ASSERT(integrity() == ERROR_NONE);
+#ifdef SVF_THREAD_SAFE
+        std::lock_guard<std::mutex> mutex(m_mutex);
+#endif
         m_id = "";
         m_file_mod_time = 0.0;
         m_bytes_total = 0;
@@ -387,6 +401,9 @@ namespace SparseVirtualFileSystem {
     t_fpos
     SparseVirtualFile::last_file_position() const noexcept {
         SVF_ASSERT(integrity() == ERROR_NONE);
+#ifdef SVF_THREAD_SAFE
+        std::lock_guard<std::mutex> mutex(m_mutex);
+#endif
         if (m_svf.empty()) {
             return 0;
         } else {

@@ -3,6 +3,7 @@
 //
 #include <iomanip>
 #include <sstream>
+#include <thread>
 
 #include "test_svf.h"
 
@@ -268,12 +269,14 @@ namespace SparseVirtualFileSystem {
     }
 
 
+    // Simulate writing a low level RP66V1 index. Total bytes written around 1Mb.
+    // 23831 * (4 + 10 * 4) is close to 1Mb
     TestCount test_perf_sim_index(t_test_results &results) {
         TestCount count;
         SparseVirtualFileSystem::SparseVirtualFile svf("", 0.0);
         auto time_start = std::chrono::high_resolution_clock::now();
 
-        for (size_t vr = 0; vr < 20000; ++vr) {
+        for (size_t vr = 0; vr < 23831; ++vr) {
             t_fpos fpos = 80 + vr * 8004;
             svf.write(fpos, data, 4);
             fpos += 4;
@@ -284,7 +287,7 @@ namespace SparseVirtualFileSystem {
         }
 
         std::chrono::duration<double> time_exec = std::chrono::high_resolution_clock::now() - time_start;
-        auto result =TestResult(__FUNCTION__, "Sim low level index", 0, "", time_exec.count(), svf.num_bytes());
+        auto result = TestResult(__FUNCTION__, "Sim low level index", 0, "", time_exec.count(), svf.num_bytes());
         count.add_result(result.result());
         results.push_back(result);
         return count;
@@ -539,19 +542,85 @@ namespace SparseVirtualFileSystem {
         return count;
     }
 
+#ifdef SVF_THREAD_SAFE
+    SparseVirtualFileSystem::SparseVirtualFile g_svf_multithreaded("", 0.0);
+
+    // This writes to the global SVF and is used by test_write_multithreaded_num_threads in multiple threads.
+    void _write_multithreaded() {
+        try {
+            for (size_t vr = 0; vr < 23831; ++vr) {
+                t_fpos fpos = 80 + vr * 8004;
+                g_svf_multithreaded.write(fpos, data, 4);
+                fpos += 4;
+                for (int lrsh = 0; lrsh < 10; ++lrsh) {
+                    g_svf_multithreaded.write(fpos, data, 4);
+                    fpos += 800;
+                }
+                std::this_thread::sleep_for(std::chrono::microseconds(1));
+            }
+        }
+        catch (SparseVirtualFileSystem::ExceptionSparseVirtualFile &err) {
+            std::cout << "_write_multithreaded(): Fails: " << err.message() << std::endl;
+        }
+//        std::cout << "Wrote " << g_svf_multithreaded.num_bytes() << std::endl;
+    }
+
+    // Launches num_threads threads and writes to a global SVF in the manner of test_perf_sim_index()
+    TestCount test_write_multithreaded_n(int num_threads, t_test_results &results) {
+        TestCount count;
+        std::vector<std::thread> threads;
+        g_svf_multithreaded.clear();
+
+        // Timed section
+        auto time_start = std::chrono::high_resolution_clock::now();
+        for (int i = 0; i < num_threads; ++i) {
+            threads.push_back(std::thread(_write_multithreaded));
+        }
+        for (size_t i = 0; i < threads.size(); ++i) {
+            threads[i].join();
+        }
+        std::chrono::duration<double> time_exec = std::chrono::high_resolution_clock::now() - time_start;
+        // END: Timed section
+
+//        std::cout << "All wrote " << g_svf_multithreaded.num_bytes() << std::endl;
+        size_t work_done = num_threads * g_svf_multithreaded.num_bytes();
+        g_svf_multithreaded.clear();
+
+        std::ostringstream os;
+        os << "Multi threaded write [" << num_threads << "]";
+        auto result = TestResult(__FUNCTION__, os.str(), 0, "", time_exec.count(), work_done);
+        count.add_result(result.result());
+        results.push_back(result);
+        return count;
+    }
+
+    TestCount test_write_multithreaded(t_test_results &results) {
+        TestCount count;
+        for (int i = 1; i < 1 << 8; i *=2) {
+            count += test_write_multithreaded_n(i, results);
+        }
+        return count;
+    }
+
+#endif
+
     TestCount test_all(t_test_results &results) {
         TestCount count;
         // Write
-        count += test_write_all(results);
-        count += test_write_all_throws(results);
+//        count += test_write_all(results);
+//        count += test_write_all_throws(results);
         count += test_perf_sim_index(results);
-        count += test_perf_1M_coalesced(results);
-        count += test_perf_1M_uncoalesced(results);
-        count += test_perf_1M_uncoalesced_size_of(results);
-        // Read
-        count += test_read_all(results);
-        count += test_read_throws_all(results);
-        count += test_perf_read_1M_coalesced(results);
+//        count += test_perf_1M_coalesced(results);
+//        count += test_perf_1M_uncoalesced(results);
+//        count += test_perf_1M_uncoalesced_size_of(results);
+//        // Read
+//        count += test_read_all(results);
+//        count += test_read_throws_all(results);
+//        count += test_perf_read_1M_coalesced(results);
+
+#ifdef SVF_THREAD_SAFE
+        count += test_write_multithreaded(results);
+#endif
         return count;
     }
 

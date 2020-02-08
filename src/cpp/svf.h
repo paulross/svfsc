@@ -11,6 +11,9 @@
 #include <map>
 #include <chrono>
 #include <cassert>
+#ifdef SVF_THREAD_SAFE
+#include <mutex>
+#endif
 
 #ifdef DEBUG
 #define SVF_ASSERT(x) assert(x)
@@ -137,6 +140,10 @@ namespace SparseVirtualFileSystem {
         typedef std::vector<char> t_val;
         typedef std::map<t_fpos, t_val> t_map;
         t_map m_svf;
+#ifdef SVF_THREAD_SAFE
+        // This adds about 5-10% execution time compared with a single threaded version.
+        mutable std::mutex m_mutex;
+#endif
     private:
         // Write data at file position without checks.
         void _write(t_fpos fpos, const char *data, size_t len);

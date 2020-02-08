@@ -3,6 +3,8 @@ project(cppSVF)
 
 set(CMAKE_CXX_STANDARD 17)
 
+add_compile_definitions(SVF_THREAD_SAFE)
+
 IF(CMAKE_BUILD_TYPE MATCHES DEBUG)
     message("debug build")
     add_compile_definitions(DEBUG)
