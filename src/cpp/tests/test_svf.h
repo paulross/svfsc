@@ -90,7 +90,7 @@ namespace SparseVirtualFileSystem {
         std::string m_message;
     };
 
-    TestCount test_all(t_test_results &results);
+    TestCount test_svf_all(t_test_results &results);
 
 } // namespace SparseVirtualFileSystem
 

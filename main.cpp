@@ -7,34 +7,21 @@
 #include "test_svf.h"
 
 
-TestCount test_write() {
-//    SparseVirtualFileSystem::SparseVirtualFile svf("", 0.0);
-//    svf.write(8, "ABCD", 4);
-//    svf.write(8, "ABCD", 4);
-    // Count of pass/fail
-    t_test_results results;
-
-    auto test_count = SparseVirtualFileSystem::test_all(results);
-//    test_count += SparseVirtualFileSystem::test_all(results);
-
-    write_test_results(results, std::cout);
-    return test_count;
-}
-
-
 int main() {
-    std::cout << "Hello, World!" << std::endl;
-
-//    PyObject *pobj = PyBytes_FromStringAndSize(NULL, 32);
-
-//    std::cout << "pobj " << pobj << std::endl;
-
-    SparseVirtualFileSystem::SparseVirtualFile svf("", 0.0);
+    std::cout << "Testing SVF and SVFS..." << std::endl;
 
     TestCount pass_fail;
+    t_test_results results;
 
-    pass_fail += test_write();
+    // Test section
+    auto time_start = std::chrono::high_resolution_clock::now();
 
+    pass_fail += SparseVirtualFileSystem::test_svf_all(results);
+
+    std::chrono::duration<double> time_exec = std::chrono::high_resolution_clock::now() - time_start;
+
+    // Results
+    write_test_results(results, std::cout);
     std::cout << "Test results [" << pass_fail.total() << "]";
     std::cout << " Pass: " << pass_fail.pass();
     std::cout << " Fail: " << pass_fail.fail();
@@ -44,6 +31,8 @@ int main() {
         std::cout << " - PASSED";
     }
     std::cout << std::endl;
+    std::cout << "main() execution time: " << time_exec.count() << " (s)" << std::endl;
 
+    std::cout << "Bye bye!" << std::endl;
     return 0;
 }

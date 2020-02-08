@@ -536,7 +536,7 @@ namespace SparseVirtualFileSystem {
         std::chrono::duration<double> time_exec = std::chrono::high_resolution_clock::now() - time_start;
 
         std::ostringstream os;
-        auto result =TestResult(__FUNCTION__, "", 0, "", time_exec.count(), svf.num_bytes());
+        auto result =TestResult(__FUNCTION__, "1Mb of 256 bytes in one block", 0, "", time_exec.count(), svf.num_bytes());
         count.add_result(result.result());
         results.push_back(result);
         return count;
@@ -556,13 +556,11 @@ namespace SparseVirtualFileSystem {
                     g_svf_multithreaded.write(fpos, data, 4);
                     fpos += 800;
                 }
-                std::this_thread::sleep_for(std::chrono::microseconds(1));
             }
         }
         catch (SparseVirtualFileSystem::ExceptionSparseVirtualFile &err) {
             std::cout << "_write_multithreaded(): Fails: " << err.message() << std::endl;
         }
-//        std::cout << "Wrote " << g_svf_multithreaded.num_bytes() << std::endl;
     }
 
     // Launches num_threads threads and writes to a global SVF in the manner of test_perf_sim_index()
@@ -604,19 +602,19 @@ namespace SparseVirtualFileSystem {
 
 #endif
 
-    TestCount test_all(t_test_results &results) {
+    TestCount test_svf_all(t_test_results &results) {
         TestCount count;
         // Write
-//        count += test_write_all(results);
-//        count += test_write_all_throws(results);
+        count += test_write_all(results);
+        count += test_write_all_throws(results);
         count += test_perf_sim_index(results);
-//        count += test_perf_1M_coalesced(results);
-//        count += test_perf_1M_uncoalesced(results);
-//        count += test_perf_1M_uncoalesced_size_of(results);
-//        // Read
-//        count += test_read_all(results);
-//        count += test_read_throws_all(results);
-//        count += test_perf_read_1M_coalesced(results);
+        count += test_perf_1M_coalesced(results);
+        count += test_perf_1M_uncoalesced(results);
+        count += test_perf_1M_uncoalesced_size_of(results);
+        // Read
+        count += test_read_all(results);
+        count += test_read_throws_all(results);
+        count += test_perf_read_1M_coalesced(results);
 
 #ifdef SVF_THREAD_SAFE
         count += test_write_multithreaded(results);
