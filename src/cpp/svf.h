@@ -31,16 +31,16 @@ namespace SparseVirtualFileSystem {
         std::string msg;
     };
 
-// Might be thrown during a write operation where the data differs.
-    class ExceptionSparseVirtualFileDiff : public ExceptionSparseVirtualFile {
-    public:
-        explicit ExceptionSparseVirtualFileDiff(const std::string &in_msg) : ExceptionSparseVirtualFile(in_msg) {}
-    };
-
 // Might be thrown during a write operation which fails.
     class ExceptionSparseVirtualFileWrite : public ExceptionSparseVirtualFile {
     public:
         explicit ExceptionSparseVirtualFileWrite(const std::string &in_msg) : ExceptionSparseVirtualFile(in_msg) {}
+    };
+
+// Might be thrown during a write operation where the data differs.
+    class ExceptionSparseVirtualFileDiff : public ExceptionSparseVirtualFileWrite {
+    public:
+        explicit ExceptionSparseVirtualFileDiff(const std::string &in_msg) : ExceptionSparseVirtualFileWrite(in_msg) {}
     };
 
 // Might be thrown during a write operation where the data differs.

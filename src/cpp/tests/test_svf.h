@@ -47,6 +47,49 @@ namespace SparseVirtualFileSystem {
         t_seek_read m_expected_blocks;
     };
 
+    class TestCaseWriteThrows : public TestCaseABC {
+    public:
+        TestCaseWriteThrows(const std::string &m_test_name, const t_seek_read &m_writes,
+                            t_fpos fpos, size_t len, const char *data, const std::string &message);
+
+        TestResult run() const override;
+
+        virtual ~TestCaseWriteThrows() = default;
+
+    protected:
+        t_fpos m_fpos;
+        const char *m_data;
+        size_t m_len;
+        std::string m_message;
+    };
+
+    class TestCaseRead : public TestCaseABC {
+    public:
+        TestCaseRead(const std::string &m_test_name, const t_seek_read &m_writes,
+                     t_fpos fpos, size_t len);
+
+        TestResult run() const override;
+
+        virtual ~TestCaseRead() = default;
+
+    protected:
+        t_fpos m_fpos;
+        size_t m_len;
+    };
+
+    class TestCaseReadThrows : public TestCaseRead {
+    public:
+        TestCaseReadThrows(const std::string &m_test_name, const t_seek_read &m_writes,
+                           t_fpos fpos, size_t len, const std::string &message);
+
+        TestResult run() const override;
+
+        virtual ~TestCaseReadThrows() = default;
+
+    protected:
+        std::string m_message;
+    };
+
     TestCount test_all(t_test_results &results);
 
 } // namespace SparseVirtualFileSystem

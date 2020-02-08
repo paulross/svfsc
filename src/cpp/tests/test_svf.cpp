@@ -131,7 +131,6 @@ namespace SparseVirtualFileSystem {
         return TestResult(__FUNCTION__, m_test_name, result, err, time_exec.count(), svf.num_bytes());
     }
 
-    // TODO: Specify more test cases.
     const std::vector<TestCaseWrite> write_test_cases = {
         {"Write no blocks", {}, {}},
         //        |+++|
@@ -215,7 +214,6 @@ namespace SparseVirtualFileSystem {
         TestCount count;
         for (const auto& test_case: write_test_cases) {
 //        for (const auto& test_case: write_test_cases_special) {
-
 //            std::cout << "Testing: " << test_case.test_name() << std::endl;
             auto result = test_case.run();
             count.add_result(result.result());
@@ -223,6 +221,52 @@ namespace SparseVirtualFileSystem {
         }
         return count;
     }
+
+
+    TestCaseWriteThrows::TestCaseWriteThrows(const std::string &m_test_name, const t_seek_read &m_writes,
+                                             t_fpos fpos, size_t len, const char *data, const std::string &message) : TestCaseABC(m_test_name,
+                                                                                                   m_writes),
+                                                                                       m_fpos(fpos),
+                                                                                       m_data(data),
+                                                                                       m_len(len),
+                                                                                       m_message(message) {}
+
+
+    // Create a SVF, run the read tests and report the result.
+    TestResult TestCaseWriteThrows::run() const {
+        SparseVirtualFile svf("", 0.0);
+
+        try {
+            load_writes(svf, data);
+            svf.write(m_fpos, m_data, m_len);
+            return TestResult(__FUNCTION__, m_test_name, 1, "Write test failed to throw.", 0.0, 0);
+        } catch (ExceptionSparseVirtualFileWrite &err) {
+            if (err.message() != m_message) {
+                std::ostringstream os;
+                os << "Error message \"" << err.message() << "\" expected \"" << m_message << "\"";
+                return TestResult(__FUNCTION__, m_test_name, 1, os.str(), 0.0, svf.num_bytes());
+            }
+        }
+        return TestResult(__FUNCTION__, m_test_name, 0, "", 0.0, svf.num_bytes());
+    }
+
+    const std::vector<TestCaseWriteThrows> write_test_cases_throws = {
+        {
+            "Throws: Overwrite single block", {{65, 4}}, 65, 4, data + 66,
+            "SparseVirtualFile::write(): Difference at position 65 'B' != 'A' Ordinal 66 != 65"
+        },
+    };
+
+    TestCount test_write_all_throws(t_test_results &results) {
+        TestCount count;
+        for (const auto& test_case: write_test_cases_throws) {
+            auto result = test_case.run();
+            count.add_result(result.result());
+            results.push_back(result);
+        }
+        return count;
+    }
+
 
     TestCount test_perf_sim_index(t_test_results &results) {
         TestCount count;
@@ -322,13 +366,192 @@ namespace SparseVirtualFileSystem {
     }
 
 
+    TestCaseRead::TestCaseRead(const std::string &m_test_name, const t_seek_read &m_writes,
+                               t_fpos fpos, size_t len) : TestCaseABC(m_test_name, m_writes),
+                                                          m_fpos(fpos), m_len(len) {}
+
+
+    // Create a SVF, run the read tests and report the result.
+    TestResult TestCaseRead::run() const {
+        SparseVirtualFile svf("", 0.0);
+
+        // Load the SVF
+        try {
+            load_writes(svf, data);
+        } catch (ExceptionSparseVirtualFile &err) {
+            return TestResult(__FUNCTION__, m_test_name, 1, err.message(), 0.0, 0);
+        }
+
+        // Analyse the results
+        int result = 0;
+        std::string err;
+
+        char read_buffer[256];
+        // Run the test
+        auto time_start = std::chrono::high_resolution_clock::now();
+        try {
+            svf.read(m_fpos, m_len, read_buffer);
+        } catch (ExceptionSparseVirtualFileRead & err) {
+            return TestResult(__FUNCTION__, m_test_name, 1, err.message(), 0.0, 0);
+        }
+        std::chrono::duration<double> time_exec = std::chrono::high_resolution_clock::now() - time_start;
+
+        // Check the result
+        for (size_t i = 0; i < m_len; ++i) {
+            if (read_buffer[i] != data[m_fpos + i]) {
+                result = 1;
+                std::ostringstream os;
+                os << "In position " << m_fpos + 1 << " expected fpos " << static_cast<int>(data[m_fpos + i]);
+                os << " but got " << static_cast<int>(read_buffer[i]) << " (other data not tested)";
+                err = os.str();
+                return TestResult(__FUNCTION__, m_test_name, result, err, time_exec.count(), svf.num_bytes());
+            }
+        }
+        return TestResult(__FUNCTION__, m_test_name, result, err, time_exec.count(), svf.num_bytes());
+    }
+
+    const std::vector<TestCaseRead> read_test_cases = {
+            //        ^==|
+            //        |++|
+            {"Read exactly a block", {{8, 4}}, 8, 4},
+            //        ^==|
+            //        |+|
+            {"Read leading part of block", {{8, 4}}, 8, 3},
+            //        ^==|
+            //         |+|
+            {"Read trailing part of block", {{8, 4}}, 9, 3},
+            //        ^==|
+            //         ||
+            {"Read mid part of block", {{8, 4}}, 9, 2},
+    };
+
+
+    const std::vector<TestCaseRead> read_test_cases_special = {
+            //        ^==|
+            //         |+|
+            {"Read trailing part of block", {{8, 4}}, 9, 3},
+            //        ^==|
+            //         ||
+            {"Read mid part of block", {{8, 4}}, 9, 2},
+    };
+
+
+    TestCount test_read_all(t_test_results &results) {
+        TestCount count;
+        for (const auto& test_case: read_test_cases) {
+//        for (const auto& test_case: read_test_cases_special) {
+//            std::cout << "Testing: " << test_case.test_name() << std::endl;
+            auto result = test_case.run();
+            count.add_result(result.result());
+            results.push_back(result);
+        }
+        return count;
+    }
+
+
+    TestCaseReadThrows::TestCaseReadThrows(const std::string &m_test_name, const t_seek_read &m_writes,
+                                           t_fpos fpos, size_t len, const std::string &message) : TestCaseRead(
+            m_test_name,
+            m_writes, fpos,
+            len),
+                                                                                                  m_message(message) {}
+
+
+    // Create a SVF, run the read tests and report the result.
+    TestResult TestCaseReadThrows::run() const {
+        SparseVirtualFile svf("", 0.0);
+
+        // Load the SVF
+        try {
+            load_writes(svf, data);
+        } catch (ExceptionSparseVirtualFile &err) {
+            return TestResult(__FUNCTION__, m_test_name, 1, err.message(), 0.0, 0);
+        }
+        // Run the test.
+        char read_buffer[256];
+        try {
+            svf.read(m_fpos, m_len, read_buffer);
+            return TestResult(__FUNCTION__, m_test_name, 1, "Test failed to throw.", 0.0, 0);
+        } catch (ExceptionSparseVirtualFileRead & err) {
+            if (err.message() != m_message) {
+                std::ostringstream os;
+                os << "Error message \"" << err.message() << "\" expected \"" << m_message << "\"";
+                return TestResult(__FUNCTION__, m_test_name, 1, os.str(), 0.0, svf.num_bytes());
+            }
+        }
+        return TestResult(__FUNCTION__, m_test_name, 0, "", 0.0, svf.num_bytes());
+    }
+
+
+    const std::vector<TestCaseReadThrows> read_test_cases_throw = {
+            {"Read empty SVF throws",    {},       8, 4, "SparseVirtualFile::read(): Sparse virtual file is empty."},
+            //        ^==|
+            //  |++|
+            {"Read before block throws", {{8, 4}}, 2, 4,
+             "SparseVirtualFile::read(): Requested file position 2 precedes first block at 8"},
+            //        ^==|
+            //       |++|
+            {"Read prior to block throws", {{8, 4}}, 7, 4,
+             "SparseVirtualFile::read(): Requested file position 7 precedes first block at 8"},
+            //        ^==|
+            //         |++|
+            {"Read beyond block throws", {{8, 4}}, 9, 4,
+             "SparseVirtualFile::read(): Requested position 9 and length 4 overruns block at 8 of size 4"},
+            //        ^==|
+            //             |++|
+            {"Read beyond end throws", {{8, 4}}, 12, 4,
+             "SparseVirtualFile::read(): Requested position 12 and length 4 overruns block at 8 of size 4"},
+    };
+
+
+    TestCount test_read_throws_all(t_test_results &results) {
+        TestCount count;
+        for (const auto& test_case: read_test_cases_throw) {
+//            std::cout << "Testing: " << test_case.test_name() << std::endl;
+            auto result = test_case.run();
+            count.add_result(result.result());
+            results.push_back(result);
+        }
+        return count;
+    }
+
+
+    // Write 1Mb of data in different, equally sized, blocks that are all coalesced and report the time taken.
+    // Essentially only one block is created and all the other data is appended.
+    TestCount test_perf_read_1M_coalesced(t_test_results &results) {
+        const size_t SIZE = 1024 * 1024 * 1;
+        TestCount count;
+        SparseVirtualFileSystem::SparseVirtualFile svf("", 0.0);
+        for (t_fpos i = 0; i < (SIZE) / 256; ++i) {
+            t_fpos fpos = i * 256;
+            svf.write(fpos, data, 256);
+        }
+
+        char buffer[SIZE];
+        auto time_start = std::chrono::high_resolution_clock::now();
+        svf.read(0, SIZE, buffer);
+        std::chrono::duration<double> time_exec = std::chrono::high_resolution_clock::now() - time_start;
+
+        std::ostringstream os;
+        auto result =TestResult(__FUNCTION__, "", 0, "", time_exec.count(), svf.num_bytes());
+        count.add_result(result.result());
+        results.push_back(result);
+        return count;
+    }
+
     TestCount test_all(t_test_results &results) {
         TestCount count;
+        // Write
         count += test_write_all(results);
+        count += test_write_all_throws(results);
         count += test_perf_sim_index(results);
         count += test_perf_1M_coalesced(results);
         count += test_perf_1M_uncoalesced(results);
         count += test_perf_1M_uncoalesced_size_of(results);
+        // Read
+        count += test_read_all(results);
+        count += test_read_throws_all(results);
+        count += test_perf_read_1M_coalesced(results);
         return count;
     }
 

@@ -118,8 +118,6 @@ namespace SparseVirtualFileSystem {
         size_t fpos_end = fpos + len;
         t_val new_vector;
 
-//        std::cout << "_write_new_append_old():" << std::endl;
-
         while (true) {
             while (len && fpos < iter->first) {
                 // Copy new data 'X' up to start of iter.
@@ -174,11 +172,6 @@ namespace SparseVirtualFileSystem {
             }
         }
         auto size_before_insert = m_svf.size();
-//        std::cout << "Inserting new vector size " << new_vector.size() << " before " << size_before_insert << std::endl;
-//        std::cout << "Inserting new vector begin() == end() " << (m_svf.begin() == m_svf.end()) << std::endl;
-        // WARN: This line should work, and does for a debug build, but not for a release buile.
-//        m_svf.insert(iter, {fpos_start, std::move(new_vector)});
-        // WARN: END
         m_svf.insert({fpos_start, std::move(new_vector)});
         if (m_svf.size() != 1 + size_before_insert) {
             std::ostringstream os;
@@ -186,8 +179,6 @@ namespace SparseVirtualFileSystem {
             os << "Unable to insert new block at " << fpos_start;
             throw ExceptionSparseVirtualFileWrite(os.str());
         }
-//        std::cout << "size after " << m_svf.size() << std::endl;
-//        std::cout << "begin() == end() after " << (m_svf.begin() == m_svf.end()) << std::endl;
         assert(len == 0);
         assert(fpos == fpos_end);
         SVF_ASSERT(integrity() == ERROR_NONE);
@@ -218,19 +209,8 @@ namespace SparseVirtualFileSystem {
 
         t_map::iterator next_iter = iter;
         while (true) {
-//            if (next_iter == m_svf.end()) {
-//                // Break condition: write out remainder from new and finish.
-//                while (len) {
-//                    iter->second.push_back(*data);
-//                    ++data;
-//                    ++fpos;
-//                    --len;
-//                    ++m_bytes_total;
-//                }
-//                break;
-//            }
             if (len == 0) {
-                // Break condition: Coalese next_iter if necessary
+                // Break condition: Coalesce next_iter if necessary
                 if (fpos == next_iter->first) {
                     for (size_t i = 0; i < next_iter->second.size(); ++i) {
                         iter->second.push_back(next_iter->second[i]);
@@ -279,47 +259,34 @@ namespace SparseVirtualFileSystem {
 // It is up to the caller to make sure that p can contain len chars.
     void SparseVirtualFile::read(t_fpos fpos, size_t len, char *p) {
         SVF_ASSERT(integrity() == ERROR_NONE);
-        t_map::const_iterator iter = m_svf.lower_bound(fpos);
-        t_fpos offset = 0;
 
-        if (iter == m_svf.end()) {
+        if (m_svf.empty()) {
+            throw ExceptionSparseVirtualFileRead("SparseVirtualFile::read(): Sparse virtual file is empty.");
+        }
+        t_map::const_iterator iter = m_svf.lower_bound(fpos);
+        if (iter == m_svf.begin() && iter->first != fpos) {
             std::ostringstream os;
             os << "SparseVirtualFile::read():";
-            os << " Can not read length " << len << " at position " << fpos;
-            os << " as at end()";
+            os << " Requested file position " << fpos << " precedes first block at " << iter->first;
             throw ExceptionSparseVirtualFileRead(os.str());
         }
-        if (iter->first == fpos) {
-            if (len > iter->second.size()) {
-                std::ostringstream os;
-                os << "SparseVirtualFile::read():";
-                os << " Can not read length " << len << " at position " << fpos;
-                os << " as only have data length " << iter->second.size();
-                throw ExceptionSparseVirtualFileRead(os.str());
-            }
-            // offset = 0
-        } else {
-            if (iter == m_svf.begin()) {
-                std::ostringstream os;
-                os << "SparseVirtualFile::read():";
-                os << " Can not read length " << len << " at position " << fpos;
-                os << " as at begin()";
-                throw ExceptionSparseVirtualFileRead(os.str());
-            }
+        size_t offset = 0;
+        if (iter == m_svf.end() || iter->first != fpos) {
             --iter;
-            if (_last_file_pos_for_block(iter) > fpos + len) {
-                std::ostringstream os;
-                os << "SparseVirtualFile::read():";
-                os << " Can not read length " << len << " at position " << fpos;
-                os << " as it is past position " << iter->first;
-                os << " that has length " << iter->second.size();
-                throw ExceptionSparseVirtualFileRead(os.str());
-            }
             offset = fpos - iter->first;
         }
-        for (size_t i = offset; i < len + offset; ++i) {
-            *p = iter->second[i];
+        if (offset + len > iter->second.size()) {
+            std::ostringstream os;
+            os << "SparseVirtualFile::read():";
+            os << " Requested position " << fpos << " and length " << len;
+            os << " overruns block at " << iter->first << " of size " << iter->second.size();
+            throw ExceptionSparseVirtualFileRead(os.str());
+        }
+        while (len) {
+            *p = iter->second[offset];
+            ++offset;
             ++p;
+            --len;
         }
         m_bytes_read += len;
         m_count_read += 1;
