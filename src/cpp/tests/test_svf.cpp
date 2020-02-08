@@ -542,6 +542,79 @@ namespace SparseVirtualFileSystem {
         return count;
     }
 
+
+
+    TestCaseHas::TestCaseHas(const std::string &m_test_name, const t_seek_read &m_writes,
+                               t_fpos fpos, size_t len, bool expected) : TestCaseABC(m_test_name, m_writes),
+                                                          m_fpos(fpos), m_len(len), m_expected(expected) {}
+
+
+    // Create a SVF, run the read tests and report the result.
+    TestResult TestCaseHas::run() const {
+        SparseVirtualFile svf("", 0.0);
+
+        // Load the SVF
+        try {
+            load_writes(svf, data);
+        } catch (ExceptionSparseVirtualFile &err) {
+            return TestResult(__FUNCTION__, m_test_name, 1, err.message(), 0.0, 0);
+        }
+
+        // Analyse the results
+
+        // Run the test
+        try {
+            auto time_start = std::chrono::high_resolution_clock::now();
+            bool result_has = svf.has(m_fpos, m_len);
+            std::chrono::duration<double> time_exec = std::chrono::high_resolution_clock::now() - time_start;
+
+            // Check the result
+            if (result_has != m_expected) {
+                std::ostringstream os;
+                os << "Expected has() in position " << m_fpos << " and length " << m_len;
+                return TestResult(__FUNCTION__, m_test_name, 1, os.str(), time_exec.count(), svf.num_bytes());
+            }
+            return TestResult(__FUNCTION__, m_test_name, 0, "", time_exec.count(), svf.num_bytes());
+        } catch (ExceptionSparseVirtualFileRead & err) {
+            return TestResult(__FUNCTION__, m_test_name, 1, err.message(), 0.0, 0);
+        }
+    }
+
+    const std::vector<TestCaseHas> has_test_cases = {
+            //
+            //        |++|
+            {"Has empty - false", {}, 8, 4, false},
+            //        ^==|
+            //        |++|
+            {"Has an exact block", {{8, 4}}, 8, 4, true},
+            //        ^==|
+            //        |+|
+            {"Has leading block", {{8, 4}}, 8, 3, true},
+            //        ^==|
+            //         |+|
+            {"Has trailing block", {{8, 4}}, 9, 3, true},
+            //        ^==|
+            //         ||
+            {"Has mid block", {{8, 4}}, 9, 2, true},
+            //        ^==|
+            //       |++|
+            {"Not has an exact block -1", {{8, 4}}, 7, 4, false},
+            //        ^==|
+            //         |++|
+            {"Not has an exact block +1", {{8, 4}}, 9, 4, false},
+    };
+
+
+    TestCount test_has_all(t_test_results &results) {
+        TestCount count;
+        for (const auto& test_case: has_test_cases) {
+            auto result = test_case.run();
+            count.add_result(result.result());
+            results.push_back(result);
+        }
+        return count;
+    }
+
 #ifdef SVF_THREAD_SAFE
     SparseVirtualFileSystem::SparseVirtualFile g_svf_multithreaded("", 0.0);
 
@@ -615,6 +688,8 @@ namespace SparseVirtualFileSystem {
         count += test_read_all(results);
         count += test_read_throws_all(results);
         count += test_perf_read_1M_coalesced(results);
+
+        count += test_has_all(results);
 
 #ifdef SVF_THREAD_SAFE
         count += test_write_multithreaded(results);

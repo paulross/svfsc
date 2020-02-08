@@ -12,7 +12,7 @@ namespace SparseVirtualFileSystem {
     bool SparseVirtualFile::has(t_fpos fpos, size_t len) const noexcept {
         SVF_ASSERT(integrity() == ERROR_NONE);
 #ifdef SVF_THREAD_SAFE
-        std::lock_guard<std::mutex> guard(m_mutex);
+        std::lock_guard<std::mutex> mutex(m_mutex);
 #endif
 
         if (m_svf.empty()) {
@@ -62,10 +62,10 @@ namespace SparseVirtualFileSystem {
     }
 
     void SparseVirtualFile::write(t_fpos fpos, const char *data, size_t len) {
-#ifdef SVF_THREAD_SAFE
-        std::lock_guard<std::mutex> guard(m_mutex);
-#endif
         SVF_ASSERT(integrity() == ERROR_NONE);
+#ifdef SVF_THREAD_SAFE
+        std::lock_guard<std::mutex> mutex(m_mutex);
+#endif
         // TODO: throw if !data, len == 0
         // Comments are structures like this where ==== are existing blocks and ++++ is the new block.
         // ^==== shows where the iterator is pointing to. fpos is the beginning of the ++++ bl.ock.

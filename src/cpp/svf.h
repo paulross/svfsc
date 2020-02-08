@@ -119,7 +119,7 @@ namespace SparseVirtualFileSystem {
     private:
         std::string m_id;
         double m_file_mod_time;
-        // TODO: Implement this strategy.
+        // TODO: Implement the coalesce strategy.
         // -1 Always coalesce
         // 0 Never coalesce
         // >0 Only coalesce if the result is < this value, say 2048 (bytes).

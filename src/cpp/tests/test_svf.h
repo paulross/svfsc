@@ -90,6 +90,22 @@ namespace SparseVirtualFileSystem {
         std::string m_message;
     };
 
+    class TestCaseHas : public TestCaseABC {
+    public:
+        TestCaseHas(const std::string &m_test_name, const t_seek_read &m_writes,
+                     t_fpos fpos, size_t len, bool expected);
+
+        TestResult run() const override;
+
+        virtual ~TestCaseHas() = default;
+
+    protected:
+        t_fpos m_fpos;
+        size_t m_len;
+        bool m_expected;
+    };
+
+
     TestCount test_svf_all(t_test_results &results);
 
 } // namespace SparseVirtualFileSystem
