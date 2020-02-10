@@ -317,15 +317,15 @@ namespace SparseVirtualFileSystem {
         t_map::const_iterator iter = m_svf.upper_bound(fpos);
         if (iter == m_svf.begin()) {
             if (fpos + len <= iter->first) {
+                //        ^==|
+                //   |+++|
                 ret.push_back({fpos, len});
                 fpos += len;
                 len = 0;
-            } else {
-                ret.push_back({fpos, iter->first - fpos});
-                len -= iter->first - fpos;
-                fpos = iter->first;
+                // We are done.
             }
         } else {
+            // Otherwise check the previous node with std::prev.
             auto last_fpos = _last_file_pos_for_block(std::prev(iter));
             if (fpos < last_fpos) {
                 // Example, change:
@@ -337,54 +337,49 @@ namespace SparseVirtualFileSystem {
                 fpos = std::min(fpos_to, last_fpos);
             }
         }
+        // Now walk through the remaining nodes.
         while (len) {
             if (iter == m_svf.end() || fpos + len <= iter->first) {
-                //   ^==|
+                // Either:
+                //   |==|
                 //         |++++++++++++|
-                assert(len);
+                // or:
+                //              |==|
+                //   |+++++|
                 ret.push_back({fpos, len});
                 fpos += len;
                 len = 0;
                 break;
             }
+            // We are in this state:
+            //          ^=====|
+            //     |++++++++++++++|
+            // or:
+            //          ^=====|
+            //     |++++++++|
             if (fpos < iter->first) {
-                if (len < iter->first - fpos) {
-                    //          ^==|
-                    //   |++++|
-                    ret.push_back({fpos, len});
-                    fpos += len;
-                    len = 0;
-                    break;
-                } else {
-                    auto bytes_added = iter->first - fpos;
-                    ret.push_back({fpos, bytes_added});
-                    len -= bytes_added;
-                    fpos += bytes_added;
-
-                    auto last_fpos = _last_file_pos_for_block(std::prev(iter));
-                    if (len <= last_fpos - fpos) {
-                        //          ^==|
-                        //   |++++++++|
-                        fpos += len;
-                        len = 0;
-                        break;
-                    } else {
-                        //          ^==|
-                        //   |++++++++++++|
-                        len -= last_fpos - fpos;
-                        fpos = last_fpos;
-                        // Go round again.
-                    }
-                }
-            } else if (fpos + len <= _last_file_pos_for_block(iter)) {
+                assert(len >= iter->first - fpos);
+                auto bytes_added = iter->first - fpos;
+                ret.push_back({fpos, bytes_added});
+                len -= bytes_added;
+                fpos += bytes_added;
+            }
+            // We are now in this state:
+            //          ^=====|
+            //          |+++++++|
+            // or:
+            //          ^=====|
+            //          |++++|
+            assert(fpos == iter->first);
+            if (fpos + len <= _last_file_pos_for_block(iter)) {
                 //          ^======|
-                //          |+++++|
+                //          |++++|
                 fpos += len;
                 len = 0;
                 break;
             } else {
-                assert(fpos == iter->first);
-                assert(len > iter->second.size());
+                //          ^======|
+                //          |+++++++++|
                 fpos += iter->second.size();
                 len -= iter->second.size();
             }

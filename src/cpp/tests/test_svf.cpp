@@ -268,10 +268,10 @@ namespace SparseVirtualFileSystem {
         return count;
     }
 
-
     // Simulate writing a low level RP66V1 index. Total bytes written around 1Mb.
+    // Represented file size is about 190 Mb
     // 23831 * (4 + 10 * 4) is close to 1Mb
-    TestCount test_perf_sim_index(t_test_results &results) {
+    TestCount test_perf_write_sim_index(t_test_results &results) {
         TestCount count;
         SparseVirtualFileSystem::SparseVirtualFile svf("", 0.0);
         auto time_start = std::chrono::high_resolution_clock::now();
@@ -293,10 +293,9 @@ namespace SparseVirtualFileSystem {
         return count;
     }
 
-
     // Write 1Mb of data in different, equally sized, blocks that are all coalesced and report the time taken.
     // Essentially only one block is created and all the other data is appended.
-    TestCount test_perf_1M_coalesced(t_test_results &results) {
+    TestCount test_perf_write_1M_coalesced(t_test_results &results) {
         TestCount count;
         for (size_t block_size = 1; block_size <= 256; block_size *= 2) {
             SparseVirtualFileSystem::SparseVirtualFile svf("", 0.0);
@@ -320,7 +319,7 @@ namespace SparseVirtualFileSystem {
 
     // Write 1Mb of data in different, equally sized, blocks that are not coalesced and report the time taken.
     // Each write creates a separate block.
-    TestCount test_perf_1M_uncoalesced(t_test_results &results) {
+    TestCount test_perf_write_1M_uncoalesced(t_test_results &results) {
         TestCount count;
         for (size_t block_size = 1; block_size <= 256; block_size *= 2) {
             SparseVirtualFileSystem::SparseVirtualFile svf("", 0.0);
@@ -346,7 +345,7 @@ namespace SparseVirtualFileSystem {
     // Write 1Mb of data in different, equally sized, blocks that are not coalesced and report the memory usage
     // with size_of(). Each write creates a separate  block.
     // Typically 1 byte  blocks are x35 times the memory. 256 byte blocks are x1.2 the memory.
-    TestCount test_perf_1M_uncoalesced_size_of(t_test_results &results) {
+    TestCount test_perf_write_1M_uncoalesced_size_of(t_test_results &results) {
         TestCount count;
         for (size_t block_size = 1; block_size <= 256; block_size *= 2) {
             SparseVirtualFileSystem::SparseVirtualFile svf("", 0.0);
@@ -681,16 +680,16 @@ namespace SparseVirtualFileSystem {
         {"Before, all and after one block", {{8, 4}}, 4,  9, {{4, 4}, {12, 1}},},
         //        |==|  |==|
         //        |++++++++|
-        {"Two blocks and in between (a)", {{8, 4}, {14, 4}}, 8,  18, {{12, 2}},},
+        {"Two blocks and in between (a)", {{8, 4}, {14, 4}}, 8,  10, {{12, 2}},},
         //        |==|  |==|
         //        |+++++++|
-        {"Two blocks and in between (b)", {{8, 4}, {14, 4}}, 8,  17, {{12, 2}},},
+        {"Two blocks and in between (b)", {{8, 4}, {14, 4}}, 8,  9, {{12, 2}},},
         //        |==|  |==|
         //         |+++++++|
-        {"Two blocks and in between (c)", {{8, 4}, {14, 4}}, 9,  17, {{12, 2}},},
+        {"Two blocks and in between (c)", {{8, 4}, {14, 4}}, 9,  9, {{12, 2}},},
         //        |==|  |==|
         //         |++++++|
-        {"Two blocks and in between (d)", {{8, 4}, {14, 4}}, 9,  16, {{12, 2}},},
+        {"Two blocks and in between (d)", {{8, 4}, {14, 4}}, 9,  7, {{12, 2}},},
         //        |==|  |==|
         //       |++++++++|
         {"Two blocks, under-run", {{8, 4}, {14, 4}}, 7,  11, {{7, 1}, {12, 2}},},
@@ -704,17 +703,59 @@ namespace SparseVirtualFileSystem {
 
     const std::vector<TestCaseNeed> need_test_cases_special = {
             //        |==|  |==|
-            //        |+++++++++|
-            {"Two blocks, over-run", {{8, 4}, {14, 4}}, 8,  11, {{12, 2}, {18, 1}},},
+            //        |++++++++|
+            {"Two blocks and in between (a)", {{8, 4}, {14, 4}}, 8,  10, {{12, 2}},},
     };
 
     TestCount test_need_all(t_test_results &results) {
         TestCount count;
-//        for (const auto& test_case: need_test_cases) {
-        for (const auto& test_case: need_test_cases_special) {
+        for (const auto& test_case: need_test_cases) {
+//        for (const auto& test_case: need_test_cases_special) {
             auto result = test_case.run();
             count.add_result(result.result());
             results.push_back(result);
+        }
+        return count;
+    }
+
+    // Simulate writing a low level RP66V1 index and then running need on it. Total bytes written around 1Mb.
+    // Blocks are 800 bytes apart.
+    // 23831 * (4 + 10 * 4) is close to 1Mb
+    TestCount _test_perf_need_sim_index(size_t need_size, t_test_results &results) {
+        TestCount count;
+        SparseVirtualFileSystem::SparseVirtualFile svf("", 0.0);
+        // Write to the SVF
+        for (size_t vr = 0; vr < 23831; ++vr) {
+            t_fpos fpos = 80 + vr * 8004;
+            svf.write(fpos, data, 4);
+            fpos += 4;
+            for (int lrsh = 0; lrsh < 10; ++lrsh) {
+                svf.write(fpos, data, 4);
+                fpos += 800;
+            }
+        }
+        // Now run need
+        size_t data_size = 0;
+        size_t num_need_blocks = 0;
+        auto time_start = std::chrono::high_resolution_clock::now();
+        for (size_t i = 0; i < svf.last_file_position(); i += need_size) {
+            auto need = svf.need(i, need_size);
+            num_need_blocks += need.size();
+            data_size += need_size;
+        }
+        std::chrono::duration<double> time_exec = std::chrono::high_resolution_clock::now() - time_start;
+        std::ostringstream os;
+        os << "Sim need(" << need_size << ") on index [" << num_need_blocks << "]";
+        auto result = TestResult(__FUNCTION__, os.str(), 0, "", time_exec.count(), data_size);
+        count.add_result(result.result());
+        results.push_back(result);
+        return count;
+    }
+
+    TestCount test_perf_need_sim_index(t_test_results &results) {
+        TestCount count;
+        for (size_t need_size = 32; need_size < 8 * 4096; need_size *= 2) {
+            count += _test_perf_need_sim_index(need_size, results);
         }
         return count;
     }
@@ -740,7 +781,7 @@ namespace SparseVirtualFileSystem {
         }
     }
 
-    // Launches num_threads threads and writes to a global SVF in the manner of test_perf_sim_index()
+    // Launches num_threads threads and writes to a global SVF in the manner of test_perf_write_sim_index()
     TestCount test_write_multithreaded_n(int num_threads, t_test_results &results) {
         TestCount count;
         std::vector<std::thread> threads;
@@ -781,25 +822,26 @@ namespace SparseVirtualFileSystem {
 
     TestCount test_svf_all(t_test_results &results) {
         TestCount count;
-//        // Write
-//        count += test_write_all(results);
-//        count += test_write_all_throws(results);
-//        count += test_perf_sim_index(results);
-//        count += test_perf_1M_coalesced(results);
-//        count += test_perf_1M_uncoalesced(results);
-//        count += test_perf_1M_uncoalesced_size_of(results);
-//        // Read
-//        count += test_read_all(results);
-//        count += test_read_throws_all(results);
-//        count += test_perf_read_1M_coalesced(results);
-//        // Has
-//        count += test_has_all(results);
+        // Write
+        count += test_write_all(results);
+        count += test_write_all_throws(results);
+        count += test_perf_write_sim_index(results);
+        count += test_perf_write_1M_coalesced(results);
+        count += test_perf_write_1M_uncoalesced(results);
+        count += test_perf_write_1M_uncoalesced_size_of(results);
+        // Read
+        count += test_read_all(results);
+        count += test_read_throws_all(results);
+        count += test_perf_read_1M_coalesced(results);
+        // Has
+        count += test_has_all(results);
         // Need
         count += test_need_all(results);
+        count += test_perf_need_sim_index(results);
 
-//#ifdef SVF_THREAD_SAFE
-//        count += test_write_multithreaded(results);
-//#endif
+#ifdef SVF_THREAD_SAFE
+        count += test_write_multithreaded(results);
+#endif
         return count;
     }
 
