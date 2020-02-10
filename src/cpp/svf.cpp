@@ -308,11 +308,90 @@ namespace SparseVirtualFileSystem {
 #ifdef SVF_THREAD_SAFE
         std::lock_guard<std::mutex> mutex(m_mutex);
 #endif
+
+        if (m_svf.empty()) {
+            return {{fpos, len}};
+        }
+        t_fpos fpos_to = fpos + len;
         t_seek_read ret;
-        t_map::const_iterator iter = m_svf.lower_bound(fpos);
+        t_map::const_iterator iter = m_svf.upper_bound(fpos);
+        if (iter == m_svf.begin()) {
+            if (fpos + len <= iter->first) {
+                ret.push_back({fpos, len});
+                fpos += len;
+                len = 0;
+            } else {
+                ret.push_back({fpos, iter->first - fpos});
+                len -= iter->first - fpos;
+                fpos = iter->first;
+            }
+        } else {
+            auto last_fpos = _last_file_pos_for_block(std::prev(iter));
+            if (fpos < last_fpos) {
+                // Example, change:
+                //        |==|    ^==|
+                //         |++++++++++++|
+                // to:
+                //            |+++++++++|
+                len -= std::min(len, last_fpos - fpos);
+                fpos = std::min(fpos_to, last_fpos);
+            }
+        }
+        while (len) {
+            if (iter == m_svf.end() || fpos + len <= iter->first) {
+                //   ^==|
+                //         |++++++++++++|
+                assert(len);
+                ret.push_back({fpos, len});
+                fpos += len;
+                len = 0;
+                break;
+            }
+            if (fpos < iter->first) {
+                if (len < iter->first - fpos) {
+                    //          ^==|
+                    //   |++++|
+                    ret.push_back({fpos, len});
+                    fpos += len;
+                    len = 0;
+                    break;
+                } else {
+                    auto bytes_added = iter->first - fpos;
+                    ret.push_back({fpos, bytes_added});
+                    len -= bytes_added;
+                    fpos += bytes_added;
 
-        // TODO
-
+                    auto last_fpos = _last_file_pos_for_block(std::prev(iter));
+                    if (len <= last_fpos - fpos) {
+                        //          ^==|
+                        //   |++++++++|
+                        fpos += len;
+                        len = 0;
+                        break;
+                    } else {
+                        //          ^==|
+                        //   |++++++++++++|
+                        len -= last_fpos - fpos;
+                        fpos = last_fpos;
+                        // Go round again.
+                    }
+                }
+            } else if (fpos + len <= _last_file_pos_for_block(iter)) {
+                //          ^======|
+                //          |+++++|
+                fpos += len;
+                len = 0;
+                break;
+            } else {
+                assert(fpos == iter->first);
+                assert(len > iter->second.size());
+                fpos += iter->second.size();
+                len -= iter->second.size();
+            }
+            ++iter;
+        }
+        assert(fpos == fpos_to);
+        assert(len == 0);
         return ret;
     }
 
@@ -336,7 +415,7 @@ namespace SparseVirtualFileSystem {
 #endif
         size_t ret = sizeof(SparseVirtualFile);
 
-        // Add referenced data sizes.
+        // Add heap referenced data sizes.
         ret += m_id.size();
         for (auto &iter: m_svf) {
             ret += sizeof(iter.first);
@@ -353,7 +432,6 @@ namespace SparseVirtualFileSystem {
         std::lock_guard<std::mutex> mutex(m_mutex);
 #endif
         m_id = "";
-        m_file_mod_time = 0.0;
         m_bytes_total = 0;
         m_count_write = 0;
         m_count_read = 0;
@@ -396,8 +474,8 @@ namespace SparseVirtualFileSystem {
         return ERROR_NONE;
     }
 
-/// Returns the largest possible file postion known so far.
-/// Of course this is not the EOF position as we maay not have been offered that yet.
+/// Returns the largest possible file position known so far.
+/// Of course this is not the EOF position as we may not have been offered that yet.
     t_fpos
     SparseVirtualFile::last_file_position() const noexcept {
         SVF_ASSERT(integrity() == ERROR_NONE);

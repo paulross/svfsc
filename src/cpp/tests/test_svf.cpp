@@ -543,7 +543,6 @@ namespace SparseVirtualFileSystem {
     }
 
 
-
     TestCaseHas::TestCaseHas(const std::string &m_test_name, const t_seek_read &m_writes,
                                t_fpos fpos, size_t len, bool expected) : TestCaseABC(m_test_name, m_writes),
                                                           m_fpos(fpos), m_len(len), m_expected(expected) {}
@@ -615,6 +614,111 @@ namespace SparseVirtualFileSystem {
         return count;
     }
 
+    TestCaseNeed::TestCaseNeed(const std::string &m_test_name, const t_seek_read &m_writes,
+                               t_fpos fpos, size_t len, const t_seek_read &m_need) : TestCaseABC(m_test_name, m_writes),
+                                                                                     m_fpos(fpos), m_len(len),
+                                                                                     m_need(m_need) {}
+
+
+    // Create a SVF, run the read tests and report the result.
+    TestResult TestCaseNeed::run() const {
+        SparseVirtualFile svf("", 0.0);
+
+        // Load the SVF
+        try {
+            load_writes(svf, data);
+        } catch (ExceptionSparseVirtualFile &err) {
+            return TestResult(__FUNCTION__, m_test_name, 1, err.message(), 0.0, 0);
+        }
+
+        // Analyse the results
+        // Run the test
+        auto time_start = std::chrono::high_resolution_clock::now();
+        t_seek_read need = svf.need(m_fpos, m_len);
+        std::chrono::duration<double> time_exec = std::chrono::high_resolution_clock::now() - time_start;
+
+        // Check the result
+        if (need.size() != m_need.size()) {
+            std::ostringstream os;
+            os << "Found " << need.size() << " need pairs but expected " << m_need.size() << " need pairs";
+            return TestResult(__FUNCTION__, m_test_name, 1, os.str(), time_exec.count(), svf.num_bytes());
+        }
+        for (size_t i = 0; i < need.size(); ++i) {
+            if (need[i].first != m_need[i].first || need[i].second != m_need[i].second) {
+                std::ostringstream os;
+                os << "In position " << i << " expected fpos " << m_need[i].first << " and len " << m_need[i].second;
+                os << " but got fpos " << need[i].first << " and len " << need[i].second;
+                return TestResult(__FUNCTION__, m_test_name, 1, os.str(), time_exec.count(), svf.num_bytes());
+            }
+        }
+        return TestResult(__FUNCTION__, m_test_name, 0, "", time_exec.count(), svf.num_bytes());
+    }
+
+    const std::vector<TestCaseNeed> need_test_cases = {
+        //
+        //        |++|
+        {"Need on empty SVF", {}, 8, 4, {{8, 4}}},
+        //        ^==|
+        //        |++|
+        {"Exactly one block", {{8, 4}}, 8,  4, {},},
+        //        ^==|
+        //         ||
+        {"Inside one block", {{8, 4}}, 9,  2, {},},
+        //        ^==|
+        //    |++|
+        {"All before one block", {{8, 4}}, 4,  4, {{4, 4}},},
+        //        ^==|
+        //            |++|
+        {"All after one block", {{8, 4}}, 12,  4, {{12, 4}},},
+        //        ^==|
+        //    |+++++|
+        {"Before and part of one block", {{8, 4}}, 4,  7, {{4, 4}},},
+        //        ^==|
+        //    |++++++|
+        {"Before and all of one block", {{8, 4}}, 4,  8, {{4, 4}},},
+        //        ^==|
+        //    |+++++++|
+        {"Before, all and after one block", {{8, 4}}, 4,  9, {{4, 4}, {12, 1}},},
+        //        |==|  |==|
+        //        |++++++++|
+        {"Two blocks and in between (a)", {{8, 4}, {14, 4}}, 8,  18, {{12, 2}},},
+        //        |==|  |==|
+        //        |+++++++|
+        {"Two blocks and in between (b)", {{8, 4}, {14, 4}}, 8,  17, {{12, 2}},},
+        //        |==|  |==|
+        //         |+++++++|
+        {"Two blocks and in between (c)", {{8, 4}, {14, 4}}, 9,  17, {{12, 2}},},
+        //        |==|  |==|
+        //         |++++++|
+        {"Two blocks and in between (d)", {{8, 4}, {14, 4}}, 9,  16, {{12, 2}},},
+        //        |==|  |==|
+        //       |++++++++|
+        {"Two blocks, under-run", {{8, 4}, {14, 4}}, 7,  11, {{7, 1}, {12, 2}},},
+        //        |==|  |==|
+        //        |+++++++++|
+        {"Two blocks, over-run", {{8, 4}, {14, 4}}, 8,  11, {{12, 2}, {18, 1}},},
+        //        |==|  |==|
+        //       |++++++++++|
+        {"Two blocks, under/over-run", {{8, 4}, {14, 4}}, 7,  12, {{7, 1}, {12, 2}, {18, 1}},},
+    };
+
+    const std::vector<TestCaseNeed> need_test_cases_special = {
+            //        |==|  |==|
+            //        |+++++++++|
+            {"Two blocks, over-run", {{8, 4}, {14, 4}}, 8,  11, {{12, 2}, {18, 1}},},
+    };
+
+    TestCount test_need_all(t_test_results &results) {
+        TestCount count;
+//        for (const auto& test_case: need_test_cases) {
+        for (const auto& test_case: need_test_cases_special) {
+            auto result = test_case.run();
+            count.add_result(result.result());
+            results.push_back(result);
+        }
+        return count;
+    }
+
 #ifdef SVF_THREAD_SAFE
     SparseVirtualFileSystem::SparseVirtualFile g_svf_multithreaded("", 0.0);
 
@@ -677,23 +781,25 @@ namespace SparseVirtualFileSystem {
 
     TestCount test_svf_all(t_test_results &results) {
         TestCount count;
-        // Write
-        count += test_write_all(results);
-        count += test_write_all_throws(results);
-        count += test_perf_sim_index(results);
-        count += test_perf_1M_coalesced(results);
-        count += test_perf_1M_uncoalesced(results);
-        count += test_perf_1M_uncoalesced_size_of(results);
-        // Read
-        count += test_read_all(results);
-        count += test_read_throws_all(results);
-        count += test_perf_read_1M_coalesced(results);
+//        // Write
+//        count += test_write_all(results);
+//        count += test_write_all_throws(results);
+//        count += test_perf_sim_index(results);
+//        count += test_perf_1M_coalesced(results);
+//        count += test_perf_1M_uncoalesced(results);
+//        count += test_perf_1M_uncoalesced_size_of(results);
+//        // Read
+//        count += test_read_all(results);
+//        count += test_read_throws_all(results);
+//        count += test_perf_read_1M_coalesced(results);
+//        // Has
+//        count += test_has_all(results);
+        // Need
+        count += test_need_all(results);
 
-        count += test_has_all(results);
-
-#ifdef SVF_THREAD_SAFE
-        count += test_write_multithreaded(results);
-#endif
+//#ifdef SVF_THREAD_SAFE
+//        count += test_write_multithreaded(results);
+//#endif
         return count;
     }
 

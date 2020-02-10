@@ -105,6 +105,20 @@ namespace SparseVirtualFileSystem {
         bool m_expected;
     };
 
+    class TestCaseNeed : public TestCaseABC {
+    public:
+        TestCaseNeed(const std::string &m_test_name, const t_seek_read &m_writes,
+                     t_fpos fpos, size_t len, const t_seek_read &m_need);
+
+        TestResult run() const override;
+
+        virtual ~TestCaseNeed() = default;
+
+    protected:
+        t_fpos m_fpos;
+        size_t m_len;
+        t_seek_read m_need;
+    };
 
     TestCount test_svf_all(t_test_results &results);
 
