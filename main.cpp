@@ -16,7 +16,7 @@ int main() {
     // Test section
     auto time_start = std::chrono::high_resolution_clock::now();
 
-    pass_fail += SparseVirtualFileSystem::test_svf_all(results);
+    pass_fail += SVFS::test_svf_all(results);
 
     std::chrono::duration<double> time_exec = std::chrono::high_resolution_clock::now() - time_start;
 

@@ -32,7 +32,7 @@ add_executable(
         src/cpp/tests/test.h
         src/cpp/tests/test.cpp
         src/cpp/util/SaveStreamState.h
-)
+        src/cpp/svfs.cpp src/cpp/svfs.h)
 
 include_directories(
         src/cpp

@@ -10,7 +10,7 @@
 #include "test.h"
 
 
-namespace SparseVirtualFileSystem {
+namespace SVFS {
 
     class TestCaseABC {
     public:

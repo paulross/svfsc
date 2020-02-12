@@ -21,15 +21,13 @@
 #define SVF_ASSERT(x)
 #endif
 
-namespace SparseVirtualFileSystem {
+namespace SVFS {
 
 // Exception specialisation for the SparseVirtualFile.
     class ExceptionSparseVirtualFile : public std::exception {
     public:
         explicit ExceptionSparseVirtualFile(const std::string &in_msg) : msg(in_msg) {}
-
         const std::string &message() const { return msg; }
-
     protected:
         std::string msg;
     };
@@ -114,6 +112,9 @@ namespace SparseVirtualFileSystem {
         // Eliminate copying.
         SparseVirtualFile(const SparseVirtualFile &rhs) = delete;
         SparseVirtualFile operator=(const SparseVirtualFile &rhs) = delete;
+        // Allow moving
+        SparseVirtualFile(SparseVirtualFile &&other) = default;
+        SparseVirtualFile& operator=(SparseVirtualFile &&rhs) = default;
 
         ~SparseVirtualFile() { clear(); }
     private:
@@ -151,6 +152,8 @@ namespace SparseVirtualFileSystem {
         void _write_new_append_old(t_fpos fpos, const char *data, size_t len, t_map::iterator iter);
 
         void _write_append_new_to_old(t_fpos fpos, const char *data, size_t len, t_map::iterator iter);
+
+        void _read(t_fpos fpos, size_t len, char *p) const;
 
         void _throw_diff(t_fpos fpos, const char *data, t_map::const_iterator iter, size_t index_iter) const;
 

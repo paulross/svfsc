@@ -30,7 +30,7 @@ static const char data[256] = {
 };
 
 
-namespace SparseVirtualFileSystem {
+namespace SVFS {
 
     TestCaseWrite::TestCaseWrite(const std::string &m_test_name, const t_seek_read &m_writes,
                                  const t_seek_read &m_expected_blocks) : TestCaseABC(m_test_name, m_writes),
@@ -273,7 +273,7 @@ namespace SparseVirtualFileSystem {
     // 23831 * (4 + 10 * 4) is close to 1Mb
     TestCount test_perf_write_sim_index(t_test_results &results) {
         TestCount count;
-        SparseVirtualFileSystem::SparseVirtualFile svf("", 0.0);
+        SparseVirtualFile svf("", 0.0);
         auto time_start = std::chrono::high_resolution_clock::now();
 
         for (size_t vr = 0; vr < 23831; ++vr) {
@@ -298,7 +298,7 @@ namespace SparseVirtualFileSystem {
     TestCount test_perf_write_1M_coalesced(t_test_results &results) {
         TestCount count;
         for (size_t block_size = 1; block_size <= 256; block_size *= 2) {
-            SparseVirtualFileSystem::SparseVirtualFile svf("", 0.0);
+            SparseVirtualFile svf("", 0.0);
 
             auto time_start = std::chrono::high_resolution_clock::now();
             for (t_fpos i = 0; i < (1024 * 1024 * 1) / block_size; ++i) {
@@ -322,7 +322,7 @@ namespace SparseVirtualFileSystem {
     TestCount test_perf_write_1M_uncoalesced(t_test_results &results) {
         TestCount count;
         for (size_t block_size = 1; block_size <= 256; block_size *= 2) {
-            SparseVirtualFileSystem::SparseVirtualFile svf("", 0.0);
+            SparseVirtualFile svf("", 0.0);
 
             auto time_start = std::chrono::high_resolution_clock::now();
             for (t_fpos i = 0; i < (1024 * 1024 * 1) / block_size; ++i) {
@@ -348,7 +348,7 @@ namespace SparseVirtualFileSystem {
     TestCount test_perf_write_1M_uncoalesced_size_of(t_test_results &results) {
         TestCount count;
         for (size_t block_size = 1; block_size <= 256; block_size *= 2) {
-            SparseVirtualFileSystem::SparseVirtualFile svf("", 0.0);
+            SparseVirtualFile svf("", 0.0);
 
             auto time_start = std::chrono::high_resolution_clock::now();
             for (t_fpos i = 0; i < (1024 * 1024 * 1) / block_size; ++i) {
@@ -523,7 +523,7 @@ namespace SparseVirtualFileSystem {
     TestCount test_perf_read_1M_coalesced(t_test_results &results) {
         const size_t SIZE = 1024 * 1024 * 1;
         TestCount count;
-        SparseVirtualFileSystem::SparseVirtualFile svf("", 0.0);
+        SparseVirtualFile svf("", 0.0);
         for (t_fpos i = 0; i < (SIZE) / 256; ++i) {
             t_fpos fpos = i * 256;
             svf.write(fpos, data, 256);
@@ -723,7 +723,7 @@ namespace SparseVirtualFileSystem {
     // 23831 * (4 + 10 * 4) is close to 1Mb
     TestCount _test_perf_need_sim_index(size_t need_size, t_test_results &results) {
         TestCount count;
-        SparseVirtualFileSystem::SparseVirtualFile svf("", 0.0);
+        SparseVirtualFile svf("", 0.0);
         // Write to the SVF
         for (size_t vr = 0; vr < 23831; ++vr) {
             t_fpos fpos = 80 + vr * 8004;
@@ -761,7 +761,7 @@ namespace SparseVirtualFileSystem {
     }
 
 #ifdef SVF_THREAD_SAFE
-    SparseVirtualFileSystem::SparseVirtualFile g_svf_multithreaded("", 0.0);
+    SparseVirtualFile g_svf_multithreaded("", 0.0);
 
     // This writes to the global SVF and is used by test_write_multithreaded_num_threads in multiple threads.
     void _write_multithreaded() {
@@ -776,7 +776,7 @@ namespace SparseVirtualFileSystem {
                 }
             }
         }
-        catch (SparseVirtualFileSystem::ExceptionSparseVirtualFile &err) {
+        catch (ExceptionSparseVirtualFile &err) {
             std::cout << "_write_multithreaded(): Fails: " << err.message() << std::endl;
         }
     }
@@ -845,4 +845,4 @@ namespace SparseVirtualFileSystem {
         return count;
     }
 
-} // namespace SparseVirtualFileSystem
+} // namespace SVFS
