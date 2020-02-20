@@ -40,7 +40,7 @@ namespace SVFS {
         }
     }
 
-    const SparseVirtualFile &SparseVirtualFileSystem::_at(const std::string &id) const {
+    const SparseVirtualFile &SparseVirtualFileSystem::at(const std::string &id) const {
         try {
             return m_svfs.at(id);
         } catch (std::out_of_range &err) {
@@ -48,12 +48,36 @@ namespace SVFS {
         }
     }
 
-    SparseVirtualFile &SparseVirtualFileSystem::_at(const std::string &id) {
+    SparseVirtualFile &SparseVirtualFileSystem::at(const std::string &id) {
         try {
             return m_svfs.at(id);
         } catch (std::out_of_range &err) {
             throw ExceptionSparseVirtualFileSystemOutOfRange(err.what());
         }
+    }
+
+    size_t SparseVirtualFileSystem::size_of() const noexcept {
+        size_t ret = sizeof(SparseVirtualFileSystem);
+        for (auto &iter: m_svfs) {
+            ret += iter.second.size_of();
+        }
+        return ret;
+    }
+
+    size_t SparseVirtualFileSystem::num_bytes() const noexcept {
+        size_t ret = 0;
+        for (auto &iter: m_svfs) {
+            ret += iter.second.num_bytes();
+        }
+        return ret;
+    }
+
+    size_t SparseVirtualFileSystem::num_blocks() const noexcept {
+        size_t ret = 0;
+        for (auto &iter: m_svfs) {
+            ret += iter.second.num_blocks();
+        }
+        return ret;
     }
 
     SparseVirtualFileSystem::~SparseVirtualFileSystem() noexcept {

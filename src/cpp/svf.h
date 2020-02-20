@@ -5,7 +5,6 @@
 #ifndef CPPSVF_SVF_H
 #define CPPSVF_SVF_H
 
-
 #include <string>
 #include <vector>
 #include <map>
@@ -66,48 +65,46 @@ namespace SVFS {
             m_time_write(std::chrono::time_point<std::chrono::system_clock>::min()), \
             m_time_read(std::chrono::time_point<std::chrono::system_clock>::min()) {}
 
+        // ---- Read and write etc. ----
+        // Do I have the data?
+        bool has(t_fpos fpos, size_t len) const noexcept;
+        // Write data at file position.
+        void write(t_fpos, const char *data, size_t len);
+        // Read data and write to the buffer provided by the caller.
+        // Not const as we update m_bytes_read, m_count_read, m_time_read.
+        void read(t_fpos fpos, size_t len, char *p);
+        // Create a new fragmentation list of seek/read instructions.
+        t_seek_read need(t_fpos fpos, size_t len) const noexcept;
+        // Implements the data deletion strategy.
+        void clear() noexcept;
+
+        // ---- Meta information about the SVF ----
+        // The existing blocks.
+        t_seek_read blocks() const noexcept;
+        // Information about memory used:
+        // size_of() gives best guess of total memory usage.
+        size_t size_of() const noexcept;
+        // Gives exact number of data bytes held.
+        size_t num_bytes() const noexcept { return m_bytes_total; };
+        // Gives exact number of blocks used.
+        size_t num_blocks() const noexcept { return m_svf.size(); }
+        t_fpos last_file_position() const noexcept;
         // Check the clients file modification time has changed.
         // Caller has to decide what to do...
         bool file_mod_time_matches(const double &file_mod_time) const noexcept {
             return file_mod_time == m_file_mod_time;
         }
 
-        // Do I have the data?
-        bool has(t_fpos fpos, size_t len) const noexcept;
-
-        // Write data at file position.
-        void write(t_fpos, const char *data, size_t len);
-
-        // Read data and write to the buffer provided by the caller.
-        // Not const as we update m_bytes_read, m_count_read, m_time_read.
-        void read(t_fpos fpos, size_t len, char *p);
-
-        // Create a new fragmentation list of seek/read instructions.
-        t_seek_read need(t_fpos fpos, size_t len) const noexcept;
-
-        // The existing blocks.
-        t_seek_read blocks() const noexcept;
-
-        // Information about memory used:
-        // size_of() gives best guess of total memory usage.
-        size_t size_of() const noexcept;
-
-        // Gives exact number of data bytes held.
-        size_t num_bytes() const noexcept { return m_bytes_total; };
-
-        // Gives exact number of blocks used.
-        size_t num_blocks() const noexcept { return m_svf.size(); }
-
-        t_fpos last_file_position() const noexcept;
-
-        // Attribute access
+        // ---- Attribute access ----
         const std::string id() const noexcept { return m_id; }
+        double file_mod_time() const noexcept { return m_file_mod_time; }
         size_t count_write() const noexcept { return m_count_write; }
         size_t count_read() const noexcept { return m_count_read; }
         size_t bytes_write() const noexcept { return m_bytes_write; }
         size_t bytes_read() const noexcept { return m_bytes_read; }
-
-        void clear() noexcept;
+        // These can be cast to std::chrono::time_point<double>
+        std::chrono::time_point<std::chrono::system_clock> time_write() const noexcept { return m_time_write; }
+        std::chrono::time_point<std::chrono::system_clock> time_read() const noexcept { return m_time_read; }
 
         // Eliminate copying.
         SparseVirtualFile(const SparseVirtualFile &rhs) = delete;
@@ -116,6 +113,7 @@ namespace SVFS {
         SparseVirtualFile(SparseVirtualFile &&other) = default;
         SparseVirtualFile& operator=(SparseVirtualFile &&rhs) = default;
 
+        // dtor just calls clear()
         ~SparseVirtualFile() { clear(); }
     private:
         std::string m_id;

@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.13)
 project(cppSVF)
 
 set(CMAKE_CXX_STANDARD 17)
+#set(CMAKE_C_FLAGS "-std=c99")
 
 add_compile_definitions(SVF_THREAD_SAFE)
 
@@ -32,7 +33,10 @@ add_executable(
         src/cpp/tests/test.h
         src/cpp/tests/test.cpp
         src/cpp/util/SaveStreamState.h
-        src/cpp/svfs.cpp src/cpp/svfs.h)
+        src/cpp/svfs.cpp
+        src/cpp/svfs.h
+        src/cp/cSVFS.cpp
+        src/cp/svfs_util.cpp src/cp/svfs_util.h)
 
 include_directories(
         src/cpp
@@ -50,3 +54,5 @@ ENDIF()
 
 
 target_link_libraries(cppSVF python3.8)
+
+target_compile_options(cppSVF PRIVATE -Wall -Wextra -Wno-c99-extensions -pedantic)# -Werror)
