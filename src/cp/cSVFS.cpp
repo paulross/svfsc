@@ -8,11 +8,19 @@
 #include "svfs.h"
 #include "svfs_util.h"
 
+/**
+ * Naming convention:
+ *
+ * SVFS functions are named cp_SparseVirtualFileSystem_...
+ * SVF functions are named cp_SparseVirtualFileSystem_svf_...
+ */
+
 typedef struct {
     PyObject_HEAD
     SVFS::SparseVirtualFileSystem *p_svfs;
 } cp_SparseVirtualFileSystem;
 
+// Function entry point test macro.
 // After construction we expect this invariant at the entry to each function.
 // The cast is necessary when used with functions that take a SVFS as a PyObject* such as
 // cp_SparseVirtualFileSystem_mapping_length
@@ -21,6 +29,10 @@ typedef struct {
     assert(((cp_SparseVirtualFileSystem *)self)->member); \
     assert(! PyErr_Occurred()); \
 } while (0)
+
+
+// Construction and destruction
+#pragma mark Construction and destruction
 
 static PyObject *
 cp_SparseVirtualFileSystem_new(PyTypeObject *type, PyObject *Py_UNUSED(args), PyObject *Py_UNUSED(kwds))
@@ -55,6 +67,8 @@ cp_SparseVirtualFileSystem_dealloc(cp_SparseVirtualFileSystem *self)
     Py_TYPE(self)->tp_free((PyObject *) self);
 }
 
+// END: Construction and destruction
+#pragma mark END: Construction and destruction
 
 /* If you are interested this is a way that you can trace the input.
  PyObject_Print(self, stdout, 0);
@@ -64,6 +78,10 @@ cp_SparseVirtualFileSystem_dealloc(cp_SparseVirtualFileSystem *self)
  PyObject_Print(kwargs, stdout, 0);
  fprintf(stdout, "\n");
  * End trace */
+
+
+// SVFS functions
+#pragma mark SVFS functions
 
 static const char *cp_SparseVirtualFileSystem_keys_docstring = \
 "Returns the IDs of all the Sparse Virtual Files.";
@@ -232,6 +250,12 @@ cp_SparseVirtualFileSystem_total_blocks(cp_SparseVirtualFileSystem *self) {
     ASSERT_FUNCTION_ENTRY_SVFS(p_svfs);
     return PyLong_FromLong(self->p_svfs->num_blocks());
 }
+
+// END: SVFS functions
+#pragma mark END SVFS functions
+
+// SVF functions
+#pragma mark SVF functions
 
 static const char *cp_SparseVirtualFileSystem_svf_has_data_docstring = \
 "Returns True if the SVF of the ID has data at file_position and length.";
@@ -717,6 +741,12 @@ static const char *cp_SparseVirtualFileSystem_svf_time_read_docstring = \
 "Returns the timestamp of the last read from the SVF identified by the given id as a datetime.datetime.";
 SVFS_SVF_METHOD_DATETIME_WRAPPER(time_read)
 
+// END: SVF functions
+#pragma mark END: SVF functions
+
+// Module initialisation
+#pragma mark Module initialisation
+
 // Mapping method for __len__
 static Py_ssize_t
 cp_SparseVirtualFileSystem_mapping_length(PyObject *self) {
@@ -724,13 +754,11 @@ cp_SparseVirtualFileSystem_mapping_length(PyObject *self) {
     return ((cp_SparseVirtualFileSystem *)self)->p_svfs->size();
 }
 
-
 static PyMemberDef cp_SparseVirtualFileSystem_members[] = {
 //        {"first", T_OBJECT_EX, offsetof(CustomObject, first), 0,
 //                "first name"},
         {NULL, 0, 0, 0, NULL}  /* Sentinel */
 };
-
 
 static PyMethodDef cp_SparseVirtualFileSystem_methods[] = {
     {
@@ -831,7 +859,6 @@ static PyMethodDef cp_SparseVirtualFileSystem_methods[] = {
     {NULL, NULL, 0, NULL}  /* Sentinel */
 };
 
-
 PyMappingMethods svfs_mapping_methods = {
     // Just length as we don't (yet) want to expose the underlying SVF to Python code.
     // via mp_subscript (get), mp_ass_subscript (set).
@@ -841,7 +868,9 @@ PyMappingMethods svfs_mapping_methods = {
 static PyTypeObject svfs_SVFS = {
         PyVarObject_HEAD_INIT(NULL, 0)
         .tp_name = "svfs.SVFS",
-        .tp_doc = "Sparse Virtual File System",
+        .tp_doc = \
+        "This class implements a Sparse Virtual File System where Sparse Virtual Files are mapped to a key (a string)"
+        "",
         .tp_basicsize = sizeof(cp_SparseVirtualFileSystem),
         .tp_itemsize = 0,
         .tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
@@ -857,7 +886,18 @@ static PyTypeObject svfs_SVFS = {
 static PyModuleDef svfsmodule = {
         PyModuleDef_HEAD_INIT,
         .m_name = "svfs",
-        .m_doc = "This module contains Sparse Virtual File System classes.",
+        .m_doc = \
+        "This module contains Sparse Virtual File System classes."
+        "\n"
+        " A Sparse Virtual File (SVF) is one where some data from the actual file is held in memory at the specific"
+        " file locations as the original file."
+        " The original file is identified by a string ID."
+        " Data can be written to an SVF, if the data differs from that existing an error will be raised."
+        " Data can be read from an SVF, if the SVF does not have the data an error will be raised."
+        " Before any read() the SVF can describe what, if any, data is missing and the user can obtain and write that"
+        " data to the SVF before reading."
+        "\n"
+        "A Sparse Virtual File System is an extension of that concept where a file ID (string) is the key to a SVF.",
         .m_size = -1,
 };
 
@@ -878,3 +918,6 @@ PyInit_svfs(void)
     PyModule_AddObject(m, "SVFS", (PyObject *) &svfs_SVFS);
     return m;
 }
+
+// END: Module initialisation
+#pragma mark END: Module initialisation
