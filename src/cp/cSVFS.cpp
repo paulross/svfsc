@@ -390,9 +390,9 @@ static const char *cp_SparseVirtualFileSystem_svf_need_docstring = \
 "Given a file_position and length this returns a ordered list [(file_position, length), ...] of seek/read" \
 "instructions of data that is required to be written to the SVF so that a subsequent read will succeed.\n" \
 "Usage:\n" \
-"    if not svfs.has(identity, file_position, length:\n" \
+"    if not svfs.has(identity, file_position, length):\n" \
 "        for seek, read in svfs.need(file_position, length):\n" \
-"            # Somehow get the data at seek/read\n" \
+"            # Somehow get the data at all seek/read positions...\n" \
 "            svfs.write(identity, seek, data, read)\n" \
 "    return svfs.read(identity, file_position, length):\n" \
 ;
