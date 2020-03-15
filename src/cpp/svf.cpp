@@ -212,8 +212,9 @@ namespace SVFS {
         assert(fpos >= iter->first);
         assert(fpos <= _last_file_pos_for_block(iter));
 
-        size_t fpos_end = fpos + len;
-
+#ifdef DEBUG
+//        size_t fpos_end = fpos + len;
+#endif
         t_map::iterator next_iter = iter;
         while (true) {
             if (len == 0) {
@@ -258,7 +259,9 @@ namespace SVFS {
             }
         }
         assert(len == 0);
-        assert(fpos == fpos_end);
+#ifdef DEBUG
+//        assert(fpos == fpos_end);
+#endif
         SVF_ASSERT(integrity() == ERROR_NONE);
     }
 

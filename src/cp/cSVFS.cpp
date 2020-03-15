@@ -37,26 +37,39 @@ typedef struct {
 static PyObject *
 cp_SparseVirtualFileSystem_new(PyTypeObject *type, PyObject *Py_UNUSED(args), PyObject *Py_UNUSED(kwds))
 {
+    assert(! PyErr_Occurred());
     cp_SparseVirtualFileSystem *self;
     self = (cp_SparseVirtualFileSystem *) type->tp_alloc(type, 0);
     if (self != NULL) {
         self->p_svfs = nullptr;
     }
+//    PyObject_Print((PyObject *)self, stdout);
+//    fprintf(stdout, "cp_SparseVirtualFileSystem_new() self %p\n", (void *)self);
+    assert(! PyErr_Occurred());
     return (PyObject *) self;
 }
 
 static int
 cp_SparseVirtualFileSystem_init(cp_SparseVirtualFileSystem *self, PyObject *args, PyObject *kwds)
 {
+    assert(! PyErr_Occurred());
     static const char *kwlist[] = {"coalesce", "overwrite", NULL};
     PyObject *coalesce = NULL;
     PyObject *overwrite = NULL;
 
+//    fprintf(stdout, "cp_SparseVirtualFileSystem_init() self %p\n", (void *)self);
     // Parse args/kwargs for coalesce (int), overwrite(bool)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "|ip", const_cast<char**>(kwlist), &coalesce, &overwrite)) {
+        assert(PyErr_Occurred());
         return -1;
     }
-    self->p_svfs = new SVFS::SparseVirtualFileSystem(PyLong_AsLong(coalesce), overwrite == Py_True);
+    if (coalesce) {
+        self->p_svfs = new SVFS::SparseVirtualFileSystem(PyLong_AsLong(coalesce), overwrite == Py_True);
+    } else {
+        self->p_svfs = new SVFS::SparseVirtualFileSystem(-1, overwrite == Py_True);
+    }
+//    fprintf(stdout, "cp_SparseVirtualFileSystem_init() self->p_svfs %p\n", (void *)self->p_svfs);
+    assert(! PyErr_Occurred());
     return 0;
 }
 
@@ -70,21 +83,20 @@ cp_SparseVirtualFileSystem_dealloc(cp_SparseVirtualFileSystem *self)
 // END: Construction and destruction
 #pragma mark END: Construction and destruction
 
-/* If you are interested this is a way that you can trace the input.
- PyObject_Print(self, stdout, 0);
- fprintf(stdout, "\n");
- PyObject_Print(args, stdout, 0);
- fprintf(stdout, "\n");
- PyObject_Print(kwargs, stdout, 0);
- fprintf(stdout, "\n");
- * End trace */
-
+/* If you are interested this is a way that you can trace the input. */
+#define TRACE_SELF_ARGS_KWARGS \
+    PyObject_Print(self, stdout, Py_PRINT_RAW); \
+    fprintf(stdout, "\n"); \
+    PyObject_Print(args, stdout, Py_PRINT_RAW); \
+    fprintf(stdout, "\n"); \
+    PyObject_Print(kwargs, stdout, Py_PRINT_RAW); \
+    fprintf(stdout, "\n");
 
 // SVFS functions
 #pragma mark SVFS functions
 
 static const char *cp_SparseVirtualFileSystem_keys_docstring = \
-"Returns the IDs of all the Sparse Virtual Files.";
+"Returns the IDs of all the Sparse Virtual Files in the Sparse Virtual File System.";
 
 static PyObject *
 cp_SparseVirtualFileSystem_keys(cp_SparseVirtualFileSystem *self) {
@@ -126,24 +138,27 @@ cp_SparseVirtualFileSystem_keys(cp_SparseVirtualFileSystem *self) {
 }
 
 static const char *cp_SparseVirtualFileSystem_insert_docstring = \
-"Removes a Sparse Virtual File of ID and Unix modification time.";
+"Removes a Sparse Virtual File of ID and Unix file modification time as a float.";
 
 static PyObject *
 cp_SparseVirtualFileSystem_insert(cp_SparseVirtualFileSystem *self, PyObject *args, PyObject *kwargs) {
     ASSERT_FUNCTION_ENTRY_SVFS(p_svfs);
 
     PyObject *ret = NULL;
-    PyObject *id = NULL;
+    char *c_id = NULL;
     double mod_time;
     static const char *kwlist[] = { "id", "mod_time", NULL};
 
-    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "Sd", (char **)kwlist, &id, &mod_time)) {
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "sd", (char **)kwlist, &c_id, &mod_time)) {
         goto except;
     }
     try {
-        self->p_svfs->insert(py_unicode_to_std_string(id), mod_time);
+        self->p_svfs->insert(c_id, mod_time);
     } catch (const SVFS::ExceptionSparseVirtualFileSystemInsert &err) {
-        PyErr_Format(PyExc_RuntimeError, "%s: Can not insert a new SVF. ERROR: %s", __FUNCTION__, err.message().c_str());
+        PyErr_Format(
+                PyExc_RuntimeError, "%s: Can not insert a new Sparse Virtual File ID = \"%s\". ERROR: %s",
+                __FUNCTION__, c_id, err.message().c_str()
+                );
         goto except;
     }
     Py_INCREF(Py_None);
@@ -160,23 +175,25 @@ finally:
 }
 
 static const char *cp_SparseVirtualFileSystem_remove_docstring = \
-"Removes a Sparse Virtual File of ID. Will raise an IndexError if the ID is absent.";
+"Removes a Sparse Virtual File of ID freeing that file's memory. Will raise an IndexError if the ID is absent.";
 
 static PyObject *
 cp_SparseVirtualFileSystem_remove(cp_SparseVirtualFileSystem *self, PyObject *args, PyObject *kwargs) {
     ASSERT_FUNCTION_ENTRY_SVFS(p_svfs);
 
     PyObject *ret = NULL;
-    PyObject *id = NULL;
+    char *c_id = NULL;
     static const char *kwlist[] = { "id", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwargs, "S", (char **)kwlist, &id)) {
+    if (! PyArg_ParseTupleAndKeywords(args, kwargs, "s", (char **)kwlist, &c_id)) {
         goto except;
     }
     try {
-        self->p_svfs->remove(py_unicode_to_std_string(id));
+        self->p_svfs->remove(c_id);
     } catch (const SVFS::ExceptionSparseVirtualFileSystemRemove &err) {
-        PyErr_Format(PyExc_IndexError, "%s: Can not remove a SVF. ERROR: %s", __FUNCTION__, err.message().c_str());
+        PyErr_Format(PyExc_IndexError, "%s: Can not remove a Sparse Virtual File. ERROR: %s",
+                __FUNCTION__, err.message().c_str()
+        );
         goto except;
     }
     Py_INCREF(Py_None);
@@ -193,20 +210,20 @@ finally:
 }
 
 static const char *cp_SparseVirtualFileSystem_has_docstring = \
-"Returns True if the SVF of the ID is in the SVFS.";
+"Returns True if the Sparse Virtual File for the ID is in the Sparse Virtual File System.";
 
 static PyObject *
 cp_SparseVirtualFileSystem_has(cp_SparseVirtualFileSystem *self, PyObject *args, PyObject *kwargs) {
     ASSERT_FUNCTION_ENTRY_SVFS(p_svfs);
 
     PyObject *ret = NULL;
-    PyObject *id = NULL;
+    char *c_id = NULL;
     static const char *kwlist[] = { "id", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwargs, "S", (char **)kwlist, &id)) {
+    if (! PyArg_ParseTupleAndKeywords(args, kwargs, "s", (char **)kwlist, &c_id)) {
         goto except;
     }
-    if (self->p_svfs->has(py_unicode_to_std_string(id))) {
+    if (self->p_svfs->has(c_id)) {
         Py_INCREF(Py_True);
         ret = Py_True;
     } else {
@@ -243,7 +260,7 @@ cp_SparseVirtualFileSystem_total_bytes(cp_SparseVirtualFileSystem *self) {
 }
 
 static const char *cp_SparseVirtualFileSystem_total_blocks_docstring = \
-"Returns the total number of blocks held by the Sparse Virtual File System.";
+"Returns the total number of blocks of data held by the Sparse Virtual File System.";
 
 static PyObject *
 cp_SparseVirtualFileSystem_total_blocks(cp_SparseVirtualFileSystem *self) {
@@ -258,25 +275,28 @@ cp_SparseVirtualFileSystem_total_blocks(cp_SparseVirtualFileSystem *self) {
 #pragma mark SVF functions
 
 static const char *cp_SparseVirtualFileSystem_svf_has_data_docstring = \
-"Returns True if the SVF of the ID has data at file_position and length.";
+"Checks if the Sparse Virtual File of the ID has data at the given file_position and length." \
+" This takes a string as an id, a file position and a length." \
+" This returns True if the Sparse Virtual File of that id has the data, False otherwise." \
+" This will raise an IndexError if the SVF of that id does not exist.";
 
 static PyObject *
 cp_SparseVirtualFileSystem_svf_has_data(cp_SparseVirtualFileSystem *self, PyObject *args, PyObject *kwargs) {
     ASSERT_FUNCTION_ENTRY_SVFS(p_svfs);
 
     PyObject *ret = NULL;
-    PyObject *id = NULL;
-    std::string c_id;
+    char *c_id = NULL;
+    std::string cpp_id;
     unsigned long long fpos = 0;
     unsigned long long len = 0;
     static const char *kwlist[] = { "id", "file_position", "length", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwargs, "SKK", (char **)kwlist, &id, &fpos, &len)) {
+    if (! PyArg_ParseTupleAndKeywords(args, kwargs, "sKK", (char **)kwlist, &c_id, &fpos, &len)) {
         goto except;
     }
-    c_id = py_unicode_to_std_string(id);
-    if (self->p_svfs->has(c_id)) {
-        const SVFS::SparseVirtualFile &svf = self->p_svfs->at(c_id);
+    cpp_id = std::string(c_id);
+    if (self->p_svfs->has(cpp_id)) {
+        const SVFS::SparseVirtualFile &svf = self->p_svfs->at(cpp_id);
         if (svf.has(fpos, len)) {
             Py_INCREF(Py_True);
             ret = Py_True;
@@ -285,7 +305,7 @@ cp_SparseVirtualFileSystem_svf_has_data(cp_SparseVirtualFileSystem *self, PyObje
             ret = Py_False;
         }
     } else {
-        PyErr_Format(PyExc_IndexError, "%s: No SVF ID %s", __FUNCTION__, c_id.c_str());
+        PyErr_Format(PyExc_IndexError, "%s: No SVF ID \"%s\"", __FUNCTION__, c_id);
         goto except;
     }
     assert(! PyErr_Occurred());
@@ -300,34 +320,44 @@ finally:
 }
 
 static const char *cp_SparseVirtualFileSystem_svf_write_docstring = \
-"Writes the data to the SVF at file_position and length.";
+"Writes the data to the Sparse Virtual File of the given ID at file_position and length." \
+" This takes a string as an id, a file position and data as a bytes object." \
+" This will raise an IndexError if the SVF of that id does not exist." \
+" This will raise an IOError if the given data is different than that seen before and only" \
+" new data up to this point will be written." \
+" This will raise a RuntimeError if the data can not be written for any other reason";
 
 static PyObject *
 cp_SparseVirtualFileSystem_svf_write(cp_SparseVirtualFileSystem *self, PyObject *args, PyObject *kwargs) {
     ASSERT_FUNCTION_ENTRY_SVFS(p_svfs);
 
     PyObject *ret = NULL;
-    PyObject *id = NULL;
-    std::string c_id;
+    char *c_id = NULL;
+    std::string cpp_id;
     unsigned long long fpos = 0;
     PyObject *py_bytes_data = NULL;
-    unsigned long long len = 0;
-    static const char *kwlist[] = { "id", "file_position", "data", "length", NULL};
+    static const char *kwlist[] = { "id", "file_position", "data", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwargs, "SKy*K", (char **)kwlist, &id, &fpos, &py_bytes_data, &len)) {
+    if (! PyArg_ParseTupleAndKeywords(args, kwargs, "sKS", (char **)kwlist, &c_id, &fpos, &py_bytes_data)) {
         goto except;
     }
-    c_id = py_unicode_to_std_string(id);
-    if (self->p_svfs->has(c_id)) {
-        SVFS::SparseVirtualFile &svf = self->p_svfs->at(c_id);
+    cpp_id = std::string(c_id);
+    if (self->p_svfs->has(cpp_id)) {
+        SVFS::SparseVirtualFile &svf = self->p_svfs->at(cpp_id);
         try {
-            svf.write(fpos, PyBytes_AS_STRING(py_bytes_data), len);
+            svf.write(fpos, PyBytes_AS_STRING(py_bytes_data), PyBytes_Size(py_bytes_data));
+        } catch (const SVFS::ExceptionSparseVirtualFileDiff &err) {
+            PyErr_Format(PyExc_IOError,
+                "%s: Can not write to a SVF id = \"%s\" as the given data is different from what is there. ERROR: %s",
+                __FUNCTION__, c_id, err.message().c_str());
+            goto except;
         } catch (const SVFS::ExceptionSparseVirtualFile &err) {
-            PyErr_Format(PyExc_RuntimeError, "%s: Can not write to a SVF. ERROR: %s", __FUNCTION__, err.message().c_str());
+            PyErr_Format(PyExc_RuntimeError, "%s: Can not write to a SVF id = \"%s\". ERROR: %s",
+                    __FUNCTION__, c_id, err.message().c_str());
             goto except;
         }
     } else {
-        PyErr_Format(PyExc_IndexError, "%s: No SVF ID %s", __FUNCTION__, c_id.c_str());
+        PyErr_Format(PyExc_IndexError, "%s: No SVF ID \"%s\"", __FUNCTION__, c_id);
         goto except;
     }
     Py_INCREF(Py_None);
@@ -344,35 +374,44 @@ finally:
 }
 
 static const char *cp_SparseVirtualFileSystem_svf_read_docstring = \
-"Read the data to the SVF at file_position and length returning a bytes object.";
+"Read the data to the Sparse Virtual File at file_position and length returning a bytes object." \
+" This takes a string as an id, a file position and a length." \
+" This will raise an IndexError if the Sparse Virtual File of that id does not exist." \
+" This will raise an IOError if any data is not present" \
+" This will raise a RuntimeError if the data can not be read for any other reason";
 
 static PyObject *
 cp_SparseVirtualFileSystem_svf_read(cp_SparseVirtualFileSystem *self, PyObject *args, PyObject *kwargs) {
     ASSERT_FUNCTION_ENTRY_SVFS(p_svfs);
 
     PyObject *ret = NULL;
-    PyObject *id = NULL;
-    std::string c_id;
+    char *c_id = NULL;
+    std::string cpp_id;
     unsigned long long fpos = 0;
     unsigned long long len = 0;
     static const char *kwlist[] = { "id", "file_position", "length", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwargs, "SKK", (char **)kwlist, &id, &fpos, &len)) {
+    if (! PyArg_ParseTupleAndKeywords(args, kwargs, "sKK", (char **)kwlist, &c_id, &fpos, &len)) {
         goto except;
     }
-    c_id = py_unicode_to_std_string(id);
-    if (self->p_svfs->has(c_id)) {
-        SVFS::SparseVirtualFile &svf = self->p_svfs->at(c_id);
+    cpp_id = std::string(c_id);
+    if (self->p_svfs->has(cpp_id)) {
+        SVFS::SparseVirtualFile &svf = self->p_svfs->at(cpp_id);
         // Create a bytes object
         ret = PyBytes_FromStringAndSize(NULL, len);
         try {
             svf.read(fpos, len, PyBytes_AS_STRING(ret));
+        } catch (const SVFS::ExceptionSparseVirtualFileRead &err) {
+            PyErr_Format(PyExc_IOError, "%s: Can not read from a SVF id= \"%s\". ERROR: %s",
+                    __FUNCTION__, c_id, err.message().c_str());
+            goto except;
         } catch (const SVFS::ExceptionSparseVirtualFile &err) {
-            PyErr_Format(PyExc_RuntimeError, "%s: Can not read from a SVF. ERROR: %s", __FUNCTION__, err.message().c_str());
+            PyErr_Format(PyExc_RuntimeError, "%s: Fatal error reading from a SVF id= \"%s\". ERROR: %s",
+                    __FUNCTION__, c_id, err.message().c_str());
             goto except;
         }
     } else {
-        PyErr_Format(PyExc_IndexError, "%s: No SVF ID %s", __FUNCTION__, c_id.c_str());
+        PyErr_Format(PyExc_IndexError, "%s: No SVF ID \"%s\"", __FUNCTION__, c_id);
         goto except;
     }
     assert(! PyErr_Occurred());
@@ -388,8 +427,9 @@ finally:
 
 static const char *cp_SparseVirtualFileSystem_svf_need_docstring = \
 "Given a file_position and length this returns a ordered list [(file_position, length), ...] of seek/read" \
-"instructions of data that is required to be written to the SVF so that a subsequent read will succeed.\n" \
-"Usage:\n" \
+" instructions of data that is required to be written to the Sparse Virtual File so that a subsequent read will succeed." \
+" This will raise an IndexError if the Sparse Virtual File of that id does not exist." \
+"\nUsage:\n" \
 "    if not svfs.has(identity, file_position, length):\n" \
 "        for seek, read in svfs.need(file_position, length):\n" \
 "            # Somehow get the data at all seek/read positions...\n" \
@@ -402,19 +442,19 @@ cp_SparseVirtualFileSystem_svf_need(cp_SparseVirtualFileSystem *self, PyObject *
     ASSERT_FUNCTION_ENTRY_SVFS(p_svfs);
 
     PyObject *ret = NULL; // PyListObject
-    PyObject *id = NULL; // PyUnicodeObject
-    std::string c_id;
+    char *c_id = NULL; // PyUnicodeObject
+    std::string cpp_id;
     PyObject *list_item = NULL; // PyTupleObject
     unsigned long long fpos = 0;
     unsigned long long len = 0;
     static const char *kwlist[] = { "id", "file_position", "length", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwargs, "SKK", (char **)kwlist, &id, &fpos, &len)) {
+    if (! PyArg_ParseTupleAndKeywords(args, kwargs, "sKK", (char **)kwlist, &c_id, &fpos, &len)) {
         goto except;
     }
-    c_id = py_unicode_to_std_string(id);
-    if (self->p_svfs->has(c_id)) {
-        SVFS::SparseVirtualFile &svf = self->p_svfs->at(c_id);
+    cpp_id = std::string(c_id);
+    if (self->p_svfs->has(cpp_id)) {
+        const SVFS::SparseVirtualFile &svf = self->p_svfs->at(cpp_id);
         SVFS::t_seek_read seek_read = svf.need(fpos, len);
         ret = PyList_New(seek_read.size());
         for (size_t i = 0; i < seek_read.size(); ++i) {
@@ -427,7 +467,7 @@ cp_SparseVirtualFileSystem_svf_need(cp_SparseVirtualFileSystem *self, PyObject *
             list_item = NULL;
         }
     } else {
-        PyErr_Format(PyExc_IndexError, "%s: No SVF ID %s", __FUNCTION__, c_id.c_str());
+        PyErr_Format(PyExc_IndexError, "%s: No SVF ID \"%s\"", __FUNCTION__, c_id);
         goto except;
     }
     assert(! PyErr_Occurred());
@@ -451,18 +491,18 @@ finally:
 cp_SparseVirtualFileSystem_svf_##method_name(cp_SparseVirtualFileSystem *self, PyObject *args, PyObject *kwargs) { \
     ASSERT_FUNCTION_ENTRY_SVFS(p_svfs); \
     PyObject *ret = NULL; \
-    PyObject *id = NULL; \
-    std::string c_id; \
+    char *c_id = NULL; \
+    std::string cpp_id; \
     static const char *kwlist[] = { "id", NULL}; \
-    if (! PyArg_ParseTupleAndKeywords(args, kwargs, "S", (char **)kwlist, &id)) { \
+    if (! PyArg_ParseTupleAndKeywords(args, kwargs, "s", (char **)kwlist, &c_id)) { \
         goto except; \
     } \
-    c_id = py_unicode_to_std_string(id); \
-    if (self->p_svfs->has(c_id)) { \
-        const SVFS::SparseVirtualFile &svf = self->p_svfs->at(c_id); \
+    cpp_id = std::string(c_id); \
+    if (self->p_svfs->has(cpp_id)) { \
+        const SVFS::SparseVirtualFile &svf = self->p_svfs->at(cpp_id); \
         ret = PyLong_FromLong(svf.method_name()); \
     } else { \
-        PyErr_Format(PyExc_IndexError, "%s: No SVF ID %s", __FUNCTION__, c_id.c_str()); \
+        PyErr_Format(PyExc_IndexError, "%s: No SVF ID \"%s\"", __FUNCTION__, c_id); \
         goto except; \
     } \
     assert(! PyErr_Occurred()); \
@@ -500,24 +540,25 @@ bool file_mod_time_matches(const double &file_mod_time) const noexcept {
 */
 
 static const char *cp_SparseVirtualFileSystem_svf_blocks_docstring = \
-"This returns a ordered list [(file_position, length), ...] of the blocks held by the SVF identified by the given id.";
+"This returns a ordered list [(file_position, length), ...] of all the blocks held by the SVF identified by the given id." \
+" This will raise an IndexError if the Sparse Virtual File of that id does not exist.";
 
 static PyObject *
 cp_SparseVirtualFileSystem_svf_blocks(cp_SparseVirtualFileSystem *self, PyObject *args, PyObject *kwargs) {
     ASSERT_FUNCTION_ENTRY_SVFS(p_svfs);
 
     PyObject *ret = NULL; // PyListObject
-    PyObject *id = NULL; // PyUnicodeObject
-    std::string c_id;
+    char *c_id = NULL; // PyUnicodeObject
+    std::string cpp_id;
     PyObject *list_item = NULL; // PyTupleObject
     static const char *kwlist[] = { "id", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwargs, "S", (char **)kwlist, &id)) {
+    if (! PyArg_ParseTupleAndKeywords(args, kwargs, "s", (char **)kwlist, &c_id)) {
         goto except;
     }
-    c_id = py_unicode_to_std_string(id);
-    if (self->p_svfs->has(c_id)) {
-        SVFS::SparseVirtualFile &svf = self->p_svfs->at(c_id);
+    cpp_id = std::string(c_id);
+    if (self->p_svfs->has(cpp_id)) {
+        const SVFS::SparseVirtualFile &svf = self->p_svfs->at(cpp_id);
         SVFS::t_seek_read seek_read = svf.blocks();
         ret = PyList_New(seek_read.size());
         for (size_t i = 0; i < seek_read.size(); ++i) {
@@ -530,13 +571,13 @@ cp_SparseVirtualFileSystem_svf_blocks(cp_SparseVirtualFileSystem *self, PyObject
             list_item = NULL;
         }
     } else {
-        PyErr_Format(PyExc_IndexError, "%s: No SVF ID %s", __FUNCTION__, c_id.c_str());
+        PyErr_Format(PyExc_IndexError, "%s: No SVF ID %s", __FUNCTION__, c_id);
         goto except;
     }
     assert(! PyErr_Occurred());
     assert(ret);
     goto finally;
-    except:
+except:
     assert(PyErr_Occurred());
     if (ret) {
         for (Py_ssize_t i = 0; i < PyList_Size(ret); ++i) {
@@ -545,41 +586,46 @@ cp_SparseVirtualFileSystem_svf_blocks(cp_SparseVirtualFileSystem *self, PyObject
     }
     Py_XDECREF(ret);
     ret = NULL;
-    finally:
+finally:
     return ret;
 }
 
 static const char *cp_SparseVirtualFileSystem_svf_size_of_docstring = \
-"Returns the best guess of total memory usage used by the SVF identified by the given id.";
+"Returns the best guess of total memory usage used by the Sparse Virtual File identified by the given id." \
+" This will raise an IndexError if the Sparse Virtual File of that id does not exist.";
 SVFS_SVF_METHOD_SIZE_T_WRAPPER(size_of);
 
 static const char *cp_SparseVirtualFileSystem_svf_num_bytes_docstring = \
-"Returns the number of bytes of data held by the SVF identified by the given id.";
+"Returns the number of bytes of data held by the Sparse Virtual File identified by the given id." \
+" This will raise an IndexError if the Sparse Virtual File of that id does not exist.";
 SVFS_SVF_METHOD_SIZE_T_WRAPPER(num_bytes);
 
 static const char *cp_SparseVirtualFileSystem_svf_num_blocks_docstring = \
-"Returns the number of data blocks held by the SVF identified by the given id.";
+"Returns the number of data blocks held by the Sparse Virtual File identified by the given id." \
+" This will raise an IndexError if the Sparse Virtual File of that id does not exist.";
 SVFS_SVF_METHOD_SIZE_T_WRAPPER(num_blocks);
 
 static const char *cp_SparseVirtualFileSystem_svf_file_mod_time_matches_docstring = \
-"Returns True if the SVF of the ID file modification time matches the time as a float.";
+"Returns True if the file modification time of the Sparse Virtual File identified by the given id the matches"\
+" the given time as a float." \
+" This will raise an IndexError if the Sparse Virtual File of that id does not exist.";
 
 static PyObject *
 cp_SparseVirtualFileSystem_svf_file_mod_time_matches(cp_SparseVirtualFileSystem *self, PyObject *args, PyObject *kwargs) {
     ASSERT_FUNCTION_ENTRY_SVFS(p_svfs);
 
     PyObject *ret = NULL;
-    PyObject *id = NULL;
+    char *c_id = NULL;
     double file_mod_time;
-    std::string c_id;
+    std::string cpp_id;
     static const char *kwlist[] = { "id", "file_mod_time", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwargs, "Sd", (char **)kwlist, &id, &file_mod_time)) {
+    if (! PyArg_ParseTupleAndKeywords(args, kwargs, "sd", (char **)kwlist, &c_id, &file_mod_time)) {
         goto except;
     }
-    c_id = py_unicode_to_std_string(id);
-    if (self->p_svfs->has(c_id)) {
-        SVFS::SparseVirtualFile &svf = self->p_svfs->at(c_id);
+    cpp_id = std::string(c_id);
+    if (self->p_svfs->has(cpp_id)) {
+        SVFS::SparseVirtualFile &svf = self->p_svfs->at(cpp_id);
         if (svf.file_mod_time_matches(file_mod_time)) {
             Py_INCREF(Py_True);
             ret = Py_True;
@@ -588,7 +634,7 @@ cp_SparseVirtualFileSystem_svf_file_mod_time_matches(cp_SparseVirtualFileSystem 
             ret = Py_False;
         }
     } else {
-        PyErr_Format(PyExc_IndexError, "%s: No SVF ID %s", __FUNCTION__, c_id.c_str());
+        PyErr_Format(PyExc_IndexError, "%s: No SVF ID \"%s\"", __FUNCTION__, c_id);
         goto except;
     }
     assert(! PyErr_Occurred());
@@ -617,7 +663,8 @@ std::chrono::time_point<std::chrono::system_clock> time_read() const noexcept { 
 */
 
 static const char *cp_SparseVirtualFileSystem_file_mod_time_docstring = \
-"Returns the file modification time as a float in UNIX time of the SVF identified by the given id.";
+"Returns the file modification time as a float in UNIX time of the Sparse Virtual File identified by the given id." \
+" This will raise an IndexError if the Sparse Virtual File of that id does not exist.";
 
 // SVF: double file_mod_time() const noexcept { return m_file_mod_time; }
 static PyObject *
@@ -625,19 +672,19 @@ cp_SparseVirtualFileSystem_file_mod_time(cp_SparseVirtualFileSystem *self, PyObj
     ASSERT_FUNCTION_ENTRY_SVFS(p_svfs);
 
     PyObject *ret = NULL;
-    PyObject *id = NULL;
-    std::string c_id;
+    char *c_id = NULL;
+    std::string cpp_id;
     static const char *kwlist[] = { "id", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwargs, "S", (char **)kwlist, &id)) {
+    if (! PyArg_ParseTupleAndKeywords(args, kwargs, "s", (char **)kwlist, &c_id)) {
         goto except;
     }
-    c_id = py_unicode_to_std_string(id);
-    if (self->p_svfs->has(c_id)) {
-        SVFS::SparseVirtualFile &svf = self->p_svfs->at(c_id);
+    cpp_id = std::string(c_id);
+    if (self->p_svfs->has(cpp_id)) {
+        SVFS::SparseVirtualFile &svf = self->p_svfs->at(cpp_id);
         ret = PyFloat_FromDouble(svf.file_mod_time());
     } else {
-        PyErr_Format(PyExc_IndexError, "%s: No SVF ID %s", __FUNCTION__, c_id.c_str());
+        PyErr_Format(PyExc_IndexError, "%s: No SVF ID %s", __FUNCTION__, c_id);
         goto except;
     }
     assert(! PyErr_Occurred());
@@ -652,19 +699,23 @@ finally:
 }
 
 static const char *cp_SparseVirtualFileSystem_svf_count_write_docstring = \
-"Returns the count of write operations on the SVF identified by the given id.";
+"Returns the count of write operations on the Sparse Virtual File identified by the given id." \
+" This will raise an IndexError if the Sparse Virtual File of that id does not exist.";
 SVFS_SVF_METHOD_SIZE_T_WRAPPER(count_write);
 
 static const char *cp_SparseVirtualFileSystem_svf_count_read_docstring = \
-"Returns the count of read operations on the SVF identified by the given id.";
+"Returns the count of read operations on the Sparse Virtual File identified by the given id." \
+" This will raise an IndexError if the Sparse Virtual File of that id does not exist.";
 SVFS_SVF_METHOD_SIZE_T_WRAPPER(count_read);
 
 static const char *cp_SparseVirtualFileSystem_svf_bytes_write_docstring = \
-"Returns the count of the number of bytes writen to the SVF identified by the given id.";
+"Returns the count of the number of bytes writen to the Sparse Virtual File identified by the given id." \
+" This will raise an IndexError if the Sparse Virtual File of that id does not exist.";
 SVFS_SVF_METHOD_SIZE_T_WRAPPER(bytes_write);
 
 static const char *cp_SparseVirtualFileSystem_svf_bytes_read_docstring = \
-"Returns the count of the number of bytes read from the SVF identified by the given id.";
+"Returns the count of the number of bytes read from the Sparse Virtual File identified by the given id." \
+" This will raise an IndexError if the Sparse Virtual File of that id does not exist.";
 SVFS_SVF_METHOD_SIZE_T_WRAPPER(bytes_read);
 
 
@@ -672,6 +723,7 @@ SVFS_SVF_METHOD_SIZE_T_WRAPPER(bytes_read);
     if (! PyDateTimeAPI) {                      \
         PyDateTime_IMPORT;                      \
     }                                           \
+    assert(PyDateTimeAPI);                      \
 } while(0)
 
 PyObject *
@@ -680,10 +732,27 @@ datetime_from_struct_tm(const std::tm *bdt, int usecond) {
 
     IMPORT_DATETIME_IF_UNINITIALISED;
     assert(! PyErr_Occurred());
-    // This is calling new_datetime_ex() which increfs tz and sets hastzinfo
-    ret = PyDateTimeAPI->DateTime_FromDateAndTime(bdt->tm_year, bdt->tm_mon, bdt->tm_mday,
-                                                  bdt->tm_hour, bdt->tm_min, bdt->tm_sec,
-                                                  usecond, NULL, PyDateTimeAPI->DateTimeType);
+//    // This is calling new_datetime_ex() which increfs tz and sets hastzinfo
+//    ret = PyDateTimeAPI->DateTime_FromDateAndTime(
+//            bdt->tm_year + 1900,
+//            bdt->tm_mon + 1,
+//            bdt->tm_mday,
+//            bdt->tm_hour,
+//            bdt->tm_min,
+//            bdt->tm_sec,
+//            usecond,
+//            NULL,
+//            PyDateTimeAPI->DateTimeType
+//    );
+    ret = PyDateTime_FromDateAndTime(
+            bdt->tm_year + 1900,
+            bdt->tm_mon + 1,
+            bdt->tm_mday,
+            bdt->tm_hour,
+            bdt->tm_min,
+            bdt->tm_sec,
+            usecond
+    );
     if (! ret) {
         PyErr_Format(PyExc_RuntimeError, "%s: Can not create datetime.datetime", __FUNCTION__);
         goto except;
@@ -692,34 +761,34 @@ datetime_from_struct_tm(const std::tm *bdt, int usecond) {
     assert(ret);
     goto finally;
 except:
-    Py_XDECREF(ret);
     assert(PyErr_Occurred());
+    Py_XDECREF(ret);
     ret = NULL;
 finally:
     return ret;
 }
 
-// This macro is for functions that return a size_t type such as time_write, time_read.
+// This macro is for functions that return a datetime type such as time_write, time_read.
 #define SVFS_SVF_METHOD_DATETIME_WRAPPER(method_name) static PyObject * \
 cp_SparseVirtualFileSystem_svf_##method_name(cp_SparseVirtualFileSystem *self, PyObject *args, PyObject *kwargs) { \
     ASSERT_FUNCTION_ENTRY_SVFS(p_svfs); \
     PyObject *ret = NULL; \
-    PyObject *id = NULL; \
-    std::string c_id; \
+    char *c_id = NULL; \
+    std::string cpp_id; \
     static const char *kwlist[] = { "id", NULL }; \
-    if (! PyArg_ParseTupleAndKeywords(args, kwargs, "S", (char **)kwlist, &id)) { \
+    if (! PyArg_ParseTupleAndKeywords(args, kwargs, "s", (char **)kwlist, &c_id)) { \
         goto except; \
     } \
-    c_id = py_unicode_to_std_string(id); \
-    if (self->p_svfs->has(c_id)) { \
-        const SVFS::SparseVirtualFile &svf = self->p_svfs->at(c_id); \
+    cpp_id = std::string(c_id); \
+    if (self->p_svfs->has(cpp_id)) { \
+        const SVFS::SparseVirtualFile &svf = self->p_svfs->at(cpp_id); \
         auto time = svf.method_name(); \
         const long seconds = std::chrono::time_point_cast<std::chrono::seconds>(time).time_since_epoch().count(); \
         int micro_seconds = std::chrono::time_point_cast<std::chrono::microseconds>(time).time_since_epoch().count() % 1000000; \
         const std::tm *p_struct_tm = std::gmtime(&seconds); \
         ret = datetime_from_struct_tm(p_struct_tm, micro_seconds); \
     } else { \
-        PyErr_Format(PyExc_IndexError, "%s: No SVF ID %s", __FUNCTION__, c_id.c_str()); \
+        PyErr_Format(PyExc_IndexError, "%s: No SVF ID \"%s\"", __FUNCTION__, c_id); \
         goto except; \
     } \
     assert(! PyErr_Occurred()); \
@@ -733,13 +802,102 @@ finally: \
     return ret; \
 }
 
+// NOTE: time_read and time_write functions are very similar.
+
 static const char *cp_SparseVirtualFileSystem_svf_time_write_docstring = \
-"Returns the timestamp of the last write to the SVF identified by the given id as a datetime.datetime.";
-SVFS_SVF_METHOD_DATETIME_WRAPPER(time_write)
+"Returns the timestamp of the last write to the Sparse Virtual File identified by the given id as a datetime.datetime." \
+" or None if no read has taken place." \
+" This will raise an IndexError if the Sparse Virtual File of that id does not exist.";
+//SVFS_SVF_METHOD_DATETIME_WRAPPER(time_write)
+
+static PyObject *
+cp_SparseVirtualFileSystem_svf_time_write(cp_SparseVirtualFileSystem *self, PyObject *args, PyObject *kwargs) {
+    ASSERT_FUNCTION_ENTRY_SVFS(p_svfs);
+    PyObject *ret = NULL;
+    char *c_id = NULL;
+    std::string cpp_id;
+    static const char *kwlist[] = { "id", NULL };
+    if (! PyArg_ParseTupleAndKeywords(args, kwargs, "s", (char **)kwlist, &c_id)) {
+        goto except;
+    }
+    cpp_id = std::string(c_id);
+    if (self->p_svfs->has(cpp_id)) {
+        const SVFS::SparseVirtualFile &svf = self->p_svfs->at(cpp_id);
+        if (svf.count_write()) {
+            auto time = svf.time_write();
+            const long seconds = std::chrono::time_point_cast<std::chrono::seconds>(time).time_since_epoch().count();
+            int micro_seconds = std::chrono::time_point_cast<std::chrono::microseconds>(time).time_since_epoch().count() % 1000000;
+            const std::tm *p_struct_tm = std::gmtime(&seconds);
+            ret = datetime_from_struct_tm(p_struct_tm, micro_seconds);
+            if (! ret) {
+                goto except;
+            }
+        } else {
+            Py_INCREF(Py_None);
+            ret = Py_None;
+        }
+    } else {
+        PyErr_Format(PyExc_IndexError, "%s: No SVF ID \"%s\"", __FUNCTION__, c_id);
+        goto except;
+    }
+    assert(! PyErr_Occurred());
+    assert(ret);
+    goto finally;
+except:
+    assert(PyErr_Occurred());
+    Py_XDECREF(ret);
+    ret = NULL;
+finally:
+    return ret;
+}
+
 
 static const char *cp_SparseVirtualFileSystem_svf_time_read_docstring = \
-"Returns the timestamp of the last read from the SVF identified by the given id as a datetime.datetime.";
-SVFS_SVF_METHOD_DATETIME_WRAPPER(time_read)
+"Returns the timestamp of the last read from the Sparse Virtual File identified by the given id as a datetime.datetime." \
+" or None if no read has taken place." \
+" This will raise an IndexError if the Sparse Virtual File of that id does not exist.";
+//SVFS_SVF_METHOD_DATETIME_WRAPPER(time_read)
+
+static PyObject *
+cp_SparseVirtualFileSystem_svf_time_read(cp_SparseVirtualFileSystem *self, PyObject *args, PyObject *kwargs) {
+    ASSERT_FUNCTION_ENTRY_SVFS(p_svfs);
+    PyObject *ret = NULL;
+    char *c_id = NULL;
+    std::string cpp_id;
+    static const char *kwlist[] = { "id", NULL };
+    if (! PyArg_ParseTupleAndKeywords(args, kwargs, "s", (char **)kwlist, &c_id)) {
+        goto except;
+    }
+    cpp_id = std::string(c_id);
+    if (self->p_svfs->has(cpp_id)) {
+        const SVFS::SparseVirtualFile &svf = self->p_svfs->at(cpp_id);
+        if (svf.count_read()) {
+            auto time = svf.time_read();
+            const long seconds = std::chrono::time_point_cast<std::chrono::seconds>(time).time_since_epoch().count();
+            int micro_seconds = std::chrono::time_point_cast<std::chrono::microseconds>(time).time_since_epoch().count() % 1000000;
+            const std::tm *p_struct_tm = std::gmtime(&seconds);
+            ret = datetime_from_struct_tm(p_struct_tm, micro_seconds);
+            if (! ret) {
+                goto except;
+            }
+        } else {
+            Py_INCREF(Py_None);
+            ret = Py_None;
+        }
+    } else {
+        PyErr_Format(PyExc_IndexError, "%s: No Sparse Virtual File ID \"%s\"", __FUNCTION__, c_id);
+        goto except;
+    }
+    assert(! PyErr_Occurred());
+    assert(ret);
+    goto finally;
+except:
+    assert(PyErr_Occurred());
+    Py_XDECREF(ret);
+    ret = NULL;
+finally:
+    return ret;
+}
 
 // END: SVF functions
 #pragma mark END: SVF functions
@@ -805,7 +963,7 @@ static PyMethodDef cp_SparseVirtualFileSystem_methods[] = {
         "need", (PyCFunction) cp_SparseVirtualFileSystem_svf_need, METH_VARARGS | METH_KEYWORDS,
         cp_SparseVirtualFileSystem_svf_need_docstring
     },
-    // ---- Meta information about the SVF ----
+    // ---- Meta information about the specific SVF ----
     {
         "blocks", (PyCFunction) cp_SparseVirtualFileSystem_svf_blocks, METH_VARARGS | METH_KEYWORDS,
         cp_SparseVirtualFileSystem_svf_blocks_docstring
@@ -889,7 +1047,7 @@ static PyModuleDef svfsmodule = {
         .m_doc = \
         "This module contains Sparse Virtual File System classes."
         "\n"
-        " A Sparse Virtual File (SVF) is one where some data from the actual file is held in memory at the specific"
+        "A Sparse Virtual File (SVF) is one where some data from the actual file is held in memory at the specific"
         " file locations as the original file."
         " The original file is identified by a string ID."
         " Data can be written to an SVF, if the data differs from that existing an error will be raised."
@@ -916,6 +1074,8 @@ PyInit_svfs(void)
 
     Py_INCREF(&svfs_SVFS);
     PyModule_AddObject(m, "SVFS", (PyObject *) &svfs_SVFS);
+
+    PyDateTime_IMPORT;
     return m;
 }
 
