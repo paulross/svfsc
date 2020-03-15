@@ -110,16 +110,21 @@ cp_SparseVirtualFileSystem_keys(cp_SparseVirtualFileSystem *self) {
         PyErr_Format(PyExc_RuntimeError, "%s: Can create list of size %d", __FUNCTION__, self->p_svfs->size());
         goto except;
     }
-    for(const auto& cpp_key: self->p_svfs->keys()) {
-        key = py_unicode_from_std_string(cpp_key);
-        if (! key) {
-            PyErr_Format(PyExc_RuntimeError, "%s: Can create key for %s", __FUNCTION__, cpp_key.c_str());
-            goto except;
+    try {
+        for (const auto &cpp_key: self->p_svfs->keys()) {
+            key = py_unicode_from_std_string(cpp_key);
+            if (!key) {
+                PyErr_Format(PyExc_RuntimeError, "%s: Can create key for %s", __FUNCTION__, cpp_key.c_str());
+                goto except;
+            }
+            // No error checking for this line. Steals reference.
+            PyList_SET_ITEM(ret, index, key);
+            key = NULL; // Safety habit with stolen reference.
+            ++index;
         }
-        // No error checking for this line. Steals reference.
-        PyList_SET_ITEM(ret, index, key);
-        key = NULL; // Safety habit with stolen reference.
-        ++index;
+    } catch (const std::exception &err)  {
+        PyErr_Format(PyExc_RuntimeError, "%s: FATAL caught std::exception %s", __FUNCTION__, err.what());
+        goto except;
     }
     assert(! PyErr_Occurred());
     assert(ret);
@@ -160,6 +165,9 @@ cp_SparseVirtualFileSystem_insert(cp_SparseVirtualFileSystem *self, PyObject *ar
                 __FUNCTION__, c_id, err.message().c_str()
                 );
         goto except;
+    } catch (const std::exception &err)  {
+        PyErr_Format(PyExc_RuntimeError, "%s: FATAL caught std::exception %s", __FUNCTION__, err.what());
+        goto except;
     }
     Py_INCREF(Py_None);
     ret = Py_None;
@@ -195,6 +203,9 @@ cp_SparseVirtualFileSystem_remove(cp_SparseVirtualFileSystem *self, PyObject *ar
                 __FUNCTION__, err.message().c_str()
         );
         goto except;
+    } catch (const std::exception &err)  {
+        PyErr_Format(PyExc_RuntimeError, "%s: FATAL caught std::exception %s", __FUNCTION__, err.what());
+        goto except;
     }
     Py_INCREF(Py_None);
     ret = Py_None;
@@ -223,12 +234,17 @@ cp_SparseVirtualFileSystem_has(cp_SparseVirtualFileSystem *self, PyObject *args,
     if (! PyArg_ParseTupleAndKeywords(args, kwargs, "s", (char **)kwlist, &c_id)) {
         goto except;
     }
-    if (self->p_svfs->has(c_id)) {
-        Py_INCREF(Py_True);
-        ret = Py_True;
-    } else {
-        Py_INCREF(Py_False);
-        ret = Py_False;
+    try {
+        if (self->p_svfs->has(c_id)) {
+            Py_INCREF(Py_True);
+            ret = Py_True;
+        } else {
+            Py_INCREF(Py_False);
+            ret = Py_False;
+        }
+    } catch (const std::exception &err)  {
+        PyErr_Format(PyExc_RuntimeError, "%s: FATAL caught std::exception %s", __FUNCTION__, err.what());
+        goto except;
     }
     assert(! PyErr_Occurred());
     assert(ret);
@@ -247,7 +263,12 @@ static const char *cp_SparseVirtualFileSystem_total_size_of_docstring = \
 static PyObject *
 cp_SparseVirtualFileSystem_total_size_of(cp_SparseVirtualFileSystem *self) {
     ASSERT_FUNCTION_ENTRY_SVFS(p_svfs);
-    return PyLong_FromLong(self->p_svfs->size_of());
+    try {
+        return PyLong_FromLong(self->p_svfs->size_of());
+    } catch (const std::exception &err)  {
+        PyErr_Format(PyExc_RuntimeError, "%s: FATAL caught std::exception %s", __FUNCTION__, err.what());
+        return NULL;
+    }
 }
 
 static const char *cp_SparseVirtualFileSystem_total_bytes_docstring = \
@@ -256,7 +277,12 @@ static const char *cp_SparseVirtualFileSystem_total_bytes_docstring = \
 static PyObject *
 cp_SparseVirtualFileSystem_total_bytes(cp_SparseVirtualFileSystem *self) {
     ASSERT_FUNCTION_ENTRY_SVFS(p_svfs);
+    try {
     return PyLong_FromLong(self->p_svfs->num_bytes());
+    } catch (const std::exception &err)  {
+        PyErr_Format(PyExc_RuntimeError, "%s: FATAL caught std::exception %s", __FUNCTION__, err.what());
+        return NULL;
+    }
 }
 
 static const char *cp_SparseVirtualFileSystem_total_blocks_docstring = \
@@ -265,7 +291,12 @@ static const char *cp_SparseVirtualFileSystem_total_blocks_docstring = \
 static PyObject *
 cp_SparseVirtualFileSystem_total_blocks(cp_SparseVirtualFileSystem *self) {
     ASSERT_FUNCTION_ENTRY_SVFS(p_svfs);
-    return PyLong_FromLong(self->p_svfs->num_blocks());
+    try {
+        return PyLong_FromLong(self->p_svfs->num_blocks());
+    } catch (const std::exception &err)  {
+        PyErr_Format(PyExc_RuntimeError, "%s: FATAL caught std::exception %s", __FUNCTION__, err.what());
+        return NULL;
+    }
 }
 
 // END: SVFS functions
@@ -296,13 +327,18 @@ cp_SparseVirtualFileSystem_svf_has_data(cp_SparseVirtualFileSystem *self, PyObje
     }
     cpp_id = std::string(c_id);
     if (self->p_svfs->has(cpp_id)) {
-        const SVFS::SparseVirtualFile &svf = self->p_svfs->at(cpp_id);
-        if (svf.has(fpos, len)) {
-            Py_INCREF(Py_True);
-            ret = Py_True;
-        } else {
-            Py_INCREF(Py_False);
-            ret = Py_False;
+        try {
+            const SVFS::SparseVirtualFile &svf = self->p_svfs->at(cpp_id);
+            if (svf.has(fpos, len)) {
+                Py_INCREF(Py_True);
+                ret = Py_True;
+            } else {
+                Py_INCREF(Py_False);
+                ret = Py_False;
+            }
+        } catch (const std::exception &err)  {
+            PyErr_Format(PyExc_RuntimeError, "%s: FATAL caught std::exception %s", __FUNCTION__, err.what());
+            goto except;
         }
     } else {
         PyErr_Format(PyExc_IndexError, "%s: No SVF ID \"%s\"", __FUNCTION__, c_id);
@@ -342,22 +378,27 @@ cp_SparseVirtualFileSystem_svf_write(cp_SparseVirtualFileSystem *self, PyObject 
         goto except;
     }
     cpp_id = std::string(c_id);
-    if (self->p_svfs->has(cpp_id)) {
-        SVFS::SparseVirtualFile &svf = self->p_svfs->at(cpp_id);
-        try {
-            svf.write(fpos, PyBytes_AS_STRING(py_bytes_data), PyBytes_Size(py_bytes_data));
-        } catch (const SVFS::ExceptionSparseVirtualFileDiff &err) {
-            PyErr_Format(PyExc_IOError,
-                "%s: Can not write to a SVF id = \"%s\" as the given data is different from what is there. ERROR: %s",
-                __FUNCTION__, c_id, err.message().c_str());
-            goto except;
-        } catch (const SVFS::ExceptionSparseVirtualFile &err) {
-            PyErr_Format(PyExc_RuntimeError, "%s: Can not write to a SVF id = \"%s\". ERROR: %s",
+    try {
+        if (self->p_svfs->has(cpp_id)) {
+            SVFS::SparseVirtualFile &svf = self->p_svfs->at(cpp_id);
+            try {
+                svf.write(fpos, PyBytes_AS_STRING(py_bytes_data), PyBytes_Size(py_bytes_data));
+            } catch (const SVFS::ExceptionSparseVirtualFileDiff &err) {
+                PyErr_Format(PyExc_IOError,
+                    "%s: Can not write to a SVF id = \"%s\" as the given data is different from what is there. ERROR: %s",
                     __FUNCTION__, c_id, err.message().c_str());
+                goto except;
+            } catch (const SVFS::ExceptionSparseVirtualFile &err) {
+                PyErr_Format(PyExc_RuntimeError, "%s: Can not write to a SVF id = \"%s\". ERROR: %s",
+                        __FUNCTION__, c_id, err.message().c_str());
+                goto except;
+            }
+        } else {
+            PyErr_Format(PyExc_IndexError, "%s: No SVF ID \"%s\"", __FUNCTION__, c_id);
             goto except;
         }
-    } else {
-        PyErr_Format(PyExc_IndexError, "%s: No SVF ID \"%s\"", __FUNCTION__, c_id);
+    } catch (const std::exception &err)  {
+        PyErr_Format(PyExc_RuntimeError, "%s: FATAL caught std::exception %s", __FUNCTION__, err.what());
         goto except;
     }
     Py_INCREF(Py_None);
@@ -395,23 +436,28 @@ cp_SparseVirtualFileSystem_svf_read(cp_SparseVirtualFileSystem *self, PyObject *
         goto except;
     }
     cpp_id = std::string(c_id);
-    if (self->p_svfs->has(cpp_id)) {
-        SVFS::SparseVirtualFile &svf = self->p_svfs->at(cpp_id);
-        // Create a bytes object
-        ret = PyBytes_FromStringAndSize(NULL, len);
-        try {
-            svf.read(fpos, len, PyBytes_AS_STRING(ret));
-        } catch (const SVFS::ExceptionSparseVirtualFileRead &err) {
-            PyErr_Format(PyExc_IOError, "%s: Can not read from a SVF id= \"%s\". ERROR: %s",
-                    __FUNCTION__, c_id, err.message().c_str());
-            goto except;
-        } catch (const SVFS::ExceptionSparseVirtualFile &err) {
-            PyErr_Format(PyExc_RuntimeError, "%s: Fatal error reading from a SVF id= \"%s\". ERROR: %s",
-                    __FUNCTION__, c_id, err.message().c_str());
+    try {
+        if (self->p_svfs->has(cpp_id)) {
+            SVFS::SparseVirtualFile &svf = self->p_svfs->at(cpp_id);
+            // Create a bytes object
+            ret = PyBytes_FromStringAndSize(NULL, len);
+            try {
+                svf.read(fpos, len, PyBytes_AS_STRING(ret));
+            } catch (const SVFS::ExceptionSparseVirtualFileRead &err) {
+                PyErr_Format(PyExc_IOError, "%s: Can not read from a SVF id= \"%s\". ERROR: %s",
+                        __FUNCTION__, c_id, err.message().c_str());
+                goto except;
+            } catch (const SVFS::ExceptionSparseVirtualFile &err) {
+                PyErr_Format(PyExc_RuntimeError, "%s: Fatal error reading from a SVF id= \"%s\". ERROR: %s",
+                        __FUNCTION__, c_id, err.message().c_str());
+                goto except;
+            }
+        } else {
+            PyErr_Format(PyExc_IndexError, "%s: No SVF ID \"%s\"", __FUNCTION__, c_id);
             goto except;
         }
-    } else {
-        PyErr_Format(PyExc_IndexError, "%s: No SVF ID \"%s\"", __FUNCTION__, c_id);
+    } catch (const std::exception &err)  {
+        PyErr_Format(PyExc_RuntimeError, "%s: FATAL caught std::exception %s", __FUNCTION__, err.what());
         goto except;
     }
     assert(! PyErr_Occurred());
@@ -453,21 +499,26 @@ cp_SparseVirtualFileSystem_svf_need(cp_SparseVirtualFileSystem *self, PyObject *
         goto except;
     }
     cpp_id = std::string(c_id);
-    if (self->p_svfs->has(cpp_id)) {
-        const SVFS::SparseVirtualFile &svf = self->p_svfs->at(cpp_id);
-        SVFS::t_seek_read seek_read = svf.need(fpos, len);
-        ret = PyList_New(seek_read.size());
-        for (size_t i = 0; i < seek_read.size(); ++i) {
-            list_item = Py_BuildValue("KK", seek_read[i].first, seek_read[i].second);
-            if (! list_item) {
-                PyErr_Format(PyExc_MemoryError, "%s: Can not create tuple", __FUNCTION__);
-                goto except;
+    try {
+        if (self->p_svfs->has(cpp_id)) {
+            const SVFS::SparseVirtualFile &svf = self->p_svfs->at(cpp_id);
+            SVFS::t_seek_read seek_read = svf.need(fpos, len);
+            ret = PyList_New(seek_read.size());
+            for (size_t i = 0; i < seek_read.size(); ++i) {
+                list_item = Py_BuildValue("KK", seek_read[i].first, seek_read[i].second);
+                if (! list_item) {
+                    PyErr_Format(PyExc_MemoryError, "%s: Can not create tuple", __FUNCTION__);
+                    goto except;
+                }
+                PyList_SET_ITEM(ret, i, list_item);
+                list_item = NULL;
             }
-            PyList_SET_ITEM(ret, i, list_item);
-            list_item = NULL;
+        } else {
+            PyErr_Format(PyExc_IndexError, "%s: No SVF ID \"%s\"", __FUNCTION__, c_id);
+            goto except;
         }
-    } else {
-        PyErr_Format(PyExc_IndexError, "%s: No SVF ID \"%s\"", __FUNCTION__, c_id);
+    } catch (const std::exception &err)  {
+        PyErr_Format(PyExc_RuntimeError, "%s: FATAL caught std::exception %s", __FUNCTION__, err.what());
         goto except;
     }
     assert(! PyErr_Occurred());
@@ -498,11 +549,16 @@ cp_SparseVirtualFileSystem_svf_##method_name(cp_SparseVirtualFileSystem *self, P
         goto except; \
     } \
     cpp_id = std::string(c_id); \
-    if (self->p_svfs->has(cpp_id)) { \
-        const SVFS::SparseVirtualFile &svf = self->p_svfs->at(cpp_id); \
-        ret = PyLong_FromLong(svf.method_name()); \
-    } else { \
-        PyErr_Format(PyExc_IndexError, "%s: No SVF ID \"%s\"", __FUNCTION__, c_id); \
+    try { \
+        if (self->p_svfs->has(cpp_id)) { \
+            const SVFS::SparseVirtualFile &svf = self->p_svfs->at(cpp_id); \
+            ret = PyLong_FromLong(svf.method_name()); \
+        } else { \
+            PyErr_Format(PyExc_IndexError, "%s: No SVF ID \"%s\"", __FUNCTION__, c_id); \
+            goto except; \
+        } \
+    } catch (const std::exception &err) { \
+        PyErr_Format(PyExc_RuntimeError, "%s: FATAL caught std::exception %s", __FUNCTION__, err.what()); \
         goto except; \
     } \
     assert(! PyErr_Occurred()); \
@@ -557,21 +613,26 @@ cp_SparseVirtualFileSystem_svf_blocks(cp_SparseVirtualFileSystem *self, PyObject
         goto except;
     }
     cpp_id = std::string(c_id);
-    if (self->p_svfs->has(cpp_id)) {
-        const SVFS::SparseVirtualFile &svf = self->p_svfs->at(cpp_id);
-        SVFS::t_seek_read seek_read = svf.blocks();
-        ret = PyList_New(seek_read.size());
-        for (size_t i = 0; i < seek_read.size(); ++i) {
-            list_item = Py_BuildValue("KK", seek_read[i].first, seek_read[i].second);
-            if (! list_item) {
-                PyErr_Format(PyExc_MemoryError, "%s: Can not create tuple", __FUNCTION__);
-                goto except;
+    try {
+        if (self->p_svfs->has(cpp_id)) {
+            const SVFS::SparseVirtualFile &svf = self->p_svfs->at(cpp_id);
+            SVFS::t_seek_read seek_read = svf.blocks();
+            ret = PyList_New(seek_read.size());
+            for (size_t i = 0; i < seek_read.size(); ++i) {
+                list_item = Py_BuildValue("KK", seek_read[i].first, seek_read[i].second);
+                if (! list_item) {
+                    PyErr_Format(PyExc_MemoryError, "%s: Can not create tuple", __FUNCTION__);
+                    goto except;
+                }
+                PyList_SET_ITEM(ret, i, list_item);
+                list_item = NULL;
             }
-            PyList_SET_ITEM(ret, i, list_item);
-            list_item = NULL;
+        } else {
+            PyErr_Format(PyExc_IndexError, "%s: No SVF ID %s", __FUNCTION__, c_id);
+            goto except;
         }
-    } else {
-        PyErr_Format(PyExc_IndexError, "%s: No SVF ID %s", __FUNCTION__, c_id);
+    } catch (const std::exception &err)  {
+        PyErr_Format(PyExc_RuntimeError, "%s: FATAL caught std::exception %s", __FUNCTION__, err.what());
         goto except;
     }
     assert(! PyErr_Occurred());
@@ -624,17 +685,22 @@ cp_SparseVirtualFileSystem_svf_file_mod_time_matches(cp_SparseVirtualFileSystem 
         goto except;
     }
     cpp_id = std::string(c_id);
-    if (self->p_svfs->has(cpp_id)) {
-        SVFS::SparseVirtualFile &svf = self->p_svfs->at(cpp_id);
-        if (svf.file_mod_time_matches(file_mod_time)) {
-            Py_INCREF(Py_True);
-            ret = Py_True;
+    try {
+        if (self->p_svfs->has(cpp_id)) {
+            SVFS::SparseVirtualFile &svf = self->p_svfs->at(cpp_id);
+            if (svf.file_mod_time_matches(file_mod_time)) {
+                Py_INCREF(Py_True);
+                ret = Py_True;
+            } else {
+                Py_INCREF(Py_False);
+                ret = Py_False;
+            }
         } else {
-            Py_INCREF(Py_False);
-            ret = Py_False;
+            PyErr_Format(PyExc_IndexError, "%s: No SVF ID \"%s\"", __FUNCTION__, c_id);
+            goto except;
         }
-    } else {
-        PyErr_Format(PyExc_IndexError, "%s: No SVF ID \"%s\"", __FUNCTION__, c_id);
+    } catch (const std::exception &err)  {
+        PyErr_Format(PyExc_RuntimeError, "%s: FATAL caught std::exception %s", __FUNCTION__, err.what());
         goto except;
     }
     assert(! PyErr_Occurred());
@@ -680,11 +746,16 @@ cp_SparseVirtualFileSystem_file_mod_time(cp_SparseVirtualFileSystem *self, PyObj
         goto except;
     }
     cpp_id = std::string(c_id);
-    if (self->p_svfs->has(cpp_id)) {
-        SVFS::SparseVirtualFile &svf = self->p_svfs->at(cpp_id);
-        ret = PyFloat_FromDouble(svf.file_mod_time());
-    } else {
-        PyErr_Format(PyExc_IndexError, "%s: No SVF ID %s", __FUNCTION__, c_id);
+    try {
+        if (self->p_svfs->has(cpp_id)) {
+            SVFS::SparseVirtualFile &svf = self->p_svfs->at(cpp_id);
+            ret = PyFloat_FromDouble(svf.file_mod_time());
+        } else {
+            PyErr_Format(PyExc_IndexError, "%s: No SVF ID %s", __FUNCTION__, c_id);
+            goto except;
+        }
+    } catch (const std::exception &err)  {
+        PyErr_Format(PyExc_RuntimeError, "%s: FATAL caught std::exception %s", __FUNCTION__, err.what());
         goto except;
     }
     assert(! PyErr_Occurred());
@@ -821,23 +892,28 @@ cp_SparseVirtualFileSystem_svf_time_write(cp_SparseVirtualFileSystem *self, PyOb
         goto except;
     }
     cpp_id = std::string(c_id);
-    if (self->p_svfs->has(cpp_id)) {
-        const SVFS::SparseVirtualFile &svf = self->p_svfs->at(cpp_id);
-        if (svf.count_write()) {
-            auto time = svf.time_write();
-            const long seconds = std::chrono::time_point_cast<std::chrono::seconds>(time).time_since_epoch().count();
-            int micro_seconds = std::chrono::time_point_cast<std::chrono::microseconds>(time).time_since_epoch().count() % 1000000;
-            const std::tm *p_struct_tm = std::gmtime(&seconds);
-            ret = datetime_from_struct_tm(p_struct_tm, micro_seconds);
-            if (! ret) {
-                goto except;
+    try {
+        if (self->p_svfs->has(cpp_id)) {
+            const SVFS::SparseVirtualFile &svf = self->p_svfs->at(cpp_id);
+            if (svf.count_write()) {
+                auto time = svf.time_write();
+                const long seconds = std::chrono::time_point_cast<std::chrono::seconds>(time).time_since_epoch().count();
+                int micro_seconds = std::chrono::time_point_cast<std::chrono::microseconds>(time).time_since_epoch().count() % 1000000;
+                const std::tm *p_struct_tm = std::gmtime(&seconds);
+                ret = datetime_from_struct_tm(p_struct_tm, micro_seconds);
+                if (! ret) {
+                    goto except;
+                }
+            } else {
+                Py_INCREF(Py_None);
+                ret = Py_None;
             }
         } else {
-            Py_INCREF(Py_None);
-            ret = Py_None;
+            PyErr_Format(PyExc_IndexError, "%s: No SVF ID \"%s\"", __FUNCTION__, c_id);
+            goto except;
         }
-    } else {
-        PyErr_Format(PyExc_IndexError, "%s: No SVF ID \"%s\"", __FUNCTION__, c_id);
+    } catch (const std::exception &err)  {
+        PyErr_Format(PyExc_RuntimeError, "%s: FATAL caught std::exception %s", __FUNCTION__, err.what());
         goto except;
     }
     assert(! PyErr_Occurred());
@@ -869,23 +945,28 @@ cp_SparseVirtualFileSystem_svf_time_read(cp_SparseVirtualFileSystem *self, PyObj
         goto except;
     }
     cpp_id = std::string(c_id);
-    if (self->p_svfs->has(cpp_id)) {
-        const SVFS::SparseVirtualFile &svf = self->p_svfs->at(cpp_id);
-        if (svf.count_read()) {
-            auto time = svf.time_read();
-            const long seconds = std::chrono::time_point_cast<std::chrono::seconds>(time).time_since_epoch().count();
-            int micro_seconds = std::chrono::time_point_cast<std::chrono::microseconds>(time).time_since_epoch().count() % 1000000;
-            const std::tm *p_struct_tm = std::gmtime(&seconds);
-            ret = datetime_from_struct_tm(p_struct_tm, micro_seconds);
-            if (! ret) {
-                goto except;
+    try {
+        if (self->p_svfs->has(cpp_id)) {
+            const SVFS::SparseVirtualFile &svf = self->p_svfs->at(cpp_id);
+            if (svf.count_read()) {
+                auto time = svf.time_read();
+                const long seconds = std::chrono::time_point_cast<std::chrono::seconds>(time).time_since_epoch().count();
+                int micro_seconds = std::chrono::time_point_cast<std::chrono::microseconds>(time).time_since_epoch().count() % 1000000;
+                const std::tm *p_struct_tm = std::gmtime(&seconds);
+                ret = datetime_from_struct_tm(p_struct_tm, micro_seconds);
+                if (! ret) {
+                    goto except;
+                }
+            } else {
+                Py_INCREF(Py_None);
+                ret = Py_None;
             }
         } else {
-            Py_INCREF(Py_None);
-            ret = Py_None;
+            PyErr_Format(PyExc_IndexError, "%s: No Sparse Virtual File ID \"%s\"", __FUNCTION__, c_id);
+            goto except;
         }
-    } else {
-        PyErr_Format(PyExc_IndexError, "%s: No Sparse Virtual File ID \"%s\"", __FUNCTION__, c_id);
+    } catch (const std::exception &err)  {
+        PyErr_Format(PyExc_RuntimeError, "%s: FATAL caught std::exception %s", __FUNCTION__, err.what());
         goto except;
     }
     assert(! PyErr_Occurred());
@@ -909,7 +990,12 @@ finally:
 static Py_ssize_t
 cp_SparseVirtualFileSystem_mapping_length(PyObject *self) {
     ASSERT_FUNCTION_ENTRY_SVFS(p_svfs);
-    return ((cp_SparseVirtualFileSystem *)self)->p_svfs->size();
+    try {
+        return ((cp_SparseVirtualFileSystem *)self)->p_svfs->size();
+    } catch (const std::exception &err)  {
+        PyErr_Format(PyExc_RuntimeError, "%s: FATAL caught std::exception %s", __FUNCTION__, err.what());
+        return NULL;
+    }
 }
 
 static PyMemberDef cp_SparseVirtualFileSystem_members[] = {
