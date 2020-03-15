@@ -112,7 +112,7 @@ cp_SparseVirtualFileSystem_keys(cp_SparseVirtualFileSystem *self) {
     }
     try {
         for (const auto &cpp_key: self->p_svfs->keys()) {
-            key = py_unicode_from_std_string(cpp_key);
+            key = PyUnicode_FromKindAndData(PyUnicode_1BYTE_KIND, cpp_key.c_str(), cpp_key.size());
             if (!key) {
                 PyErr_Format(PyExc_RuntimeError, "%s: Can create key for %s", __FUNCTION__, cpp_key.c_str());
                 goto except;
