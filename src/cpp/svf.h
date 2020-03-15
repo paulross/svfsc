@@ -57,13 +57,25 @@ namespace SVFS {
     public:
         // TODO: Implement coalesce strategies.
         // TODO: Implement cache limit and cache punting strategies.
+        /*
+         * Create a Sparse Virtual File
+         * id - The unique identifier for this file.
+         * mod_time - The modification time of the remote file in UNIX seconds, this is used for integrity checking.
+         * coalesce - The strategy to use for coalescing adjacent blocks. -1 is always, 0 is never and a positive value
+         *     means coalesce if the result is less than that.
+         * overwrite - If true the memory is destructively overwritten when the Sparse Virtual File is destroyed.
+         */
         SparseVirtualFile(const std::string &id, double mod_time, int coalesce = -1, bool overwrite = false) : \
             m_id(id), \
             m_file_mod_time(mod_time), \
             m_coalesce(coalesce), \
             m_overwrite(overwrite), \
             m_time_write(std::chrono::time_point<std::chrono::system_clock>::min()), \
-            m_time_read(std::chrono::time_point<std::chrono::system_clock>::min()) {}
+            m_time_read(std::chrono::time_point<std::chrono::system_clock>::min()) {
+            if (coalesce != -1){
+                throw std::runtime_error("Coalesce strategy not yet implemented.");
+            }
+        }
 
         // ---- Read and write etc. ----
         // Do I have the data?
