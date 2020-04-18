@@ -53,21 +53,17 @@ static int
 cp_SparseVirtualFileSystem_init(cp_SparseVirtualFileSystem *self, PyObject *args, PyObject *kwds)
 {
     assert(! PyErr_Occurred());
-    static const char *kwlist[] = {"coalesce", "overwrite", NULL};
-    PyObject *coalesce = NULL;
-    PyObject *overwrite = NULL;
+    static const char *kwlist[] = {"overwrite", NULL};
+    int coalesce = -1; // Not implemented.
+    int overwrite = 0;
 
 //    fprintf(stdout, "cp_SparseVirtualFileSystem_init() self %p\n", (void *)self);
     // Parse args/kwargs for coalesce (int), overwrite(bool)
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|ip", const_cast<char**>(kwlist), &coalesce, &overwrite)) {
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|p", const_cast<char**>(kwlist), &overwrite)) {
         assert(PyErr_Occurred());
         return -1;
     }
-    if (coalesce) {
-        self->p_svfs = new SVFS::SparseVirtualFileSystem(PyLong_AsLong(coalesce), overwrite == Py_True);
-    } else {
-        self->p_svfs = new SVFS::SparseVirtualFileSystem(-1, overwrite == Py_True);
-    }
+    self->p_svfs = new SVFS::SparseVirtualFileSystem(coalesce, overwrite != 0);
 //    fprintf(stdout, "cp_SparseVirtualFileSystem_init() self->p_svfs %p\n", (void *)self->p_svfs);
     assert(! PyErr_Occurred());
     return 0;
@@ -596,17 +592,17 @@ bool file_mod_time_matches(const double &file_mod_time) const noexcept {
 */
 
 static const char *cp_SparseVirtualFileSystem_svf_blocks_docstring = \
-"This returns a ordered list [(file_position, length), ...] of all the blocks held by the SVF identified by the given id." \
+"This returns a ordered tuple ((file_position, length), ...) of all the blocks held by the SVF identified by the given id." \
 " This will raise an IndexError if the Sparse Virtual File of that id does not exist.";
 
 static PyObject *
 cp_SparseVirtualFileSystem_svf_blocks(cp_SparseVirtualFileSystem *self, PyObject *args, PyObject *kwargs) {
     ASSERT_FUNCTION_ENTRY_SVFS(p_svfs);
 
-    PyObject *ret = NULL; // PyListObject
+    PyObject *ret = NULL; // PyTupleObject
     char *c_id = NULL; // PyUnicodeObject
     std::string cpp_id;
-    PyObject *list_item = NULL; // PyTupleObject
+    PyObject *insert_item = NULL; // PyTupleObject
     static const char *kwlist[] = { "id", NULL};
 
     if (! PyArg_ParseTupleAndKeywords(args, kwargs, "s", (char **)kwlist, &c_id)) {
@@ -617,15 +613,19 @@ cp_SparseVirtualFileSystem_svf_blocks(cp_SparseVirtualFileSystem *self, PyObject
         if (self->p_svfs->has(cpp_id)) {
             const SVFS::SparseVirtualFile &svf = self->p_svfs->at(cpp_id);
             SVFS::t_seek_read seek_read = svf.blocks();
-            ret = PyList_New(seek_read.size());
+            ret = PyTuple_New(seek_read.size());
+            if (! ret) {
+                PyErr_Format(PyExc_MemoryError, "%s: Can not create tuple for return", __FUNCTION__);
+                goto except;
+            }
             for (size_t i = 0; i < seek_read.size(); ++i) {
-                list_item = Py_BuildValue("KK", seek_read[i].first, seek_read[i].second);
-                if (! list_item) {
+                insert_item = Py_BuildValue("KK", seek_read[i].first, seek_read[i].second);
+                if (! insert_item) {
                     PyErr_Format(PyExc_MemoryError, "%s: Can not create tuple", __FUNCTION__);
                     goto except;
                 }
-                PyList_SET_ITEM(ret, i, list_item);
-                list_item = NULL;
+                PyTuple_SET_ITEM(ret, i, insert_item);
+                insert_item = NULL;
             }
         } else {
             PyErr_Format(PyExc_IndexError, "%s: No SVF ID %s", __FUNCTION__, c_id);
@@ -1105,7 +1105,7 @@ static PyMethodDef cp_SparseVirtualFileSystem_methods[] = {
 
 PyMappingMethods svfs_mapping_methods = {
     // Just length as we don't (yet) want to expose the underlying SVF to Python code.
-    // via mp_subscript (get), mp_ass_subscript (set).
+    // via either mp_subscript (get), mp_ass_subscript (set).
     .mp_length = &cp_SparseVirtualFileSystem_mapping_length,
 };
 
@@ -1113,8 +1113,9 @@ static PyTypeObject svfs_SVFS = {
         PyVarObject_HEAD_INIT(NULL, 0)
         .tp_name = "svfs.SVFS",
         .tp_doc = \
-        "This class implements a Sparse Virtual File System where Sparse Virtual Files are mapped to a key (a string)"
-        "",
+        "This class implements a Sparse Virtual File System where Sparse Virtual Files are mapped to a key (a string)."
+        " This can be constructed with an optional boolean overwrite flag that ensures  in-memory data is overwritten"
+        " on destruction of any SVF.",
         .tp_basicsize = sizeof(cp_SparseVirtualFileSystem),
         .tp_itemsize = 0,
         .tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
@@ -1141,7 +1142,7 @@ static PyModuleDef svfsmodule = {
         " Before any read() the SVF can describe what, if any, data is missing and the user can obtain and write that"
         " data to the SVF before reading."
         "\n"
-        "A Sparse Virtual File System is an extension of that concept where a file ID (string) is the key to a SVF.",
+        "A Sparse Virtual File System is an extension of that concept where a file ID (string) is the key to the appropriate SVF.",
         .m_size = -1,
 };
 

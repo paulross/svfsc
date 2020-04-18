@@ -191,7 +191,8 @@ namespace SVFS {
         SVF_ASSERT(integrity() == ERROR_NONE);
     }
 
-    void SparseVirtualFile::_write_append_new_to_old(t_fpos fpos, const char *data, size_t len, t_map::iterator iter) {
+    void SparseVirtualFile::_write_append_new_to_old(t_fpos fpos, const char *data, size_t len,
+            t_map::iterator iter) {
         // We are in these situations:
         //  ^===========|    |=====|
         //  |+++++++++|
@@ -223,7 +224,7 @@ namespace SVFS {
                     for (size_t i = 0; i < next_iter->second.size(); ++i) {
                         iter->second.push_back(next_iter->second[i]);
                     }
-                    m_svf.erase(next_iter);
+                    m_svf.erase(next_iter); // SYSSEGV
                 }
                 break;
             }
