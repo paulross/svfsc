@@ -157,10 +157,10 @@ def test_simulate_write_uncoalesced(block_size):
     assert len(s.blocks(ID)) == block_count
 
 
-# @pytest.mark.parametrize(
-#     'block_size',
-#     (1, 2, 4, 8, 16, 32, 64),
-# )
+@pytest.mark.parametrize(
+    'block_size',
+    (1, 2, 4, 8, 16, 32, 64),
+)
 def test_simulate_write_coalesced(block_size):
     SIZE = 1024 #* 1024 * 1
     ID = 'abc'
@@ -181,6 +181,7 @@ def main():
     test_simulate_write_coalesced(2)
     print('Bye, bye!')
     return 0
+
 
 if __name__ == '__main__':
     sys.exit(main())
