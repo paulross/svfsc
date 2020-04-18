@@ -57,7 +57,9 @@ namespace SVFS {
             os << " Difference at position " << fpos;
             os << " '" << *(data) << "' != '" << iter->second[index_iter] << "'";
             os << " Ordinal " << static_cast<int>(*data) << " != " << static_cast<int>(iter->second[index_iter]);
-            throw ExceptionSparseVirtualFileDiff(os.str());
+            std::string str = os.str();
+//            throw ExceptionSparseVirtualFileDiff(os.str());
+            throw ExceptionSparseVirtualFileDiff(str);
         }
     }
 
@@ -89,7 +91,7 @@ namespace SVFS {
                 // Insert new block, possibly coalescing existing blocks.
                 _write_new_append_old(fpos, data, len, iter);
             } else {
-                if (fpos > iter->first + iter->second.size()) {
+                if (fpos > _last_file_pos_for_block(iter)) {
                     _write(fpos, data, len);
                     m_bytes_total += len;
                 } else {
@@ -192,7 +194,7 @@ namespace SVFS {
     }
 
     void SparseVirtualFile::_write_append_new_to_old(t_fpos fpos, const char *data, size_t len,
-            t_map::iterator iter) {
+            t_map::iterator base_iter) {
         // We are in these situations:
         //  ^===========|    |=====|
         //  |+++++++++|
@@ -209,55 +211,68 @@ namespace SVFS {
         SVF_ASSERT(integrity() == ERROR_NONE);
         assert(data);
         assert(len > 0);
-        assert(iter != m_svf.end());
-        assert(fpos >= iter->first);
-        assert(fpos <= _last_file_pos_for_block(iter));
+        assert(base_iter != m_svf.end());
+        assert(fpos >= base_iter->first);
+        assert(fpos <= _last_file_pos_for_block(base_iter));
 
 #ifdef DEBUG
 //        size_t fpos_end = fpos + len;
 #endif
-        t_map::iterator next_iter = iter;
-        while (true) {
-            if (len == 0) {
-                // Break condition: Coalesce next_iter if necessary
-                if (fpos == next_iter->first) {
-                    for (size_t i = 0; i < next_iter->second.size(); ++i) {
-                        iter->second.push_back(next_iter->second[i]);
-                    }
-                    m_svf.erase(next_iter); // SYSSEGV
+        // Diff check against base_iter
+        // Do the check to end of len or end of base_iter which ever comes first.
+        // Do not increment m_bytes_total as this is existing data.
+        size_t index_iter = fpos - base_iter->first;
+        while (len && index_iter < base_iter->second.size()) {
+            // Check overlapped data matches
+            _throw_diff(fpos, data, base_iter, index_iter);
+            ++data;
+            ++fpos;
+            --len;
+            ++index_iter;
+        }
+        t_map::iterator iter = std::next(base_iter);
+        while (len) {
+            if (iter == m_svf.end()) {
+                // Termination case, copy remainder
+                while (len) {
+                    base_iter->second.push_back(*data);
+                    ++data;
+                    ++fpos;
+                    --len;
+                    m_bytes_total += 1;
                 }
-                break;
-            }
-            size_t index_iter = fpos - next_iter->first;
-            while (len && index_iter < next_iter->second.size()) {
-                // Check overlapped data matches, copying to iter
-                _throw_diff(fpos, data, next_iter, index_iter);
-                ++index_iter;
-                ++data;
-                ++fpos;
-                --len;
-            }
-            if (next_iter != iter) {
-                // Coalesce by copying all of next_iter to iter.
-                for (size_t i = 0; i < next_iter->second.size(); ++i) {
-                    iter->second.push_back(next_iter->second[i]);
-                }
-                // Erase next_iter as we have copied it all.
-                if (m_overwrite) {
-                    next_iter->second.assign(next_iter->second.size(), '0');
-                }
-                next_iter = m_svf.erase(next_iter);
+                break; // Done. Needed because we are going to do erase(iter) otherwise.
             } else {
-                ++next_iter;
+                // Copy new data up to start of iter
+                while (len && fpos < iter->first) {
+                    base_iter->second.push_back(*data);
+                    ++data;
+                    ++fpos;
+                    --len;
+                    m_bytes_total += 1;
+                }
             }
-            // Write out the new data between the blocks
-            while (len && (next_iter == m_svf.end() || fpos < next_iter->first)) {
-                iter->second.push_back(*data);
+            // Diff check, but also append to base_iter.
+            // Do not increment m_bytes_total as this is existing data.
+            index_iter = 0;
+            while (len && fpos < _last_file_pos_for_block(iter)) {
+                _throw_diff(fpos, data, iter, index_iter);
+                base_iter->second.push_back(*data);
                 ++data;
                 ++fpos;
                 --len;
-                ++m_bytes_total;
+                ++index_iter;
             }
+            // Here either data is exhausted or iter is.
+            // If data is exhausted then copy remaining from iter to base_iter.
+            // Do not increment m_bytes_total as this is existing data.
+            if (len == 0) {
+                while (index_iter < iter->second.size()) {
+                    base_iter->second.push_back(iter->second[index_iter]);
+                    ++index_iter;
+                }
+            }
+            iter = m_svf.erase(iter);
         }
         assert(len == 0);
 #ifdef DEBUG

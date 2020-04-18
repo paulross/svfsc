@@ -133,82 +133,104 @@ namespace SVFS {
     }
 
     const std::vector<TestCaseWrite> write_test_cases = {
-        {"Write no blocks", {}, {}},
-        //        |+++|
         //
-        //==== New is added to existing blocks: _write_append_new_to_old()
+        {"Write no blocks", {}, {}},
+
+        //        |+++|
         {"Write single block", {{8, 4}}, {{8, 4}},},
+
+        //==== Old collects new and existing blocks: _write_old_append_new()
         //        ^==|
         //        |++|
         {"Overwrite single block", {{8, 4}, {8, 4}}, {{8, 4}},},
+
         //        ^==|
         //        |+++|
         {"Extend single block - a", {{8, 4}, {8, 5}}, {{8, 5}},},
+
         //        ^==|
         //         |++|
         {"Extend single block - b", {{8, 4}, {9, 4}}, {{8, 5}},},
+
         //        ^==|
         //            |+++|
         {"Coalesce two blocks", {{8, 4}, {12, 5}}, {{8, 9}},},
+
         //        ^==|    |==|
         {"Add second block", {{8, 4}, {16, 4}}, {{8, 4}, {16, 4}},},
+
         //        ^==|    |==|
         //          |++++++|
         {"New joins two blocks", {{8, 4}, {16, 4}, {10, 8}}, {{8, 12}},},
+
         //        ^==|    |==|
         //            |++|
+
         {"New just fills gap between two blocks", {{8, 4}, {16, 4}, {12, 4}}, {{8, 12}},},
+
         //        ^==|    |==|
         //        |++++++++++|
         {"New overlaps two blocks exactly", {{8, 4}, {16, 4}, {8, 12}}, {{8, 12}},},
+
         //        ^==|    |==|
         //         |++++++++|
         {"New overlaps two blocks just short", {{8, 4}, {16, 4}, {9, 10}}, {{8, 12}},},
+
         //        ^==|    |==|
         //        |++++++++++++|
         {"New overlaps two blocks and adds", {{8, 4}, {16, 4}, {8, 14}}, {{8, 14}},},
-        //
+
         //==== New collects existing blocks: _write_new_append_old()
+
         //        ^==|
         //    |++|
         {"New appends old[0]", {{8, 4}, {4, 4}}, {{4, 8}},},
+
         //        ^==|
         //       |++|
         {"New appends part of old[0]", {{8, 4}, {7, 3}}, {{7, 5}},},
+
         //        ^==|
         //       |+++|
         {"New overlaps end old[0] exactly", {{8, 4}, {7, 5}}, {{7, 5}},},
+
         //        ^==|
         //       |++++|
         {"New overlaps end old[0] and beyond", {{8, 4}, {7, 6}}, {{7, 6}},},
+
         //        ^==|    |==|
         //       |+++++|
         {"New appends old[0] not [1] (a)", {{8, 4}, {16, 4}, {7, 7}}, {{7, 7}, {16, 4}},},
+
         //        ^==|    |==|
         //       |++++++|
         {"New appends old[0] not [1] (b)", {{8, 4}, {16, 4}, {7, 8}}, {{7, 8}, {16, 4}},},
+
         //        ^==|    |==|
         //       |+++++++|
         {"New appends old[0] and [1] exactly", {{8, 4}, {16, 4}, {7, 9}}, {{7, 13}},},
+
         //        ^===|    |==|
         //       |+++++++++|
         {"New appends old[0] and [1] - just", {{8, 4}, {16, 4}, {7, 10}}, {{7, 13}},},
+
         //        ^===|    |==|
         //       |++++++++++|
         {"New appends old[0] and [1] - one byte", {{8, 4}, {16, 4}, {7, 11}}, {{7, 13}},},
+
         //        ^===|    |==|
         //       |++++++++++++|
         {"New appends old[0] and [1] - all", {{8, 4}, {16, 4}, {7, 13}}, {{7, 13}},},
+
         //        ^===|    |==|
         //       |+++++++++++++|
-        {"New appends old[0] and [1] overlaped", {{8, 4}, {16, 4}, {7, 14}}, {{7, 14}},},
+        {"New appends old[0] and [1] overlapped", {{8, 4}, {16, 4}, {7, 14}}, {{7, 14}},},
     };
 
     const std::vector<TestCaseWrite> write_test_cases_special = {
-        //        ^==|
-        //    |++|
-        {"New appends old[0]", {{8, 4}, {4, 4}}, {{4, 8}},},
-//        {"New appends old[0]", {{8, 4}, {4, 4}, {16, 4}, {32, 4}}, {{4, 8}},},
+            //        ^==|    |==|
+            //          |++++++|
+            {"New joins two blocks", {{8, 4}, {16, 4}, {10, 8}}, {{8, 12}},},
     };
 
     TestCount test_write_all(t_test_results &results) {

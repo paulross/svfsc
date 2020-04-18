@@ -161,7 +161,7 @@ namespace SVFS {
 
         void _write_new_append_old(t_fpos fpos, const char *data, size_t len, t_map::iterator iter);
 
-        void _write_append_new_to_old(t_fpos fpos, const char *data, size_t len, t_map::iterator iter);
+        void _write_append_new_to_old(t_fpos fpos, const char *data, size_t len, t_map::iterator base_iter);
 
         void _read(t_fpos fpos, size_t len, char *p) const;
 
