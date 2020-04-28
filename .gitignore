@@ -60,3 +60,7 @@ tmp/
 # PyCharm
 .idea/
 
+# CMake
+cmake-build-debug/
+cmake-build-release/
+
