@@ -54,7 +54,7 @@ cp_SparseVirtualFileSystem_init(cp_SparseVirtualFileSystem *self, PyObject *args
 {
     assert(! PyErr_Occurred());
     static const char *kwlist[] = {"overwrite", NULL};
-    int coalesce = -1; // Not implemented.
+//    int coalesce = -1; // Not implemented.
     int overwrite = 0;
 
 //    fprintf(stdout, "cp_SparseVirtualFileSystem_init() self %p\n", (void *)self);
@@ -63,7 +63,7 @@ cp_SparseVirtualFileSystem_init(cp_SparseVirtualFileSystem *self, PyObject *args
         assert(PyErr_Occurred());
         return -1;
     }
-    self->p_svfs = new SVFS::SparseVirtualFileSystem(coalesce, overwrite != 0);
+    self->p_svfs = new SVFS::SparseVirtualFileSystem();
 //    fprintf(stdout, "cp_SparseVirtualFileSystem_init() self->p_svfs %p\n", (void *)self->p_svfs);
     assert(! PyErr_Occurred());
     return 0;

@@ -43,9 +43,8 @@ namespace SVFS {
 
     class SparseVirtualFileSystem {
     public:
-        SparseVirtualFileSystem(int coalesce = -1, bool overwrite = false) : \
-            m_coalesce(coalesce), \
-            m_overwrite(overwrite) {}
+        SparseVirtualFileSystem(const tSparseVirtualFileConfig &config = tSparseVirtualFileConfig()) : \
+            m_config(config) {}
 
         void insert(const std::string &id, double mod_time);
         void remove(const std::string &id);
@@ -91,12 +90,7 @@ namespace SVFS {
         ~SparseVirtualFileSystem() noexcept;
     protected:
         std::unordered_map<std::string, SparseVirtualFile> m_svfs;
-        // TODO: Implement the coalesce strategy.
-        // -1 Always coalesce
-        // 0 Never coalesce
-        // >0 Only coalesce if the result is < this value, say 2048 (bytes).
-        int m_coalesce;
-        bool m_overwrite;
+        tSparseVirtualFileConfig m_config;
     };
 }
 

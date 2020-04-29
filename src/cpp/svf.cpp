@@ -7,6 +7,9 @@
 
 #include "svf.h"
 
+#undef USE_MEMCMP_DIFF
+#define USE_MEMCMP_DIFF
+
 namespace SVFS {
 
     bool SparseVirtualFile::has(t_fpos fpos, size_t len) const noexcept {
@@ -51,6 +54,8 @@ namespace SVFS {
     SparseVirtualFile::_throw_diff(t_fpos fpos, const char *data, t_map::const_iterator iter, size_t index_iter) const {
         assert(data);
         assert(iter != m_svf.end());
+        assert(m_config.compare_for_diff);
+
         if (*data != iter->second[index_iter]) {
             std::ostringstream os;
             os << "SparseVirtualFile::write():";
@@ -61,6 +66,10 @@ namespace SVFS {
 //            throw ExceptionSparseVirtualFileDiff(os.str());
             throw ExceptionSparseVirtualFileDiff(str);
         }
+#ifdef USE_MEMCMP_DIFF
+        // Assert as this should now never be called is there is _not_ a diff.
+        assert(0);
+#endif
     }
 
     void SparseVirtualFile::write(t_fpos fpos, const char *data, size_t len) {
@@ -139,6 +148,25 @@ namespace SVFS {
                 ++m_bytes_total;
             }
             size_t index_iter = 0;
+#ifdef USE_MEMCMP_DIFF
+            size_t delta = std::min(len, iter->second.size());
+            // Check overlapped data matches 'Y'
+            //       ^===========|  |=====|
+            //  |++++YYYYYYYYYYYYY++++|
+            if (m_config.compare_for_diff) {
+                if (std::memcmp(iter->second.data(), data, delta) != 0) {
+                    _throw_diff(fpos, data, iter, 0);
+                }
+            }
+            for (size_t i = 0; i < delta; ++i) {
+                new_vector.push_back(*data);
+                ++data;
+            }
+//            data += delta;
+            fpos += delta;
+            len -= delta;
+            index_iter += delta;
+#else
             while (len && _last_file_pos_for_block(iter) > fpos) {
                 // Check overlapped data matches 'Y'
                 //       ^===========|  |=====|
@@ -150,6 +178,7 @@ namespace SVFS {
                 --len;
                 ++index_iter;
             }
+#endif
             if (_last_file_pos_for_block(iter) > fpos_end) {
                 // Copy rest of iter 'Z'
                 assert(len == 0);
@@ -160,11 +189,14 @@ namespace SVFS {
                     new_vector.push_back(iter->second[index_iter]);
                     ++index_iter;
                 }
+                if (m_config.overwrite_on_exit) {
+                    iter->second.assign(iter->second.size(), '0');
+                }
                 m_svf.erase(iter);
                 break;
             }
             // Remove copied and checked old block and move on.
-            if (m_overwrite) {
+            if (m_config.overwrite_on_exit) {
                 iter->second.assign(iter->second.size(), '0');
             }
             iter = m_svf.erase(iter);
@@ -221,6 +253,21 @@ namespace SVFS {
         // Diff check against base_iter
         // Do the check to end of len or end of base_iter which ever comes first.
         // Do not increment m_bytes_total as this is existing data.
+#ifdef USE_MEMCMP_DIFF
+        // Diff check against base_iter
+        size_t index_iter = fpos - base_iter->first;
+        // Do the check to end of len or end of base_iter which ever comes first.
+        size_t delta = std::min(len, base_iter->second.size() - index_iter);
+        if (m_config.compare_for_diff) {
+            if (std::memcmp(base_iter->second.data() + index_iter, data, delta) != 0) {
+                _throw_diff(fpos, data, base_iter, index_iter);
+            }
+        }
+        data += delta;
+        fpos += delta;
+        len -= delta;
+#else
+        // Do not increment m_bytes_total as this is existing data.
         size_t index_iter = fpos - base_iter->first;
         while (len && index_iter < base_iter->second.size()) {
             // Check overlapped data matches
@@ -230,6 +277,7 @@ namespace SVFS {
             --len;
             ++index_iter;
         }
+#endif
         t_map::iterator iter = std::next(base_iter);
         while (len) {
             if (iter == m_svf.end()) {
@@ -254,23 +302,51 @@ namespace SVFS {
             }
             // Diff check, but also append to base_iter.
             // Do not increment m_bytes_total as this is existing data.
+#ifdef USE_MEMCMP_DIFF
+            index_iter = 0;
+            delta = std::min(len, _last_file_pos_for_block(iter) - fpos);
+            if (delta) {
+                if (std::memcmp(iter->second.data(), data, delta) != 0) {
+                    _throw_diff(fpos, data, base_iter, 0);
+                }
+                for (size_t i = 0; i < delta; ++i) {
+                    base_iter->second.push_back(*data);
+                    ++data;
+                    ++fpos;
+                    --len;
+                    ++index_iter;
+                }
+//                data += delta;
+//                fpos += delta;
+//                len -= delta;
+            }
+#else
             index_iter = 0;
             while (len && fpos < _last_file_pos_for_block(iter)) {
-                _throw_diff(fpos, data, iter, index_iter);
+                if (m_config.compare_for_diff) {
+                    _throw_diff(fpos, data, iter, index_iter);
+                }
                 base_iter->second.push_back(*data);
                 ++data;
                 ++fpos;
                 --len;
                 ++index_iter;
             }
+#endif
             // Here either data is exhausted or iter is.
             // If data is exhausted then copy remaining from iter to base_iter.
             // Do not increment m_bytes_total as this is existing data.
             if (len == 0) {
+#ifdef USE_MEMCMP_DIFF
+//                index_iter = 0;
+#endif
                 while (index_iter < iter->second.size()) {
                     base_iter->second.push_back(iter->second[index_iter]);
                     ++index_iter;
                 }
+            }
+            if (m_config.overwrite_on_exit) {
+                iter->second.assign(iter->second.size(), '0');
             }
             iter = m_svf.erase(iter);
         }
@@ -453,7 +529,7 @@ namespace SVFS {
         // Maintain ID and constructor arguments.
 //        m_time_write = std::chrono::time_point<std::chrono::system_clock>::min();
 //        m_time_read = std::chrono::time_point<std::chrono::system_clock>::min();
-        if (m_overwrite) {
+        if (m_config.overwrite_on_exit) {
             for (auto &iter: m_svf) {
                 iter.second.assign(iter.second.size(), '0');
             }

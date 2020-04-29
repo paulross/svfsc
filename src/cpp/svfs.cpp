@@ -15,7 +15,7 @@ namespace SVFS {
 #endif
         auto result = m_svfs.emplace(std::piecewise_construct,
                                      std::forward_as_tuple(id),
-                                     std::forward_as_tuple(id, mod_time, m_coalesce, m_overwrite));
+                                     std::forward_as_tuple(id, mod_time, m_config));
         if (! result.second) {
             // Error, insertion failed
             std::ostringstream os;

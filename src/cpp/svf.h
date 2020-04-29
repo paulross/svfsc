@@ -53,26 +53,36 @@ namespace SVFS {
     typedef size_t t_fpos;
     typedef std::vector<std::pair<t_fpos, size_t>> t_seek_read;
 
+
+    typedef struct SparseVirtualFileConfig {
+        // TODO: Implement coalesce strategies.
+        // TODO: Implement cache limit and cache punting strategies?
+        // coalesce - The strategy to use for coalescing adjacent blocks. -1 is always, 0 is never and a
+        // positive value means coalesce if the size of the result is less than this value.
+        int coalesce = -1;
+        // If true the memory is destructively overwritten when the Sparse Virtual File is destroyed.
+        bool overwrite_on_exit = false;
+        // If true compare with existing data on write and if there is a difference throw an exception.
+        // This trades performance (if false) for correctness (if true).
+        bool compare_for_diff = true;
+    } tSparseVirtualFileConfig;
+
     class SparseVirtualFile {
     public:
-        // TODO: Implement coalesce strategies.
-        // TODO: Implement cache limit and cache punting strategies.
         /*
          * Create a Sparse Virtual File
          * id - The unique identifier for this file.
          * mod_time - The modification time of the remote file in UNIX seconds, this is used for integrity checking.
-         * coalesce - The strategy to use for coalescing adjacent blocks. -1 is always, 0 is never and a positive value
-         *     means coalesce if the result is less than that.
-         * overwrite - If true the memory is destructively overwritten when the Sparse Virtual File is destroyed.
+         * config - See tSparseVirtualFileConfig above.
          */
-        SparseVirtualFile(const std::string &id, double mod_time, int coalesce = -1, bool overwrite = false) : \
+        SparseVirtualFile(const std::string &id, double mod_time,
+                const tSparseVirtualFileConfig &config = tSparseVirtualFileConfig()) : \
             m_id(id), \
             m_file_mod_time(mod_time), \
-            m_coalesce(coalesce), \
-            m_overwrite(overwrite), \
+            m_config(config),
             m_time_write(std::chrono::time_point<std::chrono::system_clock>::min()), \
             m_time_read(std::chrono::time_point<std::chrono::system_clock>::min()) {
-            if (coalesce != -1){
+            if (m_config.coalesce != -1){
                 throw std::runtime_error("Coalesce strategy not yet implemented.");
             }
         }
@@ -130,12 +140,13 @@ namespace SVFS {
     private:
         std::string m_id;
         double m_file_mod_time;
-        // TODO: Implement the coalesce strategy.
-        // -1 Always coalesce
-        // 0 Never coalesce
-        // >0 Only coalesce if the result is < this value, say 2048 (bytes).
-        int m_coalesce;
-        bool m_overwrite;
+        tSparseVirtualFileConfig m_config;
+//        // TODO: Implement the coalesce strategy.
+//        // -1 Always coalesce
+//        // 0 Never coalesce
+//        // >0 Only coalesce if the result is < this value, say 2048 (bytes).
+//        int m_coalesce;
+//        bool m_overwrite;
         // Total number of bytes in this SVF
         size_t m_bytes_total = 0;
         // Access statistics
