@@ -7,9 +7,6 @@
 
 #include "svf.h"
 
-#undef USE_MEMCMP_DIFF
-#define USE_MEMCMP_DIFF
-
 namespace SVFS {
 
     bool SparseVirtualFile::has(t_fpos fpos, size_t len) const noexcept {
@@ -63,13 +60,10 @@ namespace SVFS {
             os << " '" << *(data) << "' != '" << iter->second[index_iter] << "'";
             os << " Ordinal " << static_cast<int>(*data) << " != " << static_cast<int>(iter->second[index_iter]);
             std::string str = os.str();
-//            throw ExceptionSparseVirtualFileDiff(os.str());
             throw ExceptionSparseVirtualFileDiff(str);
         }
-#ifdef USE_MEMCMP_DIFF
         // Assert as this should now never be called is there is _not_ a diff.
         assert(0);
-#endif
     }
 
     void SparseVirtualFile::write(t_fpos fpos, const char *data, size_t len) {
@@ -148,7 +142,6 @@ namespace SVFS {
                 ++m_bytes_total;
             }
             size_t index_iter = 0;
-#ifdef USE_MEMCMP_DIFF
             size_t delta = std::min(len, iter->second.size());
             // Check overlapped data matches 'Y'
             //       ^===========|  |=====|
@@ -162,23 +155,9 @@ namespace SVFS {
                 new_vector.push_back(*data);
                 ++data;
             }
-//            data += delta;
             fpos += delta;
             len -= delta;
             index_iter += delta;
-#else
-            while (len && _last_file_pos_for_block(iter) > fpos) {
-                // Check overlapped data matches 'Y'
-                //       ^===========|  |=====|
-                //  |++++YYYYYYYYYYYYY++++|
-                _throw_diff(fpos, data, iter, index_iter);
-                new_vector.push_back(*data);
-                ++data;
-                ++fpos;
-                --len;
-                ++index_iter;
-            }
-#endif
             if (_last_file_pos_for_block(iter) > fpos_end) {
                 // Copy rest of iter 'Z'
                 assert(len == 0);
@@ -253,7 +232,6 @@ namespace SVFS {
         // Diff check against base_iter
         // Do the check to end of len or end of base_iter which ever comes first.
         // Do not increment m_bytes_total as this is existing data.
-#ifdef USE_MEMCMP_DIFF
         // Diff check against base_iter
         size_t index_iter = fpos - base_iter->first;
         // Do the check to end of len or end of base_iter which ever comes first.
@@ -266,18 +244,6 @@ namespace SVFS {
         data += delta;
         fpos += delta;
         len -= delta;
-#else
-        // Do not increment m_bytes_total as this is existing data.
-        size_t index_iter = fpos - base_iter->first;
-        while (len && index_iter < base_iter->second.size()) {
-            // Check overlapped data matches
-            _throw_diff(fpos, data, base_iter, index_iter);
-            ++data;
-            ++fpos;
-            --len;
-            ++index_iter;
-        }
-#endif
         t_map::iterator iter = std::next(base_iter);
         while (len) {
             if (iter == m_svf.end()) {
@@ -302,7 +268,6 @@ namespace SVFS {
             }
             // Diff check, but also append to base_iter.
             // Do not increment m_bytes_total as this is existing data.
-#ifdef USE_MEMCMP_DIFF
             index_iter = 0;
             delta = std::min(len, _last_file_pos_for_block(iter) - fpos);
             if (delta) {
@@ -316,30 +281,11 @@ namespace SVFS {
                     --len;
                     ++index_iter;
                 }
-//                data += delta;
-//                fpos += delta;
-//                len -= delta;
             }
-#else
-            index_iter = 0;
-            while (len && fpos < _last_file_pos_for_block(iter)) {
-                if (m_config.compare_for_diff) {
-                    _throw_diff(fpos, data, iter, index_iter);
-                }
-                base_iter->second.push_back(*data);
-                ++data;
-                ++fpos;
-                --len;
-                ++index_iter;
-            }
-#endif
             // Here either data is exhausted or iter is.
             // If data is exhausted then copy remaining from iter to base_iter.
             // Do not increment m_bytes_total as this is existing data.
             if (len == 0) {
-#ifdef USE_MEMCMP_DIFF
-//                index_iter = 0;
-#endif
                 while (index_iter < iter->second.size()) {
                     base_iter->second.push_back(iter->second[index_iter]);
                     ++index_iter;
@@ -594,57 +540,5 @@ namespace SVFS {
         auto ret = iter->first + iter->second.size();
         return ret;
     }
-
-    /*
-     *  std::string m_id;
-        double m_file_mod_time;
-        // TODO: Implement the coalesce strategy.
-        // -1 Always coalesce
-        // 0 Never coalesce
-        // >0 Only coalesce if the result is < this value, say 2048 (bytes).
-        int m_coalesce;
-        bool m_overwrite;
-        // Total number of bytes in this SVF
-        size_t m_bytes_total = 0;
-        // Access statistics
-        size_t m_count_write = 0;
-        size_t m_count_read = 0;
-        // NOTE: These include any duplicate reads/writes.
-        size_t m_bytes_write = 0;
-        size_t m_bytes_read = 0;
-        // Last access times
-        std::chrono::time_point<std::chrono::system_clock> m_time_write;
-        std::chrono::time_point<std::chrono::system_clock> m_time_read;
-        // The actual SVF
-        typedef std::vector<char> t_val;
-        typedef std::map<t_fpos, t_val> t_map;
-        t_map m_svf;
-#ifdef SVF_THREAD_SAFE
-        // This adds about 5-10% execution time compared with a single threaded version.
-        mutable std::mutex m_mutex;
-#endif
-
-     */
-
-//    SparseVirtualFile& SparseVirtualFile::operator=(SparseVirtualFile &&other) {
-//        if (this != &other) {
-//            m_id = std::move(other.m_id);
-//            m_file_mod_time = std::move(other.m_file_mod_time);
-//            m_coalesce = std::move(other.m_coalesce);
-//            m_overwrite = std::move(other.m_overwrite);
-//            m_bytes_total = std::move(other.m_bytes_total);
-//            m_count_write = std::move(other.m_count_write);
-//            m_count_read = std::move(other.m_count_read);
-//            m_bytes_write = std::move(other.m_bytes_write);
-//            m_bytes_read = std::move(other.m_bytes_read);
-//            m_time_write = std::move(other.m_time_write);
-//            m_time_read = std::move(other.m_time_read);
-//            m_svf = std::move(other.m_svf);
-//#ifdef SVF_THREAD_SAFE
-//            m_mutex = std::move(other.m_mutex);
-//#endif
-//        }
-//        return *this;
-//    }
 
 } // namespace SparseVirtualFileSystem
