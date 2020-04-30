@@ -80,8 +80,8 @@ namespace SVFS {
         //
 //        std::cout << "TRACE: write(): fpos = " << fpos << " len = " << len << std::endl;
 
-        if (m_svf.empty()) {
-            // Simple insert of new data into empty map.
+        if (m_svf.empty() || fpos > _last_file_position()) {
+            // Simple insert of new data into empty map or a node beyond the end (common case).
             _write(fpos, data, len);
             m_bytes_total += len;
         } else {
@@ -95,6 +95,7 @@ namespace SVFS {
                 _write_new_append_old(fpos, data, len, iter);
             } else {
                 if (fpos > _last_file_pos_for_block(iter)) {
+                    // No overlap so just write new block
                     _write(fpos, data, len);
                     m_bytes_total += len;
                 } else {
@@ -515,14 +516,27 @@ namespace SVFS {
         return ERROR_NONE;
     }
 
-/// Returns the largest possible file position known so far.
-/// Of course this is not the EOF position as we may not have been offered that yet.
+    /// Returns the largest possible file position known so far.
+    /// Of course this is not the EOF position as we may not have been offered that yet.
     t_fpos
     SparseVirtualFile::last_file_position() const noexcept {
         SVF_ASSERT(integrity() == ERROR_NONE);
 #ifdef SVF_THREAD_SAFE
         std::lock_guard<std::mutex> mutex(m_mutex);
 #endif
+        if (m_svf.empty()) {
+            return 0;
+        } else {
+            auto iter = m_svf.end();
+            --iter;
+            return _last_file_pos_for_block(iter);
+        }
+    }
+
+    /// Returns the largest possible file position known so far.
+    /// Of course this is not the EOF position as we may not have been offered that yet.
+    t_fpos
+    SparseVirtualFile::_last_file_position() const noexcept {
         if (m_svf.empty()) {
             return 0;
         } else {

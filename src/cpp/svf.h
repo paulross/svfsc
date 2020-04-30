@@ -110,6 +110,7 @@ namespace SVFS {
         size_t num_bytes() const noexcept { return m_bytes_total; };
         // Gives exact number of blocks used.
         size_t num_blocks() const noexcept { return m_svf.size(); }
+        // Uses mutex and checks integrity
         t_fpos last_file_position() const noexcept;
         // Check the clients file modification time has changed.
         // Caller has to decide what to do...
@@ -177,6 +178,9 @@ namespace SVFS {
         void _read(t_fpos fpos, size_t len, char *p) const;
 
         void _throw_diff(t_fpos fpos, const char *data, t_map::const_iterator iter, size_t index_iter) const;
+
+        // Does not use mutex or checks integrity
+        t_fpos _last_file_position() const noexcept;
 
         t_fpos _last_file_pos_for_block(t_map::const_iterator iter) const noexcept;
 
