@@ -2,8 +2,8 @@
 // Created by Paul Ross on 2020-01-22.
 //
 
-#ifndef CPPSVF_TEST_SCF_H
-#define CPPSVF_TEST_SCF_H
+#ifndef CPPSVF_TEST_SVF_H
+#define CPPSVF_TEST_SVF_H
 
 #include <string>
 #include "svf.h"
@@ -124,4 +124,4 @@ namespace SVFS {
 
 } // namespace SparseVirtualFileSystem
 
-#endif //CPPSVF_TEST_SCF_H
+#endif //CPPSVF_TEST_SVF_H

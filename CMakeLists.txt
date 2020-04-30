@@ -30,6 +30,8 @@ add_executable(
         src/cpp/svf.cpp
         src/cpp/tests/test_svf.h
         src/cpp/tests/test_svf.cpp
+        src/cpp/tests/test_svfs.h
+        src/cpp/tests/test_svfs.cpp
         src/cpp/tests/test.h
         src/cpp/tests/test.cpp
         src/cpp/util/SaveStreamState.h

@@ -19,18 +19,18 @@ extra_compile_args = [
     # '-Isrc/cpp',
     # We implement mutex with Python's thread locking so we don't want the
     # overhead of C++'s thread locking as well.
-    # '-USKIPLIST_THREAD_SUPPORT',
+    # '-USVF_THREAD_SAFE',
 
     # Until we use m_coalesce
     '-Wno-unused-private-field',
 ]
 
-DEBUG = True
+DEBUG = False
 
 if DEBUG:
     extra_compile_args.extend(['-g3', '-O0', '-DDEBUG=1', '-UNDEBUG'])
 else:
-    extra_compile_args.extend(['-O2', '-DNDEBUG'])
+    extra_compile_args.extend(['-O2', '-UDEBUG', '-DNDEBUG'])
 
 svfs = Extension(
     "svfs",

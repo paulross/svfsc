@@ -5,6 +5,7 @@
 #include "svf.h"
 #include "test.h"
 #include "test_svf.h"
+#include "test_svfs.h"
 
 
 int main() {
@@ -16,7 +17,8 @@ int main() {
     // Test section
     auto time_start = std::chrono::high_resolution_clock::now();
 
-    pass_fail += SVFS::test_svf_all(results);
+//    pass_fail += SVFS::test_svf_all(results);
+    pass_fail += SVFS::test_svfs_all(results);
 
     std::chrono::duration<double> time_exec = std::chrono::high_resolution_clock::now() - time_start;
 

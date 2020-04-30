@@ -9,6 +9,8 @@
 #include <string>
 #include <vector>
 
+extern const char test_data_bytes_512[];
+
 class TestResult {
 public:
     TestResult(const std::string &m_function, const std::string &m_test,

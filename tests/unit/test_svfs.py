@@ -1,4 +1,5 @@
 import sys
+import time
 
 import pytest
 
@@ -174,6 +175,58 @@ def test_simulate_write_coalesced(block_size):
     assert s.num_bytes(ID) == SIZE
     assert s.count_write(ID) == block_count
     assert len(s.blocks(ID)) == 1
+
+
+ID = 'abc'
+
+
+@pytest.mark.parametrize(
+    'vr_count, lr_count',
+    (
+            (1, 10,),
+            (2, 10,),
+            (3, 10,),
+            (10, 10,),
+            (100, 10,),
+            # (1000, 10,),
+            # (23831, 10,),
+    )
+)
+def test_sim_write_index(vr_count, lr_count):
+    file_system = svfs.SVFS()
+    file_system.insert(ID, 12.0)
+    vr_data = b' ' * 4
+    lr_data = b' ' * 4
+    count_write = 0
+    bytes_write = 0
+    # print()
+    assert file_system.count_write(ID) == count_write
+    for vr in range(vr_count):
+        fpos = 80 + vr * 8004
+        # print(f'Write vr fpos={fpos}')
+        t_vr = time.perf_counter()
+        file_system.write(ID, fpos, vr_data)
+        # print(f'TRACE: vr write at fpos={fpos:10d} {1e3 * (time.perf_counter() - t_vr):8.3f} (ms)')
+        # t_vr = time.perf_counter()
+        count_write += 1
+        assert file_system.count_write(ID) == count_write
+        bytes_write += 4
+        assert file_system.bytes_write(ID) == bytes_write
+        fpos += 4
+        for lrsh in range(lr_count):
+            # print(f'Write lr fpos={fpos}')
+            # t_lr = time.perf_counter()
+            file_system.write(ID, fpos, lr_data)
+            # print(f'TRACE:   lr write at fpos={fpos:10d} {1e3 * (time.perf_counter() - t_lr):8.3f} (ms)')
+            count_write += 1
+            assert file_system.count_write(ID) == count_write
+            bytes_write += 4
+            assert file_system.bytes_write(ID) == bytes_write
+            fpos += 8000 // lr_count
+    assert file_system.count_write(ID) == count_write
+    assert file_system.bytes_write(ID) == bytes_write
+    assert file_system.count_write(ID) == vr_count * lr_count + vr_count
+    return file_system.count_write(ID)
 
 
 def main():

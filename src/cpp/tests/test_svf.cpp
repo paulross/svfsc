@@ -8,44 +8,6 @@
 
 #include "test_svf.h"
 
-// Produced by, more or less:
-// print('{\n    ' + ',\n    '.join([', '.join([f'0x{v + (16 * i):02x}' for v in range(16)]) for i in range(16)]) + '\n}')
-// Imaginary file data, unique 256 bytes, unsigned char.
-const char data[] = {
-    0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f,
-    0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x1a, 0x1b, 0x1c, 0x1d, 0x1e, 0x1f,
-    0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27, 0x28, 0x29, 0x2a, 0x2b, 0x2c, 0x2d, 0x2e, 0x2f,
-    0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39, 0x3a, 0x3b, 0x3c, 0x3d, 0x3e, 0x3f,
-    0x40, 0x41, 0x42, 0x43, 0x44, 0x45, 0x46, 0x47, 0x48, 0x49, 0x4a, 0x4b, 0x4c, 0x4d, 0x4e, 0x4f,
-    0x50, 0x51, 0x52, 0x53, 0x54, 0x55, 0x56, 0x57, 0x58, 0x59, 0x5a, 0x5b, 0x5c, 0x5d, 0x5e, 0x5f,
-    0x60, 0x61, 0x62, 0x63, 0x64, 0x65, 0x66, 0x67, 0x68, 0x69, 0x6a, 0x6b, 0x6c, 0x6d, 0x6e, 0x6f,
-    0x70, 0x71, 0x72, 0x73, 0x74, 0x75, 0x76, 0x77, 0x78, 0x79, 0x7a, 0x7b, 0x7c, 0x7d, 0x7e, 0x7f,
-    -0x80, -0x7f, -0x7e, -0x7d, -0x7c, -0x7b, -0x7a, -0x79, -0x78, -0x77, -0x76, -0x75, -0x74, -0x73, -0x72, -0x71,
-    -0x70, -0x6f, -0x6e, -0x6d, -0x6c, -0x6b, -0x6a, -0x69, -0x68, -0x67, -0x66, -0x65, -0x64, -0x63, -0x62, -0x61,
-    -0x60, -0x5f, -0x5e, -0x5d, -0x5c, -0x5b, -0x5a, -0x59, -0x58, -0x57, -0x56, -0x55, -0x54, -0x53, -0x52, -0x51,
-    -0x50, -0x4f, -0x4e, -0x4d, -0x4c, -0x4b, -0x4a, -0x49, -0x48, -0x47, -0x46, -0x45, -0x44, -0x43, -0x42, -0x41,
-    -0x40, -0x3f, -0x3e, -0x3d, -0x3c, -0x3b, -0x3a, -0x39, -0x38, -0x37, -0x36, -0x35, -0x34, -0x33, -0x32, -0x31,
-    -0x30, -0x2f, -0x2e, -0x2d, -0x2c, -0x2b, -0x2a, -0x29, -0x28, -0x27, -0x26, -0x25, -0x24, -0x23, -0x22, -0x21,
-    -0x20, -0x1f, -0x1e, -0x1d, -0x1c, -0x1b, -0x1a, -0x19, -0x18, -0x17, -0x16, -0x15, -0x14, -0x13, -0x12, -0x11,
-    -0x10, -0xf, -0xe, -0xd, -0xc, -0xb, -0xa, -0x9, -0x8, -0x7, -0x6, -0x5, -0x4, -0x3, -0x2, -0x1,
-    0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f,
-    0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x1a, 0x1b, 0x1c, 0x1d, 0x1e, 0x1f,
-    0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27, 0x28, 0x29, 0x2a, 0x2b, 0x2c, 0x2d, 0x2e, 0x2f,
-    0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39, 0x3a, 0x3b, 0x3c, 0x3d, 0x3e, 0x3f,
-    0x40, 0x41, 0x42, 0x43, 0x44, 0x45, 0x46, 0x47, 0x48, 0x49, 0x4a, 0x4b, 0x4c, 0x4d, 0x4e, 0x4f,
-    0x50, 0x51, 0x52, 0x53, 0x54, 0x55, 0x56, 0x57, 0x58, 0x59, 0x5a, 0x5b, 0x5c, 0x5d, 0x5e, 0x5f,
-    0x60, 0x61, 0x62, 0x63, 0x64, 0x65, 0x66, 0x67, 0x68, 0x69, 0x6a, 0x6b, 0x6c, 0x6d, 0x6e, 0x6f,
-    0x70, 0x71, 0x72, 0x73, 0x74, 0x75, 0x76, 0x77, 0x78, 0x79, 0x7a, 0x7b, 0x7c, 0x7d, 0x7e, 0x7f,
-    -0x80, -0x7f, -0x7e, -0x7d, -0x7c, -0x7b, -0x7a, -0x79, -0x78, -0x77, -0x76, -0x75, -0x74, -0x73, -0x72, -0x71,
-    -0x70, -0x6f, -0x6e, -0x6d, -0x6c, -0x6b, -0x6a, -0x69, -0x68, -0x67, -0x66, -0x65, -0x64, -0x63, -0x62, -0x61,
-    -0x60, -0x5f, -0x5e, -0x5d, -0x5c, -0x5b, -0x5a, -0x59, -0x58, -0x57, -0x56, -0x55, -0x54, -0x53, -0x52, -0x51,
-    -0x50, -0x4f, -0x4e, -0x4d, -0x4c, -0x4b, -0x4a, -0x49, -0x48, -0x47, -0x46, -0x45, -0x44, -0x43, -0x42, -0x41,
-    -0x40, -0x3f, -0x3e, -0x3d, -0x3c, -0x3b, -0x3a, -0x39, -0x38, -0x37, -0x36, -0x35, -0x34, -0x33, -0x32, -0x31,
-    -0x30, -0x2f, -0x2e, -0x2d, -0x2c, -0x2b, -0x2a, -0x29, -0x28, -0x27, -0x26, -0x25, -0x24, -0x23, -0x22, -0x21,
-    -0x20, -0x1f, -0x1e, -0x1d, -0x1c, -0x1b, -0x1a, -0x19, -0x18, -0x17, -0x16, -0x15, -0x14, -0x13, -0x12, -0x11,
-    -0x10, -0xf, -0xe, -0xd, -0xc, -0xb, -0xa, -0x9, -0x8, -0x7, -0x6, -0x5, -0x4, -0x3, -0x2, -0x1,
-};
-
 namespace SVFS {
 
     TestCaseWrite::TestCaseWrite(const std::string &m_test_name, const t_seek_read &m_writes,
@@ -60,7 +22,7 @@ namespace SVFS {
         size_t bytes_written = 0;
         auto time_start = std::chrono::high_resolution_clock::now();
         try {
-            bytes_written += load_writes(svf, data);
+            bytes_written += load_writes(svf, test_data_bytes_512);
         } catch (ExceptionSparseVirtualFile &err) {
             return TestResult(__FUNCTION__, m_test_name, 1, err.message(), 0.0, 0);
         }
@@ -278,7 +240,7 @@ namespace SVFS {
         SparseVirtualFile svf("", 0.0);
 
         try {
-            load_writes(svf, data);
+            load_writes(svf, test_data_bytes_512);
             svf.write(m_fpos, m_data, m_len);
             return TestResult(__FUNCTION__, m_test_name, 1, "Write test failed to throw.", 0.0, 0);
         } catch (ExceptionSparseVirtualFileWrite &err) {
@@ -293,7 +255,7 @@ namespace SVFS {
 
     const std::vector<TestCaseWriteThrows> write_test_cases_throws = {
         {
-            "Throws: Overwrite single block", {{65, 4}}, 65, 4, data + 66,
+            "Throws: Overwrite single block", {{65, 4}}, 65, 4, test_data_bytes_512 + 66,
             "SparseVirtualFile::write(): Difference at position 65 'B' != 'A' Ordinal 66 != 65"
         },
     };
@@ -308,7 +270,7 @@ namespace SVFS {
         return count;
     }
 
-    // Write data with a overlap with diff checking on. Data is 128 blocks every 64 bytes.
+    // Write test_data_bytes_512 with a overlap with diff checking on. Data is 128 blocks every 64 bytes.
     TestCount test_perf_write_with_diff_check(t_test_results &results) {
         TestCount count;
         tSparseVirtualFileConfig config;
@@ -318,7 +280,7 @@ namespace SVFS {
         auto time_start = std::chrono::high_resolution_clock::now();
 
         for (size_t fpos = 0; fpos < 1024 * 1024; fpos += 64) {
-            svf.write(fpos, data + fpos % 256, 128);
+            svf.write(fpos, test_data_bytes_512 + fpos % 256, 128);
         }
 
         std::chrono::duration<double> time_exec = std::chrono::high_resolution_clock::now() - time_start;
@@ -328,7 +290,7 @@ namespace SVFS {
         return count;
     }
 
-    // Write data with a overlap with diff checking on. Data is 128 blocks every 64 bytes.
+    // Write test_data_bytes_512 with a overlap with diff checking on. Data is 128 blocks every 64 bytes.
     TestCount test_perf_write_without_diff_check(t_test_results &results) {
         TestCount count;
         tSparseVirtualFileConfig config;
@@ -337,7 +299,7 @@ namespace SVFS {
         auto time_start = std::chrono::high_resolution_clock::now();
 
         for (size_t fpos = 0; fpos < 1024 * 1024; fpos += 64) {
-            svf.write(fpos, data + fpos % 256, 128);
+            svf.write(fpos, test_data_bytes_512 + fpos % 256, 128);
         }
 
         std::chrono::duration<double> time_exec = std::chrono::high_resolution_clock::now() - time_start;
@@ -350,17 +312,17 @@ namespace SVFS {
     // Simulate writing a low level RP66V1 index. Total bytes written around 1Mb.
     // Represented file size is about 190 Mb
     // 23831 * (4 + 10 * 4) is close to 1Mb
-    TestCount test_perf_write_sim_index(t_test_results &results) {
+    TestCount test_perf_write_sim_index_svf(t_test_results &results) {
         TestCount count;
         SparseVirtualFile svf("", 0.0);
         auto time_start = std::chrono::high_resolution_clock::now();
 
         for (size_t vr = 0; vr < 23831; ++vr) {
             t_fpos fpos = 80 + vr * 8004;
-            svf.write(fpos, data, 4);
+            svf.write(fpos, test_data_bytes_512, 4);
             fpos += 4;
             for (int lrsh = 0; lrsh < 10; ++lrsh) {
-                svf.write(fpos, data, 4);
+                svf.write(fpos, test_data_bytes_512, 4);
                 fpos += 800;
             }
         }
@@ -372,8 +334,8 @@ namespace SVFS {
         return count;
     }
 
-    // Write 1Mb of data in different, equally sized, blocks that are all coalesced and report the time taken.
-    // Essentially only one block is created and all the other data is appended.
+    // Write 1Mb of test_data_bytes_512 in different, equally sized, blocks that are all coalesced and report the time taken.
+    // Essentially only one block is created and all the other test_data_bytes_512 is appended.
     TestCount test_perf_write_1M_coalesced(t_test_results &results) {
         TestCount count;
         for (size_t block_size = 1; block_size <= 256; block_size *= 2) {
@@ -382,7 +344,7 @@ namespace SVFS {
             auto time_start = std::chrono::high_resolution_clock::now();
             for (t_fpos i = 0; i < (1024 * 1024 * 1) / block_size; ++i) {
                 t_fpos fpos = i * block_size;
-                svf.write(fpos, data, block_size);
+                svf.write(fpos, test_data_bytes_512, block_size);
             }
             std::chrono::duration<double> time_exec = std::chrono::high_resolution_clock::now() - time_start;
 
@@ -396,7 +358,7 @@ namespace SVFS {
         return count;
     }
 
-    // Write 1Mb of data in different, equally sized, blocks that are not coalesced and report the time taken.
+    // Write 1Mb of test_data_bytes_512 in different, equally sized, blocks that are not coalesced and report the time taken.
     // Each write creates a separate block.
     TestCount test_perf_write_1M_uncoalesced(t_test_results &results) {
         TestCount count;
@@ -406,7 +368,7 @@ namespace SVFS {
             auto time_start = std::chrono::high_resolution_clock::now();
             for (t_fpos i = 0; i < (1024 * 1024 * 1) / block_size; ++i) {
                 t_fpos fpos = i * block_size + i;
-                svf.write(fpos, data, block_size);
+                svf.write(fpos, test_data_bytes_512, block_size);
             }
             std::chrono::duration<double> time_exec = std::chrono::high_resolution_clock::now() - time_start;
 
@@ -421,7 +383,7 @@ namespace SVFS {
     }
 
 
-    // Write 1Mb of data in different, equally sized, blocks that are not coalesced and report the memory usage
+    // Write 1Mb of test_data_bytes_512 in different, equally sized, blocks that are not coalesced and report the memory usage
     // with size_of(). Each write creates a separate  block.
     // Typically 1 byte  blocks are x35 times the memory. 256 byte blocks are x1.2 the memory.
     TestCount test_perf_write_1M_uncoalesced_size_of(t_test_results &results) {
@@ -432,7 +394,7 @@ namespace SVFS {
             auto time_start = std::chrono::high_resolution_clock::now();
             for (t_fpos i = 0; i < (1024 * 1024 * 1) / block_size; ++i) {
                 t_fpos fpos = i * block_size + i;
-                svf.write(fpos, data, block_size);
+                svf.write(fpos, test_data_bytes_512, block_size);
             }
             std::chrono::duration<double> time_exec = std::chrono::high_resolution_clock::now() - time_start;
 
@@ -458,7 +420,7 @@ namespace SVFS {
 
         // Load the SVF
         try {
-            load_writes(svf, data);
+            load_writes(svf, test_data_bytes_512);
         } catch (ExceptionSparseVirtualFile &err) {
             return TestResult(__FUNCTION__, m_test_name, 1, err.message(), 0.0, 0);
         }
@@ -479,11 +441,11 @@ namespace SVFS {
 
         // Check the result
         for (size_t i = 0; i < m_len; ++i) {
-            if (read_buffer[i] != data[m_fpos + i]) {
+            if (read_buffer[i] != test_data_bytes_512[m_fpos + i]) {
                 result = 1;
                 std::ostringstream os;
-                os << "In position " << m_fpos + 1 << " expected fpos " << static_cast<int>(data[m_fpos + i]);
-                os << " but got " << static_cast<int>(read_buffer[i]) << " (other data not tested)";
+                os << "In position " << m_fpos + 1 << " expected fpos " << static_cast<int>(test_data_bytes_512[m_fpos + i]);
+                os << " but got " << static_cast<int>(read_buffer[i]) << " (other test_data_bytes_512 not tested)";
                 err = os.str();
                 return TestResult(__FUNCTION__, m_test_name, result, err, time_exec.count(), svf.num_bytes());
             }
@@ -544,7 +506,7 @@ namespace SVFS {
 
         // Load the SVF
         try {
-            load_writes(svf, data);
+            load_writes(svf, test_data_bytes_512);
         } catch (ExceptionSparseVirtualFile &err) {
             return TestResult(__FUNCTION__, m_test_name, 1, err.message(), 0.0, 0);
         }
@@ -597,15 +559,15 @@ namespace SVFS {
     }
 
 
-    // Write 1Mb of data in different, equally sized, blocks that are all coalesced and report the time taken.
-    // Essentially only one block is created and all the other data is appended.
+    // Write 1Mb of test_data_bytes_512 in different, equally sized, blocks that are all coalesced and report the time taken.
+    // Essentially only one block is created and all the other test_data_bytes_512 is appended.
     TestCount test_perf_read_1M_coalesced(t_test_results &results) {
         const size_t SIZE = 1024 * 1024 * 1;
         TestCount count;
         SparseVirtualFile svf("", 0.0);
         for (t_fpos i = 0; i < (SIZE) / 256; ++i) {
             t_fpos fpos = i * 256;
-            svf.write(fpos, data, 256);
+            svf.write(fpos, test_data_bytes_512, 256);
         }
 
         char buffer[SIZE];
@@ -632,7 +594,7 @@ namespace SVFS {
 
         // Load the SVF
         try {
-            load_writes(svf, data);
+            load_writes(svf, test_data_bytes_512);
         } catch (ExceptionSparseVirtualFile &err) {
             return TestResult(__FUNCTION__, m_test_name, 1, err.message(), 0.0, 0);
         }
@@ -704,7 +666,7 @@ namespace SVFS {
 
         // Load the SVF
         try {
-            load_writes(svf, data);
+            load_writes(svf, test_data_bytes_512);
         } catch (ExceptionSparseVirtualFile &err) {
             return TestResult(__FUNCTION__, m_test_name, 1, err.message(), 0.0, 0);
         }
@@ -806,10 +768,10 @@ namespace SVFS {
         // Write to the SVF
         for (size_t vr = 0; vr < 23831; ++vr) {
             t_fpos fpos = 80 + vr * 8004;
-            svf.write(fpos, data, 4);
+            svf.write(fpos, test_data_bytes_512, 4);
             fpos += 4;
             for (int lrsh = 0; lrsh < 10; ++lrsh) {
-                svf.write(fpos, data, 4);
+                svf.write(fpos, test_data_bytes_512, 4);
                 fpos += 800;
             }
         }
@@ -847,10 +809,10 @@ namespace SVFS {
         try {
             for (size_t vr = 0; vr < 23831; ++vr) {
                 t_fpos fpos = 80 + vr * 8004;
-                g_svf_multithreaded.write(fpos, data, 4);
+                g_svf_multithreaded.write(fpos, test_data_bytes_512, 4);
                 fpos += 4;
                 for (int lrsh = 0; lrsh < 10; ++lrsh) {
-                    g_svf_multithreaded.write(fpos, data, 4);
+                    g_svf_multithreaded.write(fpos, test_data_bytes_512, 4);
                     fpos += 800;
                 }
             }
@@ -907,7 +869,7 @@ namespace SVFS {
         // Write - performance
         count += test_perf_write_with_diff_check(results);
         count += test_perf_write_without_diff_check(results);
-        count += test_perf_write_sim_index(results);
+        count += test_perf_write_sim_index_svf(results);
         count += test_perf_write_1M_coalesced(results);
         count += test_perf_write_1M_uncoalesced(results);
         count += test_perf_write_1M_uncoalesced_size_of(results);
