@@ -125,7 +125,7 @@ cp_SparseVirtualFileSystem_keys(cp_SparseVirtualFileSystem *self) {
     assert(! PyErr_Occurred());
     assert(ret);
     goto finally;
-    except:
+except:
     assert(PyErr_Occurred());
     if (ret) {
         for(Py_ssize_t i = 0; i < PyList_Size(ret); ++i) {
@@ -134,7 +134,7 @@ cp_SparseVirtualFileSystem_keys(cp_SparseVirtualFileSystem *self) {
     }
     Py_XDECREF(ret);
     ret = NULL;
-    finally:
+finally:
     return ret;
 }
 
