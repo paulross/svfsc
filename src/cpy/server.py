@@ -17,6 +17,21 @@ LRSH_LENGTH = 4
 BITS_PER_BYTE = 8
 
 
+class LRPosDesc(typing.NamedTuple):
+    vr_position: int  # Position of the Visible Record immediately preceding this logical record.
+    lr_position: int  # Position of the first LRSH of the logical record.
+    lr_attributes: File.LogicalRecordSegmentHeaderAttributes  # Attributes of the first LRSH.
+    lr_type: int  # Type of the Logical record from the first LRSH. 0 <= lr_type < 256
+    # File position of the last byte of the complete Logical Record. The SVF has to contain contiguops data from
+    # lr_position <= tell() < lr_position_end to read the entirety of the Logical Record.
+    lr_position_end: int
+
+    def __str__(self) -> str:
+        return f'LRPosDesc VR: 0x{self.vr_position:08x} LRSH: 0x{self.lr_position:08x} {self.lr_attributes!s}' \
+            f' type: {self.lr_type:3d} end: 0x{self.lr_position_end:08x}' \
+            f' len: 0x{self.lr_position_end - self.lr_position:08x}'
+
+
 class Server:
     # TODO: Create a TotalDepth.RP66V1.core.pIndex.LogicalRecordIndex from this information.
     # TODO: Read specific EFLR at file position.
@@ -50,22 +65,11 @@ class Server:
         #     logger.info(f'SERVER: {lr_position_description}')
 
         for e, eflr_position_description in enumerate(self._iterate_EFLR(file_id)):
-            logger.info(f'SERVER: EFLR [{e}] {eflr_position_description}')
+            logger.info(f'SERVER: EFLR [{e:6d}] {eflr_position_description}')
 
         for i, iflr_position_description in enumerate(self._iterate_IFLR(file_id)):
-            logger.info(f'SERVER: IFLR [{i}] {iflr_position_description}')
-
+            logger.info(f'SERVER: IFLR [{i:6d}] {iflr_position_description}')
         return True
-
-        # Now cycle through the logical records reading the first 64 bytes of each record.
-        # Or EFLRs and IFLR first few bytes.
-
-        #
-        seek_read: typing.List[typing.Tuple[int, int]] = []
-
-        json_bytes = json.dumps(seek_read)
-        self._sim_delay(json_bytes)
-        return json_bytes
 
     def add_data(self, file_id: str, mod_time: float, json_bytes: bytes) -> None:
         assert self.svfs.has(file_id)
@@ -84,7 +88,7 @@ class Server:
             yield fpos, vr_length
             fpos += vr_length
 
-    def _iterate_logical_record_positions(self, file_id: str) -> typing.Sequence[File.LRPosDesc]:
+    def _iterate_logical_record_positions(self, file_id: str) -> typing.Sequence[LRPosDesc]:
         # NOTE: This is very similar to TotalDepth.RP66V1.core.pFile.FileRead#iter_logical_record_positions
         # lr_position_first_header = 80 + 4
         fpos_first_lr = -1
@@ -98,22 +102,16 @@ class Server:
                     fpos_first_lr = fpos
                 if lr_attributes.is_last:
                     assert fpos_first_lr != -1
-                    # TODO: Write our own POD classes.
-                    yield File.LRPosDesc(
-                        File.LogicalRecordPositionBase(vr_position, fpos),
-                        File.LogicalDataDescription(lr_attributes, lr_type, fpos + lr_length - fpos_first_lr),
-                    )
+                    yield LRPosDesc(vr_position, fpos_first_lr, lr_attributes, lr_type, fpos + lr_length)
                     fpos_first_lr = -1
                 fpos += lr_length
 
     def _iterate_EFLR(self, file_id: str) -> typing.Sequence[File.LRPosDesc]:
         for lr_pos_desc in self._iterate_logical_record_positions(file_id):
-            if lr_pos_desc.description.attributes.is_eflr:
+            if lr_pos_desc.lr_attributes.is_eflr:
                 yield lr_pos_desc
 
     def _iterate_IFLR(self, file_id: str) -> typing.Sequence[File.LRPosDesc]:
         for lr_pos_desc in self._iterate_logical_record_positions(file_id):
-            if not lr_pos_desc.description.attributes.is_eflr:
+            if not lr_pos_desc.lr_attributes.is_eflr:
                 yield lr_pos_desc
-
-
