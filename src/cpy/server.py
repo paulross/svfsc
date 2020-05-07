@@ -6,77 +6,15 @@ import typing
 import svfs
 
 from src.cpy import common, connection
+from TotalDepth.RP66V1.core import File
 
 logger = logging.getLogger(__file__)
 
 
-class LogicalRecordSegmentHeaderAttributes:
-    def __init__(self, attributes: int):
-        if 0 <= attributes <= 0xff:
-            self.attributes = attributes
-        else:
-            raise ValueError(f'Attributes must be in the range of an unsigned char not 0x{attributes:x}')
-
-    def __eq__(self, other):
-        if self.__class__ == other.__class__:
-            return self.attributes == other.attributes
-        return NotImplemented
-
-    def __str__(self) -> str:
-        return f'LRSH attr: 0x{self.attributes:02x}'
-
-    # Attribute access
-    @property
-    def is_eflr(self) -> bool:
-        return self.attributes & 0x80 != 0
-
-    @property
-    def is_first(self) -> bool:
-        return self.attributes & 0x40 == 0
-
-    @property
-    def is_last(self) -> bool:
-        return self.attributes & 0x20 == 0
-
-    @property
-    def is_encrypted(self) -> bool:
-        return self.attributes & 0x10 != 0
-
-    @property
-    def has_encryption_packet(self) -> bool:
-        return self.attributes & 0x08 != 0
-
-    @property
-    def has_checksum(self) -> bool:
-        return self.attributes & 0x04 != 0
-
-    @property
-    def has_trailing_length(self) -> bool:
-        return self.attributes & 0x02 != 0
-
-    @property
-    def has_pad_bytes(self) -> bool:
-        """Note: Pad bytes will not be visible if the record is encrypted."""
-        return self.attributes & 0x01 != 0
-
-    def attribute_str(self) -> str:
-        """Returns a long string of the important attributes."""
-        ret = [
-            'EFLR' if self.is_eflr else 'IFLR',
-        ]
-        if self.is_first:
-            ret.append('first')
-        if self.is_last:
-            ret.append('last')
-        if self.is_encrypted:
-            ret.append('encrypted')
-        if self.has_checksum:
-            ret.append('checksum')
-        if self.has_trailing_length:
-            ret.append('trailing length')
-        if self.has_pad_bytes:
-            ret.append('padding')
-        return '-'.join(ret)
+STORAGE_UNIT_LABEL_LENGTH = 80
+VISIBLE_RECORD_HEADER_LENGTH = 4
+LRSH_LENGTH = 4
+BITS_PER_BYTE = 8
 
 
 class Server:
@@ -88,21 +26,36 @@ class Server:
         self.svfs = svfs.SVFS()
 
     def _sim_delay(self, json_bytes: str) -> None:
-        sleep_time = connection.LATENCY_S + connection.PAYLOAD_OVERHEAD * len(json_bytes) * 8 / connection.BANDWIDTH_BPS
+        sleep_time = connection.LATENCY_S + \
+                     connection.PAYLOAD_OVERHEAD * len(json_bytes) * BITS_PER_BYTE / connection.BANDWIDTH_BPS
         logger.info(f'SERVER: _sim_delay len={len(json_bytes):12,d} sleep={sleep_time * 1000:.3f} (ms)')
         time.sleep(sleep_time)
 
-    def add_file(self, file_id: str, mod_time: float, json_bytes: bytes) -> bytes:
+    def add_file(self, file_id: str, mod_time: float, json_bytes: bytes) -> bool:
         logger.info(f'SERVER: add_file() {file_id}')
         self._sim_delay(json_bytes)
         if not self.svfs.has(file_id):
             self.svfs.insert(file_id, mod_time)
         self.add_data(file_id, mod_time, json_bytes)
-        for fpos, lr_attributes, lr_type, ld_length in self._iterate_logical_record_positions(file_id):
-            logger.info(
-                f'SERVER: fpos=0x{fpos:08x} {lr_attributes} {lr_type:3d} {lr_attributes.is_eflr!r:5} {ld_length:6d}'
-            )
+        logger.info(
+            f'SERVER: add_file() has {self.svfs.num_bytes(file_id)} bytes'
+            f' {self.svfs.num_blocks(file_id)} blocks'
+            f' size_of: {self.svfs.size_of(file_id)} bytes.'
+        )
+        logger.info(
+            f'SERVER: add_file() SVFS total {self.svfs.total_bytes()} bytes'
+            f' total_size_of {self.svfs.total_size_of()} bytes.'
+        )
+        # for lr_position_description in self._iterate_logical_record_positions(file_id):
+        #     logger.info(f'SERVER: {lr_position_description}')
 
+        for e, eflr_position_description in enumerate(self._iterate_EFLR(file_id)):
+            logger.info(f'SERVER: EFLR [{e}] {eflr_position_description}')
+
+        for i, iflr_position_description in enumerate(self._iterate_IFLR(file_id)):
+            logger.info(f'SERVER: IFLR [{i}] {iflr_position_description}')
+
+        return True
 
         # Now cycle through the logical records reading the first 64 bytes of each record.
         # Or EFLRs and IFLR first few bytes.
@@ -124,33 +77,43 @@ class Server:
             self.svfs.write(file_id, fpos, data)
 
     def _iterate_visible_record_positions(self, file_id: str) -> typing.Iterable[typing.Tuple[int, int]]:
-        fpos = 80
-        while self.svfs.has_data(file_id, fpos, 4):
-            by = self.svfs.read(file_id, fpos, 4)
+        fpos = STORAGE_UNIT_LABEL_LENGTH
+        while self.svfs.has_data(file_id, fpos, VISIBLE_RECORD_HEADER_LENGTH):
+            by = self.svfs.read(file_id, fpos, VISIBLE_RECORD_HEADER_LENGTH)
             vr_length, vr_version = common.split_four_bytes_for_vr(by)
             yield fpos, vr_length
             fpos += vr_length
 
-    def _iterate_logical_record_positions(self, file_id: str) \
-            -> typing.Sequence[
-                typing.Tuple[
-                    int, LogicalRecordSegmentHeaderAttributes, int, typing.List[typing.Tuple[int, int]]
-                ]
-            ]:
+    def _iterate_logical_record_positions(self, file_id: str) -> typing.Sequence[File.LRPosDesc]:
+        # NOTE: This is very similar to TotalDepth.RP66V1.core.pFile.FileRead#iter_logical_record_positions
         # lr_position_first_header = 80 + 4
+        fpos_first_lr = -1
         for vr_position, vr_length in self._iterate_visible_record_positions(file_id):
-            fpos = vr_position + 4
-            logical_data_length = 0
+            fpos = vr_position + VISIBLE_RECORD_HEADER_LENGTH
             while fpos < vr_position + vr_length:
-                by = self.svfs.read(file_id, fpos, 4)
+                by = self.svfs.read(file_id, fpos, LRSH_LENGTH)
                 lr_length, _lr_attributes, lr_type = common.split_four_bytes_for_lr(by)
-                lr_attributes = LogicalRecordSegmentHeaderAttributes(_lr_attributes)
-                # if lr_attributes & 0x ? then cycle through to last and yield lr_position_first_header and logical data
-                # length or seek read
-                # yield (position, lr_attributes, lr_type, [(seek, read), ...])
-                # seek_read = self.svfs.need(file_id, lr_position_first_header, fpos)
+                lr_attributes = File.LogicalRecordSegmentHeaderAttributes(_lr_attributes)
                 if lr_attributes.is_first:
-                    yield fpos, lr_attributes, lr_type, logical_data_length
-                    logical_data_length = 0
+                    fpos_first_lr = fpos
+                if lr_attributes.is_last:
+                    assert fpos_first_lr != -1
+                    # TODO: Write our own POD classes.
+                    yield File.LRPosDesc(
+                        File.LogicalRecordPositionBase(vr_position, fpos),
+                        File.LogicalDataDescription(lr_attributes, lr_type, fpos + lr_length - fpos_first_lr),
+                    )
+                    fpos_first_lr = -1
                 fpos += lr_length
-                logical_data_length += lr_length - 4
+
+    def _iterate_EFLR(self, file_id: str) -> typing.Sequence[File.LRPosDesc]:
+        for lr_pos_desc in self._iterate_logical_record_positions(file_id):
+            if lr_pos_desc.description.attributes.is_eflr:
+                yield lr_pos_desc
+
+    def _iterate_IFLR(self, file_id: str) -> typing.Sequence[File.LRPosDesc]:
+        for lr_pos_desc in self._iterate_logical_record_positions(file_id):
+            if not lr_pos_desc.description.attributes.is_eflr:
+                yield lr_pos_desc
+
+

@@ -39,7 +39,6 @@ def scan_file_json_index(file_object: typing.BinaryIO) -> bytes:
         vr_length, vr_bytes = read_vr(file_object)
         if vr_length == EOF:
             break
-        assert tell not in py_index
         py_index.append((tell, common.encode_bytes(vr_bytes)))
         vr_tell_next = tell + vr_length
         while tell < vr_tell_next:
@@ -47,7 +46,6 @@ def scan_file_json_index(file_object: typing.BinaryIO) -> bytes:
             lr_length, lr_bytes = read_lr(file_object)
             if lr_length == EOF:
                 break
-            assert tell not in py_index
             py_index.append((tell, common.encode_bytes(lr_bytes)))
             lr_tell_next = tell + lr_length
             file_object.seek(lr_tell_next)

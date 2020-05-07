@@ -229,9 +229,18 @@ def test_sim_write_index(vr_count, lr_count):
     return file_system.count_write(ID)
 
 
+def test_SVFS_num_bytes():
+    s = svfs.SVFS()
+    ID = 'abc'
+    s.insert(ID, 1.0)
+    s.write(ID, 0, b'    ')
+    assert s.num_bytes(ID) == 3
+
+
 def main():
-    test_simulate_write_coalesced(1)
-    test_simulate_write_coalesced(2)
+    # test_simulate_write_coalesced(1)
+    # test_simulate_write_coalesced(2)
+    test_SVFS_num_bytes()
     print('Bye, bye!')
     return 0
 
