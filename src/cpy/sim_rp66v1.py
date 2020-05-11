@@ -22,13 +22,34 @@ EXAMPLE_4_GB = '/Users/engun/Documents/workspace/TotalDepth/data/by_type/RP66V1/
 def _init_file(file_path: str, file_object: typing.BinaryIO, the_server: server.Server) -> bool:
     logger.info(f'CLIENT: Scanning file "{os.path.basename(file_path)}" {os.path.getsize(file_path):,d} bytes.')
     timer = common.Timer()
-    json_bytes = scan_file_json_index(file_object)
+    total_timer = common.Timer()
+    json_to_server = scan_file_json_index(file_object)
     logger.info(f'CLIENT: scan_file_json_index() time {timer.ms():.3f} (ms).')
-    logger.info(f'CLIENT: Scanning complete {len(json_bytes)} bytes. Adding file to server.')
+    logger.info(f'CLIENT: Scanning complete {len(json_to_server)} bytes. Adding file to server.')
     timer = common.Timer()
-    ret = the_server.add_file(file_path, os.stat(file_path).st_mtime_ns / 1e9, json_bytes)
+    json_from_server = the_server.add_file(file_path, client_lib.file_mod_time(file_path), json_to_server)
     logger.info(f'CLIENT: the_server.add_file() time {timer.ms():.3f} (ms).')
-    return ret
+    timer = common.Timer()
+    if json_from_server:
+        logger.info(f'CLIENT: the_server.add_file() got[{len(json_from_server)}] bytes')#= {json_from_server!r}')
+        seek_read_data = []
+        seek_read = common.SeekRead.from_json(json_from_server)
+        bytes_read = 0
+        for seek, read in seek_read.seek_read:
+            file_object.seek(seek)
+            seek_read_data.append((seek, common.encode_bytes(file_object.read(read))))
+            bytes_read += read
+        logger.info(f'CLIENT: reading [{len(seek_read_data)}] blocks {bytes_read} bytes.')
+        json_to_server = json.dumps(seek_read_data)
+        logger.info(f'CLIENT: sending[{len(json_to_server)}] JSON bytes to the server.')#' {json_to_server!r}')
+        json_from_server = the_server.add_data(file_path, client_lib.file_mod_time(file_path), json_to_server)
+        result = json.loads(json_from_server)
+        logger.info(f'CLIENT: result {result!r}.')
+        # if result['response']:
+        #     break
+    logger.info(f'CLIENT: the_server.add_data() time {timer.ms():.3f} (ms).')
+    logger.info(f'CLIENT: Total time {total_timer.ms():.3f} (ms).')
+    return True
 
 
 def client(file_path: str, the_server: server.Server):
@@ -81,12 +102,12 @@ def main() -> int:
     logger.info(f'Writing test plots...')
     # a_server = server.Server()
     run_with_new_server(BASIC_FILE)
-    # run_with_new_server(EXAMPLE_540_KB)
-    # run_with_new_server(EXAMPLE_24_MB)
-    # run_with_new_server(EXAMPLE_120_MB)
-    # run_with_new_server(EXAMPLE_256_MB)
-    # run_with_new_server(EXAMPLE_1_GB)
-    # run_with_new_server(EXAMPLE_4_GB)
+    run_with_new_server(EXAMPLE_540_KB)
+    run_with_new_server(EXAMPLE_24_MB)
+    run_with_new_server(EXAMPLE_120_MB)
+    run_with_new_server(EXAMPLE_256_MB)
+    run_with_new_server(EXAMPLE_1_GB)
+    run_with_new_server(EXAMPLE_4_GB)
     return 0
 
 

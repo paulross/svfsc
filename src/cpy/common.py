@@ -1,4 +1,5 @@
 import base64
+import json
 import time
 import typing
 
@@ -36,3 +37,32 @@ class Timer:
 
     def ms(self):
         return self.s() * 1000
+
+
+class SeekRead:
+
+    def __init__(self, sequence: typing.Sequence[typing.Tuple[int, int]] = tuple()):
+        self.seek_read: typing.List[typing.Tuple[int, int]] = []
+        if sequence:
+            self.seek_read.extend(sequence)
+
+    def append(self, value: typing.Tuple[int, int]) -> None:
+        self.seek_read.append(value)
+
+    def extend(self, sequence: typing.Sequence[typing.Tuple[int, int]]) -> None:
+        self.seek_read.extend(sequence)
+
+    def to_json(self) -> str:
+        return json.dumps(self.seek_read)
+
+    @staticmethod
+    def from_json(json_data: str):
+        return SeekRead(json.loads(json_data))
+
+    def __eq__(self, other) -> bool:
+        if self.__class__  == other.__class__:
+            return self.seek_read == other.seek_read
+        return NotImplemented
+
+    def __len__(self) -> int:
+        return len(self.seek_read)

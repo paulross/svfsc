@@ -234,7 +234,7 @@ def test_SVFS_num_bytes():
     ID = 'abc'
     s.insert(ID, 1.0)
     s.write(ID, 0, b'    ')
-    assert s.num_bytes(ID) == 3
+    assert s.num_bytes(ID) == 4
 
 
 def main():

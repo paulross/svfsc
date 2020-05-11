@@ -1,5 +1,6 @@
 import json
 import logging
+import os
 import typing
 
 from src.cpy import common
@@ -53,3 +54,7 @@ def scan_file_json_index(file_object: typing.BinaryIO) -> bytes:
                 break
     json_bytes = json.dumps(py_index)
     return json_bytes
+
+
+def file_mod_time(file_path: str) -> float:
+    return os.stat(file_path).st_mtime_ns / 1e9

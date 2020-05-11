@@ -1,5 +1,6 @@
 import json
 import logging
+import pprint
 import time
 import typing
 
@@ -22,9 +23,13 @@ class LRPosDesc(typing.NamedTuple):
     lr_position: int  # Position of the first LRSH of the logical record.
     lr_attributes: File.LogicalRecordSegmentHeaderAttributes  # Attributes of the first LRSH.
     lr_type: int  # Type of the Logical record from the first LRSH. 0 <= lr_type < 256
-    # File position of the last byte of the complete Logical Record. The SVF has to contain contiguops data from
+    # File position of the last byte of the complete Logical Record. The SVF has to contain contiguous data from
     # lr_position <= tell() < lr_position_end to read the entirety of the Logical Record.
     lr_position_end: int
+
+    @property
+    def lr_length(self) -> int:
+        return self.lr_position_end - self.lr_position
 
     def __str__(self) -> str:
         return f'LRPosDesc VR: 0x{self.vr_position:08x} LRSH: 0x{self.lr_position:08x} {self.lr_attributes!s}' \
@@ -39,16 +44,17 @@ class Server:
     def __init__(self):
         logger.info(f'SERVER: SVFS.__init__()')
         self.svfs = svfs.SVFS()
+        self.low_level_index: typing.Dict[str, typing.List[LRPosDesc]] = {}
 
-    def _sim_delay(self, json_bytes: str) -> None:
+    def _sim_delay(self, json_bytes: bytes) -> None:
         sleep_time = connection.LATENCY_S + \
                      connection.PAYLOAD_OVERHEAD * len(json_bytes) * BITS_PER_BYTE / connection.BANDWIDTH_BPS
         logger.info(f'SERVER: _sim_delay len={len(json_bytes):12,d} sleep={sleep_time * 1000:.3f} (ms)')
         time.sleep(sleep_time)
 
-    def add_file(self, file_id: str, mod_time: float, json_bytes: bytes) -> bool:
+    def add_file(self, file_id: str, mod_time: float, json_bytes: bytes) -> str:
         logger.info(f'SERVER: add_file() {file_id}')
-        self._sim_delay(json_bytes)
+        # self._sim_delay(json_bytes)
         if not self.svfs.has(file_id):
             self.svfs.insert(file_id, mod_time)
         self.add_data(file_id, mod_time, json_bytes)
@@ -64,21 +70,58 @@ class Server:
         # for lr_position_description in self._iterate_logical_record_positions(file_id):
         #     logger.info(f'SERVER: {lr_position_description}')
 
+        eflr_count =  0
         for e, eflr_position_description in enumerate(self._iterate_EFLR(file_id)):
-            logger.info(f'SERVER: EFLR [{e:6d}] {eflr_position_description}')
+            # logger.info(f'SERVER: EFLR [{e:6d}] {eflr_position_description}')
+            eflr_count += 1
+        logger.info(f'SERVER: EFLR count {eflr_count}')
 
-        for i, iflr_position_description in enumerate(self._iterate_IFLR(file_id)):
-            logger.info(f'SERVER: IFLR [{i:6d}] {iflr_position_description}')
-        return True
 
-    def add_data(self, file_id: str, mod_time: float, json_bytes: bytes) -> None:
-        assert self.svfs.has(file_id)
-        assert self.svfs.file_mod_time_matches(file_id, mod_time)
+        # for i, iflr_position_description in enumerate(self._iterate_IFLR(file_id)):
+        #     logger.info(f'SERVER: IFLR [{i:6d}] {iflr_position_description}')
+
+        self.low_level_index[file_id] = list(self._iterate_logical_record_positions(file_id))
+
+        # TODO: Use self.low_level_index to minimally or maximally populate all EFLRs by returning seek/read list to client.
+
+        seek_read = common.SeekRead()
+        for index_entry in self.low_level_index[file_id]:
+            if index_entry.lr_attributes.is_eflr:
+                need = self.svfs.need(file_id, index_entry.lr_position, index_entry.lr_length)
+                seek_read.extend(need)
+        logger.info(f'SERVER: need[{len(seek_read)}] blocks.')
+        # pprint.pprint(seek_read)
+        ret = seek_read.to_json()
+        self._sim_delay(ret)
+        return ret
+
+    def add_data(self, file_id: str, mod_time: float, json_bytes: bytes) -> str:
+        """Add data to the  SVFS. Returns JSON: {"response" : True} or false on failure"""
+        self._sim_delay(json_bytes)
+        if not self.svfs.has(file_id):
+            return json.dumps(
+                {
+                    'response': 'False',
+                    'error': f'No file of id={file_id}',
+                    'action': f'add_file',
+                }
+            )
+        if not self.svfs.file_mod_time_matches(file_id, mod_time):
+            # TODO: Option do not remove but continue?
+            self.svfs.remove(file_id)
+            return json.dumps(
+                {
+                    'response': 'False',
+                    'error': f'File mod time={mod_time} but expected {self.svfs.file_mod_time(file_id)}',
+                    'action': f'add_file',
+                }
+            )
         py_index = json.loads(json_bytes)
         for fpos, str_data in py_index:
             fpos = int(fpos)
             data = common.decode_bytes(str_data)
             self.svfs.write(file_id, fpos, data)
+        return json.dumps({'response': 'True'})
 
     def _iterate_visible_record_positions(self, file_id: str) -> typing.Iterable[typing.Tuple[int, int]]:
         fpos = STORAGE_UNIT_LABEL_LENGTH
