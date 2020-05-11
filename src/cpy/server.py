@@ -15,7 +15,6 @@ logger = logging.getLogger(__file__)
 STORAGE_UNIT_LABEL_LENGTH = 80
 VISIBLE_RECORD_HEADER_LENGTH = 4
 LRSH_LENGTH = 4
-BITS_PER_BYTE = 8
 
 
 class LRPosDesc(typing.NamedTuple):
@@ -41,32 +40,32 @@ class Server:
     # TODO: Create a TotalDepth.RP66V1.core.pIndex.LogicalRecordIndex from this information.
     # TODO: Read specific EFLR at file position.
     # TODO: Read set of IFLRs
+
+    LOGGER_PREFIX = 'SERVER'
+
     def __init__(self):
-        logger.info(f'SERVER: SVFS.__init__()')
+        logger.info(f'{self.LOGGER_PREFIX}: __init__()')
         self.svfs = svfs.SVFS()
         self.low_level_index: typing.Dict[str, typing.List[LRPosDesc]] = {}
 
-    def _sim_delay(self, json_bytes: bytes) -> None:
-        sleep_time = connection.LATENCY_S + \
-                     connection.PAYLOAD_OVERHEAD * len(json_bytes) * BITS_PER_BYTE / connection.BANDWIDTH_BPS
-        logger.info(f'SERVER: _sim_delay len={len(json_bytes):12,d} sleep={sleep_time * 1000:.3f} (ms)')
-        time.sleep(sleep_time)
-
-    def add_file(self, file_id: str, mod_time: float, json_bytes: bytes) -> str:
-        logger.info(f'SERVER: add_file() {file_id}')
-        # self._sim_delay(json_bytes)
+    def add_file(self, file_id: str, mod_time: float, json_bytes: str) -> str:
+        logger.info(f'{self.LOGGER_PREFIX}: add_file() {file_id}')
+        timer = common.Timer()
         if not self.svfs.has(file_id):
             self.svfs.insert(file_id, mod_time)
         self.add_data(file_id, mod_time, json_bytes)
         logger.info(
-            f'SERVER: add_file() has {self.svfs.num_bytes(file_id)} bytes'
+            f'{self.LOGGER_PREFIX}: add_file() has {self.svfs.num_bytes(file_id)} bytes'
             f' {self.svfs.num_blocks(file_id)} blocks'
             f' size_of: {self.svfs.size_of(file_id)} bytes.'
         )
         logger.info(
-            f'SERVER: add_file() SVFS total {self.svfs.total_bytes()} bytes'
+            f'{self.LOGGER_PREFIX}: add_file() SVFS total {self.svfs.total_bytes()} bytes'
             f' total_size_of {self.svfs.total_size_of()} bytes.'
         )
+        logger.info(f'{self.LOGGER_PREFIX}: added file took {timer.ms():.3f} (ms).')
+        timer = common.Timer()
+
         # for lr_position_description in self._iterate_logical_record_positions(file_id):
         #     logger.info(f'SERVER: {lr_position_description}')
 
@@ -74,7 +73,7 @@ class Server:
         for e, eflr_position_description in enumerate(self._iterate_EFLR(file_id)):
             # logger.info(f'SERVER: EFLR [{e:6d}] {eflr_position_description}')
             eflr_count += 1
-        logger.info(f'SERVER: EFLR count {eflr_count}')
+        logger.info(f'{self.LOGGER_PREFIX}: EFLR count {eflr_count}')
 
 
         # for i, iflr_position_description in enumerate(self._iterate_IFLR(file_id)):
@@ -89,15 +88,15 @@ class Server:
             if index_entry.lr_attributes.is_eflr:
                 need = self.svfs.need(file_id, index_entry.lr_position, index_entry.lr_length)
                 seek_read.extend(need)
-        logger.info(f'SERVER: need[{len(seek_read)}] blocks.')
+        logger.info(f'{self.LOGGER_PREFIX}: need[{len(seek_read)}] blocks.')
         # pprint.pprint(seek_read)
         ret = seek_read.to_json()
-        self._sim_delay(ret)
+        logger.info(f'{self.LOGGER_PREFIX}: Creating EFLR data set took {timer.ms():.3f} (ms).')
         return ret
 
-    def add_data(self, file_id: str, mod_time: float, json_bytes: bytes) -> str:
+    def add_data(self, file_id: str, mod_time: float, json_bytes: str) -> str:
         """Add data to the  SVFS. Returns JSON: {"response" : True} or false on failure"""
-        self._sim_delay(json_bytes)
+        timer = common.Timer()
         if not self.svfs.has(file_id):
             return json.dumps(
                 {
@@ -121,6 +120,7 @@ class Server:
             fpos = int(fpos)
             data = common.decode_bytes(str_data)
             self.svfs.write(file_id, fpos, data)
+        logger.info(f'{self.LOGGER_PREFIX}: add_data() took {timer.ms():.3f} (ms).')
         return json.dumps({'response': 'True'})
 
     def _iterate_visible_record_positions(self, file_id: str) -> typing.Iterable[typing.Tuple[int, int]]:
