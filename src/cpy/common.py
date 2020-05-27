@@ -66,3 +66,45 @@ class SeekRead:
 
     def __len__(self) -> int:
         return len(self.seek_read)
+
+    def total_data_bytes(self) -> int:
+        return sum(v[1] for v in self.seek_read)
+
+
+class CommunicationJSON:
+    """Class that encapsulates the JSON communication.
+
+    In JSON this looks something like:
+
+        {
+            'call' : [
+                        [function_name, arg0, arg1, ...],
+                    ],
+        }
+    """
+    def __init__(self):
+        self.data = {
+            'call': []
+        }
+
+    def add_call(self, function_name: str, *args: typing.Tuple[typing.Any]):
+        self.data['call'].append([function_name] + list(args))
+
+    def gen_call(self) -> typing.Sequence[typing.Tuple[str, typing.List[typing.Any]]]:
+        for value in self.data['call']:
+            yield value[0], value[1:]
+
+    def json_dumps(self) -> str:
+        return json.dumps(self.data)
+
+    @staticmethod
+    def json_reads(json_data: str):
+        ret = CommunicationJSON()
+        ret.data = json.loads(json_data)
+        return ret
+
+    def __len__(self) -> int:
+        return len(self.data['call'])
+
+    def __bool__(self) -> bool:
+        return len(self.data['call']) > 0
