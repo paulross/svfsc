@@ -7,11 +7,11 @@ from src.cpy import client
 logger = logging.getLogger(__file__)
 
 if os.path.exists(os.path.expanduser('~/Documents/workspace/TotalDepth/')):
-    EXAMPLE_DATA_PATH = os.path.expanduser('~/PycharmProjects/TotalDepth/example_data')
-    ARCHIVE_DATA_PATH = os.path.expanduser('~/PycharmProjects/TotalDepth/data/by_type')
-else:
     EXAMPLE_DATA_PATH = os.path.expanduser('~/Documents/workspace/TotalDepth/example_data')
     ARCHIVE_DATA_PATH = os.path.expanduser('~/Documents/workspace/TotalDepth/data/by_type')
+else:
+    EXAMPLE_DATA_PATH = os.path.expanduser('~/PycharmProjects/TotalDepth/example_data')
+    ARCHIVE_DATA_PATH = os.path.expanduser('~/PycharmProjects/TotalDepth/data/by_type')
 
 
 
