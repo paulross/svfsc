@@ -74,25 +74,42 @@ class SeekRead:
 class CommunicationJSON:
     """Class that encapsulates the JSON communication.
 
-    In JSON this looks something like:
+    In JSON this looks something like the following.
+
+    Client to server, 'call' -> pair::
 
         {
-            'call' : [
-                        [function_name, arg0, arg1, ...],
-                    ],
+            'call' : [server_function_name, [ID, mod_time, args...]],
         }
+
+    The server will process the arguments with the function. The server response will be sent to the client as:
+
+    Server to client, 'call' -> triple, a NOP is an empty list::
+
+        {
+            'call' : [client_function_name, [ID, mod_time, args...], server_function_name],
+        }
+
+    The client will process those arguments with that function and call the server as above::
+
+        {
+            'call' : [server_function_name, [ID, mod_time, args...]],
+        }
+
     """
     def __init__(self):
         self.data = {
             'call': []
         }
 
-    def add_call(self, function_name: str, *args: typing.Tuple[typing.Any]):
-        self.data['call'].append([function_name] + list(args))
+    def add_call(self, *args: typing.Tuple[typing.Any]):
+        assert isinstance(args, tuple)
+        self.data['call'].append(args)
 
     def gen_call(self) -> typing.Sequence[typing.Tuple[str, typing.List[typing.Any]]]:
         for value in self.data['call']:
-            yield value[0], value[1:]
+            yield value
+            # yield value[0], value[1:]
 
     def json_dumps(self) -> str:
         return json.dumps(self.data)

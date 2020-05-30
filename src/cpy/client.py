@@ -85,33 +85,32 @@ class Client:
         }
 
     def respond_to_server_comms(self, comms_from_server: common.CommunicationJSON) -> common.CommunicationJSON:
+        logger.info(f'{self.LOGGER_PREFIX}: respond_to_server_comms():')
         timer = common.Timer()
         comms_to_server = common.CommunicationJSON()
-        for function_name, args in comms_from_server.gen_call():
+        for function_name, args, server_function in comms_from_server.gen_call():
             function = self._function_map[function_name]
             result = function(*args)
-            comms_to_server.add_call(*result)
-        logger.info(f'{self.LOGGER_PREFIX}: respond_to_server_comms() prepare JSON for server. Time {timer.ms():.3f} (ms).')
+            comms_to_server.add_call(server_function, *result)
+        logger.info(f'{self.LOGGER_PREFIX}: respond_to_server_comms(): prepare JSON for server. Time {timer.ms():.3f} (ms).')
         json_data_to_server = comms_to_server.json_dumps()
         json_data_from_server = self.connection.client_to_server(json_data_to_server)
         comms_from_server = common.CommunicationJSON.json_reads(json_data_from_server)
         logger.info(
-            f'{self.LOGGER_PREFIX}: respond_to_server_comms() server response size {len(comms_from_server)}.'
+            f'{self.LOGGER_PREFIX}: respond_to_server_comms(): server response size {len(comms_from_server)}.'
             f' Time {timer.ms():.3f} (ms).'
         )
         return comms_from_server
 
     def _init_file(self, file_path: str, file_object: typing.BinaryIO) -> bool:
         logger.info(
-            f'{self.LOGGER_PREFIX}: Scanning file "{os.path.basename(file_path)}"'
+            f'{self.LOGGER_PREFIX}: _init_file(): "{os.path.basename(file_path)}"'
             f' {os.path.getsize(file_path):,d} bytes.'
         )
         timer = common.Timer()
         total_timer = common.Timer()
-
-        # json_to_server = scan_file_json_index(file_object)
         index = scan_file_str_index(file_object)
-        logger.info(f'{self.LOGGER_PREFIX}: scan_file_json_index() time {timer.ms():.3f} (ms).')
+        logger.info(f'{self.LOGGER_PREFIX}: scan_file_str_index() time {timer.ms():.3f} (ms).')
 
         timer = common.Timer()
         # logger.info(f'{self.LOGGER_PREFIX}: Scanning complete {len(json_to_server)} bytes. Adding file to server.')
@@ -125,10 +124,11 @@ class Client:
         comms_from_server = common.CommunicationJSON.json_reads(json_data_from_server)
         while comms_from_server:
             comms_from_server = self.respond_to_server_comms(comms_from_server)
-        return True
+        logger.info(f'{self.LOGGER_PREFIX}: _init_file() total time {total_timer.ms():.3f} (ms).')
 
-    def seek_read(self, file_path: str,
-                  seek_read: typing.List[typing.Tuple[int, int]]) -> typing.Tuple[str, typing.List[typing.Tuple[int, str]]]:
+    def seek_read(self, file_path: str, mod_time: float,
+                  seek_read: typing.List[typing.Tuple[int, int]]) -> \
+            typing.Tuple[str, str, float, typing.List[typing.Tuple[int, str]]]:
         """Given a file_path and a list of seek/read values this returns a list of seek/encoded bytes as str."""
         timer = common.Timer()
         ret = []
@@ -139,16 +139,16 @@ class Client:
                 ret.append((seek, common.encode_bytes(file_object.read(read))))
                 bytes_read += read
         logger.info(f'{self.LOGGER_PREFIX}: seek_read() bytes {bytes_read} time {timer.ms():.3f} (ms).')
-        return 'add_data', file_path, file_mod_time(file_path), ret
+        return file_path, file_mod_time(file_path), ret
 
     def add_file(self, file_path: str):
-        logger.info(f'{self.LOGGER_PREFIX}: Opening {file_path}')
+        logger.info(f'{self.LOGGER_PREFIX}: add_file(): Opening {file_path}')
         timer_overall = common.Timer()
         with open(file_path, 'rb') as file_object:
             result = self._init_file(file_path, file_object)
-            logger.info(f'{self.LOGGER_PREFIX}: File added to server, result {result}.')
+            # logger.info(f'{self.LOGGER_PREFIX}: File added to server, result {result}.')
             # TODO: Read EFLRs
             # json_data = self.connection.EFLR_id_as_fpos(file_path, client_lib.file_mod_time(file_path), '')
             # eflr_response = json.loads(json_data)
             # for id_as_fpos in eflr_response['data']:
-        logger.info(f'{self.LOGGER_PREFIX}: execution time {timer_overall.ms():.3f} (ms).')
+        logger.info(f'{self.LOGGER_PREFIX}: add_file(): execution time {timer_overall.ms():.3f} (ms).')
