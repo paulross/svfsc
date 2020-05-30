@@ -1,18 +1,27 @@
 import logging
+import os
 import sys
 
 from src.cpy import client
 
 logger = logging.getLogger(__file__)
 
+if os.path.exists(os.path.expanduser('~/Documents/workspace/TotalDepth/')):
+    EXAMPLE_DATA_PATH = os.path.expanduser('~/PycharmProjects/TotalDepth/example_data')
+    ARCHIVE_DATA_PATH = os.path.expanduser('~/PycharmProjects/TotalDepth/data/by_type')
+else:
+    EXAMPLE_DATA_PATH = os.path.expanduser('~/Documents/workspace/TotalDepth/example_data')
+    ARCHIVE_DATA_PATH = os.path.expanduser('~/Documents/workspace/TotalDepth/data/by_type')
 
-BASIC_FILE = '/Users/engun/Documents/workspace/TotalDepth/example_data/RP66V1/data/BASIC_FILE.dlis'
-EXAMPLE_540_KB = '/Users/engun/Documents/workspace/TotalDepth/example_data/RP66V1/data/206_05a-_3_DWL_DWL_WIRE_258276498.DLIS'
-EXAMPLE_24_MB = '/Users/engun/Documents/workspace/TotalDepth/data/by_type/RP66V1/WAPIMS/2010-2015/W003353/S1R2/UNGANI-2_S1R2_XRMI&WSTT_DLIS_MAIN.dlis'
-EXAMPLE_120_MB = '/Users/engun/Documents/workspace/TotalDepth/data/by_type/RP66V1/WAPIMS/2010-2015/W004434/Wireline/CVX_F24B_S1R1_IBC-CBL_Repeat_031PUC.DLIS'
-EXAMPLE_256_MB = '/Users/engun/Documents/workspace/TotalDepth/data/by_type/RP66V1-de-tiffed/WAPIMS/2006-2008/W002846/Amulet_1_Log_Data/PROCESSED/Amulet1_S1R4_ProcessedData.dlis'
-EXAMPLE_1_GB = '/Users/engun/Documents/workspace/TotalDepth/data/by_type/RP66V1-de-tiffed/WAPIMS/2006-2008/W001596/WIRELINE/BAMBRA-3 LOGGING BYPASS_RDT_S1R1.dlis'
-EXAMPLE_4_GB = '/Users/engun/Documents/workspace/TotalDepth/data/by_type/RP66V1/WAPIMS/2010-2015/W003353/Ungani_2_Log_Data_C/Buru_Ungani-2_RM_VISION+geoVISION_25-2800mMD.dlis'
+
+
+BASIC_FILE = os.path.join(EXAMPLE_DATA_PATH, 'RP66V1/data/BASIC_FILE.dlis')
+EXAMPLE_540_KB = os.path.join(EXAMPLE_DATA_PATH, 'RP66V1/data/206_05a-_3_DWL_DWL_WIRE_258276498.DLIS')
+EXAMPLE_24_MB = os.path.join(ARCHIVE_DATA_PATH, 'RP66V1/WAPIMS/2010-2015/W003353/S1R2/UNGANI-2_S1R2_XRMI&WSTT_DLIS_MAIN.dlis')
+EXAMPLE_120_MB = os.path.join(ARCHIVE_DATA_PATH, 'RP66V1/WAPIMS/2010-2015/W004434/Wireline/CVX_F24B_S1R1_IBC-CBL_Repeat_031PUC.DLIS')
+EXAMPLE_256_MB = os.path.join(ARCHIVE_DATA_PATH, 'RP66V1-de-tiffed/WAPIMS/2006-2008/W002846/Amulet_1_Log_Data/PROCESSED/Amulet1_S1R4_ProcessedData.dlis')
+EXAMPLE_1_GB = os.path.join(ARCHIVE_DATA_PATH, 'RP66V1-de-tiffed/WAPIMS/2006-2008/W001596/WIRELINE/BAMBRA-3 LOGGING BYPASS_RDT_S1R1.dlis')
+EXAMPLE_4_GB = os.path.join(ARCHIVE_DATA_PATH, 'RP66V1/WAPIMS/2010-2015/W003353/Ungani_2_Log_Data_C/Buru_Ungani-2_RM_VISION+geoVISION_25-2800mMD.dlis')
 
 
 def run_with_new_connection(file_path: str) -> None:
