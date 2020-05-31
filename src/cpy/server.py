@@ -349,7 +349,7 @@ class Server:
         :param length: Length of the logical data, by default all of it.
         :return: The Logical Data as a File.LogicalData.
         """
-        print(f'TRACE: lr_pos_desc={lr_pos_desc}')
+        # print(f'TRACE: lr_pos_desc={lr_pos_desc}')
         assert self.svfs.has(file_id), f'SVFS has no file ID: {file_id}'
         assert self.svfs.has_data(file_id, lr_pos_desc.vr_position, VISIBLE_RECORD_HEADER_LENGTH), \
             f'SVFS {file_id} has no VR data @ 0x{lr_pos_desc.vr_position:x} len={VISIBLE_RECORD_HEADER_LENGTH}'
@@ -358,25 +358,20 @@ class Server:
         assert lr_pos_desc.lr_attributes.is_first, f'LRSH is not first at {lr_pos_desc}'
 
         timer = common.Timer()
-        # vr_position_next = lr_pos_desc.vr_position_end
-        # fpos = lr_pos_desc.lr_position + LRSH_LENGTH
-        # lr_attributes = lr_pos_desc.lr_attributes
-        # lr_data_length = lr_pos_desc.lr_length - LRSH_LENGTH
         lr_data_chunks = []
-
         vr_length, _vr_version = self._read_visible_record(file_id, lr_pos_desc.vr_position)
         vr_position_next = lr_pos_desc.vr_position + vr_length
         lrsh = self._read_logical_record_segment_header(file_id, lr_pos_desc.lr_position)
         fpos = lr_pos_desc.lr_position + LRSH_LENGTH
 
         while fpos < vr_position_next:
-            print(f'Reading LD   at 0x{fpos:x} {lrsh.attributes} len={lrsh.logical_data_length}')
+            # print(f'Reading LD   at 0x{fpos:x} {lrsh.attributes} len={lrsh.logical_data_length}')
             lr_data_chunk = self.svfs.read(file_id, fpos, lrsh.logical_data_length)
             assert len(lr_data_chunk) == lrsh.logical_data_length
             fpos += lrsh.logical_data_length
             if lrsh.must_strip_padding:
                 pad_length = lr_data_chunk[-1]
-                print(f'Stripping padding of {pad_length} bytes')
+                # print(f'Stripping padding of {pad_length} bytes')
                 assert pad_length >= 0
                 assert pad_length < lrsh.logical_data_length
                 lr_data_chunk = lr_data_chunk[:-pad_length]
@@ -390,14 +385,13 @@ class Server:
                 fpos += VISIBLE_RECORD_HEADER_LENGTH
             # Consume LRSH
             lrsh = self._read_logical_record_segment_header(file_id, fpos)
-            print(f'Reading LRSH at 0x{fpos:x} {lrsh.attributes}')
+            # print(f'Reading LRSH at 0x{fpos:x} {lrsh.attributes}')
             fpos += LRSH_LENGTH
             assert not lrsh.attributes.is_first, f'Fpos: 0x{fpos:x} Attrs: {lrsh.attributes.is_first}'
             assert lrsh.logical_data_length >= 0
-            fpos += LRSH_LENGTH
-        print(f'Logical data chunks: {[len(b) for b in lr_data_chunks]}')
+        # print(f'Logical data chunks: {[len(b) for b in lr_data_chunks]}')
         lr_data = b''.join(lr_data_chunks)
-        print(f'Logical data length: {len(lr_data)}')
+        # print(f'Logical data length: {len(lr_data)}')
         return File.LogicalData(lr_data)
 
     # def render_EFLR(self, file_id: str, mod_time: float, json_bytes: str) -> str:
