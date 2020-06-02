@@ -1,33 +1,14 @@
 """
-    {
-        'error': '',
-        'function': f'replace_children',
-        'arguments' : ['12345', ['<table> ...</table>'], ...],
-    }
-
-
-
-Example error response server->client::
-
-    {
-        'response': 'False',
-        'error': f'No file of id={file_id}',
-        'action': f'add_file',
-    }
-
-
 """
 import json
 import logging
-import pprint
-import time
 import typing
 
 import svfs
+from TotalDepth.RP66V1.core import File
 from TotalDepth.RP66V1.core.LogicalRecord import EFLR
 
-from src.cpy import common, connection
-from TotalDepth.RP66V1.core import File
+from src.cpy import common, server_index
 
 logger = logging.getLogger(__file__)
 
@@ -56,10 +37,9 @@ class LRPosDesc(typing.NamedTuple):
         return self.vr_position + self.vr_length
 
     def __str__(self) -> str:
-        length = self.lr_position_end - self.lr_position
         return f'LRPosDesc VR: 0x{self.vr_position:08x} LRSH: 0x{self.lr_position:08x} {self.lr_attributes!s}' \
             f' type: {self.lr_type:3d} end: 0x{self.lr_position_end:08x}' \
-            f' len: 0x{length:08x} {length:,d}'
+            f' len: 0x{self.lr_length:08x} {self.lr_length:,d}'
 
 
 # TODO: Put this back into TotalDepth
@@ -157,19 +137,9 @@ class LogicalRecordSegmentHeaderBase:
             ret -= 2
         return ret
 
-
-class LogicalFile:
-    def __init__(self):
-        # List of EFLRs as an integer entry in the low_level_index
-        self.eflrs: typing.List[int] = []
-        # List of IFLRs as an integer entry in the low_level_index
-        self.iflrs: typing.List[int] = []
-
-
-class MidLevelIndex:
-    def __init__(self):
-        # Dict of ID to list of Logical files
-        self.logical_files: typing.Dict[str, typing.List[LogicalFile]] = {}
+    @property
+    def is_public(self) -> bool:
+        return self.record_type < 128
 
 
 class Server:
@@ -181,8 +151,10 @@ class Server:
     def __init__(self):
         logger.info(f'{self.LOGGER_PREFIX}: __init__()')
         self.svfs = svfs.SVFS()
+        # TODO: Single dict with low and mid level indexes
         # Dict of {file_id, {position as a LRPosDesc, ...}, ...}
         self.low_level_index: typing.Dict[str, typing.Dict[int, LRPosDesc]] = {}
+        self.mid_level_index: typing.Dict[str, server_index.MidLevelIndex] = {}
         self._function_map = {
             'add_file': self.add_file,
             'add_eflrs': self.add_eflrs,
@@ -218,21 +190,13 @@ class Server:
         logger.info(f'{self.LOGGER_PREFIX}: added file took {timer.ms():.3f} (ms).')
         timer = common.Timer()
 
-        # for lr_position_description in self._iterate_logical_record_positions(file_id):
-        #     logger.info(f'SERVER: {lr_position_description}')
-
-        eflr_count = 0
-        for e, eflr_position_description in enumerate(self._iterate_EFLR(file_id)):
-            logger.info(f'SERVER: EFLR [{e:6d}] {eflr_position_description} {eflr_position_description.lr_attributes.is_first}')
-            eflr_count += 1
-        logger.info(f'{self.LOGGER_PREFIX}: EFLR count {eflr_count}')
-
-        # for i, iflr_position_description in enumerate(self._iterate_IFLR(file_id)):
-        #     logger.info(f'SERVER: IFLR [{i:6d}] {iflr_position_description}')
+        logger.info(f'{self.LOGGER_PREFIX}: EFLR count {self._count_EFLR(file_id, include_private=False)}')
 
         self.low_level_index[file_id] = {
             lr_pos.lr_position: lr_pos for lr_pos in self._iterate_logical_record_positions(file_id)
         }
+        self.mid_level_index[file_id] = server_index.MidLevelIndex()
+
         # Read all the data to construct all the EFLRs
         seek_read = common.SeekRead()
         for lrsh_pos in sorted(self.low_level_index[file_id].keys()):
@@ -264,12 +228,14 @@ class Server:
         timer = common.Timer()
         self._add_data(file_id, mod_time, seek_read)
         # TODO: Mid-level index
-        for position in  self._iterate_EFLR(file_id):
+        for position in  self._iterate_EFLR(file_id, include_private=False):
             logical_data = self._read_logical_record_data(file_id, position)
             eflr = EFLR.ExplicitlyFormattedLogicalRecord(position.lr_type, logical_data)
-            print(eflr)
-
-        logger.info(f'{self.LOGGER_PREFIX}: add_eflrs() took {timer.ms():.3f} (ms).')
+            # print(eflr)
+            # print(eflr.str_long())
+            self.mid_level_index[file_id].add_eflr(position.lr_position, eflr)
+        # print(f'Mid level index {self.mid_level_index[file_id].long_str()}')
+        logger.info(f'{self.LOGGER_PREFIX}: add_eflrs(): {self.mid_level_index[file_id]} took {timer.ms():.3f} (ms).')
 
     def _read_visible_record(self, file_id: str, fpos: int) -> typing.Tuple[int, int]:
         assert self.svfs.has(file_id)
@@ -317,25 +283,35 @@ class Server:
                     lr_first_attrs = None
                 fpos += lrsh.length
 
-    def _iterate_EFLR(self, file_id: str) -> typing.Sequence[LRPosDesc]:
+    def _iterate_EFLR(self, file_id: str, include_private: bool) -> typing.Sequence[LRPosDesc]:
         for lr_pos_desc in self._iterate_logical_record_positions(file_id):
             if lr_pos_desc.lr_attributes.is_eflr and not lr_pos_desc.lr_attributes.is_encrypted:
-                yield lr_pos_desc
+                if include_private or lr_pos_desc.lr_type < 128:
+                    yield lr_pos_desc
 
-    def _iterate_IFLR(self, file_id: str) -> typing.Sequence[LRPosDesc]:
+    def _count_EFLR(self, file_id: str, include_private: bool) -> int:
+        count = 0
+        for lr_pos_desc in self._iterate_logical_record_positions(file_id):
+            if lr_pos_desc.lr_attributes.is_eflr and not lr_pos_desc.lr_attributes.is_encrypted:
+                if include_private or lr_pos_desc.lr_type < 128:
+                    count += 1
+        return count
+
+    def _iterate_IFLR(self, file_id: str, include_private: bool) -> typing.Sequence[LRPosDesc]:
         for lr_pos_desc in self._iterate_logical_record_positions(file_id):
             if not lr_pos_desc.lr_attributes.is_eflr and not lr_pos_desc.lr_attributes.is_encrypted:
-                yield lr_pos_desc
+                if include_private or lr_pos_desc.lr_type < 128:
+                    yield lr_pos_desc
 
 
-    def EFLR_id_as_fpos(self, file_id: str, mod_time: float) -> str:
-        ids = sorted(self.low_level_index[file_id].keys())
-        return json.dumps(
-            {
-                'response': 'True',
-                'data': ids,
-            }
-        )
+    # def EFLR_id_as_fpos(self, file_id: str, mod_time: float) -> str:
+    #     ids = sorted(self.low_level_index[file_id].keys())
+    #     return json.dumps(
+    #         {
+    #             'response': 'True',
+    #             'data': ids,
+    #         }
+    #     )
 
     def _read_logical_record_data(self, file_id: str, lr_pos_desc: LRPosDesc,
                                   offset: int = 0, length: int = -1) -> File.LogicalData:
@@ -394,9 +370,9 @@ class Server:
         # print(f'Logical data length: {len(lr_data)}')
         return File.LogicalData(lr_data)
 
-    # def render_EFLR(self, file_id: str, mod_time: float, json_bytes: str) -> str:
-    #     id_as_fpos: int = 0
-    #     logical_data = self._read_logical_record_data(file_id, id_as_fpos)
-    #     eflr = EFLR.ExplicitlyFormattedLogicalRecord(0, logical_data)
-    #     print(eflr)
-    #     # TODO: EFLR as HTML
+    def render_EFLR(self, file_id: str, mod_time: float, json_bytes: str) -> str:
+        id_as_fpos: int = 0
+        logical_data = self._read_logical_record_data(file_id, id_as_fpos)
+        eflr = EFLR.ExplicitlyFormattedLogicalRecord(0, logical_data)
+        print(eflr)
+        # TODO: EFLR as HTML

@@ -42,12 +42,12 @@ def main() -> int:
     # Write test plots
     logger.info(f'Test simulation...')
     run_with_new_connection(BASIC_FILE)
-    # run_with_new_connection(EXAMPLE_540_KB)
-    # run_with_new_connection(EXAMPLE_24_MB)
-    # run_with_new_connection(EXAMPLE_120_MB)
-    # run_with_new_connection(EXAMPLE_256_MB)
-    # run_with_new_connection(EXAMPLE_1_GB)
-    # run_with_new_connection(EXAMPLE_4_GB)
+    run_with_new_connection(EXAMPLE_540_KB)
+    run_with_new_connection(EXAMPLE_24_MB)
+    run_with_new_connection(EXAMPLE_120_MB)
+    run_with_new_connection(EXAMPLE_256_MB)
+    run_with_new_connection(EXAMPLE_1_GB)
+    run_with_new_connection(EXAMPLE_4_GB)
     return 0
 
 
