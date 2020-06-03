@@ -235,6 +235,7 @@ class Server:
             # print(eflr.str_long())
             self.mid_level_index[file_id].add_eflr(position.lr_position, eflr)
         # print(f'Mid level index {self.mid_level_index[file_id].long_str()}')
+        print(f'XXXX {self.svf_details(file_id, mod_time)}')
         logger.info(f'{self.LOGGER_PREFIX}: add_eflrs(): {self.mid_level_index[file_id]} took {timer.ms():.3f} (ms).')
 
     def _read_visible_record(self, file_id: str, fpos: int) -> typing.Tuple[int, int]:
@@ -376,3 +377,20 @@ class Server:
         eflr = EFLR.ExplicitlyFormattedLogicalRecord(0, logical_data)
         print(eflr)
         # TODO: EFLR as HTML
+
+    def svf_details(self, file_id: str, mod_time:float) -> str:
+        """Returns an internal SVF summarry for a file as a JSON string."""
+        assert self.svfs.has(file_id)
+        assert self.svfs.file_mod_time_matches(file_id, mod_time)
+        data = {
+            'size_of': self.svfs.size_of(file_id),
+            'num_blocks': self.svfs.num_blocks(file_id),
+            'num_bytes': self.svfs.num_bytes(file_id),
+            'count_write': self.svfs.count_write(file_id),
+            'count_read': self.svfs.count_read(file_id),
+            'bytes_write': self.svfs.bytes_write(file_id),
+            'bytes_read': self.svfs.bytes_read(file_id),
+            'time_write': self.svfs.time_write(file_id).strftime('%Y-%m-%d %H:%M:%S.%f'),
+            'time_read': self.svfs.time_read(file_id).strftime('%Y-%m-%d %H:%M:%S.%f'),
+        }
+        return json.dumps(data)
