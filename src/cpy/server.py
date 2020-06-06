@@ -177,7 +177,9 @@ class Server:
         timer = common.Timer()
         if not self.svfs.has(file_id):
             self.svfs.insert(file_id, mod_time)
+        seek_read = common.json_decode_seek_read_4_byte_optimised(seek_read)
         self._add_data(file_id, mod_time, seek_read)
+        self.log_details(file_id, mod_time)
         logger.info(
             f'{self.LOGGER_PREFIX}: add_file() has {self.svfs.num_bytes(file_id)} bytes'
             f' {self.svfs.num_blocks(file_id)} blocks'
@@ -190,11 +192,12 @@ class Server:
         logger.info(f'{self.LOGGER_PREFIX}: added file took {timer.ms():.3f} (ms).')
         timer = common.Timer()
 
-        logger.info(f'{self.LOGGER_PREFIX}: EFLR count {self._count_EFLR(file_id, include_private=False)}')
+        # logger.info(f'{self.LOGGER_PREFIX}: EFLR count {self._count_EFLR(file_id, include_private=False)}')
 
         self.low_level_index[file_id] = {
             lr_pos.lr_position: lr_pos for lr_pos in self._iterate_logical_record_positions(file_id)
         }
+        # self.log_details(file_id, mod_time)
         self.mid_level_index[file_id] = server_index.MidLevelIndex()
 
         # Read all the data to construct all the EFLRs
@@ -204,8 +207,9 @@ class Server:
             if index_entry.lr_attributes.is_eflr:
                 need = self.svfs.need(file_id, index_entry.lr_position, index_entry.lr_length)
                 seek_read.extend(need)
+        self.log_details(file_id, mod_time)
         logger.info(f'{self.LOGGER_PREFIX}: need[{len(seek_read)}] blocks total {seek_read.total_data_bytes()} bytes.')
-        logger.info(f'{self.LOGGER_PREFIX}: Creating EFLR data set took {timer.ms():.3f} (ms).')
+        logger.info(f'{self.LOGGER_PREFIX}: Creating data set or EFLRs took {timer.ms():.3f} (ms).')
         ret = ['seek_read', [file_id, mod_time, seek_read.seek_read], 'add_eflrs']
         return ret
 
@@ -217,9 +221,11 @@ class Server:
         assert self.svfs.has(file_id)
         assert self.svfs.file_mod_time_matches(file_id, mod_time)
         timer = common.Timer()
-        for fpos, str_data in seek_read:
+        for i, (fpos, data) in enumerate(seek_read):
             fpos = int(fpos)
-            data = common.decode_bytes(str_data)
+            # data = common.decode_bytes(str_data)
+            if isinstance(data, str):
+                data = common.decode_bytes(data)
             self.svfs.write(file_id, fpos, data)
         logger.info(f'{self.LOGGER_PREFIX}: _add_data() took {timer.ms():.3f} (ms).')
 
@@ -235,7 +241,8 @@ class Server:
             # print(eflr.str_long())
             self.mid_level_index[file_id].add_eflr(position.lr_position, eflr)
         # print(f'Mid level index {self.mid_level_index[file_id].long_str()}')
-        print(f'XXXX {self.svf_details(file_id, mod_time)}')
+        # print(f'XXXX {self.svf_details(file_id, mod_time)}')
+        self.log_details(file_id, mod_time)
         logger.info(f'{self.LOGGER_PREFIX}: add_eflrs(): {self.mid_level_index[file_id]} took {timer.ms():.3f} (ms).')
 
     def _read_visible_record(self, file_id: str, fpos: int) -> typing.Tuple[int, int]:
@@ -379,7 +386,7 @@ class Server:
         # TODO: EFLR as HTML
 
     def svf_details(self, file_id: str, mod_time:float) -> str:
-        """Returns an internal SVF summarry for a file as a JSON string."""
+        """Returns an internal SVF summary for a file as a JSON string."""
         assert self.svfs.has(file_id)
         assert self.svfs.file_mod_time_matches(file_id, mod_time)
         data = {
@@ -390,7 +397,23 @@ class Server:
             'count_read': self.svfs.count_read(file_id),
             'bytes_write': self.svfs.bytes_write(file_id),
             'bytes_read': self.svfs.bytes_read(file_id),
-            'time_write': self.svfs.time_write(file_id).strftime('%Y-%m-%d %H:%M:%S.%f'),
-            'time_read': self.svfs.time_read(file_id).strftime('%Y-%m-%d %H:%M:%S.%f'),
         }
-        return json.dumps(data)
+        t = self.svfs.time_write(file_id)
+        if t is not None:
+            data['time_write'] = t.strftime('%Y-%m-%d %H:%M:%S.%f')
+        else:
+            data['time_write'] = 'None'
+        t = self.svfs.time_read(file_id)
+        if t is not None:
+            data['time_read'] = t.strftime('%Y-%m-%d %H:%M:%S.%f')
+        else:
+            data['time_read'] = 'None'
+        return data
+
+    def log_details(self, file_id: str, mod_time:float) -> None:
+        details = self.svf_details(file_id, mod_time)
+        for k in sorted(details.keys()):
+            if k.startswith('time'):
+                logger.info(f'svf_details(): {k:16}: {details[k]}')
+            else:
+                logger.info(f'svf_details(): {k:16}: {details[k]:16,d}')

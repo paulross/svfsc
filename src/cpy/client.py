@@ -60,7 +60,9 @@ def scan_file_index(file_object: typing.BinaryIO) -> typing.List[typing.Tuple[in
 def scan_file_str_index(file_object: typing.BinaryIO) -> typing.List[typing.Tuple[int, str]]:
     """Scans a RP66V1 physical file and returns the index as encoded bytes."""
     py_index = scan_file_index(file_object)
-    enc_index = [(tell, common.encode_bytes(data)) for tell, data in py_index]
+    # print(f'TRACE:\n{py_index}')
+    # enc_index = [(tell, common.encode_bytes(data)) for tell, data in py_index]
+    enc_index = common.json_encode_seek_read_4_byte_optimised(py_index, True)
     return enc_index
 
 
@@ -109,13 +111,17 @@ class Client:
         )
         timer = common.Timer()
         total_timer = common.Timer()
-        index = scan_file_str_index(file_object)
-        logger.info(f'{self.LOGGER_PREFIX}: scan_file_str_index() time {timer.ms():.3f} (ms).')
+        index_as_str = scan_file_str_index(file_object)
+        logger.info(
+            f'{self.LOGGER_PREFIX}: scan_file_str_index()'
+            f' len index_as_str={len(index_as_str):,d}'
+            f' time {timer.ms():.3f} (ms).'
+        )
 
         timer = common.Timer()
         # logger.info(f'{self.LOGGER_PREFIX}: Scanning complete {len(json_to_server)} bytes. Adding file to server.')
         comms_to_server = common.CommunicationJSON()
-        comms_to_server.add_call('add_file', file_path, file_mod_time(file_path), index)
+        comms_to_server.add_call('add_file', file_path, file_mod_time(file_path), index_as_str)
         json_data_to_server = comms_to_server.json_dumps()
         logger.info(f'{self.LOGGER_PREFIX}: prepare JSON for server time {timer.ms():.3f} (ms).')
         json_data_from_server = self.connection.client_to_server(json_data_to_server)
