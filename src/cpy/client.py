@@ -80,8 +80,8 @@ def file_mod_time(file_path: str) -> float:
 class Client:
     LOGGER_PREFIX = 'CLIENT'
 
-    def __init__(self):
-        self.connection = connection.Connection()
+    def __init__(self, real_time: bool = True):
+        self.connection = connection.Connection(real_time=real_time)
         self._function_map = {
             'seek_read':  self.seek_read,
         }

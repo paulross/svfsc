@@ -1,7 +1,9 @@
 """
 """
+import collections
 import json
 import logging
+import pprint
 import typing
 
 import svfs
@@ -35,6 +37,10 @@ class LRPosDesc(typing.NamedTuple):
     @property
     def vr_position_end(self) -> int:
         return self.vr_position + self.vr_length
+
+    @property
+    def is_public(self) -> bool:
+        return self.lr_type < 128
 
     def __str__(self) -> str:
         return f'LRPosDesc VR: 0x{self.vr_position:08x} LRSH: 0x{self.lr_position:08x} {self.lr_attributes!s}' \
@@ -192,8 +198,6 @@ class Server:
         logger.info(f'{self.LOGGER_PREFIX}: added file took {timer.ms():.3f} (ms).')
         timer = common.Timer()
 
-        # logger.info(f'{self.LOGGER_PREFIX}: EFLR count {self._count_EFLR(file_id, include_private=False)}')
-
         self.low_level_index[file_id] = {
             lr_pos.lr_position: lr_pos for lr_pos in self._iterate_logical_record_positions(file_id)
         }
@@ -204,12 +208,12 @@ class Server:
         seek_read = common.SeekRead()
         for lrsh_pos in sorted(self.low_level_index[file_id].keys()):
             index_entry = self.low_level_index[file_id][lrsh_pos]
-            if index_entry.lr_attributes.is_eflr:
+            if self._use_this_EFLR(index_entry):
                 need = self.svfs.need(file_id, index_entry.lr_position, index_entry.lr_length)
                 seek_read.extend(need)
         self.log_details(file_id, mod_time)
         logger.info(f'{self.LOGGER_PREFIX}: need[{len(seek_read)}] blocks total {seek_read.total_data_bytes()} bytes.')
-        logger.info(f'{self.LOGGER_PREFIX}: Creating data set or EFLRs took {timer.ms():.3f} (ms).')
+        logger.info(f'{self.LOGGER_PREFIX}: Creating data set for EFLRs took {timer.ms():.3f} (ms).')
         ret = ['seek_read', [file_id, mod_time, seek_read.seek_read], 'add_eflrs']
         return ret
 
@@ -233,8 +237,7 @@ class Server:
         logger.info(f'{self.LOGGER_PREFIX}: add_eflrs().')
         timer = common.Timer()
         self._add_data(file_id, mod_time, seek_read)
-        # TODO: Mid-level index
-        for position in  self._iterate_EFLR(file_id, include_private=False):
+        for position in self._iterate_EFLR(file_id):
             logical_data = self._read_logical_record_data(file_id, position)
             eflr = EFLR.ExplicitlyFormattedLogicalRecord(position.lr_type, logical_data)
             # print(eflr)
@@ -242,6 +245,11 @@ class Server:
             self.mid_level_index[file_id].add_eflr(position.lr_position, eflr)
         # print(f'Mid level index {self.mid_level_index[file_id].long_str()}')
         # print(f'XXXX {self.svf_details(file_id, mod_time)}')
+        # Log what we know about the _possible_ EFLR set
+        possible_eflr_dict = self._count_EFRL_attributes(file_id)
+        msg = ', '.join(f'{k}: {possible_eflr_dict[k]}' for k in sorted(possible_eflr_dict.keys()))
+        logger.info(f'{self.LOGGER_PREFIX}: add_eflrs(): EFLR attrs: {msg}')
+
         self.log_details(file_id, mod_time)
         logger.info(f'{self.LOGGER_PREFIX}: add_eflrs(): {self.mid_level_index[file_id]} took {timer.ms():.3f} (ms).')
 
@@ -291,35 +299,47 @@ class Server:
                     lr_first_attrs = None
                 fpos += lrsh.length
 
-    def _iterate_EFLR(self, file_id: str, include_private: bool) -> typing.Sequence[LRPosDesc]:
-        for lr_pos_desc in self._iterate_logical_record_positions(file_id):
-            if lr_pos_desc.lr_attributes.is_eflr and not lr_pos_desc.lr_attributes.is_encrypted:
-                if include_private or lr_pos_desc.lr_type < 128:
-                    yield lr_pos_desc
+    def _iterate_low_level_index(self, file_id: str, first_lrsh_only: bool) -> typing.Sequence[LRPosDesc]:
+        assert file_id in self.low_level_index, f'_iterate_low_level_index(): Missing file_id "{file_id}"'
+        index = self.low_level_index[file_id]
+        # Relies on sort order of index
+        for value in index.values():
+            if value.lr_attributes.is_first or not first_lrsh_only:
+                yield value
 
-    def _count_EFLR(self, file_id: str, include_private: bool) -> int:
-        count = 0
-        for lr_pos_desc in self._iterate_logical_record_positions(file_id):
-            if lr_pos_desc.lr_attributes.is_eflr and not lr_pos_desc.lr_attributes.is_encrypted:
-                if include_private or lr_pos_desc.lr_type < 128:
-                    count += 1
-        return count
+    def _count_EFRL_attributes(self, file_id: str) -> typing.Dict[str, int]:
+        assert file_id in self.low_level_index, f'_iterate_low_level_index(): Missing file_id "{file_id}"'
+        ret = collections.Counter()
+        for lr_pos_desc in self._iterate_low_level_index(file_id, first_lrsh_only=True):
+            if lr_pos_desc.lr_attributes.is_eflr:
+                key = (f'Encrypt: {lr_pos_desc.lr_attributes.is_encrypted}', f'Public: {lr_pos_desc.is_public}')
+                ret.update([key])
+        return ret
 
-    def _iterate_IFLR(self, file_id: str, include_private: bool) -> typing.Sequence[LRPosDesc]:
-        for lr_pos_desc in self._iterate_logical_record_positions(file_id):
-            if not lr_pos_desc.lr_attributes.is_eflr and not lr_pos_desc.lr_attributes.is_encrypted:
-                if include_private or lr_pos_desc.lr_type < 128:
-                    yield lr_pos_desc
+    def _use_this_EFLR_IFLR(self, lr_pos_desc: LRPosDesc) -> bool:
+        attr = lr_pos_desc.lr_attributes
+        assert attr.is_first
+        return not attr.is_encrypted and lr_pos_desc.is_public
 
+    def _use_this_EFLR(self, lr_pos_desc: LRPosDesc) -> bool:
+        attr = lr_pos_desc.lr_attributes
+        assert attr.is_first
+        return attr.is_eflr and self._use_this_EFLR_IFLR(lr_pos_desc)
 
-    # def EFLR_id_as_fpos(self, file_id: str, mod_time: float) -> str:
-    #     ids = sorted(self.low_level_index[file_id].keys())
-    #     return json.dumps(
-    #         {
-    #             'response': 'True',
-    #             'data': ids,
-    #         }
-    #     )
+    def _use_this_IFLR(self, lr_pos_desc: LRPosDesc) -> bool:
+        attr = lr_pos_desc.lr_attributes
+        assert attr.is_first
+        return not attr.is_eflr and self._use_this_EFLR_IFLR(lr_pos_desc)
+
+    def _iterate_EFLR(self, file_id: str) -> typing.Sequence[LRPosDesc]:
+        for lr_data in self._iterate_low_level_index(file_id, first_lrsh_only=True):
+            if self._use_this_EFLR(lr_data):
+                yield lr_data
+
+    def _iterate_IFLR(self, file_id: str) -> typing.Sequence[LRPosDesc]:
+        for lr_data in self._iterate_low_level_index(file_id):
+            if self._use_this_IFLR(lr_data):
+                yield lr_data
 
     def _read_logical_record_data(self, file_id: str, lr_pos_desc: LRPosDesc,
                                   offset: int = 0, length: int = -1) -> File.LogicalData:
@@ -333,7 +353,7 @@ class Server:
         :param length: Length of the logical data, by default all of it.
         :return: The Logical Data as a File.LogicalData.
         """
-        # print(f'TRACE: lr_pos_desc={lr_pos_desc}')
+        logger.debug(f'TRACE: _read_logical_record_data(): lr_pos_desc={lr_pos_desc}')
         assert self.svfs.has(file_id), f'SVFS has no file ID: {file_id}'
         assert self.svfs.has_data(file_id, lr_pos_desc.vr_position, VISIBLE_RECORD_HEADER_LENGTH), \
             f'SVFS {file_id} has no VR data @ 0x{lr_pos_desc.vr_position:x} len={VISIBLE_RECORD_HEADER_LENGTH}'
@@ -364,15 +384,18 @@ class Server:
                 break
             if fpos == vr_position_next:
                 # Consume visible record
-                vr_length, _vr_version = self._read_visible_record(file_id, lr_pos_desc.vr_position)
+                vr_length, _vr_version = self._read_visible_record(file_id, fpos)
+                # assert _vr_version == 0xff01, f'Fpos: 0x{fpos:x} VR: 0x{vr_length:x} 0x{_vr_version:x}'
                 vr_position_next = fpos + vr_length
+                # print(f'TRACE: VR @ 0x{fpos:x} length 0x{vr_length:x} next @ 0x{vr_position_next:x}')
                 fpos += VISIBLE_RECORD_HEADER_LENGTH
             # Consume LRSH
             lrsh = self._read_logical_record_segment_header(file_id, fpos)
             # print(f'Reading LRSH at 0x{fpos:x} {lrsh.attributes}')
-            fpos += LRSH_LENGTH
-            assert not lrsh.attributes.is_first, f'Fpos: 0x{fpos:x} Attrs: {lrsh.attributes.is_first}'
+            assert not lrsh.attributes.is_first, \
+                f'Fpos: 0x{fpos:x} Attrs: {lrsh.attributes} VR next 0x{vr_position_next:x} Len: {lrsh.logical_data_length}'
             assert lrsh.logical_data_length >= 0
+            fpos += LRSH_LENGTH
         # print(f'Logical data chunks: {[len(b) for b in lr_data_chunks]}')
         lr_data = b''.join(lr_data_chunks)
         # print(f'Logical data length: {len(lr_data)}')
@@ -385,7 +408,7 @@ class Server:
         print(eflr)
         # TODO: EFLR as HTML
 
-    def svf_details(self, file_id: str, mod_time:float) -> str:
+    def svf_details(self, file_id: str, mod_time:float) -> typing.Dict[str, typing.Union[int, int]]:
         """Returns an internal SVF summary for a file as a JSON string."""
         assert self.svfs.has(file_id)
         assert self.svfs.file_mod_time_matches(file_id, mod_time)
@@ -412,8 +435,17 @@ class Server:
 
     def log_details(self, file_id: str, mod_time:float) -> None:
         details = self.svf_details(file_id, mod_time)
-        for k in sorted(details.keys()):
-            if k.startswith('time'):
-                logger.info(f'svf_details(): {k:16}: {details[k]}')
-            else:
-                logger.info(f'svf_details(): {k:16}: {details[k]:16,d}')
+        # for k in sorted(details.keys()):
+        #     if k.startswith('time'):
+        #         logger.info(f'svf_details(): {k:16}: {details[k]}')
+        #     else:
+        #         logger.info(f'svf_details(): {k:16}: {details[k]:16,d}')
+        detail_str = (
+            f'bytes r/w: {details["bytes_read"]}/{details["bytes_write"]}'
+            f', count r/w: {details["count_read"]}/{details["count_write"]}'
+            f', blocks: {details["num_blocks"]}'
+            f', bytes: {details["num_bytes"]}'
+            f', sizeof: {details["size_of"]}'
+            f', time r/w: {details["time_read"]}/{details["time_write"]}'
+        )
+        logger.info(f'svf_details(): {detail_str}')

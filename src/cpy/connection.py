@@ -26,10 +26,11 @@ class Connection:
     LOGGER_PREFIX = 'NETWRK'
 
     def __init__(self, bandwidth:float = BANDWIDTH_BPS, latency: float = LATENCY_S,
-                 payload_overhead: float = PAYLOAD_OVERHEAD):
+                 payload_overhead: float = PAYLOAD_OVERHEAD, real_time: bool = True):
         self.bandwidth = bandwidth
         self.latency = latency
         self.payload_overhead = payload_overhead
+        self.real_time = real_time
         logger.info(f'{self.LOGGER_PREFIX}: __init__() Bandwidth={self.bandwidth:,.0f} (bps) Latency={self.latency} (s)')
         self.server = server.Server()
         self.bytes_client_to_server: typing.List[int] = []
@@ -43,35 +44,11 @@ class Connection:
             self.bytes_client_to_server.append(len(json_bytes))
         else:
             self.bytes_server_to_client.append(len(json_bytes))
-        time.sleep(sleep_time)
+        if self.real_time:
+            time.sleep(sleep_time)
 
     def client_to_server(self, json_bytes: str) -> str:
         self.delay(json_bytes, to_server=True)
         json_bytes = self.server.from_client(json_bytes)
         self.delay(json_bytes, to_server=False)
         return json_bytes
-
-    # # Mirror server.Server() methods with time delay
-    # def add_file(self, file_id: str, mod_time: float, json_bytes: str) -> str:
-    #     self.delay(json_bytes, to_server=True)
-    #     to_client = self.server.add_file(file_id, mod_time, json_bytes)
-    #     self.delay(to_client, to_server=False)
-    #     return to_client
-    #
-    # def add_data(self, file_id: str, mod_time: float, json_bytes: str) -> str:
-    #     self.delay(json_bytes, to_server=True)
-    #     to_client = self.server.add_data(file_id, mod_time, json_bytes)
-    #     self.delay(to_client, to_server=False)
-    #     return to_client
-    #
-    # def EFLR_id_as_fpos(self, file_id: str, mod_time: float, json_bytes: str) -> str:
-    #     self.delay(json_bytes, to_server=True)
-    #     to_client = self.server.EFLR_id_as_fpos(file_id, mod_time, json_bytes)
-    #     self.delay(to_client, to_server=False)
-    #     return to_client
-    #
-    # def render_EFLR(self, file_id: str, mod_time: float, json_bytes: str) -> str:
-    #     self.delay(json_bytes, to_server=True)
-    #     to_client = self.server.render_EFLR(file_id, mod_time, json_bytes)
-    #     self.delay(to_client, to_server=False)
-    #     return to_client
