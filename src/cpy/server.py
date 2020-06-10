@@ -4,6 +4,7 @@ import collections
 import json
 import logging
 import pprint
+import psutil
 import typing
 
 import svfs
@@ -165,6 +166,7 @@ class Server:
             'add_file': self.add_file,
             'add_eflrs': self.add_eflrs,
         }
+        self.log_server_details()
 
     def from_client(self, json_data: str) -> str:
         comms_from_client = common.CommunicationJSON.json_reads(json_data)
@@ -185,7 +187,7 @@ class Server:
             self.svfs.insert(file_id, mod_time)
         seek_read = common.json_decode_seek_read_4_byte_optimised(seek_read)
         self._add_data(file_id, mod_time, seek_read)
-        self.log_details(file_id, mod_time)
+        self.log_svf_details(file_id, mod_time)
         logger.info(
             f'{self.LOGGER_PREFIX}: add_file() has {self.svfs.num_bytes(file_id)} bytes'
             f' {self.svfs.num_blocks(file_id)} blocks'
@@ -211,7 +213,7 @@ class Server:
             if self._use_this_EFLR(index_entry):
                 need = self.svfs.need(file_id, index_entry.lr_position, index_entry.lr_length)
                 seek_read.extend(need)
-        self.log_details(file_id, mod_time)
+        self.log_svf_details(file_id, mod_time)
         logger.info(f'{self.LOGGER_PREFIX}: need[{len(seek_read)}] blocks total {seek_read.total_data_bytes()} bytes.')
         logger.info(f'{self.LOGGER_PREFIX}: Creating data set for EFLRs took {timer.ms():.3f} (ms).')
         ret = ['seek_read', [file_id, mod_time, seek_read.seek_read], 'add_eflrs']
@@ -250,7 +252,8 @@ class Server:
         msg = ', '.join(f'{k}: {possible_eflr_dict[k]}' for k in sorted(possible_eflr_dict.keys()))
         logger.info(f'{self.LOGGER_PREFIX}: add_eflrs(): EFLR attrs: {msg}')
 
-        self.log_details(file_id, mod_time)
+        self.log_svf_details(file_id, mod_time)
+        self.log_server_details()
         logger.info(f'{self.LOGGER_PREFIX}: add_eflrs(): {self.mid_level_index[file_id]} took {timer.ms():.3f} (ms).')
 
     def _read_visible_record(self, file_id: str, fpos: int) -> typing.Tuple[int, int]:
@@ -408,7 +411,7 @@ class Server:
         print(eflr)
         # TODO: EFLR as HTML
 
-    def svf_details(self, file_id: str, mod_time:float) -> typing.Dict[str, typing.Union[int, int]]:
+    def _svf_details(self, file_id: str, mod_time:float) -> typing.Dict[str, typing.Union[int, str]]:
         """Returns an internal SVF summary for a file as a JSON string."""
         assert self.svfs.has(file_id)
         assert self.svfs.file_mod_time_matches(file_id, mod_time)
@@ -433,13 +436,8 @@ class Server:
             data['time_read'] = 'None'
         return data
 
-    def log_details(self, file_id: str, mod_time:float) -> None:
-        details = self.svf_details(file_id, mod_time)
-        # for k in sorted(details.keys()):
-        #     if k.startswith('time'):
-        #         logger.info(f'svf_details(): {k:16}: {details[k]}')
-        #     else:
-        #         logger.info(f'svf_details(): {k:16}: {details[k]:16,d}')
+    def log_svf_details(self, file_id: str, mod_time:float) -> None:
+        details = self._svf_details(file_id, mod_time)
         detail_str = (
             f'bytes r/w: {details["bytes_read"]}/{details["bytes_write"]}'
             f', count r/w: {details["count_read"]}/{details["count_write"]}'
@@ -448,4 +446,23 @@ class Server:
             f', sizeof: {details["size_of"]}'
             f', time r/w: {details["time_read"]}/{details["time_write"]}'
         )
-        logger.info(f'svf_details(): {detail_str}')
+        logger.info(f'{self.LOGGER_PREFIX}: svf_details(): {detail_str}')
+
+    def _server_details(self):
+        proc = psutil.Process()
+        ret = {
+            'svfs_file_count': len(self.svfs.keys()),
+            'rss': proc.memory_info().rss,
+        }
+        return ret
+
+    def log_server_details(self) -> None:
+        details = self._server_details()
+        details_str = []
+        for k in sorted(details.keys()):
+            if isinstance(details[k], int):
+                details_str.append(f'{k}={details[k]:,d}')
+            else:
+                details_str.append(f'{k}={details[k]}')
+        details_str = ', '.join(details_str)
+        logger.info(f'{self.LOGGER_PREFIX}: server_details(): {details_str}')

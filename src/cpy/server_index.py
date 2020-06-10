@@ -102,8 +102,11 @@ class MidLevelIndex:
         else:
             self.logical_files[-1].add_eflr(fpos, eflr)
 
+    def total_eflrs(self) -> int:
+        return sum(len(v.eflr_positions) for v in self.logical_files)
+
     def __str__(self) -> str:
-        return f'MidLevelIndex with {len(self.logical_files)} Logical Files'
+        return f'MidLevelIndex with {len(self.logical_files)} Logical Files and {self.total_eflrs()} EFLRs'
 
     def long_str(self) -> str:
         return '\n'.join(

@@ -74,33 +74,35 @@ DEFAULT_OPT_LOG_FORMAT_VERBOSE = '%(asctime)s - %(filename)16s#%(lineno)5d - %(p
 
 
 def process_some_example_files():
-    # run_with_new_connection(BASIC_FILE)
-    # run_with_new_connection(EXAMPLE_540_KB)
-    # run_with_new_connection(EXAMPLE_24_MB)
-    # run_with_new_connection(EXAMPLE_120_MB)
-    # run_with_new_connection(EXAMPLE_256_MB)
-    # run_with_new_connection(EXAMPLE_481_MB)
-    # run_with_new_connection(EXAMPLE_1_GB)
-    # run_with_new_connection(EXAMPLE_4_GB)
-
     result = [
-        run_with_new_connection(TORTURE_A),
-        run_with_new_connection(TORTURE_B),
-        run_with_new_connection(TORTURE_C),
+        # run_with_new_connection(BASIC_FILE),
+        # run_with_new_connection(EXAMPLE_540_KB),
+        # run_with_new_connection(EXAMPLE_24_MB),
+        # run_with_new_connection(EXAMPLE_120_MB),
+        # run_with_new_connection(EXAMPLE_256_MB),
+        # run_with_new_connection(EXAMPLE_481_MB),
+        run_with_new_connection(EXAMPLE_1_GB),
+        run_with_new_connection(EXAMPLE_4_GB),
+        #
+        # run_with_new_connection(TORTURE_A),
+        # run_with_new_connection(TORTURE_B),
+        # run_with_new_connection(TORTURE_C),
     ]
     return result
 
 
 def process_directory(path):
+    results = []
     for dirpath, dirnames, filenames in os.walk(path):
         for aName in filenames:
             path_in = os.path.join(dirpath, aName)
             bin_file_type = binary_file_type_from_path(path_in)
             if bin_file_type == 'RP66V1':
                 try:
-                    run_with_new_connection(path_in)
+                    results.append(run_with_new_connection(path_in))
                 except Exception as _err:
                     logger.exception(f'process_directory({path_in})')
+    return results
 
 
 def main() -> int:
@@ -108,10 +110,13 @@ def main() -> int:
     logger.info(f'Test simulation...')
 
     results = process_some_example_files()
+    # results = process_directory(os.path.join(ARCHIVE_DATA_PATH, 'RP66V1/WAPIMS/2006-2008/W002846'))
+    # results = process_directory(os.path.join(ARCHIVE_DATA_PATH, 'RP66V1/WAPIMS/2006-2008'))
     for result in results:
-        logger.info(f'Size={result[1]:16,d} (by) Time={result[2]:8.3f} (s) {result[0]}')
-    # process_directory(os.path.join(ARCHIVE_DATA_PATH, 'RP66V1/WAPIMS/2006-2008/W002846'))
-    # process_directory(os.path.join(ARCHIVE_DATA_PATH, 'RP66V1/WAPIMS/2006-2008'))
+        logger.info(
+            f'Size={result[1]:16,d} (by) Time={result[2]:8.3f} (s)'
+            f' {result[2] * 1000 / (result[1] / 1024**2):8.3f} (ms/Mb) {result[0]}'
+        )
     return 0
 
 
