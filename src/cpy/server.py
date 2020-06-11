@@ -204,7 +204,7 @@ class Server:
             lr_pos.lr_position: lr_pos for lr_pos in self._iterate_logical_record_positions(file_id)
         }
         # self.log_details(file_id, mod_time)
-        self.mid_level_index[file_id] = server_index.MidLevelIndex()
+        self.mid_level_index[file_id] = server_index.MidLevelIndex(cache_eflrs=False)
 
         # Read all the data to construct all the EFLRs
         seek_read = common.SeekRead()
@@ -452,6 +452,9 @@ class Server:
         proc = psutil.Process()
         ret = {
             'svfs_file_count': len(self.svfs.keys()),
+            'svfs_total_size_of': self.svfs.total_size_of(),
+            'svfs_total_bytes': self.svfs.total_bytes(),
+            'svfs_total_blocks': self.svfs.total_blocks(),
             'rss': proc.memory_info().rss,
         }
         return ret

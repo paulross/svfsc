@@ -42,11 +42,11 @@ TORTURE_C = os.path.join(ARCHIVE_DATA_PATH, 'RP66V1/WAPIMS/2008-2010/W003025/WIR
 LOGGER_PREFIX = 'SIMULA'
 
 
-def run_with_new_connection(file_path: str) -> typing.Tuple[str, int, float]:
+def run_with_new_connection(file_path: str, real_time: bool=True) -> typing.Tuple[str, int, float]:
     logger.info(f'{LOGGER_PREFIX}: Creating new client for {file_path}')
 
     timer = common.Timer()
-    a_client = client.Client(real_time=True)
+    a_client = client.Client(real_time=real_time)
     a_client.add_file(file_path)
 
     b_c_to_s = sum(a_client.connection.bytes_client_to_server)
@@ -75,19 +75,25 @@ DEFAULT_OPT_LOG_FORMAT_VERBOSE = '%(asctime)s - %(filename)16s#%(lineno)5d - %(p
 
 def process_some_example_files():
     result = [
-        # run_with_new_connection(BASIC_FILE),
+        run_with_new_connection(BASIC_FILE),
         # run_with_new_connection(EXAMPLE_540_KB),
         # run_with_new_connection(EXAMPLE_24_MB),
         # run_with_new_connection(EXAMPLE_120_MB),
-        # run_with_new_connection(EXAMPLE_256_MB),
+        run_with_new_connection(EXAMPLE_256_MB),
         # run_with_new_connection(EXAMPLE_481_MB),
-        run_with_new_connection(EXAMPLE_1_GB),
-        run_with_new_connection(EXAMPLE_4_GB),
+        # run_with_new_connection(EXAMPLE_1_GB),
+        # run_with_new_connection(EXAMPLE_4_GB),
         #
         # run_with_new_connection(TORTURE_A),
         # run_with_new_connection(TORTURE_B),
         # run_with_new_connection(TORTURE_C),
     ]
+    # Memory leak tests
+    # result = []
+    # # for i in range(10):
+    # #     result.append(run_with_new_connection(EXAMPLE_4_GB))
+    # for i in range(100):
+    #     result.append(run_with_new_connection(EXAMPLE_120_MB, real_time=False))
     return result
 
 
@@ -108,6 +114,7 @@ def process_directory(path):
 def main() -> int:
     logging.basicConfig(level=logging.INFO, format=DEFAULT_OPT_LOG_FORMAT_VERBOSE, stream=sys.stdout)
     logger.info(f'Test simulation...')
+    timer = common.Timer()
 
     results = process_some_example_files()
     # results = process_directory(os.path.join(ARCHIVE_DATA_PATH, 'RP66V1/WAPIMS/2006-2008/W002846'))
@@ -117,6 +124,8 @@ def main() -> int:
             f'Size={result[1]:16,d} (by) Time={result[2]:8.3f} (s)'
             f' {result[2] * 1000 / (result[1] / 1024**2):8.3f} (ms/Mb) {result[0]}'
         )
+    logger.info(f'Test simulation took {timer.s():.3f} (s)')
+    logger.info(f'Bye, bye!')
     return 0
 
 

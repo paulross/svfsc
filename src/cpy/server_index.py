@@ -1,13 +1,17 @@
+import logging
 import typing
 
 from TotalDepth.RP66V1.core import LogPass, RepCode, XAxis
 from TotalDepth.RP66V1.core.LogicalRecord import EFLR
 
 
+logger = logging.getLogger(__file__)
+
 class LogicalFileIndex:
     # NOTE: Similar to TotalDepth.RP66V1.core.LogicalFile.LogicalFile
 
-    ALWAYS_CACHE = {b'FILE-HEADER', b'ORIGIN', b'WELL-REFERENCE', b'CHANNEL' b'FRAME'}
+    # ALWAYS_CACHE = {b'FILE-HEADER', b'ORIGIN', b'WELL-REFERENCE', b'CHANNEL' b'FRAME'}
+    ALWAYS_CACHE = {b'CHANNEL', b'FRAME'}
     ORIGIN_SETS = {b'ORIGIN', b'WELL-REFERENCE'}
 
     def __init__(self, fpos: int, fh_eflr: EFLR.ExplicitlyFormattedLogicalRecord, cache_eflrs: bool = True):
@@ -17,7 +21,7 @@ class LogicalFileIndex:
         If False only essential EFLRs are cached. These are FILE-HEADER and ORIGIN permanently, CHANNEL and FRAME EFLRs
         will then be cached just so long as a LogPass can be constructed then they will be discarded from the cache.
         """
-        assert cache_eflrs, 'Premature optimisation.'
+        # assert cache_eflrs, 'Premature optimisation.'
         if fh_eflr.lr_type != 0:
             raise ValueError(
                 f'LogicalFileIndex needs a FILE-HEADER EFLR (type 0) not {fh_eflr.set.type} of type {fh_eflr.lr_type}'
@@ -85,14 +89,17 @@ class LogicalFileIndex:
             )
 
     def _cache_eflr(self, fpos: int, eflr: EFLR.ExplicitlyFormattedLogicalRecord) -> None:
-        if self.cache_eflrs or eflr.set in self.ALWAYS_CACHE:
+        if self.cache_eflrs or eflr.set.type in self.ALWAYS_CACHE:
+            logger.debug(f'_cache_eflr(): fpos={fpos} EFLR {eflr.set.type} cached')
             assert fpos not in self.eflr_cache
             self.eflr_cache[fpos] = eflr
+        else:
+            logger.debug(f'_cache_eflr(): fpos={fpos} EFLR {eflr.set.type} NOT cached')
 
 
 class MidLevelIndex:
-    def __init__(self, cache_eflrs: bool = True):
-        assert cache_eflrs, 'Premature optimisation.'
+    def __init__(self, cache_eflrs: bool = False):
+        # assert cache_eflrs, 'Premature optimisation.'
         self.cache_eflrs = cache_eflrs
         self.logical_files: typing.List[LogicalFileIndex] = []
 
