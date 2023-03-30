@@ -75,11 +75,11 @@ DEFAULT_OPT_LOG_FORMAT_VERBOSE = '%(asctime)s - %(filename)16s#%(lineno)5d - %(p
 
 def process_some_example_files():
     result = [
-        # run_with_new_connection(BASIC_FILE),
+        run_with_new_connection(BASIC_FILE),
         # run_with_new_connection(EXAMPLE_540_KB),
         # run_with_new_connection(EXAMPLE_24_MB),
         # run_with_new_connection(EXAMPLE_120_MB),
-        run_with_new_connection(EXAMPLE_256_MB),
+        # run_with_new_connection(EXAMPLE_256_MB),
         # run_with_new_connection(EXAMPLE_481_MB),
         # run_with_new_connection(EXAMPLE_1_GB),
         # run_with_new_connection(EXAMPLE_4_GB),
