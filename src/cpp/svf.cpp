@@ -334,6 +334,7 @@ namespace SVFS {
             os << " overruns block at " << iter->first << " of size " << iter->second.size();
             throw ExceptionSparseVirtualFileRead(os.str());
         }
+        /* TODO: memcpy()? */
         while (len) {
             *p = iter->second[offset];
             ++offset;

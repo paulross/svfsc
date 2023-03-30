@@ -55,8 +55,10 @@ namespace SVFS {
 
 
     typedef struct SparseVirtualFileConfig {
-        // TODO: Implement coalesce strategies.
-        // TODO: Implement cache limit and cache punting strategies?
+        // TODO: Implement coalesce strategies or abandon that as unnecessary.
+        // TODO: Implement cache limit and cache punting strategies? Random would be simplest.
+        // TODO: Otherwise need map of fpos -> time or a list of fpos in time order, on access move the fpos to the
+        // TODO: beginning then pop end on punt. Maybe this also needs a unordered_map<fpos, index_into_list>?
         // coalesce - The strategy to use for coalescing adjacent blocks. -1 is always, 0 is never and a
         // positive value means coalesce if the size of the result is less than this value.
         int coalesce = -1;
@@ -91,7 +93,7 @@ namespace SVFS {
         // Do I have the data?
         bool has(t_fpos fpos, size_t len) const noexcept;
         // Write data at file position.
-        void write(t_fpos, const char *data, size_t len);
+        void write(t_fpos fpos, const char *data, size_t len);
         // Read data and write to the buffer provided by the caller.
         // Not const as we update m_bytes_read, m_count_read, m_time_read.
         void read(t_fpos fpos, size_t len, char *p);
@@ -119,7 +121,7 @@ namespace SVFS {
         }
 
         // ---- Attribute access ----
-        const std::string id() const noexcept { return m_id; }
+        const std::string &id() const noexcept { return m_id; }
         double file_mod_time() const noexcept { return m_file_mod_time; }
         size_t count_write() const noexcept { return m_count_write; }
         size_t count_read() const noexcept { return m_count_read; }
@@ -132,10 +134,16 @@ namespace SVFS {
         // Eliminate copying.
         SparseVirtualFile(const SparseVirtualFile &rhs) = delete;
         SparseVirtualFile operator=(const SparseVirtualFile &rhs) = delete;
+
+#ifdef SVF_THREAD_SAFE
+        // Prohibit moving, the mutex has no move constructor.
+        SparseVirtualFile(SparseVirtualFile &&other) = delete;
+        SparseVirtualFile& operator=(SparseVirtualFile &&rhs) = delete;
+#else
         // Allow moving
         SparseVirtualFile(SparseVirtualFile &&other) = default;
         SparseVirtualFile& operator=(SparseVirtualFile &&rhs) = default;
-
+#endif
         // dtor just calls clear()
         ~SparseVirtualFile() { clear(); }
     private:

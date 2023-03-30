@@ -8,6 +8,10 @@
 #include "svfs.h"
 #include "svfs_util.h"
 
+/* TODO: Implement pickling an SVF. And an SVFS?
+ * TODO: Implement the Buffer Protocol rather than returning a copy of the bytes? Look for PyBytes_FromStringAndSize().
+ * */
+
 /**
  * Naming convention:
  *
@@ -139,7 +143,7 @@ finally:
 }
 
 static const char *cp_SparseVirtualFileSystem_insert_docstring = \
-"Removes a Sparse Virtual File of ID and Unix file modification time as a float.";
+"Inserts a Sparse Virtual File of ID and Unix file modification time as a float.";
 
 static PyObject *
 cp_SparseVirtualFileSystem_insert(cp_SparseVirtualFileSystem *self, PyObject *args, PyObject *kwargs) {
@@ -294,12 +298,6 @@ cp_SparseVirtualFileSystem_total_blocks(cp_SparseVirtualFileSystem *self) {
         return NULL;
     }
 }
-
-// END: SVFS functions
-#pragma mark END SVFS functions
-
-// SVF functions
-#pragma mark SVF functions
 
 static const char *cp_SparseVirtualFileSystem_svf_has_data_docstring = \
 "Checks if the Sparse Virtual File of the ID has data at the given file_position and length." \
@@ -981,10 +979,7 @@ finally:
 }
 
 // END: SVF functions
-#pragma mark END: SVF functions
-
-// Module initialisation
-#pragma mark Module initialisation
+#pragma mark END: SVFS functions
 
 // Mapping method for __len__
 static Py_ssize_t
@@ -1127,6 +1122,11 @@ static PyTypeObject svfs_SVFS = {
         // Mapping methods, just __len__
         .tp_as_mapping = &svfs_mapping_methods,
 };
+
+#pragma mark - END SVFS
+
+// Module initialisation
+#pragma mark Module initialisation
 
 static PyModuleDef svfsmodule = {
         PyModuleDef_HEAD_INIT,
