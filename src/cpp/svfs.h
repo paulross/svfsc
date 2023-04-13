@@ -21,42 +21,42 @@ namespace SVFS {
     class ExceptionSparseVirtualFileSystem : public std::exception {
     public:
         explicit ExceptionSparseVirtualFileSystem(const std::string &in_msg) : msg(in_msg) {}
-        const std::string &message() const { return msg; }
+        [[nodiscard]] const std::string &message() const { return msg; }
     protected:
         std::string msg;
     };
 
     class ExceptionSparseVirtualFileSystemOutOfRange : public ExceptionSparseVirtualFileSystem {
     public:
-        ExceptionSparseVirtualFileSystemOutOfRange(const std::string &msg) : ExceptionSparseVirtualFileSystem(msg) {}
+        explicit ExceptionSparseVirtualFileSystemOutOfRange(const std::string &msg) : ExceptionSparseVirtualFileSystem(msg) {}
     };
 
     class ExceptionSparseVirtualFileSystemInsert : public ExceptionSparseVirtualFileSystem {
     public:
-        ExceptionSparseVirtualFileSystemInsert(const std::string &msg) : ExceptionSparseVirtualFileSystem(msg) {}
+        explicit ExceptionSparseVirtualFileSystemInsert(const std::string &msg) : ExceptionSparseVirtualFileSystem(msg) {}
     };
 
     class ExceptionSparseVirtualFileSystemRemove : public ExceptionSparseVirtualFileSystem {
     public:
-        ExceptionSparseVirtualFileSystemRemove(const std::string &msg) : ExceptionSparseVirtualFileSystem(msg) {}
+        explicit ExceptionSparseVirtualFileSystemRemove(const std::string &msg) : ExceptionSparseVirtualFileSystem(msg) {}
     };
 
     class SparseVirtualFileSystem {
     public:
-        SparseVirtualFileSystem(const tSparseVirtualFileConfig &config = tSparseVirtualFileConfig()) : \
+        explicit SparseVirtualFileSystem(const tSparseVirtualFileConfig &config = tSparseVirtualFileConfig()) : \
             m_config(config) {}
 
         void insert(const std::string &id, double mod_time);
         void remove(const std::string &id);
 
         // May raise an ExceptionSparseVirtualFileSystemOutOfRange
-        const SparseVirtualFile &at(const std::string &id) const;
+        [[nodiscard]] const SparseVirtualFile &at(const std::string &id) const;
         // May raise an ExceptionSparseVirtualFileSystemOutOfRange
         SparseVirtualFile &at(const std::string &id);
 
 
         // Has an SVF
-        bool has(const std::string &id) const noexcept { return m_svfs.find(id) != m_svfs.end(); }
+        [[nodiscard]] bool has(const std::string &id) const noexcept { return m_svfs.find(id) != m_svfs.end(); }
 //        // The SVF has data. This might raise an ExceptionSparseVirtualFileSystemOutOfRange if the id does not exist in
 //        // the SVFS.
 //        bool has(const std::string &id, t_fpos fpos, size_t len) const noexcept { return at(id).has(fpos, len); }
@@ -71,12 +71,12 @@ namespace SVFS {
 //        t_seek_read
 //        need(const std::string &id, t_fpos fpos, size_t len) const noexcept { return at(id).need(fpos, len); }
 
-        size_t size() const noexcept { return m_svfs.size(); }
-        size_t size_of() const noexcept;
-        size_t num_bytes() const noexcept;
-        size_t num_blocks() const noexcept;
+        [[nodiscard]] size_t size() const noexcept { return m_svfs.size(); }
+        [[nodiscard]] size_t size_of() const noexcept;
+        [[nodiscard]] size_t num_bytes() const noexcept;
+        [[nodiscard]] size_t num_blocks() const noexcept;
 
-        std::vector<std::string> keys()const noexcept {
+        [[nodiscard]] std::vector<std::string> keys()const noexcept {
             std::vector<std::string> ret;
             for(const auto &iter: m_svfs) {
                 ret.push_back(iter.first);
