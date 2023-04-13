@@ -1,7 +1,6 @@
 README.rst
 setup.cfg
 setup.py
-src/cp/cSVF.cpp
 src/cp/cSVFS.cpp
 src/cp/svfs_util.cpp
 src/cpp/svf.cpp

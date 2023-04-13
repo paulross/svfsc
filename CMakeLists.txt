@@ -37,8 +37,13 @@ add_executable(
         src/cpp/util/SaveStreamState.h
         src/cpp/svfs.cpp
         src/cpp/svfs.h
+        src/cp/svfs_util.cpp
+        src/cp/svfs_util.h
         src/cp/cSVFS.cpp
-        src/cp/svfs_util.cpp src/cp/svfs_util.h src/cp/cSVF.cpp)
+        # NOTE: src/cp/cSVFS.cpp #includes the following files.
+#        src/cp/_cSVF.cpp
+#        src/cp/_cSVFS.cpp
+)
 
 include_directories(
         src/cpp
