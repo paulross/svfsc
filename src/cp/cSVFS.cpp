@@ -787,56 +787,6 @@ static const char *cp_SparseVirtualFileSystem_svf_bytes_read_docstring = \
 " This will raise an IndexError if the Sparse Virtual File of that id does not exist.";
 SVFS_SVF_METHOD_SIZE_T_WRAPPER(bytes_read);
 
-
-#define IMPORT_DATETIME_IF_UNINITIALISED do {   \
-    if (! PyDateTimeAPI) {                      \
-        PyDateTime_IMPORT;                      \
-    }                                           \
-    assert(PyDateTimeAPI);                      \
-} while(0)
-
-PyObject *
-datetime_from_struct_tm(const std::tm *bdt, int usecond) {
-    PyObject *ret = NULL;
-
-    IMPORT_DATETIME_IF_UNINITIALISED;
-    assert(! PyErr_Occurred());
-//    // This is calling new_datetime_ex() which increfs tz and sets hastzinfo
-//    ret = PyDateTimeAPI->DateTime_FromDateAndTime(
-//            bdt->tm_year + 1900,
-//            bdt->tm_mon + 1,
-//            bdt->tm_mday,
-//            bdt->tm_hour,
-//            bdt->tm_min,
-//            bdt->tm_sec,
-//            usecond,
-//            NULL,
-//            PyDateTimeAPI->DateTimeType
-//    );
-    ret = PyDateTime_FromDateAndTime(
-            bdt->tm_year + 1900,
-            bdt->tm_mon + 1,
-            bdt->tm_mday,
-            bdt->tm_hour,
-            bdt->tm_min,
-            bdt->tm_sec,
-            usecond
-    );
-    if (! ret) {
-        PyErr_Format(PyExc_RuntimeError, "%s: Can not create datetime.datetime", __FUNCTION__);
-        goto except;
-    }
-    assert(! PyErr_Occurred());
-    assert(ret);
-    goto finally;
-except:
-    assert(PyErr_Occurred());
-    Py_XDECREF(ret);
-    ret = NULL;
-finally:
-    return ret;
-}
-
 // This macro is for functions that return a datetime type such as time_write, time_read.
 #define SVFS_SVF_METHOD_DATETIME_WRAPPER(method_name) static PyObject * \
 cp_SparseVirtualFileSystem_svf_##method_name(cp_SparseVirtualFileSystem *self, PyObject *args, PyObject *kwargs) { \

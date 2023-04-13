@@ -5,9 +5,11 @@
 #ifndef CPPSVF_UTIL_H
 #define CPPSVF_UTIL_H
 
-#include <Python.h>
 #include <exception>
 #include <string>
+
+#include <Python.h>
+#include "datetime.h"
 
 //class ExceptionUtil : public std::exception {
 //public:
@@ -23,5 +25,15 @@
 //std::string
 //py_unicode_to_std_string(PyObject *op);
 
+
+#define IMPORT_DATETIME_IF_UNINITIALISED do {   \
+    if (! PyDateTimeAPI) {                      \
+        PyDateTime_IMPORT;                      \
+    }                                           \
+    assert(PyDateTimeAPI);                      \
+} while(0)
+
+PyObject *
+datetime_from_struct_tm(const std::tm *bdt, int usecond);
 
 #endif //CPPSVF_UTIL_H

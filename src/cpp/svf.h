@@ -26,7 +26,7 @@ namespace SVFS {
     class ExceptionSparseVirtualFile : public std::exception {
     public:
         explicit ExceptionSparseVirtualFile(const std::string &in_msg) : msg(in_msg) {}
-        const std::string &message() const { return msg; }
+        [[nodiscard]] const std::string &message() const { return msg; }
     protected:
         std::string msg;
     };

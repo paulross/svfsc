@@ -35,7 +35,29 @@ else:
 svfs = Extension(
     "svfs",
     sources=[
+        # 'src/cp/cSVF.cpp',
         'src/cp/cSVFS.cpp',
+        'src/cp/svfs_util.cpp',
+        'src/cpp/svf.cpp',
+        'src/cpp/svfs.cpp',
+    ],
+    include_dirs=[
+        'src/cp',
+        'src/cpp',
+        'src/util',
+        # '/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include/c++/v1',
+    ],
+    library_dirs=[os.getcwd(), ],
+    extra_compile_args=extra_compile_args,
+    extra_link_args=['-lstdc++'],
+    language='c++11',
+)
+
+svf = Extension(
+    "svf",
+    sources=[
+        'src/cp/cSVF.cpp',
+        # 'src/cp/cSVFS.cpp',
         'src/cp/svfs_util.cpp',
         'src/cpp/svf.cpp',
         'src/cpp/svfs.cpp',
@@ -74,7 +96,7 @@ test_requirements = [
 setup(
     name='svfs',
     version='0.1.0',
-    ext_modules=[svfs, ],
+    ext_modules=[svfs, svf, ],
     description="Sparse Virtual File System.",
     long_description=readme + '\n\n' + history,
     author="Paul Ross",
@@ -82,7 +104,7 @@ setup(
     url='https://github.com/paulross',
 #     packages=find_packages('src'),
     license="MIT License",
-    keywords=['svfs',],
+    keywords=['svfs', 'svf',],
     classifiers=[
         'Development Status :: 2 - Pre-Alpha',
         'Intended Audience :: Developers',

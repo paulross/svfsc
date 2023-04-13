@@ -38,7 +38,7 @@ add_executable(
         src/cpp/svfs.cpp
         src/cpp/svfs.h
         src/cp/cSVFS.cpp
-        src/cp/svfs_util.cpp src/cp/svfs_util.h)
+        src/cp/svfs_util.cpp src/cp/svfs_util.h src/cp/cSVF.cpp)
 
 include_directories(
         src/cpp
