@@ -439,7 +439,6 @@ cp_SparseVirtualFile_blocks(cp_SparseVirtualFile *self) {
     return ret;
 }
 
-#if 1
 // This macro is for functions that return a size_t type such as count_write, count_read, bytes_write, bytes_read.
 #define SVFS_SVF_METHOD_SIZE_T_WRAPPER(method_name) static PyObject * \
 cp_SparseVirtualFile_##method_name(cp_SparseVirtualFile *self) { \
@@ -461,25 +460,7 @@ except: \
 finally: \
     return ret; \
 }
-#endif
 
-#if 0
-static const char *cp_SparseVirtualFile_size_of_docstring = \
-"Returns the best guess of total memory usage used by the Sparse Virtual File.";
-
-SVFS_SVF_METHOD_SIZE_T_WRAPPER(size_of);
-
-static const char *cp_SparseVirtualFile_num_bytes_docstring = \
-"Returns the number of bytes of data held by the Sparse Virtual File.";
-
-SVFS_SVF_METHOD_SIZE_T_WRAPPER(num_bytes);
-
-static const char *cp_SparseVirtualFile_num_blocks_docstring = \
-"Returns the number of data blocks held by the Sparse Virtual File.";
-
-SVFS_SVF_METHOD_SIZE_T_WRAPPER(num_blocks);
-
-#endif
 static const char *cp_SparseVirtualFile_file_mod_time_matches_docstring = \
 "Returns True if the file modification time of the Sparse Virtual File matches the given time as a float.";
 
@@ -556,7 +537,6 @@ cp_SparseVirtualFile_file_mod_time(cp_SparseVirtualFile *self) {
     return ret;
 }
 
-#if 1
 static const char *cp_SparseVirtualFile_count_write_docstring = \
 "Returns the count of write operations on the Sparse Virtual File.";
 
@@ -576,43 +556,6 @@ static const char *cp_SparseVirtualFile_bytes_read_docstring = \
 "Returns the count of the number of bytes read from the Sparse Virtual File.";
 
 SVFS_SVF_METHOD_SIZE_T_WRAPPER(bytes_read);
-#endif
-
-#if 0
-// This macro is for functions that return a datetime type such as time_write, time_read.
-#define SVFS_SVF_METHOD_DATETIME_WRAPPER(method_name) static PyObject * \
-cp_SparseVirtualFile_##method_name(cp_SparseVirtualFile *self, PyObject *args, PyObject *kwargs) { \
-    ASSERT_FUNCTION_ENTRY_SVF(pSvf); \
-    PyObject *ret = NULL; \
-    char *c_id = NULL; \
-    std::string cpp_id; \
-    static const char *kwlist[] = { "id", NULL }; \
-    if (! PyArg_ParseTupleAndKeywords(args, kwargs, "s", (char **)kwlist, &c_id)) { \
-        goto except; \
-    } \
-    cpp_id = std::string(c_id); \
-    if (self->p_svfs->has(cpp_id)) { \
-        const SVFS::SparseVirtualFile &svf = self->p_svfs->at(cpp_id); \
-        auto time = svf.method_name(); \
-        const long seconds = std::chrono::time_point_cast<std::chrono::seconds>(time).time_since_epoch().count(); \
-        int micro_seconds = std::chrono::time_point_cast<std::chrono::microseconds>(time).time_since_epoch().count() % 1000000; \
-        const std::tm *p_struct_tm = std::gmtime(&seconds); \
-        ret = datetime_from_struct_tm(p_struct_tm, micro_seconds); \
-    } else { \
-        PyErr_Format(PyExc_IndexError, "%s: No SVF ID \"%s\"", __FUNCTION__, c_id); \
-        goto except; \
-    } \
-    assert(! PyErr_Occurred()); \
-    assert(ret); \
-    goto finally; \
-except: \
-    assert(PyErr_Occurred()); \
-    Py_XDECREF(ret); \
-    ret = NULL; \
-finally: \
-    return ret; \
-}
-#endif
 
 // NOTE: time_read and time_write functions are very similar.
 
@@ -930,23 +873,6 @@ static PyMethodDef cp_SparseVirtualFile_methods[] = {
                 "blocks", (PyCFunction) cp_SparseVirtualFile_blocks, METH_NOARGS,
                 cp_SparseVirtualFile_blocks_docstring
         },
-#if 0
-        {
-                "size_of",               (PyCFunction) cp_SparseVirtualFile_size_of,      METH_VARARGS |
-                                                                                              METH_KEYWORDS,
-                        cp_SparseVirtualFile_size_of_docstring
-        },
-        {
-                "num_bytes",             (PyCFunction) cp_SparseVirtualFile_num_bytes,    METH_VARARGS |
-                                                                                              METH_KEYWORDS,
-                        cp_SparseVirtualFile_num_bytes_docstring
-        },
-        {
-                "num_blocks",            (PyCFunction) cp_SparseVirtualFile_num_blocks,   METH_VARARGS |
-                                                                                              METH_KEYWORDS,
-                        cp_SparseVirtualFile_num_blocks_docstring
-        },
-#endif
         {
                 "file_mod_time_matches", (PyCFunction) cp_SparseVirtualFile_file_mod_time_matches,
                 METH_VARARGS |
@@ -958,7 +884,6 @@ static PyMethodDef cp_SparseVirtualFile_methods[] = {
                 "file_mod_time", (PyCFunction) cp_SparseVirtualFile_file_mod_time, METH_NOARGS,
                 cp_SparseVirtualFile_file_mod_time_docstring
         },
-#if 1
         {
                 "count_write", (PyCFunction) cp_SparseVirtualFile_count_write, METH_VARARGS |
                                                                                METH_KEYWORDS,
@@ -979,7 +904,6 @@ static PyMethodDef cp_SparseVirtualFile_methods[] = {
                                                                              METH_KEYWORDS,
                 cp_SparseVirtualFile_bytes_read_docstring
         },
-#endif
         {
                 "time_write", (PyCFunction) cp_SparseVirtualFile_time_write, METH_NOARGS,
                 cp_SparseVirtualFile_time_write_docstring

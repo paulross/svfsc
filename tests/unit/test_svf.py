@@ -24,7 +24,7 @@ INSERT_FPOS_BYTES_EXPECTED_BLOCKS = (
     (
         tuple(), tuple(),
     ),
-    # Empty insert
+    # Empty insert, do nothing.
     (
         (
             (0, b''),
