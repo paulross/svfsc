@@ -16,7 +16,7 @@
 /**
  * Naming convention:
  *
- * SVF functions are named cp_SparseVirtualFile_svf_...
+ * SVF functions are named cp_SparseVirtualFile_...
  */
 
 typedef struct {
@@ -161,13 +161,13 @@ cp_SparseVirtualFile_num_blocks(cp_SparseVirtualFile *self) {
     }
 }
 
-static const char *cp_SparseVirtualFile_svf_has_data_docstring = \
+static const char *cp_SparseVirtualFile_has_data_docstring = \
 "Checks if the Sparse Virtual File of the ID has data at the given file_position and length." \
 " This takes a file position and a length." \
 " This returns True if the Sparse Virtual File has the data, False otherwise.";
 
 static PyObject *
-cp_SparseVirtualFile_svf_has_data(cp_SparseVirtualFile *self, PyObject *args, PyObject *kwargs) {
+cp_SparseVirtualFile_has_data(cp_SparseVirtualFile *self, PyObject *args, PyObject *kwargs) {
     ASSERT_FUNCTION_ENTRY_SVF(pSvf);
 
     PyObject * ret = NULL;
@@ -201,15 +201,16 @@ cp_SparseVirtualFile_svf_has_data(cp_SparseVirtualFile *self, PyObject *args, Py
     return ret;
 }
 
-static const char *cp_SparseVirtualFile_svf_write_docstring = \
+static const char *cp_SparseVirtualFile_write_docstring = \
 "Writes the data to the Sparse Virtual File of the given ID at file_position and length." \
 " This takes a file position and data as a bytes object." \
 " This will raise an IOError if the given data is different than that seen before and only" \
 " new data up to this point will be written." \
+" If the bytes data is empty nothing will be done." \
 " This will raise a RuntimeError if the data can not be written for any other reason";
 
 static PyObject *
-cp_SparseVirtualFile_svf_write(cp_SparseVirtualFile *self, PyObject *args, PyObject *kwargs) {
+cp_SparseVirtualFile_write(cp_SparseVirtualFile *self, PyObject *args, PyObject *kwargs) {
     ASSERT_FUNCTION_ENTRY_SVF(pSvf);
 
     PyObject * ret = NULL;
@@ -220,20 +221,22 @@ cp_SparseVirtualFile_svf_write(cp_SparseVirtualFile *self, PyObject *args, PyObj
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "KS", (char **) kwlist, &fpos, &py_bytes_data)) {
         goto except;
     }
-    try {
-        self->pSvf->write(fpos, PyBytes_AS_STRING(py_bytes_data), PyBytes_Size(py_bytes_data));
-    } catch (const SVFS::ExceptionSparseVirtualFileDiff &err) {
-        PyErr_Format(PyExc_IOError,
-                     "%s: Can not write to a SVF as the given data is different from what is there. ERROR: %s",
-                     __FUNCTION__, err.message().c_str());
-        goto except;
-    } catch (const SVFS::ExceptionSparseVirtualFile &err) {
-        PyErr_Format(PyExc_RuntimeError, "%s: Can not write to a SVF. ERROR: %s",
-                     __FUNCTION__, err.message().c_str());
-        goto except;
-    } catch (const std::exception &err) {
-        PyErr_Format(PyExc_RuntimeError, "%s: FATAL caught std::exception %s", __FUNCTION__, err.what());
-        goto except;
+    if (PyBytes_GET_SIZE(py_bytes_data) > 0) {
+        try {
+            self->pSvf->write(fpos, PyBytes_AS_STRING(py_bytes_data), PyBytes_Size(py_bytes_data));
+        } catch (const SVFS::ExceptionSparseVirtualFileDiff &err) {
+            PyErr_Format(PyExc_IOError,
+                         "%s: Can not write to a SVF as the given data is different from what is there. ERROR: %s",
+                         __FUNCTION__, err.message().c_str());
+            goto except;
+        } catch (const SVFS::ExceptionSparseVirtualFile &err) {
+            PyErr_Format(PyExc_RuntimeError, "%s: Can not write to a SVF. ERROR: %s",
+                         __FUNCTION__, err.message().c_str());
+            goto except;
+        } catch (const std::exception &err) {
+            PyErr_Format(PyExc_RuntimeError, "%s: FATAL caught std::exception %s", __FUNCTION__, err.what());
+            goto except;
+        }
     }
     Py_INCREF(Py_None);
     ret = Py_None;
@@ -248,14 +251,44 @@ cp_SparseVirtualFile_svf_write(cp_SparseVirtualFile *self, PyObject *args, PyObj
     return ret;
 }
 
-static const char *cp_SparseVirtualFile_svf_read_docstring = \
+static const char *cp_SparseVirtualFile_read_docstring = \
 "Read the data from the Sparse Virtual File at file_position and length returning a bytes object." \
 " This takes a file position and a length." \
 " This will raise an IOError if any data is not present" \
 " This will raise a RuntimeError if the data can not be read for any other reason";
 
 static PyObject *
-cp_SparseVirtualFile_svf_read(cp_SparseVirtualFile *self, PyObject *args, PyObject *kwargs) {
+private_SparseVirtualFile_svf_read_as_py_bytes(cp_SparseVirtualFile *self, unsigned long long fpos,
+                                               unsigned long long len) {
+    // Create a bytes object
+    PyObject * ret = PyBytes_FromStringAndSize(NULL, len);
+    if (!ret) {
+        PyErr_Format(PyExc_RuntimeError, "%s()#d: Could not create bytes object.", __FUNCTION__, __LINE__);
+        return NULL;
+    }
+    try {
+        self->pSvf->read(fpos, len, PyBytes_AS_STRING(ret));
+    } catch (const SVFS::ExceptionSparseVirtualFileRead &err) {
+        PyErr_Format(PyExc_IOError, "%s()#d: Can not read from a SVF. ERROR: %s",
+                     __FUNCTION__, __LINE__, err.message().c_str());
+        Py_DECREF(ret);
+        return NULL;
+    } catch (const SVFS::ExceptionSparseVirtualFile &err) {
+        PyErr_Format(PyExc_RuntimeError, "%s()#d: Fatal error reading from a SVF. ERROR: %s",
+                     __FUNCTION__, __LINE__, err.message().c_str());
+        Py_DECREF(ret);
+        return NULL;
+    } catch (const std::exception &err) {
+        PyErr_Format(PyExc_RuntimeError, "%s()#d: FATAL caught std::exception %s", __FUNCTION__, __LINE__,
+                     err.what());
+        Py_DECREF(ret);
+        return NULL;
+    }
+    return ret;
+}
+
+static PyObject *
+cp_SparseVirtualFile_read(cp_SparseVirtualFile *self, PyObject *args, PyObject *kwargs) {
     ASSERT_FUNCTION_ENTRY_SVF(pSvf);
 
     PyObject * ret = NULL;
@@ -267,19 +300,8 @@ cp_SparseVirtualFile_svf_read(cp_SparseVirtualFile *self, PyObject *args, PyObje
         goto except;
     }
     // Create a bytes object
-    ret = PyBytes_FromStringAndSize(NULL, len);
-    try {
-        self->pSvf->read(fpos, len, PyBytes_AS_STRING(ret));
-    } catch (const SVFS::ExceptionSparseVirtualFileRead &err) {
-        PyErr_Format(PyExc_IOError, "%s: Can not read from a SVF. ERROR: %s",
-                     __FUNCTION__, err.message().c_str());
-        goto except;
-    } catch (const SVFS::ExceptionSparseVirtualFile &err) {
-        PyErr_Format(PyExc_RuntimeError, "%s: Fatal error reading from a SVF. ERROR: %s",
-                     __FUNCTION__, err.message().c_str());
-        goto except;
-    } catch (const std::exception &err) {
-        PyErr_Format(PyExc_RuntimeError, "%s: FATAL caught std::exception %s", __FUNCTION__, err.what());
+    ret = private_SparseVirtualFile_svf_read_as_py_bytes(self, fpos, len);
+    if (ret == NULL) {
         goto except;
     }
     assert(!PyErr_Occurred());
@@ -293,7 +315,7 @@ cp_SparseVirtualFile_svf_read(cp_SparseVirtualFile *self, PyObject *args, PyObje
     return ret;
 }
 
-static const char *cp_SparseVirtualFile_svf_need_docstring = \
+static const char *cp_SparseVirtualFile_need_docstring = \
 "Given a file_position and length this returns a ordered list [(file_position, length), ...] of seek/read" \
 " instructions of data that is required to be written to the Sparse Virtual File so that a subsequent read will succeed." \
 "\nUsage:\n" \
@@ -305,7 +327,7 @@ static const char *cp_SparseVirtualFile_svf_need_docstring = \
 ;
 
 static PyObject *
-cp_SparseVirtualFile_svf_need(cp_SparseVirtualFile *self, PyObject *args, PyObject *kwargs) {
+cp_SparseVirtualFile_need(cp_SparseVirtualFile *self, PyObject *args, PyObject *kwargs) {
     ASSERT_FUNCTION_ENTRY_SVF(pSvf);
 
     PyObject * ret = NULL; // PyListObject
@@ -372,11 +394,11 @@ bool file_mod_time_matches(const double &file_mod_time) const noexcept {
 }
 */
 
-static const char *cp_SparseVirtualFile_svf_blocks_docstring = \
-"This returns a ordered tuple ((file_position, length), ...) of all the blocks held by the SVF.";
+static const char *cp_SparseVirtualFile_blocks_docstring = \
+"This returns a ordered tuple ((file_position, length), ...) of the shape of the blocks held by the SVF in file position order.";
 
 static PyObject *
-cp_SparseVirtualFile_svf_blocks(cp_SparseVirtualFile *self) {
+cp_SparseVirtualFile_blocks(cp_SparseVirtualFile *self) {
     ASSERT_FUNCTION_ENTRY_SVF(pSvf);
 
     PyObject * ret = NULL; // PyTupleObject
@@ -417,9 +439,10 @@ cp_SparseVirtualFile_svf_blocks(cp_SparseVirtualFile *self) {
     return ret;
 }
 
+#if 1
 // This macro is for functions that return a size_t type such as count_write, count_read, bytes_write, bytes_read.
 #define SVFS_SVF_METHOD_SIZE_T_WRAPPER(method_name) static PyObject * \
-cp_SparseVirtualFile_svf_##method_name(cp_SparseVirtualFile *self) { \
+cp_SparseVirtualFile_##method_name(cp_SparseVirtualFile *self) { \
     ASSERT_FUNCTION_ENTRY_SVF(pSvf); \
     PyObject *ret = NULL; \
     try { \
@@ -438,27 +461,30 @@ except: \
 finally: \
     return ret; \
 }
+#endif
 
-static const char *cp_SparseVirtualFile_svf_size_of_docstring = \
+#if 0
+static const char *cp_SparseVirtualFile_size_of_docstring = \
 "Returns the best guess of total memory usage used by the Sparse Virtual File.";
 
 SVFS_SVF_METHOD_SIZE_T_WRAPPER(size_of);
 
-static const char *cp_SparseVirtualFile_svf_num_bytes_docstring = \
+static const char *cp_SparseVirtualFile_num_bytes_docstring = \
 "Returns the number of bytes of data held by the Sparse Virtual File.";
 
 SVFS_SVF_METHOD_SIZE_T_WRAPPER(num_bytes);
 
-static const char *cp_SparseVirtualFile_svf_num_blocks_docstring = \
+static const char *cp_SparseVirtualFile_num_blocks_docstring = \
 "Returns the number of data blocks held by the Sparse Virtual File.";
 
 SVFS_SVF_METHOD_SIZE_T_WRAPPER(num_blocks);
 
-static const char *cp_SparseVirtualFile_svf_file_mod_time_matches_docstring = \
+#endif
+static const char *cp_SparseVirtualFile_file_mod_time_matches_docstring = \
 "Returns True if the file modification time of the Sparse Virtual File matches the given time as a float.";
 
 static PyObject *
-cp_SparseVirtualFile_svf_file_mod_time_matches(cp_SparseVirtualFile *self, PyObject *args, PyObject *kwargs) {
+cp_SparseVirtualFile_file_mod_time_matches(cp_SparseVirtualFile *self, PyObject *args, PyObject *kwargs) {
     ASSERT_FUNCTION_ENTRY_SVF(pSvf);
 
     PyObject * ret = NULL;
@@ -530,29 +556,32 @@ cp_SparseVirtualFile_file_mod_time(cp_SparseVirtualFile *self) {
     return ret;
 }
 
-static const char *cp_SparseVirtualFile_svf_count_write_docstring = \
+#if 1
+static const char *cp_SparseVirtualFile_count_write_docstring = \
 "Returns the count of write operations on the Sparse Virtual File.";
 
 SVFS_SVF_METHOD_SIZE_T_WRAPPER(count_write);
 
-static const char *cp_SparseVirtualFile_svf_count_read_docstring = \
+static const char *cp_SparseVirtualFile_count_read_docstring = \
 "Returns the count of read operations on the Sparse Virtual File.";
 
 SVFS_SVF_METHOD_SIZE_T_WRAPPER(count_read);
 
-static const char *cp_SparseVirtualFile_svf_bytes_write_docstring = \
+static const char *cp_SparseVirtualFile_bytes_write_docstring = \
 "Returns the count of the number of bytes writen to the Sparse Virtual File.";
 
 SVFS_SVF_METHOD_SIZE_T_WRAPPER(bytes_write);
 
-static const char *cp_SparseVirtualFile_svf_bytes_read_docstring = \
+static const char *cp_SparseVirtualFile_bytes_read_docstring = \
 "Returns the count of the number of bytes read from the Sparse Virtual File.";
 
 SVFS_SVF_METHOD_SIZE_T_WRAPPER(bytes_read);
+#endif
 
+#if 0
 // This macro is for functions that return a datetime type such as time_write, time_read.
 #define SVFS_SVF_METHOD_DATETIME_WRAPPER(method_name) static PyObject * \
-cp_SparseVirtualFile_svf_##method_name(cp_SparseVirtualFile *self, PyObject *args, PyObject *kwargs) { \
+cp_SparseVirtualFile_##method_name(cp_SparseVirtualFile *self, PyObject *args, PyObject *kwargs) { \
     ASSERT_FUNCTION_ENTRY_SVF(pSvf); \
     PyObject *ret = NULL; \
     char *c_id = NULL; \
@@ -583,16 +612,17 @@ except: \
 finally: \
     return ret; \
 }
+#endif
 
 // NOTE: time_read and time_write functions are very similar.
 
-static const char *cp_SparseVirtualFile_svf_time_write_docstring = \
+static const char *cp_SparseVirtualFile_time_write_docstring = \
 "Returns the timestamp of the last write to the Sparse Virtual File as a datetime.datetime" \
 " or None if no read has taken place.";
 //SVFS_SVF_METHOD_DATETIME_WRAPPER(time_write)
 
 static PyObject *
-cp_SparseVirtualFile_svf_time_write(cp_SparseVirtualFile *self) {
+cp_SparseVirtualFile_time_write(cp_SparseVirtualFile *self) {
     ASSERT_FUNCTION_ENTRY_SVF(pSvf);
     PyObject * ret = NULL;
     try {
@@ -628,13 +658,13 @@ cp_SparseVirtualFile_svf_time_write(cp_SparseVirtualFile *self) {
 }
 
 
-static const char *cp_SparseVirtualFile_svf_time_read_docstring = \
+static const char *cp_SparseVirtualFile_time_read_docstring = \
 "Returns the timestamp of the last read from the Sparse Virtual File as a datetime.datetime." \
 " or None if no read has taken place.";
 //SVFS_SVF_METHOD_DATETIME_WRAPPER(time_read)
 
 static PyObject *
-cp_SparseVirtualFile_svf_time_read(cp_SparseVirtualFile *self) {
+cp_SparseVirtualFile_time_read(cp_SparseVirtualFile *self) {
     ASSERT_FUNCTION_ENTRY_SVF(pSvf);
 
     PyObject * ret = NULL;
@@ -670,7 +700,186 @@ cp_SparseVirtualFile_svf_time_read(cp_SparseVirtualFile *self) {
     return ret;
 }
 
-// END: SVF functions
+/* Pickle the object */
+#pragma mark Pickling
+
+static const char *PICKLE_ID_KEY = "id";
+static const char *PICKLE_FILE_MOD_TIME_KEY = "file_mod_time";
+static const char *PICKLE_BLOCKS_KEY = "blocks";
+static const char *PICKLE_VERSION_KEY = "pickle_version";
+static int PICKLE_VERSION = 1;
+
+/**
+ * Returns a Python dict suitable for pickling.
+ * Key/values are:
+ * id, file_mod_time, list_of_file_pos/bytes
+ * @param self
+ * @param _unused_ignored
+ * @return
+ */
+static PyObject *
+cp_SparseVirtualFile___getstate__(cp_SparseVirtualFile *self, PyObject *Py_UNUSED(ignored)) {
+    ASSERT_FUNCTION_ENTRY_SVF(pSvf);
+
+    SVFS::t_seek_read blocks_fpos_len = self->pSvf->blocks();
+    /* Build a tuple of ((fpos, bytes), ...) */
+    PyObject * blocks_fpos_bytes = PyTuple_New(blocks_fpos_len.size());
+    if (!blocks_fpos_bytes) {
+        PyErr_Format(PyExc_RuntimeError, "%s()#d Can not create blocks tuple.", __FUNCTION__, __LINE__);
+        return NULL;
+    }
+    Py_ssize_t index = 0;
+    for (SVFS::t_seek_read::const_iterator iter = blocks_fpos_len.cbegin(); iter != blocks_fpos_len.cend(); ++iter) {
+        PyObject * bytes_object = private_SparseVirtualFile_svf_read_as_py_bytes(self, iter->first, iter->second);
+        if (bytes_object == NULL) {
+            Py_DECREF(blocks_fpos_bytes);
+            PyErr_Format(PyExc_RuntimeError, "%s()#d Can not create a bytes object.", __FUNCTION__, __LINE__);
+            return NULL;
+        }
+        /* value is (fpos, bytes) */
+        PyObject * fpos_bytes = Py_BuildValue("KN", iter->first, bytes_object);
+        if (fpos_bytes == NULL) {
+            Py_DECREF(bytes_object);
+            Py_DECREF(blocks_fpos_bytes);
+            PyErr_Format(PyExc_RuntimeError, "%s()#d Can not build a value.", __FUNCTION__, __LINE__);
+            return NULL;
+        }
+        PyTuple_SET_ITEM(blocks_fpos_bytes, index, fpos_bytes);
+        ++index;
+    }
+    /* Now build the pickle dict. */
+    PyObject * ret = Py_BuildValue(
+            "{"
+            "s:N"   /* id */
+            ",s:d"  /* file_mod_time */
+            ",sN"   /* blocks */
+            ",s:i"  /* pickle_version */
+            "}",
+            PICKLE_ID_KEY, PyUnicode_FromKindAndData(PyUnicode_1BYTE_KIND,
+                                                     self->pSvf->id().c_str(),
+                                                     self->pSvf->id().size()
+            ),
+            PICKLE_FILE_MOD_TIME_KEY, self->pSvf->file_mod_time(),
+            PICKLE_BLOCKS_KEY, blocks_fpos_bytes,
+            PICKLE_VERSION_KEY, PICKLE_VERSION
+    );
+    if (!ret) {
+        Py_DECREF(blocks_fpos_bytes);
+    }
+    return ret;
+}
+
+static PyObject *
+cp_SparseVirtualFile___setstate__(cp_SparseVirtualFile *self, PyObject *state) {
+//    PyObject * key, *value;
+//    Py_ssize_t pos = 0;
+
+    if (!PyDict_CheckExact(state)) {
+        PyErr_Format(PyExc_ValueError, "%s()#d: Pickled object is not a dict.", __FUNCTION__, __LINE__);
+        return NULL;
+    }
+    /* Version check. */
+    /* Borrowed reference but no need to increment as we create a C long from it. */
+    PyObject * temp = PyDict_GetItemString(state, PICKLE_VERSION_KEY);
+    if (temp == NULL) {
+        /* PyDict_GetItemString does not set any error state so we have to. */
+        PyErr_Format(PyExc_KeyError, "%s()#d: No \"%s\" in pickled dict.", __FUNCTION__, __LINE__, PICKLE_VERSION_KEY);
+        return NULL;
+    }
+    int pickle_version = (int) PyLong_AsLong(temp);
+    if (pickle_version != PICKLE_VERSION) {
+        PyErr_Format(PyExc_ValueError, "%s()#d Pickle version mismatch. Got version %d but expected version %d.",
+                     __FUNCTION__, __LINE__, pickle_version, PICKLE_VERSION);
+        return NULL;
+    }
+    /* Create a tuple to pass in as args.*/
+    PyObject * id = PyDict_GetItemString(state, PICKLE_ID_KEY); /* Borrowed reference. */
+    if (id == NULL) {
+        PyErr_Format(PyExc_KeyError, "%s()#d: No \"%s\" in pickled dict.", __FUNCTION__, __LINE__, PICKLE_ID_KEY);
+        return NULL;
+    }
+    if (!PyUnicode_Check(id)) {
+        PyErr_Format(PyExc_TypeError, "%s()#d: \"%s\" is not string.", __FUNCTION__, __LINE__, PICKLE_ID_KEY);
+        return NULL;
+    }
+    Py_INCREF(id);
+    PyObject * file_mod_time = PyDict_GetItemString(state, PICKLE_FILE_MOD_TIME_KEY); /* Borrowed reference. */
+    if (file_mod_time == NULL) {
+        Py_DECREF(id);
+        PyErr_Format(PyExc_KeyError, "%s()#d: No \"%s\" in pickled dict.", __FUNCTION__,
+                     __LINE__, PICKLE_FILE_MOD_TIME_KEY);
+        return NULL;
+    }
+    if (!PyFloat_Check(file_mod_time)) {
+        Py_DECREF(id);
+        PyErr_Format(PyExc_TypeError, "%s()#d: \"%s\" is not a double.", __FUNCTION__,
+                     __LINE__, PICKLE_FILE_MOD_TIME_KEY);
+        return NULL;
+    }
+    Py_INCREF(file_mod_time);
+    PyObject * args = Py_BuildValue("OO", id, file_mod_time); /* New reference. */
+    if (args == NULL) {
+        Py_DECREF(file_mod_time);
+        Py_DECREF(id);
+        PyErr_Format(PyExc_RuntimeError, "%s()#d Can not create arguments.", __FUNCTION__, __LINE__);
+        return NULL;
+    }
+    delete self->pSvf;
+    self->pSvf = NULL;
+    if (cp_SparseVirtualFile_init(self, args, NULL)) {
+        Py_DECREF(file_mod_time);
+        Py_DECREF(id);
+        PyErr_Format(PyExc_RuntimeError, "%s()#%d: Can not create new SVF object.", __FUNCTION__, __LINE__);
+        return NULL;
+
+    }
+    Py_DECREF(args);
+    args = NULL;
+    Py_DECREF(file_mod_time);
+    file_mod_time = NULL;
+    Py_DECREF(id);
+    id = NULL;
+    /* Play back the blocks. */
+    PyObject * blocks = PyDict_GetItemString(state, PICKLE_BLOCKS_KEY); /* Borrowed reference. */
+    if (blocks == NULL) {
+        PyErr_Format(PyExc_KeyError, "%s()#d: No \"%s\" in pickled dict.", __FUNCTION__, __LINE__, PICKLE_BLOCKS_KEY);
+        return NULL;
+    }
+    if (!PyTuple_Check(blocks)) {
+        PyErr_Format(PyExc_TypeError, "%s()#d: \"%s\" is not a tuple.", __FUNCTION__, __LINE__, PICKLE_BLOCKS_KEY);
+        return NULL;
+    }
+    Py_INCREF(blocks);
+    for (Py_ssize_t i = 0; i < PyTuple_Size(blocks); ++i) {
+        PyObject * fpos_bytes = PyTuple_GetItem(blocks, i); /* Borrowed reference. */
+        Py_INCREF(fpos_bytes);
+        unsigned long long fpos;
+        PyObject * block_bytes = NULL; /* Borrowed reference. */
+        if (!PyArg_ParseTuple(fpos_bytes, "KO", &fpos, &block_bytes)) {
+            PyErr_Format(PyExc_ValueError, "%s()#d: Can not parse block (fpos, bytes) tuple.", __FUNCTION__,
+                         __LINE__, PICKLE_BLOCKS_KEY);
+            Py_DECREF(fpos_bytes);
+            return NULL;
+        }
+        Py_INCREF(block_bytes);
+        if (!PyBytes_Check(block_bytes)) {
+            PyErr_Format(PyExc_TypeError, "%s()#d: Second item of \"%s\" is not a bytes object.", __FUNCTION__,
+                         __LINE__, PICKLE_BLOCKS_KEY);
+            Py_DECREF(block_bytes);
+            Py_DECREF(fpos_bytes);
+            return NULL;
+        }
+        self->pSvf->write(fpos, PyBytes_AS_STRING(block_bytes), PyBytes_GET_SIZE(block_bytes));
+        Py_DECREF(block_bytes);
+        Py_DECREF(fpos_bytes);
+    }
+    Py_DECREF(blocks);
+    blocks = NULL;
+    Py_RETURN_NONE;
+}
+
+#pragma mark END Pickling
+
 #pragma mark END: SVF functions
 
 static PyMemberDef cp_SparseVirtualFile_members[] = {
@@ -681,99 +890,109 @@ static PyMemberDef cp_SparseVirtualFile_members[] = {
 
 static PyMethodDef cp_SparseVirtualFile_methods[] = {
         {
-                "id",                    (PyCFunction) cp_SparseVirtualFile_id,              METH_NOARGS,
+                "id", (PyCFunction) cp_SparseVirtualFile_id, METH_NOARGS,
                 cp_SparseVirtualFile_id_docstring
         },
         {
-                "size_of",               (PyCFunction) cp_SparseVirtualFile_size_of,         METH_NOARGS,
+                "size_of", (PyCFunction) cp_SparseVirtualFile_size_of, METH_NOARGS,
                 cp_SparseVirtualFile_size_of_docstring
         },
         {
-                "num_bytes",             (PyCFunction) cp_SparseVirtualFile_num_bytes,       METH_NOARGS,
+                "num_bytes", (PyCFunction) cp_SparseVirtualFile_num_bytes, METH_NOARGS,
                 cp_SparseVirtualFile_num_bytes_docstring
         },
         {
-                "num_blocks",            (PyCFunction) cp_SparseVirtualFile_num_blocks,      METH_NOARGS,
+                "num_blocks", (PyCFunction) cp_SparseVirtualFile_num_blocks, METH_NOARGS,
                 cp_SparseVirtualFile_num_blocks_docstring
         },
         {
-                "has_data",              (PyCFunction) cp_SparseVirtualFile_svf_has_data,    METH_VARARGS |
-                                                                                             METH_KEYWORDS,
-                        cp_SparseVirtualFile_svf_has_data_docstring
+                "has_data", (PyCFunction) cp_SparseVirtualFile_has_data, METH_VARARGS |
+                                                                         METH_KEYWORDS,
+                cp_SparseVirtualFile_has_data_docstring
         },
         {
-                "write",                 (PyCFunction) cp_SparseVirtualFile_svf_write,       METH_VARARGS |
-                                                                                             METH_KEYWORDS,
-                        cp_SparseVirtualFile_svf_write_docstring
+                "write", (PyCFunction) cp_SparseVirtualFile_write, METH_VARARGS |
+                                                                   METH_KEYWORDS,
+                cp_SparseVirtualFile_write_docstring
         },
         {
-                "read",                  (PyCFunction) cp_SparseVirtualFile_svf_read,        METH_VARARGS |
-                                                                                             METH_KEYWORDS,
-                        cp_SparseVirtualFile_svf_read_docstring
+                "read", (PyCFunction) cp_SparseVirtualFile_read, METH_VARARGS |
+                                                                 METH_KEYWORDS,
+                cp_SparseVirtualFile_read_docstring
         },
         {
-                "need",                  (PyCFunction) cp_SparseVirtualFile_svf_need,        METH_VARARGS |
-                                                                                             METH_KEYWORDS,
-                        cp_SparseVirtualFile_svf_need_docstring
+                "need", (PyCFunction) cp_SparseVirtualFile_need, METH_VARARGS |
+                                                                 METH_KEYWORDS,
+                cp_SparseVirtualFile_need_docstring
         },
         // ---- Meta information about the specific SVF ----
         {
-                "blocks",                (PyCFunction) cp_SparseVirtualFile_svf_blocks,      METH_NOARGS,
-                cp_SparseVirtualFile_svf_blocks_docstring
+                "blocks", (PyCFunction) cp_SparseVirtualFile_blocks, METH_NOARGS,
+                cp_SparseVirtualFile_blocks_docstring
+        },
+#if 0
+        {
+                "size_of",               (PyCFunction) cp_SparseVirtualFile_size_of,      METH_VARARGS |
+                                                                                              METH_KEYWORDS,
+                        cp_SparseVirtualFile_size_of_docstring
         },
         {
-                "size_of",               (PyCFunction) cp_SparseVirtualFile_svf_size_of,     METH_VARARGS |
-                                                                                             METH_KEYWORDS,
-                        cp_SparseVirtualFile_svf_size_of_docstring
+                "num_bytes",             (PyCFunction) cp_SparseVirtualFile_num_bytes,    METH_VARARGS |
+                                                                                              METH_KEYWORDS,
+                        cp_SparseVirtualFile_num_bytes_docstring
         },
         {
-                "num_bytes",             (PyCFunction) cp_SparseVirtualFile_svf_num_bytes,   METH_VARARGS |
-                                                                                             METH_KEYWORDS,
-                        cp_SparseVirtualFile_svf_num_bytes_docstring
+                "num_blocks",            (PyCFunction) cp_SparseVirtualFile_num_blocks,   METH_VARARGS |
+                                                                                              METH_KEYWORDS,
+                        cp_SparseVirtualFile_num_blocks_docstring
         },
+#endif
         {
-                "num_blocks",            (PyCFunction) cp_SparseVirtualFile_svf_num_blocks,  METH_VARARGS |
-                                                                                             METH_KEYWORDS,
-                        cp_SparseVirtualFile_svf_num_blocks_docstring
-        },
-        {
-                "file_mod_time_matches", (PyCFunction) cp_SparseVirtualFile_svf_file_mod_time_matches,
-                                                                                             METH_VARARGS |
-                                                                                             METH_KEYWORDS,
-                        cp_SparseVirtualFile_svf_file_mod_time_matches_docstring
+                "file_mod_time_matches", (PyCFunction) cp_SparseVirtualFile_file_mod_time_matches,
+                METH_VARARGS |
+                METH_KEYWORDS,
+                cp_SparseVirtualFile_file_mod_time_matches_docstring
         },
         // ---- Attribute access ----
         {
-                "file_mod_time",         (PyCFunction) cp_SparseVirtualFile_file_mod_time,   METH_NOARGS,
+                "file_mod_time", (PyCFunction) cp_SparseVirtualFile_file_mod_time, METH_NOARGS,
                 cp_SparseVirtualFile_file_mod_time_docstring
         },
+#if 1
         {
-                "count_write",           (PyCFunction) cp_SparseVirtualFile_svf_count_write, METH_VARARGS |
-                                                                                             METH_KEYWORDS,
-                        cp_SparseVirtualFile_svf_count_write_docstring
+                "count_write", (PyCFunction) cp_SparseVirtualFile_count_write, METH_VARARGS |
+                                                                               METH_KEYWORDS,
+                cp_SparseVirtualFile_count_write_docstring
         },
         {
-                "count_read",            (PyCFunction) cp_SparseVirtualFile_svf_count_read,  METH_VARARGS |
-                                                                                             METH_KEYWORDS,
-                        cp_SparseVirtualFile_svf_count_read_docstring
+                "count_read", (PyCFunction) cp_SparseVirtualFile_count_read, METH_VARARGS |
+                                                                             METH_KEYWORDS,
+                cp_SparseVirtualFile_count_read_docstring
         },
         {
-                "bytes_write",           (PyCFunction) cp_SparseVirtualFile_svf_bytes_write, METH_VARARGS |
-                                                                                             METH_KEYWORDS,
-                        cp_SparseVirtualFile_svf_bytes_write_docstring
+                "bytes_write", (PyCFunction) cp_SparseVirtualFile_bytes_write, METH_VARARGS |
+                                                                               METH_KEYWORDS,
+                cp_SparseVirtualFile_bytes_write_docstring
         },
         {
-                "bytes_read",            (PyCFunction) cp_SparseVirtualFile_svf_bytes_read,  METH_VARARGS |
-                                                                                             METH_KEYWORDS,
-                        cp_SparseVirtualFile_svf_bytes_read_docstring
+                "bytes_read", (PyCFunction) cp_SparseVirtualFile_bytes_read, METH_VARARGS |
+                                                                             METH_KEYWORDS,
+                cp_SparseVirtualFile_bytes_read_docstring
+        },
+#endif
+        {
+                "time_write", (PyCFunction) cp_SparseVirtualFile_time_write, METH_NOARGS,
+                cp_SparseVirtualFile_time_write_docstring
         },
         {
-                "time_write",            (PyCFunction) cp_SparseVirtualFile_svf_time_write,  METH_NOARGS,
-                cp_SparseVirtualFile_svf_time_write_docstring
+                "time_read", (PyCFunction) cp_SparseVirtualFile_time_read, METH_NOARGS,
+                cp_SparseVirtualFile_time_read_docstring
         },
-        {
-                "time_read",             (PyCFunction) cp_SparseVirtualFile_svf_time_read,   METH_NOARGS,
-                cp_SparseVirtualFile_svf_time_read_docstring
+        {"__getstate__", (PyCFunction) cp_SparseVirtualFile___getstate__, METH_NOARGS,
+         "Return the state for pickling"
+        },
+        {"__setstate__", (PyCFunction) cp_SparseVirtualFile___setstate__, METH_O,
+         "Set the state from a pickle"
         },
         {NULL, NULL, 0, NULL}  /* Sentinel */
 };
