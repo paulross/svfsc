@@ -695,7 +695,7 @@ cp_SparseVirtualFile___getstate__(cp_SparseVirtualFile *self, PyObject *Py_UNUSE
             "{"
             "s:N"   /* id */
             ",s:d"  /* file_mod_time */
-            ",sN"   /* blocks */
+            ",s:N"  /* blocks */
             ",s:i"  /* pickle_version */
             "}",
             PICKLE_ID_KEY, PyUnicode_FromKindAndData(PyUnicode_1BYTE_KIND,

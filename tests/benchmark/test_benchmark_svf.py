@@ -1,30 +1,25 @@
-import time
-
 import pytest
 
 import svfs
 
+ID = 'abc'
 
 def ctor():
-    return svfs.SVFS()
+    return svfs.SVF(id=ID, mod_time=1.0)
 
 
-def test_svfs_ctor(benchmark):
+def test_svf_ctor(benchmark):
     benchmark(ctor)
-
-
-ID = 'abc'
 
 
 def _simulate_write_uncoalesced(size, block_size):
     # SIZE = 1024 #* 1024 * 1
-    s = svfs.SVFS()
-    s.insert(ID, 12.0)
+    s = svfs.SVF(ID, 12.0)
     data = b' ' * block_size
     block_count = size // block_size
     for i in range(block_count):
         fpos = i * block_size + i
-        s.write(ID, fpos, data)
+        s.write(fpos, data)
     return s
 
 
@@ -40,22 +35,21 @@ def _simulate_write_uncoalesced(size, block_size):
         (1024, 64,),
     )
 )
-def test_svfs_sim_write_uncoal(size, block_size, benchmark):
+def test_svf_sim_write_uncoal(size, block_size, benchmark):
     s = benchmark(_simulate_write_uncoalesced, size, block_size)
-    assert s.num_bytes(ID) == size
-    assert s.count_write(ID) == size // block_size
-    assert len(s.blocks(ID)) == size // block_size
+    assert s.num_bytes() == size
+    assert s.count_write() == size // block_size
+    assert len(s.blocks()) == size // block_size
 
 
 def _simulate_write_coalesced(size, block_size):
     # SIZE = 1024 #* 1024 * 1
-    s = svfs.SVFS()
-    s.insert(ID, 12.0)
+    s = svfs.SVF(ID, 12.0)
     data = b' ' * block_size
     block_count = size // block_size
     for i in range(block_count):
         fpos = i * block_size
-        s.write(ID, fpos, data)
+        s.write(fpos, data)
     return s
 
 
@@ -71,11 +65,11 @@ def _simulate_write_coalesced(size, block_size):
         (1024, 64,),
     )
 )
-def test_svfs_sim_write_coal(size, block_size, benchmark):
+def test_svf_sim_write_coal(size, block_size, benchmark):
     s = benchmark(_simulate_write_coalesced, size, block_size)
-    assert s.num_bytes(ID) == size
-    assert s.count_write(ID) == size // block_size
-    assert len(s.blocks(ID)) == 1
+    assert s.num_bytes() == size
+    assert s.count_write() == size // block_size
+    assert len(s.blocks()) == 1
 
 
 #     // Simulate writing a low level RP66V1 index. Total bytes written around 1Mb.
@@ -98,8 +92,7 @@ def test_svfs_sim_write_coal(size, block_size, benchmark):
 
 
 def _sim_write_index(vr_count, lr_count):
-    file_system = svfs.SVFS()
-    file_system.insert(ID, 12.0)
+    file_system = svfs.SVF(ID, 12.0)
     vr_data = b' ' * 4
     lr_data = b' ' * 4
     count_write = 0
@@ -110,26 +103,26 @@ def _sim_write_index(vr_count, lr_count):
     for vr in range(vr_count):
         fpos = 80 + vr * 8004
         # print(f'Write vr fpos={fpos}')
-        file_system.write(ID, fpos, vr_data)
+        file_system.write(fpos, vr_data)
         count_write += 1
-        assert file_system.count_write(ID) == count_write
+        assert file_system.count_write() == count_write
         bytes_write += 4
-        assert file_system.bytes_write(ID) == bytes_write
+        assert file_system.bytes_write() == bytes_write
         fpos += 4
         # print(f'TRACE: vr write at {time.perf_counter() - t}')
         # t = time.perf_counter()
         for lrsh in range(lr_count):
             # print(f'Write lr fpos={fpos}')
-            file_system.write(ID, fpos, lr_data)
+            file_system.write(fpos, lr_data)
             count_write += 1
-            assert file_system.count_write(ID) == count_write
+            assert file_system.count_write() == count_write
             bytes_write += 4
-            assert file_system.bytes_write(ID) == bytes_write
+            assert file_system.bytes_write() == bytes_write
             fpos += 8000 // lr_count
-    assert file_system.count_write(ID) == count_write
-    assert file_system.bytes_write(ID) == bytes_write
-    assert file_system.count_write(ID) == vr_count * lr_count + vr_count
-    return file_system.count_write(ID)
+    assert file_system.count_write() == count_write
+    assert file_system.bytes_write() == bytes_write
+    assert file_system.count_write() == vr_count * lr_count + vr_count
+    return file_system.count_write()
 
 
 # Simulate writing a low level RP66V1 index. Total bytes written around 1Mb.
@@ -147,7 +140,7 @@ def _sim_write_index(vr_count, lr_count):
         (23831, 10,),
     )
 )
-def test_svfs_sim_write_index(vr_count, lr_count, benchmark):
+def test_svf_sim_write_index(vr_count, lr_count, benchmark):
     result = benchmark(_sim_write_index, vr_count, lr_count)
     # assert result == vr_count * lr_count
 

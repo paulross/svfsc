@@ -3,6 +3,7 @@ import pickletools
 import sys
 import time
 
+import psutil
 import pytest
 
 import svfs
@@ -266,15 +267,3 @@ def test_SVF_pickle_loads(blocks, expected_blocks):
     pickle_result = pickle.dumps(s)
     new_s = pickle.loads(pickle_result)
     assert new_s.blocks() == expected_blocks
-
-
-def main():
-    # test_simulate_write_coalesced(1)
-    # test_simulate_write_coalesced(2)
-    # test_SVF_num_bytes()
-    print('Bye, bye!')
-    return 0
-
-
-if __name__ == '__main__':
-    sys.exit(main())
