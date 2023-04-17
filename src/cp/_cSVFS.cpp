@@ -1054,9 +1054,9 @@ PyMappingMethods svfs_mapping_methods = {
     .mp_length = &cp_SparseVirtualFileSystem_mapping_length,
 };
 
-static PyTypeObject svfs_SVFS = {
+static PyTypeObject svfs_cSVFS = {
         PyVarObject_HEAD_INIT(NULL, 0)
-        .tp_name = "svfs.SVFS",
+        .tp_name = "svfs.cSVFS",
         .tp_basicsize = sizeof(cp_SparseVirtualFileSystem),
         .tp_itemsize = 0,
         .tp_dealloc = (destructor) cp_SparseVirtualFileSystem_dealloc,

@@ -37,17 +37,17 @@ PyInit_svfs(void)
         return NULL;
     }
 
-    if (PyType_Ready(&svfs_SVF) < 0) {
+    if (PyType_Ready(&svfs_cSVF) < 0) {
         return NULL;
     }
-    Py_INCREF(&svfs_SVF);
-    PyModule_AddObject(m, "SVF", (PyObject *) &svfs_SVF);
+    Py_INCREF(&svfs_cSVF);
+    PyModule_AddObject(m, "cSVF", (PyObject *) &svfs_cSVF);
 
-    if (PyType_Ready(&svfs_SVFS) < 0) {
+    if (PyType_Ready(&svfs_cSVFS) < 0) {
         return NULL;
     }
-    Py_INCREF(&svfs_SVFS);
-    PyModule_AddObject(m, "SVFS", (PyObject *) &svfs_SVFS);
+    Py_INCREF(&svfs_cSVFS);
+    PyModule_AddObject(m, "cSVFS", (PyObject *) &svfs_cSVFS);
 
     PyDateTime_IMPORT;
     return m;

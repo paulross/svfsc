@@ -7,11 +7,11 @@ import svfs
 
 
 def test_SVFS_ctor():
-    svfs.SVFS()
+    svfs.cSVFS()
 
 
 def test_SVFS_insert():
-    s = svfs.SVFS()
+    s = svfs.cSVFS()
     s.insert('abc', 12.0)
     assert len(s) == 1
 
@@ -42,7 +42,7 @@ INSERT_KEYS_REMOVE_DATA = (
     'insert, expected_keys', INSERT_KEYS_REMOVE_DATA
 )
 def test_SVFS_keys(insert, expected_keys):
-    s = svfs.SVFS()
+    s = svfs.cSVFS()
     for an_id, a_mod_time in insert:
         s.insert(an_id, a_mod_time)
     assert sorted(s.keys()) == sorted(expected_keys)
@@ -53,7 +53,7 @@ def test_SVFS_keys(insert, expected_keys):
     'insert, expected_keys', INSERT_KEYS_REMOVE_DATA
 )
 def test_SVFS_len(insert, expected_keys):
-    s = svfs.SVFS()
+    s = svfs.cSVFS()
     for an_id, a_mod_time in insert:
         s.insert(an_id, a_mod_time)
     assert len(s) == len(expected_keys)
@@ -63,7 +63,7 @@ def test_SVFS_len(insert, expected_keys):
     'insert, expected_keys', INSERT_KEYS_REMOVE_DATA
 )
 def test_SVFS_insert_remove(insert, expected_keys):
-    s = svfs.SVFS()
+    s = svfs.cSVFS()
     for an_id, a_mod_time in insert:
         s.insert(an_id, a_mod_time)
     for an_id, _a_mod_time in insert:
@@ -76,7 +76,7 @@ def test_SVFS_insert_remove(insert, expected_keys):
     'insert, expected_keys', INSERT_KEYS_REMOVE_DATA
 )
 def test_SVFS_has(insert, expected_keys):
-    s = svfs.SVFS()
+    s = svfs.cSVFS()
     for an_id, a_mod_time in insert:
         s.insert(an_id, a_mod_time)
     for an_id, _a_mod_time in insert:
@@ -112,7 +112,7 @@ def test_SVFS_has(insert, expected_keys):
     )
 )
 def test_SVFS_write(blocks, expected_blocks):
-    s = svfs.SVFS()
+    s = svfs.cSVFS()
     ID = 'abc'
     s.insert(ID, 1.0)
     for fpos, data in blocks:
@@ -145,7 +145,7 @@ def test_SVFS_write(blocks, expected_blocks):
 def test_simulate_write_uncoalesced(block_size):
     SIZE = 1024 #* 1024 * 1
     ID = 'abc'
-    s = svfs.SVFS()
+    s = svfs.cSVFS()
     s.insert(ID, 12.0)
     data = b' ' * block_size
     block_count = SIZE // block_size
@@ -165,7 +165,7 @@ def test_simulate_write_uncoalesced(block_size):
 def test_simulate_write_coalesced(block_size):
     SIZE = 1024 #* 1024 * 1
     ID = 'abc'
-    s = svfs.SVFS()
+    s = svfs.cSVFS()
     s.insert(ID, 12.0)
     data = b' ' * block_size
     block_count = SIZE // block_size
@@ -193,7 +193,7 @@ ID = 'abc'
     )
 )
 def test_sim_write_index(vr_count, lr_count):
-    file_system = svfs.SVFS()
+    file_system = svfs.cSVFS()
     file_system.insert(ID, 12.0)
     vr_data = b' ' * 4
     lr_data = b' ' * 4
@@ -230,7 +230,7 @@ def test_sim_write_index(vr_count, lr_count):
 
 
 def test_SVFS_num_bytes():
-    s = svfs.SVFS()
+    s = svfs.cSVFS()
     ID = 'abc'
     s.insert(ID, 1.0)
     s.write(ID, 0, b'    ')

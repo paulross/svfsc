@@ -157,7 +157,7 @@ class Server:
 
     def __init__(self):
         logger.info(f'{self.LOGGER_PREFIX}: __init__()')
-        self.svfs = svfs.SVFS()
+        self.svfs = svfs.cSVFS()
         # TODO: Single dict with low and mid level indexes
         # Dict of {file_id, {position as a LRPosDesc, ...}, ...}
         self.low_level_index: typing.Dict[str, typing.Dict[int, LRPosDesc]] = {}

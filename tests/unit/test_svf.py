@@ -10,12 +10,12 @@ import svfs
 
 
 def test_SVF_ctor():
-    svfs.SVF('id', 1.0)
-    svfs.SVF(id='id', mod_time=1.0)
+    svfs.cSVF('id', 1.0)
+    svfs.cSVF(id='id', mod_time=1.0)
 
 
 def test_SVF_id():
-    s = svfs.SVF('id', 1.0)
+    s = svfs.cSVF('id', 1.0)
     assert s.id() == 'id'
 
 
@@ -112,7 +112,7 @@ INSERT_FPOS_BYTES_EXPECTED_BLOCKS_IDS = [
     ids=INSERT_FPOS_BYTES_EXPECTED_BLOCKS_IDS,
 )
 def test_SVF_write_success(blocks, expected_blocks):
-    s = svfs.SVF('id', 1.0)
+    s = svfs.cSVF('id', 1.0)
     for fpos, data in blocks:
         s.write(fpos, data)
     assert s.blocks() == expected_blocks
@@ -124,7 +124,7 @@ def test_SVF_write_success(blocks, expected_blocks):
     ids=INSERT_FPOS_BYTES_EXPECTED_BLOCKS_IDS,
 )
 def test_SVF_num_bytes(blocks, expected_blocks):
-    s = svfs.SVF('id', 1.0)
+    s = svfs.cSVF('id', 1.0)
     for fpos, data in blocks:
         s.write(fpos, data)
     num_bytes = 0
@@ -139,7 +139,7 @@ def test_SVF_num_bytes(blocks, expected_blocks):
     ids=INSERT_FPOS_BYTES_EXPECTED_BLOCKS_IDS,
 )
 def test_SVF_num_blocks(blocks, expected_blocks):
-    s = svfs.SVF('id', 1.0)
+    s = svfs.cSVF('id', 1.0)
     for fpos, data in blocks:
         s.write(fpos, data)
     assert s.num_blocks() == len(expected_blocks)
@@ -151,7 +151,7 @@ def test_SVF_num_blocks(blocks, expected_blocks):
     ids=INSERT_FPOS_BYTES_EXPECTED_BLOCKS_IDS,
 )
 def test_SVF_has_data_true(blocks, expected_blocks):
-    s = svfs.SVF('id', 1.0)
+    s = svfs.cSVF('id', 1.0)
     for fpos, data in blocks:
         s.write(fpos, data)
     for fpos, length in expected_blocks:
@@ -165,7 +165,7 @@ def test_SVF_has_data_true(blocks, expected_blocks):
     ids=INSERT_FPOS_BYTES_EXPECTED_BLOCKS_IDS,
 )
 def test_SVF_read(blocks, expected_blocks):
-    s = svfs.SVF('id', 1.0)
+    s = svfs.cSVF('id', 1.0)
     for fpos, data in blocks:
         s.write(fpos, data)
     for fpos, length in expected_blocks:
@@ -179,7 +179,7 @@ def test_SVF_read(blocks, expected_blocks):
     ids=INSERT_FPOS_BYTES_EXPECTED_BLOCKS_IDS,
 )
 def test_SVF_need_nothing(blocks, expected_blocks):
-    s = svfs.SVF('id', 1.0)
+    s = svfs.cSVF('id', 1.0)
     for fpos, data in blocks:
         s.write(fpos, data)
     for fpos, length in expected_blocks:
@@ -194,7 +194,7 @@ def test_SVF_need_nothing(blocks, expected_blocks):
 )
 def test_SVF_need(blocks, expected_blocks):
     # Empty SVF, needs everything.
-    s = svfs.SVF('id', 1.0)
+    s = svfs.cSVF('id', 1.0)
     for fpos, length in expected_blocks:
         assert s.need(fpos, length) == [(fpos, length)]
         assert s.need(file_position=fpos, length=length) == [(fpos, length)]
@@ -205,9 +205,9 @@ def test_SVF_need(blocks, expected_blocks):
     (
             (
                     (),
-                    b'\x80\x04\x95X\x00\x00\x00\x00\x00\x00\x00\x8c\x04'
-                    b'svfs\x94\x8c\x03'
-                    b'SVF\x94\x93\x94)\x81\x94}\x94(\x8c\x02'
+                    b'\x80\x04\x95Y\x00\x00\x00\x00\x00\x00\x00\x8c\x04'
+                    b'svfs\x94\x8c\x04'
+                    b'cSVF\x94\x93\x94)\x81\x94}\x94(\x8c\x02'
                     b'id\x94\x8c\x02'
                     b'id\x94\x8c\r'
                     b'file_mod_time\x94G?\xf0\x00\x00\x00\x00\x00\x00\x8c\x06'
@@ -216,9 +216,9 @@ def test_SVF_need(blocks, expected_blocks):
             ),
             (
                     ((1, b' '),),
-                    b'\x80\x04\x95a\x00\x00\x00\x00\x00\x00\x00\x8c\x04'
-                    b'svfs\x94\x8c\x03'
-                    b'SVF\x94\x93\x94)\x81\x94}\x94(\x8c\x02'
+                    b'\x80\x04\x95b\x00\x00\x00\x00\x00\x00\x00\x8c\x04'
+                    b'svfs\x94\x8c\x04'
+                    b'cSVF\x94\x93\x94)\x81\x94}\x94(\x8c\x02'
                     b'id\x94\x8c\x02'
                     b'id\x94\x8c\r'
                     b'file_mod_time\x94G?\xf0\x00\x00\x00\x00\x00\x00\x8c\x06'
@@ -227,9 +227,9 @@ def test_SVF_need(blocks, expected_blocks):
             ),
             (
                     ((1, b' '), (12, b' '),),
-                    b'\x80\x04\x95i\x00\x00\x00\x00\x00\x00\x00\x8c\x04'
-                    b'svfs\x94\x8c\x03'
-                    b'SVF\x94\x93\x94)\x81\x94}\x94(\x8c\x02'
+                    b'\x80\x04\x95j\x00\x00\x00\x00\x00\x00\x00\x8c\x04'
+                    b'svfs\x94\x8c\x04'
+                    b'cSVF\x94\x93\x94)\x81\x94}\x94(\x8c\x02'
                     b'id\x94\x8c\x02'
                     b'id\x94\x8c\r'
                     b'file_mod_time\x94G?\xf0\x00\x00\x00\x00\x00\x00\x8c\x06'
@@ -244,7 +244,7 @@ def test_SVF_need(blocks, expected_blocks):
     ],
 )
 def test_SVF_pickle_dumps(blocks, expected_pickle_bytes):
-    s = svfs.SVF('id', 1.0)
+    s = svfs.cSVF('id', 1.0)
     for fpos, data in blocks:
         s.write(fpos, data)
     result = pickle.dumps(s)
@@ -260,7 +260,7 @@ def test_SVF_pickle_dumps(blocks, expected_pickle_bytes):
     ids=INSERT_FPOS_BYTES_EXPECTED_BLOCKS_IDS,
 )
 def test_SVF_pickle_loads(blocks, expected_blocks):
-    s = svfs.SVF('id', 1.0)
+    s = svfs.cSVF('id', 1.0)
     for fpos, data in blocks:
         s.write(fpos, data)
     assert s.blocks() == expected_blocks

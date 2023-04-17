@@ -5,7 +5,7 @@ import svfs
 ID = 'abc'
 
 def ctor():
-    return svfs.SVF(id=ID, mod_time=1.0)
+    return svfs.cSVF(id=ID, mod_time=1.0)
 
 
 def test_svf_ctor(benchmark):
@@ -14,7 +14,7 @@ def test_svf_ctor(benchmark):
 
 def _simulate_write_uncoalesced(size, block_size):
     # SIZE = 1024 #* 1024 * 1
-    s = svfs.SVF(ID, 12.0)
+    s = svfs.cSVF(ID, 12.0)
     data = b' ' * block_size
     block_count = size // block_size
     for i in range(block_count):
@@ -44,7 +44,7 @@ def test_svf_sim_write_uncoal(size, block_size, benchmark):
 
 def _simulate_write_coalesced(size, block_size):
     # SIZE = 1024 #* 1024 * 1
-    s = svfs.SVF(ID, 12.0)
+    s = svfs.cSVF(ID, 12.0)
     data = b' ' * block_size
     block_count = size // block_size
     for i in range(block_count):
@@ -92,7 +92,7 @@ def test_svf_sim_write_coal(size, block_size, benchmark):
 
 
 def _sim_write_index(vr_count, lr_count):
-    file_system = svfs.SVF(ID, 12.0)
+    file_system = svfs.cSVF(ID, 12.0)
     vr_data = b' ' * 4
     lr_data = b' ' * 4
     count_write = 0

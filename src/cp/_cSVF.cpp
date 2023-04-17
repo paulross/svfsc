@@ -921,9 +921,9 @@ static PyMethodDef cp_SparseVirtualFile_methods[] = {
         {NULL, NULL, 0, NULL}  /* Sentinel */
 };
 
-static PyTypeObject svfs_SVF = {
+static PyTypeObject svfs_cSVF = {
         PyVarObject_HEAD_INIT(NULL, 0)
-        .tp_name = "svfs.SVF",
+        .tp_name = "svfs.cSVF",
         .tp_basicsize = sizeof(cp_SparseVirtualFile),
         .tp_itemsize = 0,
         .tp_dealloc = (destructor) cp_SparseVirtualFile_dealloc,
