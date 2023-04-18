@@ -271,42 +271,34 @@ namespace SVFS {
     }
 
     // Write test_data_bytes_512 with a overlap with diff checking on. Data is 128 blocks every 64 bytes.
-    TestCount test_perf_write_with_diff_check(t_test_results &results) {
+    TestCount _test_perf_write_with_diff_check(bool compare_for_diff, t_test_results &results) {
         TestCount count;
         tSparseVirtualFileConfig config;
-        config.compare_for_diff = true;
+        config.compare_for_diff = compare_for_diff;
         SparseVirtualFile svf("", 0.0, config);
+        size_t block_size = 256;
+        int repeat = 4000;
 
         auto time_start = std::chrono::high_resolution_clock::now();
-
-        for (size_t fpos = 0; fpos < 1024 * 1024; fpos += 64) {
-            svf.write(fpos, test_data_bytes_512 + fpos % 256, 128);
+        for (int i = 0; i < repeat; ++i) {
+            svf.write(0, test_data_bytes_512, block_size);
         }
-
         std::chrono::duration<double> time_exec = std::chrono::high_resolution_clock::now() - time_start;
-        auto result = TestResult(__PRETTY_FUNCTION__, "Overwrite with diff check", 0, "", time_exec.count(), svf.num_bytes());
+        std::ostringstream os;
+        os << block_size << " block size, x" << repeat << ", compare_for_diff=" << compare_for_diff;
+        auto result =TestResult(__PRETTY_FUNCTION__, std::string(os.str()), 0, "", time_exec.count(), repeat * block_size);
         count.add_result(result.result());
         results.push_back(result);
         return count;
     }
 
+    TestCount test_perf_write_with_diff_check(t_test_results &results) {
+        return _test_perf_write_with_diff_check(false, results);
+    }
+
     // Write test_data_bytes_512 with a overlap with diff checking on. Data is 128 blocks every 64 bytes.
     TestCount test_perf_write_without_diff_check(t_test_results &results) {
-        TestCount count;
-        tSparseVirtualFileConfig config;
-        config.compare_for_diff = false;
-        SparseVirtualFile svf("", 0.0, config);
-        auto time_start = std::chrono::high_resolution_clock::now();
-
-        for (size_t fpos = 0; fpos < 1024 * 1024; fpos += 64) {
-            svf.write(fpos, test_data_bytes_512 + fpos % 256, 128);
-        }
-
-        std::chrono::duration<double> time_exec = std::chrono::high_resolution_clock::now() - time_start;
-        auto result = TestResult(__PRETTY_FUNCTION__, "Overwrite without diff check", 0, "", time_exec.count(), svf.num_bytes());
-        count.add_result(result.result());
-        results.push_back(result);
-        return count;
+        return _test_perf_write_with_diff_check(true, results);
     }
 
     // Simulate writing a low level RP66V1 index. Total bytes written around 1Mb.
@@ -354,7 +346,6 @@ namespace SVFS {
             count.add_result(result.result());
             results.push_back(result);
         }
-
         return count;
     }
 
@@ -851,7 +842,6 @@ namespace SVFS {
         return count;
     }
 
-
     TestCaseEraseThrows::TestCaseEraseThrows(const std::string &m_test_name, const t_seek_read &m_writes,
                                              t_fpos fpos, const std::string &message) : TestCaseErase(m_test_name,
                                                                                                       m_writes, fpos),
@@ -910,8 +900,41 @@ namespace SVFS {
         return count;
     }
 
+    TestCount _test_perf_erase_overwrite(bool overwrite, t_test_results &results) {
+        TestCount count;
+        size_t block_size = 256;
+        size_t total_size = 1024 * 1024 * 1;
+        int repeat = 1000;
+        tSparseVirtualFileConfig config;
+        config.overwrite_on_exit = overwrite;
+        SparseVirtualFile svf("", 0.0, config);
+        double time_total = 0.0;
+        for (int r = 0; r < repeat; ++r) {
+            for (t_fpos i = 0; i < total_size / block_size; ++i) {
+                // Add 1 to make non-coalesced
+                t_fpos fpos = i * block_size + 1;
+                svf.write(fpos, test_data_bytes_512, block_size);
+            }
+            auto time_start = std::chrono::high_resolution_clock::now();
+            svf.clear();
+            std::chrono::duration<double> time_exec = std::chrono::high_resolution_clock::now() - time_start;
+            time_total += time_exec.count();
+        }
+        std::ostringstream os;
+        os << "1Mb, " << std::setw(3) << block_size << "block size, x" << repeat << " overwrite=" << overwrite;
+        auto result =TestResult(__PRETTY_FUNCTION__, std::string(os.str()), 0, "", time_total, total_size);
+        count.add_result(result.result());
+        results.push_back(result);
+        return count;
+    }
 
+    TestCount test_perf_erase_overwrite_false(t_test_results &results) {
+        return _test_perf_erase_overwrite(false, results);
+    }
 
+    TestCount test_perf_erase_overwrite_true(t_test_results &results) {
+        return _test_perf_erase_overwrite(true, results);
+    }
 
 #ifdef SVF_THREAD_SAFE
     SparseVirtualFile g_svf_multithreaded("", 0.0);
@@ -978,25 +1001,27 @@ namespace SVFS {
         // Write
         count += test_write_all(results);
         count += test_write_all_throws(results);
-        // Write - performance
+        // write() - performance
         count += test_perf_write_with_diff_check(results);
         count += test_perf_write_without_diff_check(results);
         count += test_perf_write_sim_index_svf(results);
         count += test_perf_write_1M_coalesced(results);
         count += test_perf_write_1M_uncoalesced(results);
         count += test_perf_write_1M_uncoalesced_size_of(results);
-        // Read
+        // read()
         count += test_read_all(results);
         count += test_read_throws_all(results);
         count += test_perf_read_1M_coalesced(results);
-        // Has
+        // has()
         count += test_has_all(results);
-        // Need
+        // need()
         count += test_need_all(results);
         count += test_perf_need_sim_index(results);
-        // erase
+        // erase()
         count += test_erase_all(results);
         count += test_erase_throws_all(results);
+        count += test_perf_erase_overwrite_false(results);
+        count += test_perf_erase_overwrite_true(results);
 #ifdef SVF_THREAD_SAFE
         count += test_write_multithreaded(results);
 #endif

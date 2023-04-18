@@ -58,17 +58,14 @@ namespace SVFS {
     typedef std::vector<std::pair<t_fpos, size_t>> t_seek_read;
 
     typedef struct SparseVirtualFileConfig {
-        // TODO: Implement coalesce strategies or abandon that as unnecessary.
-        // TODO: Implement cache limit and cache punting strategies? Random would be simplest.
-        // TODO: Otherwise need map of fpos -> time or a list of fpos in time order, on access move the fpos to the
-        // TODO: beginning then pop end on punt. Maybe this also needs a unordered_map<fpos, index_into_list>?
-        // coalesce - The strategy to use for coalescing adjacent blocks. -1 is always, 0 is never and a
-        // positive value means coalesce if the size of the result is less than this value.
-        int coalesce = -1;
         // If true the memory is destructively overwritten when the Sparse Virtual File is destroyed.
+        // See test_perf_erase_overwrite_false()/test_perf_erase_overwrite_true() for performance comparison.
+        // If true then clear() on a 1Mb SVF takes 35 us, if false 1.5 us.
         bool overwrite_on_exit = false;
         // If true compare with existing data on write and if there is a difference throw an exception.
         // This trades performance (if false) for correctness (if true).
+        // See test_perf_write_with_diff_check()/test_perf_write_without_diff_check()
+        // If true writing is 0.321 ms, if false 0.264.
         bool compare_for_diff = true;
     } tSparseVirtualFileConfig;
 
@@ -87,9 +84,6 @@ namespace SVFS {
             m_config(config),
             m_time_write(std::chrono::time_point<std::chrono::system_clock>::min()), \
             m_time_read(std::chrono::time_point<std::chrono::system_clock>::min()) {
-            if (m_config.coalesce != -1){
-                throw std::runtime_error("Coalesce strategy not yet implemented.");
-            }
         }
         // ---- Read and write etc. ----
         // Do I have the data?

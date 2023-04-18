@@ -52,19 +52,18 @@ void write_test_results(const t_test_results &results, std::ostream &os) {
     // Header
     os << std::left;
     os << std::setw(75) << "Function";
-    os << std::setw(40) << "Test";
     os << "----";
     os << std::right;
     os << std::setw(16) << "Bytes";
     os << std::setw(16) << "ms";
     os << std::setw(16) << "ms/Mb";
     os << std::setw(16) << "Mb/s";
+    os << " Test";
     os << std::endl;
 
     for (const auto &result: results) {
         os << std::left;
         os << std::setw(75) << result.function();
-        os << std::setw(40) << result.test();
         if (result.result() == 0) {
             os << "pass";
         } else {
@@ -78,6 +77,7 @@ void write_test_results(const t_test_results &results, std::ostream &os) {
         if (result.has_error_message()) {
             os << " " << result.error_message();
         }
+        os << " " << result.test();
         os << std::endl;
     }
 }

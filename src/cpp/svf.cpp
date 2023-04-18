@@ -8,6 +8,8 @@
 #include "svf.h"
 
 namespace SVFS {
+    // Used to overwrite the memory before discarding it.
+    static const char OVERWRITE_CHAR = '0';
 
     bool SparseVirtualFile::has(t_fpos fpos, size_t len) const noexcept {
         SVF_ASSERT(integrity() == ERROR_NONE);
@@ -78,8 +80,6 @@ namespace SVFS {
         //       ^===========|    |=====|
         //  |+++++++++++++++++++++++++++++++++|
         //
-//        std::cout << "TRACE: write(): fpos = " << fpos << " len = " << len << std::endl;
-
         if (m_svf.empty() || fpos > _last_file_position()) {
             // Simple insert of new data into empty map or a node beyond the end (common case).
             _write(fpos, data, len);
@@ -108,7 +108,6 @@ namespace SVFS {
         m_bytes_write += len;
         m_time_write = std::chrono::system_clock::now();
         SVF_ASSERT(integrity() == ERROR_NONE);
-//        std::cout << "size now " << m_svf.size() << std::endl;
     }
 
     void SparseVirtualFile::_write_new_append_old(t_fpos fpos, const char *data, size_t len, t_map::iterator iter) {
@@ -170,14 +169,14 @@ namespace SVFS {
                     ++index_iter;
                 }
                 if (m_config.overwrite_on_exit) {
-                    iter->second.assign(iter->second.size(), '0');
+                    iter->second.assign(iter->second.size(), OVERWRITE_CHAR);
                 }
                 m_svf.erase(iter);
                 break;
             }
             // Remove copied and checked old block and move on.
             if (m_config.overwrite_on_exit) {
-                iter->second.assign(iter->second.size(), '0');
+                iter->second.assign(iter->second.size(), OVERWRITE_CHAR);
             }
             iter = m_svf.erase(iter);
             if (iter == m_svf.end() || iter->first > fpos + len) {
@@ -293,7 +292,7 @@ namespace SVFS {
                 }
             }
             if (m_config.overwrite_on_exit) {
-                iter->second.assign(iter->second.size(), '0');
+                iter->second.assign(iter->second.size(), OVERWRITE_CHAR);
             }
             iter = m_svf.erase(iter);
         }
@@ -498,7 +497,7 @@ namespace SVFS {
 //        m_time_read = std::chrono::time_point<std::chrono::system_clock>::min();
         if (m_config.overwrite_on_exit) {
             for (auto &iter: m_svf) {
-                iter.second.assign(iter.second.size(), '0');
+                iter.second.assign(iter.second.size(), OVERWRITE_CHAR);
             }
         }
         m_svf.clear();
