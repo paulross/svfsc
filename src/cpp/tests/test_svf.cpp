@@ -801,6 +801,118 @@ namespace SVFS {
         return count;
     }
 
+#pragma mark - Test erase()
+    TestCaseErase::TestCaseErase(const std::string &m_test_name, const t_seek_read &m_writes,
+                               t_fpos fpos) : TestCaseABC(m_test_name, m_writes),
+                                                          m_fpos(fpos) {}
+
+
+    // Create a SVF, run the read tests and report the result.
+    TestResult TestCaseErase::run() const {
+        SparseVirtualFile svf("", 0.0);
+
+        // Load the SVF
+        try {
+            load_writes(svf, test_data_bytes_512);
+        } catch (ExceptionSparseVirtualFile &err) {
+            return TestResult(__PRETTY_FUNCTION__, m_test_name, 1, err.message(), 0.0, 0);
+        }
+
+        // Analyse the results
+        int result = 0;
+        std::string err;
+
+        // Run the test
+        auto time_start = std::chrono::high_resolution_clock::now();
+        try {
+            svf.erase(m_fpos);
+        } catch (ExceptionSparseVirtualFileRead & err) {
+            return TestResult(__PRETTY_FUNCTION__, m_test_name, 1, err.message(), 0.0, 0);
+        }
+        std::chrono::duration<double> time_exec = std::chrono::high_resolution_clock::now() - time_start;
+        return TestResult(__PRETTY_FUNCTION__, m_test_name, result, err, time_exec.count(), svf.num_bytes());
+    }
+
+    const std::vector<TestCaseErase> erase_test_cases = {
+            //        ^==|
+            //        |++|
+            {"Erase a block", {{8, 4}}, 8},
+    };
+
+    TestCount test_erase_all(t_test_results &results) {
+        TestCount count;
+        for (const auto& test_case: read_test_cases) {
+//        for (const auto& test_case: read_test_cases_special) {
+//            std::cout << "Testing: " << test_case.test_name() << std::endl;
+            auto result = test_case.run();
+            count.add_result(result.result());
+            results.push_back(result);
+        }
+        return count;
+    }
+
+
+    TestCaseEraseThrows::TestCaseEraseThrows(const std::string &m_test_name, const t_seek_read &m_writes,
+                                             t_fpos fpos, const std::string &message) : TestCaseErase(m_test_name,
+                                                                                                      m_writes, fpos),
+                                                                                        m_message(message) {}
+
+    // Create a SVF, run the read tests and report the result.
+    TestResult TestCaseEraseThrows::run() const {
+        SparseVirtualFile svf("", 0.0);
+
+        // Load the SVF
+        try {
+            load_writes(svf, test_data_bytes_512);
+        } catch (ExceptionSparseVirtualFile &err) {
+            return TestResult(__PRETTY_FUNCTION__, m_test_name, 1, err.message(), 0.0, 0);
+        }
+        // Run the test.
+        try {
+            svf.erase(m_fpos);
+            return TestResult(__PRETTY_FUNCTION__, m_test_name, 1, "Test failed to throw.", 0.0, 0);
+        } catch (ExceptionSparseVirtualFileRead & err) {
+            if (err.message() != m_message) {
+                std::ostringstream os;
+                os << "Error message \"" << err.message() << "\" expected \"" << m_message << "\"";
+                return TestResult(__PRETTY_FUNCTION__, m_test_name, 1, os.str(), 0.0, svf.num_bytes());
+            }
+        }
+        return TestResult(__PRETTY_FUNCTION__, m_test_name, 0, "", 0.0, svf.num_bytes());
+    }
+
+
+    const std::vector<TestCaseEraseThrows> erase_test_cases_throw = {
+            {"Erase empty SVF throws",      {},       8, "SparseVirtualFile::read(): Sparse virtual file is empty."},
+            //        ^==|
+            //  |++|
+            {"Erase before block throws",   {{8, 4}}, 2,
+                                                        "SparseVirtualFile::read(): Requested file position 2 precedes first block at 8"},
+            //        ^==|
+            //       |++|
+            {"Erase within a block throws", {{8, 4}}, 9,
+                                                        "SparseVirtualFile::read(): Requested file position 7 precedes first block at 8"},
+            //        ^==|
+            //             |++|
+            {"Erase beyond end throws",     {{8, 4}}, 12,
+                                                        "SparseVirtualFile::read(): Requested position 12 and length 4 overruns block at 8 of size 4"},
+    };
+
+
+    TestCount test_erase_throws_all(t_test_results &results) {
+        TestCount count;
+        for (const auto& test_case: erase_test_cases_throw) {
+//            std::cout << "Testing: " << test_case.test_name() << std::endl;
+            auto result = test_case.run();
+            count.add_result(result.result());
+            results.push_back(result);
+        }
+        return count;
+    }
+
+
+
+
 #ifdef SVF_THREAD_SAFE
     SparseVirtualFile g_svf_multithreaded("", 0.0);
 
@@ -882,6 +994,9 @@ namespace SVFS {
         // Need
         count += test_need_all(results);
         count += test_perf_need_sim_index(results);
+
+        count += test_erase_all(results);
+        count += test_erase_throws_all(results);
 #ifdef SVF_THREAD_SAFE
         count += test_write_multithreaded(results);
 #endif

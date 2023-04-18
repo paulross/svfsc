@@ -120,6 +120,32 @@ namespace SVFS {
         t_seek_read m_need;
     };
 
+    class TestCaseErase : public TestCaseABC {
+    public:
+        TestCaseErase(const std::string &m_test_name, const t_seek_read &m_writes, t_fpos fpos);
+
+        TestResult run() const override;
+
+        virtual ~TestCaseErase() = default;
+
+    protected:
+        t_fpos m_fpos;
+//        size_t m_len;
+    };
+
+    class TestCaseEraseThrows : public TestCaseErase {
+    public:
+        TestCaseEraseThrows(const std::string &m_test_name, const t_seek_read &m_writes,
+                           t_fpos fpos, const std::string &message);
+
+        TestResult run() const override;
+
+        virtual ~TestCaseEraseThrows() = default;
+
+    protected:
+        std::string m_message;
+    };
+
     TestCount test_svf_all(t_test_results &results);
 
 } // namespace SparseVirtualFileSystem
