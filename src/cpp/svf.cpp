@@ -42,7 +42,7 @@ namespace SVFS {
         if (m_svf.size() != 1 + size_before_insert) {
             std::ostringstream os;
             os << "SparseVirtualFile::write():";
-            os << "Unable to insert new block at " << fpos;
+            os << " Unable to insert new block at " << fpos;
             throw ExceptionSparseVirtualFileWrite(os.str());
         }
     }
@@ -197,7 +197,7 @@ namespace SVFS {
         if (m_svf.size() != 1 + size_before_insert) {
             std::ostringstream os;
             os << "SparseVirtualFile::write():";
-            os << "Unable to insert new block at " << fpos_start;
+            os << " Unable to insert new block at " << fpos_start;
             throw ExceptionSparseVirtualFileWrite(os.str());
         }
         assert(len == 0);
@@ -489,6 +489,21 @@ namespace SVFS {
         m_bytes_write = 0;
         m_bytes_read = 0;
         SVF_ASSERT(integrity() == ERROR_NONE);
+    }
+
+    void SparseVirtualFile::erase(t_fpos fpos) {
+        SVF_ASSERT(integrity() == ERROR_NONE);
+#ifdef SVF_THREAD_SAFE
+        std::lock_guard<std::mutex> mutex(m_mutex);
+#endif
+        auto iter = m_svf.find(fpos);
+        if (iter == m_svf.end()) {
+            std::ostringstream os;
+            os << "SparseVirtualFile::erase():";
+            os << " Non-existent file position " << fpos;
+            throw ExceptionSparseVirtualFile(os.str());
+        }
+        m_svf.erase(iter);
     }
 
     SparseVirtualFile::ERROR_CONDITION

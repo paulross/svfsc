@@ -101,9 +101,12 @@ namespace SVFS {
         t_seek_read need(t_fpos fpos, size_t len) const noexcept;
         // Implements the data deletion strategy.
         void clear() noexcept;
+        // Remove the block at the given file position which must be the start of the block.
+        // This will raise an ExceptionSparseVirtualFile if the file position is not the start of the block.
+        void erase(t_fpos fpos);
 
         // ---- Meta information about the SVF ----
-        // The existing blocks.
+        // The existing blocks as a list of (file_position, size) pairs.
         t_seek_read blocks() const noexcept;
         // Information about memory used:
         // size_of() gives best guess of total memory usage.

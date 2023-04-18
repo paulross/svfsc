@@ -24,7 +24,7 @@ namespace SVFS {
         try {
             bytes_written += load_writes(svf, test_data_bytes_512);
         } catch (ExceptionSparseVirtualFile &err) {
-            return TestResult(__FUNCTION__, m_test_name, 1, err.message(), 0.0, 0);
+            return TestResult(__PRETTY_FUNCTION__, m_test_name, 1, err.message(), 0.0, 0);
         }
         std::chrono::duration<double> time_exec = std::chrono::high_resolution_clock::now() - time_start;
 
@@ -38,7 +38,7 @@ namespace SVFS {
             std::ostringstream os;
             os << "Expected " << m_expected_blocks.size() << " blocks but got " << actual_blocks.size() << " blocks";
             err = os.str();
-            return TestResult(__FUNCTION__, m_test_name, result, err, time_exec.count(), svf.num_bytes());
+            return TestResult(__PRETTY_FUNCTION__, m_test_name, result, err, time_exec.count(), svf.num_bytes());
         } else {
             for (size_t i = 0; i < m_expected_blocks.size(); ++i) {
                 if (actual_blocks[i].first != m_expected_blocks[i].first) {
@@ -47,7 +47,7 @@ namespace SVFS {
                     os << "In block " << i << " expected fpos " << m_expected_blocks[i].first;
                     os << " but got " << actual_blocks[i].first << " (other blocks not tested)";
                     err = os.str();
-                    return TestResult(__FUNCTION__, m_test_name, result, err, time_exec.count(), svf.num_bytes());
+                    return TestResult(__PRETTY_FUNCTION__, m_test_name, result, err, time_exec.count(), svf.num_bytes());
                 }
                 if (actual_blocks[i].second != m_expected_blocks[i].second) {
                     result = 1;
@@ -55,7 +55,7 @@ namespace SVFS {
                     os << "In block " << i << " expected length " << m_expected_blocks[i].second;
                     os << " but got " << actual_blocks[i].second << " (other blocks not tested)";
                     err = os.str();
-                    return TestResult(__FUNCTION__, m_test_name, result, err, time_exec.count(), svf.num_bytes());
+                    return TestResult(__PRETTY_FUNCTION__, m_test_name, result, err, time_exec.count(), svf.num_bytes());
                 }
                 num_bytes += actual_blocks[i].second;
             }
@@ -67,7 +67,7 @@ namespace SVFS {
             std::ostringstream os;
             os << "Found svf.num_blocks() " << svf.num_blocks() << " but expected " << actual_blocks.size();
             err = os.str();
-            return TestResult(__FUNCTION__, m_test_name, result, err, time_exec.count(), svf.num_bytes());
+            return TestResult(__PRETTY_FUNCTION__, m_test_name, result, err, time_exec.count(), svf.num_bytes());
         }
         // Overall bytes
         if (svf.num_bytes() != num_bytes) {
@@ -75,7 +75,7 @@ namespace SVFS {
             std::ostringstream os;
             os << "Found svf.num_bytes() " << svf.num_bytes() << " but expected " << num_bytes;
             err = os.str();
-            return TestResult(__FUNCTION__, m_test_name, result, err, time_exec.count(), svf.num_bytes());
+            return TestResult(__PRETTY_FUNCTION__, m_test_name, result, err, time_exec.count(), svf.num_bytes());
         }
         // Write properties
         if (svf.count_write() != m_writes.size()) {
@@ -83,14 +83,14 @@ namespace SVFS {
             std::ostringstream os;
             os << "Found svf.count_write()" << svf.count_write() << " but expected " << m_writes.size();
             err = os.str();
-            return TestResult(__FUNCTION__, m_test_name, result, err, time_exec.count(), svf.num_bytes());
+            return TestResult(__PRETTY_FUNCTION__, m_test_name, result, err, time_exec.count(), svf.num_bytes());
         }
         if (svf.bytes_write() != bytes_written) {
             result = 1;
             std::ostringstream os;
             os << "Found svf.bytes_write() " << svf.bytes_write() << " but expected " << bytes_written;
             err = os.str();
-            return TestResult(__FUNCTION__, m_test_name, result, err, time_exec.count(), svf.num_bytes());
+            return TestResult(__PRETTY_FUNCTION__, m_test_name, result, err, time_exec.count(), svf.num_bytes());
         }
         // Read properties
         if (svf.count_read() != 0) {
@@ -98,16 +98,16 @@ namespace SVFS {
             std::ostringstream os;
             os << "Count of reads is " << svf.count_read() << " but should be 0";
             err = os.str();
-            return TestResult(__FUNCTION__, m_test_name, result, err, time_exec.count(), svf.num_bytes());
+            return TestResult(__PRETTY_FUNCTION__, m_test_name, result, err, time_exec.count(), svf.num_bytes());
         }
         if (svf.bytes_read() != 0) {
             result = 1;
             std::ostringstream os;
             os << "Count of read bytes is " << svf.bytes_read() << " but should be 0";
             err = os.str();
-            return TestResult(__FUNCTION__, m_test_name, result, err, time_exec.count(), svf.num_bytes());
+            return TestResult(__PRETTY_FUNCTION__, m_test_name, result, err, time_exec.count(), svf.num_bytes());
         }
-        return TestResult(__FUNCTION__, m_test_name, result, err, time_exec.count(), svf.num_bytes());
+        return TestResult(__PRETTY_FUNCTION__, m_test_name, result, err, time_exec.count(), svf.num_bytes());
     }
 
     const std::vector<TestCaseWrite> write_test_cases = {
@@ -242,15 +242,15 @@ namespace SVFS {
         try {
             load_writes(svf, test_data_bytes_512);
             svf.write(m_fpos, m_data, m_len);
-            return TestResult(__FUNCTION__, m_test_name, 1, "Write test failed to throw.", 0.0, 0);
+            return TestResult(__PRETTY_FUNCTION__, m_test_name, 1, "Write test failed to throw.", 0.0, 0);
         } catch (ExceptionSparseVirtualFileWrite &err) {
             if (err.message() != m_message) {
                 std::ostringstream os;
                 os << "Error message \"" << err.message() << "\" expected \"" << m_message << "\"";
-                return TestResult(__FUNCTION__, m_test_name, 1, os.str(), 0.0, svf.num_bytes());
+                return TestResult(__PRETTY_FUNCTION__, m_test_name, 1, os.str(), 0.0, svf.num_bytes());
             }
         }
-        return TestResult(__FUNCTION__, m_test_name, 0, "", 0.0, svf.num_bytes());
+        return TestResult(__PRETTY_FUNCTION__, m_test_name, 0, "", 0.0, svf.num_bytes());
     }
 
     const std::vector<TestCaseWriteThrows> write_test_cases_throws = {
@@ -284,7 +284,7 @@ namespace SVFS {
         }
 
         std::chrono::duration<double> time_exec = std::chrono::high_resolution_clock::now() - time_start;
-        auto result = TestResult(__FUNCTION__, "Overwrite with diff check", 0, "", time_exec.count(), svf.num_bytes());
+        auto result = TestResult(__PRETTY_FUNCTION__, "Overwrite with diff check", 0, "", time_exec.count(), svf.num_bytes());
         count.add_result(result.result());
         results.push_back(result);
         return count;
@@ -303,7 +303,7 @@ namespace SVFS {
         }
 
         std::chrono::duration<double> time_exec = std::chrono::high_resolution_clock::now() - time_start;
-        auto result = TestResult(__FUNCTION__, "Overwrite without diff check", 0, "", time_exec.count(), svf.num_bytes());
+        auto result = TestResult(__PRETTY_FUNCTION__, "Overwrite without diff check", 0, "", time_exec.count(), svf.num_bytes());
         count.add_result(result.result());
         results.push_back(result);
         return count;
@@ -328,7 +328,7 @@ namespace SVFS {
         }
 
         std::chrono::duration<double> time_exec = std::chrono::high_resolution_clock::now() - time_start;
-        auto result = TestResult(__FUNCTION__, "Sim low level index", 0, "", time_exec.count(), svf.num_bytes());
+        auto result = TestResult(__PRETTY_FUNCTION__, "Sim low level index", 0, "", time_exec.count(), svf.num_bytes());
         count.add_result(result.result());
         results.push_back(result);
         return count;
@@ -350,7 +350,7 @@ namespace SVFS {
 
             std::ostringstream os;
             os << "1Mb, " << std::setw(3) << block_size << " sized blocks, coalesced";
-            auto result =TestResult(__FUNCTION__, std::string(os.str()), 0, "", time_exec.count(), svf.num_bytes());
+            auto result =TestResult(__PRETTY_FUNCTION__, std::string(os.str()), 0, "", time_exec.count(), svf.num_bytes());
             count.add_result(result.result());
             results.push_back(result);
         }
@@ -374,7 +374,7 @@ namespace SVFS {
 
             std::ostringstream os;
             os << "1Mb, " << std::setw(3) << block_size << " sized blocks, uncoalesced";
-            auto result =TestResult(__FUNCTION__, std::string(os.str()), 0, "", time_exec.count(), svf.num_bytes());
+            auto result =TestResult(__PRETTY_FUNCTION__, std::string(os.str()), 0, "", time_exec.count(), svf.num_bytes());
             count.add_result(result.result());
             results.push_back(result);
         }
@@ -400,7 +400,7 @@ namespace SVFS {
 
             std::ostringstream os;
             os << "1Mb, " << std::setw(3) << block_size << " sized blocks";
-            auto result =TestResult(__FUNCTION__, std::string(os.str()), 0, "", time_exec.count(), svf.size_of());
+            auto result =TestResult(__PRETTY_FUNCTION__, std::string(os.str()), 0, "", time_exec.count(), svf.size_of());
             count.add_result(result.result());
             results.push_back(result);
         }
@@ -422,7 +422,7 @@ namespace SVFS {
         try {
             load_writes(svf, test_data_bytes_512);
         } catch (ExceptionSparseVirtualFile &err) {
-            return TestResult(__FUNCTION__, m_test_name, 1, err.message(), 0.0, 0);
+            return TestResult(__PRETTY_FUNCTION__, m_test_name, 1, err.message(), 0.0, 0);
         }
 
         // Analyse the results
@@ -435,7 +435,7 @@ namespace SVFS {
         try {
             svf.read(m_fpos, m_len, read_buffer);
         } catch (ExceptionSparseVirtualFileRead & err) {
-            return TestResult(__FUNCTION__, m_test_name, 1, err.message(), 0.0, 0);
+            return TestResult(__PRETTY_FUNCTION__, m_test_name, 1, err.message(), 0.0, 0);
         }
         std::chrono::duration<double> time_exec = std::chrono::high_resolution_clock::now() - time_start;
 
@@ -447,10 +447,10 @@ namespace SVFS {
                 os << "In position " << m_fpos + 1 << " expected fpos " << static_cast<int>(test_data_bytes_512[m_fpos + i]);
                 os << " but got " << static_cast<int>(read_buffer[i]) << " (other test_data_bytes_512 not tested)";
                 err = os.str();
-                return TestResult(__FUNCTION__, m_test_name, result, err, time_exec.count(), svf.num_bytes());
+                return TestResult(__PRETTY_FUNCTION__, m_test_name, result, err, time_exec.count(), svf.num_bytes());
             }
         }
-        return TestResult(__FUNCTION__, m_test_name, result, err, time_exec.count(), svf.num_bytes());
+        return TestResult(__PRETTY_FUNCTION__, m_test_name, result, err, time_exec.count(), svf.num_bytes());
     }
 
     const std::vector<TestCaseRead> read_test_cases = {
@@ -508,21 +508,21 @@ namespace SVFS {
         try {
             load_writes(svf, test_data_bytes_512);
         } catch (ExceptionSparseVirtualFile &err) {
-            return TestResult(__FUNCTION__, m_test_name, 1, err.message(), 0.0, 0);
+            return TestResult(__PRETTY_FUNCTION__, m_test_name, 1, err.message(), 0.0, 0);
         }
         // Run the test.
         char read_buffer[256];
         try {
             svf.read(m_fpos, m_len, read_buffer);
-            return TestResult(__FUNCTION__, m_test_name, 1, "Test failed to throw.", 0.0, 0);
+            return TestResult(__PRETTY_FUNCTION__, m_test_name, 1, "Test failed to throw.", 0.0, 0);
         } catch (ExceptionSparseVirtualFileRead & err) {
             if (err.message() != m_message) {
                 std::ostringstream os;
                 os << "Error message \"" << err.message() << "\" expected \"" << m_message << "\"";
-                return TestResult(__FUNCTION__, m_test_name, 1, os.str(), 0.0, svf.num_bytes());
+                return TestResult(__PRETTY_FUNCTION__, m_test_name, 1, os.str(), 0.0, svf.num_bytes());
             }
         }
-        return TestResult(__FUNCTION__, m_test_name, 0, "", 0.0, svf.num_bytes());
+        return TestResult(__PRETTY_FUNCTION__, m_test_name, 0, "", 0.0, svf.num_bytes());
     }
 
 
@@ -576,7 +576,7 @@ namespace SVFS {
         std::chrono::duration<double> time_exec = std::chrono::high_resolution_clock::now() - time_start;
 
         std::ostringstream os;
-        auto result =TestResult(__FUNCTION__, "1Mb of 256 bytes in one block", 0, "", time_exec.count(), svf.num_bytes());
+        auto result =TestResult(__PRETTY_FUNCTION__, "1Mb of 256 bytes in one block", 0, "", time_exec.count(), svf.num_bytes());
         count.add_result(result.result());
         results.push_back(result);
         return count;
@@ -596,7 +596,7 @@ namespace SVFS {
         try {
             load_writes(svf, test_data_bytes_512);
         } catch (ExceptionSparseVirtualFile &err) {
-            return TestResult(__FUNCTION__, m_test_name, 1, err.message(), 0.0, 0);
+            return TestResult(__PRETTY_FUNCTION__, m_test_name, 1, err.message(), 0.0, 0);
         }
 
         // Analyse the results
@@ -611,11 +611,11 @@ namespace SVFS {
             if (result_has != m_expected) {
                 std::ostringstream os;
                 os << "Expected has() in position " << m_fpos << " and length " << m_len;
-                return TestResult(__FUNCTION__, m_test_name, 1, os.str(), time_exec.count(), svf.num_bytes());
+                return TestResult(__PRETTY_FUNCTION__, m_test_name, 1, os.str(), time_exec.count(), svf.num_bytes());
             }
-            return TestResult(__FUNCTION__, m_test_name, 0, "", time_exec.count(), svf.num_bytes());
+            return TestResult(__PRETTY_FUNCTION__, m_test_name, 0, "", time_exec.count(), svf.num_bytes());
         } catch (ExceptionSparseVirtualFileRead & err) {
-            return TestResult(__FUNCTION__, m_test_name, 1, err.message(), 0.0, 0);
+            return TestResult(__PRETTY_FUNCTION__, m_test_name, 1, err.message(), 0.0, 0);
         }
     }
 
@@ -668,7 +668,7 @@ namespace SVFS {
         try {
             load_writes(svf, test_data_bytes_512);
         } catch (ExceptionSparseVirtualFile &err) {
-            return TestResult(__FUNCTION__, m_test_name, 1, err.message(), 0.0, 0);
+            return TestResult(__PRETTY_FUNCTION__, m_test_name, 1, err.message(), 0.0, 0);
         }
 
         // Analyse the results
@@ -681,17 +681,17 @@ namespace SVFS {
         if (need.size() != m_need.size()) {
             std::ostringstream os;
             os << "Found " << need.size() << " need pairs but expected " << m_need.size() << " need pairs";
-            return TestResult(__FUNCTION__, m_test_name, 1, os.str(), time_exec.count(), svf.num_bytes());
+            return TestResult(__PRETTY_FUNCTION__, m_test_name, 1, os.str(), time_exec.count(), svf.num_bytes());
         }
         for (size_t i = 0; i < need.size(); ++i) {
             if (need[i].first != m_need[i].first || need[i].second != m_need[i].second) {
                 std::ostringstream os;
                 os << "In position " << i << " expected fpos " << m_need[i].first << " and len " << m_need[i].second;
                 os << " but got fpos " << need[i].first << " and len " << need[i].second;
-                return TestResult(__FUNCTION__, m_test_name, 1, os.str(), time_exec.count(), svf.num_bytes());
+                return TestResult(__PRETTY_FUNCTION__, m_test_name, 1, os.str(), time_exec.count(), svf.num_bytes());
             }
         }
-        return TestResult(__FUNCTION__, m_test_name, 0, "", time_exec.count(), svf.num_bytes());
+        return TestResult(__PRETTY_FUNCTION__, m_test_name, 0, "", time_exec.count(), svf.num_bytes());
     }
 
     const std::vector<TestCaseNeed> need_test_cases = {
@@ -787,7 +787,7 @@ namespace SVFS {
         std::chrono::duration<double> time_exec = std::chrono::high_resolution_clock::now() - time_start;
         std::ostringstream os;
         os << "Sim need(" << need_size << ") on index [" << num_need_blocks << "]";
-        auto result = TestResult(__FUNCTION__, os.str(), 0, "", time_exec.count(), data_size);
+        auto result = TestResult(__PRETTY_FUNCTION__, os.str(), 0, "", time_exec.count(), data_size);
         count.add_result(result.result());
         results.push_back(result);
         return count;
@@ -845,7 +845,7 @@ namespace SVFS {
 
         std::ostringstream os;
         os << "Multi threaded write [" << num_threads << "]";
-        auto result = TestResult(__FUNCTION__, os.str(), 0, "", time_exec.count(), work_done);
+        auto result = TestResult(__PRETTY_FUNCTION__, os.str(), 0, "", time_exec.count(), work_done);
         count.add_result(result.result());
         results.push_back(result);
         return count;

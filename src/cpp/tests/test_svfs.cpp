@@ -35,7 +35,7 @@ namespace SVFS {
         os << "Sim SVFS:" << " vr=" << count_vr << " lr=" << count_lr;
 
         std::chrono::duration<double> time_exec = std::chrono::high_resolution_clock::now() - time_start;
-        auto result = TestResult(__FUNCTION__, os.str(), 0, "", time_exec.count(), svfs.at(id).num_bytes());
+        auto result = TestResult(__PRETTY_FUNCTION__, os.str(), 0, "", time_exec.count(), svfs.at(id).num_bytes());
         count.add_result(result.result());
         results.push_back(result);
         return count;
@@ -72,7 +72,7 @@ namespace SVFS {
 //        }
 //
 //        std::chrono::duration<double> time_exec = std::chrono::high_resolution_clock::now() - time_start;
-//        auto result = TestResult(__FUNCTION__, "Sim low level index on SVFS", 0, "", time_exec.count(), svfs.at(id).num_bytes());
+//        auto result = TestResult(__PRETTY_FUNCTION__, "Sim low level index on SVFS", 0, "", time_exec.count(), svfs.at(id).num_bytes());
 //        count.add_result(result.result());
 //        results.push_back(result);
         return count;
