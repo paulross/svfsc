@@ -49,6 +49,11 @@ namespace SVFS {
         explicit ExceptionSparseVirtualFileRead(const std::string &in_msg) : ExceptionSparseVirtualFile(in_msg) {}
     };
 
+    class ExceptionSparseVirtualFileErase : public ExceptionSparseVirtualFile {
+    public:
+        explicit ExceptionSparseVirtualFileErase(const std::string &in_msg) : ExceptionSparseVirtualFile(in_msg) {}
+    };
+
 //typedef fpos_t t_fpos;
     typedef size_t t_fpos;
     typedef std::vector<std::pair<t_fpos, size_t>> t_seek_read;

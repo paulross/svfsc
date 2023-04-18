@@ -841,7 +841,7 @@ namespace SVFS {
 
     TestCount test_erase_all(t_test_results &results) {
         TestCount count;
-        for (const auto& test_case: read_test_cases) {
+        for (const auto& test_case: erase_test_cases) {
 //        for (const auto& test_case: read_test_cases_special) {
 //            std::cout << "Testing: " << test_case.test_name() << std::endl;
             auto result = test_case.run();
@@ -871,7 +871,7 @@ namespace SVFS {
         try {
             svf.erase(m_fpos);
             return TestResult(__PRETTY_FUNCTION__, m_test_name, 1, "Test failed to throw.", 0.0, 0);
-        } catch (ExceptionSparseVirtualFileRead & err) {
+        } catch (ExceptionSparseVirtualFileErase & err) {
             if (err.message() != m_message) {
                 std::ostringstream os;
                 os << "Error message \"" << err.message() << "\" expected \"" << m_message << "\"";
@@ -883,19 +883,19 @@ namespace SVFS {
 
 
     const std::vector<TestCaseEraseThrows> erase_test_cases_throw = {
-            {"Erase empty SVF throws",      {},       8, "SparseVirtualFile::read(): Sparse virtual file is empty."},
+            {"Erase empty SVF throws",      {},       8, "SparseVirtualFile::erase(): Non-existent file position 8."},
             //        ^==|
             //  |++|
             {"Erase before block throws",   {{8, 4}}, 2,
-                                                        "SparseVirtualFile::read(): Requested file position 2 precedes first block at 8"},
+                                                        "SparseVirtualFile::erase(): Non-existent file position 2."},
             //        ^==|
             //       |++|
             {"Erase within a block throws", {{8, 4}}, 9,
-                                                        "SparseVirtualFile::read(): Requested file position 7 precedes first block at 8"},
+                                                        "SparseVirtualFile::erase(): Non-existent file position 9."},
             //        ^==|
             //             |++|
             {"Erase beyond end throws",     {{8, 4}}, 12,
-                                                        "SparseVirtualFile::read(): Requested position 12 and length 4 overruns block at 8 of size 4"},
+                                                        "SparseVirtualFile::erase(): Non-existent file position 12."},
     };
 
 
@@ -994,7 +994,7 @@ namespace SVFS {
         // Need
         count += test_need_all(results);
         count += test_perf_need_sim_index(results);
-
+        // erase
         count += test_erase_all(results);
         count += test_erase_throws_all(results);
 #ifdef SVF_THREAD_SAFE

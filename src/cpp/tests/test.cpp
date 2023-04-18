@@ -51,7 +51,7 @@ void write_test_results(const t_test_results &results, std::ostream &os) {
 
     // Header
     os << std::left;
-    os << std::setw(80) << "Function";
+    os << std::setw(75) << "Function";
     os << std::setw(40) << "Test";
     os << "----";
     os << std::right;
@@ -63,7 +63,7 @@ void write_test_results(const t_test_results &results, std::ostream &os) {
 
     for (const auto &result: results) {
         os << std::left;
-        os << std::setw(80) << result.function();
+        os << std::setw(75) << result.function();
         os << std::setw(40) << result.test();
         if (result.result() == 0) {
             os << "pass";

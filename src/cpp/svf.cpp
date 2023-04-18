@@ -500,8 +500,8 @@ namespace SVFS {
         if (iter == m_svf.end()) {
             std::ostringstream os;
             os << "SparseVirtualFile::erase():";
-            os << " Non-existent file position " << fpos;
-            throw ExceptionSparseVirtualFile(os.str());
+            os << " Non-existent file position " << fpos << ".";
+            throw ExceptionSparseVirtualFileErase(os.str());
         }
         m_svf.erase(iter);
     }
