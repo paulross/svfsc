@@ -15,6 +15,7 @@
 #endif
 
 #ifdef DEBUG
+// If set then SVF_ASSERT(integrity() == ERROR_NONE); in many places which can extend the runtime by x25 or even more
 #define SVF_ASSERT(x) assert(x)
 #else
 #define SVF_ASSERT(x)

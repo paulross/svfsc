@@ -32,7 +32,7 @@ if DEBUG:
 else:
     extra_compile_args.extend(['-O2', '-UDEBUG', '-DNDEBUG'])
 
-svfs = Extension(
+svfs_extension = Extension(
     "svfs",
     sources=[
         'src/cp/cSVFS.cpp',
@@ -74,7 +74,7 @@ test_requirements = [
 setup(
     name='svfs',
     version='0.1.0',
-    ext_modules=[svfs,],
+    ext_modules=[svfs_extension,],
     description="Sparse Virtual File System.",
     long_description=readme + '\n\n' + history,
     author="Paul Ross",
@@ -91,6 +91,9 @@ setup(
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.9',
+        'Programming Language :: Python :: 3.10',
+        'Programming Language :: Python :: 3.11',
     ],
     test_suite='tests',
     tests_require=test_requirements,
