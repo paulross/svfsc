@@ -54,10 +54,8 @@ namespace SVFS {
         explicit ExceptionSparseVirtualFileErase(const std::string &in_msg) : ExceptionSparseVirtualFile(in_msg) {}
     };
 
-//typedef fpos_t t_fpos;
     typedef size_t t_fpos;
     typedef std::vector<std::pair<t_fpos, size_t>> t_seek_read;
-
 
     typedef struct SparseVirtualFileConfig {
         // TODO: Implement coalesce strategies or abandon that as unnecessary.
@@ -93,7 +91,6 @@ namespace SVFS {
                 throw std::runtime_error("Coalesce strategy not yet implemented.");
             }
         }
-
         // ---- Read and write etc. ----
         // Do I have the data?
         bool has(t_fpos fpos, size_t len) const noexcept;
@@ -110,7 +107,6 @@ namespace SVFS {
         // This will raise an ExceptionSparseVirtualFile if the file position is not the start of the block.
         // Returns the length of the block erased.
         size_t erase(t_fpos fpos);
-
         // ---- Meta information about the SVF ----
         // The existing blocks as a list of (file_position, size) pairs.
         t_seek_read blocks() const noexcept;
@@ -129,7 +125,6 @@ namespace SVFS {
         bool file_mod_time_matches(const double &file_mod_time) const noexcept {
             return file_mod_time == m_file_mod_time;
         }
-
         // ---- Attribute access ----
         const std::string &id() const noexcept { return m_id; }
         double file_mod_time() const noexcept { return m_file_mod_time; }
@@ -140,11 +135,9 @@ namespace SVFS {
         // These can be cast to std::chrono::time_point<double>
         std::chrono::time_point<std::chrono::system_clock> time_write() const noexcept { return m_time_write; }
         std::chrono::time_point<std::chrono::system_clock> time_read() const noexcept { return m_time_read; }
-
         // Eliminate copying.
         SparseVirtualFile(const SparseVirtualFile &rhs) = delete;
         SparseVirtualFile operator=(const SparseVirtualFile &rhs) = delete;
-
 #ifdef SVF_THREAD_SAFE
         // Prohibit moving, the mutex has no move constructor.
         SparseVirtualFile(SparseVirtualFile &&other) = delete;
@@ -154,18 +147,11 @@ namespace SVFS {
         SparseVirtualFile(SparseVirtualFile &&other) = default;
         SparseVirtualFile& operator=(SparseVirtualFile &&rhs) = default;
 #endif
-        // dtor just calls clear()
         ~SparseVirtualFile() { clear(); }
     private:
         std::string m_id;
         double m_file_mod_time;
         tSparseVirtualFileConfig m_config;
-//        // TODO: Implement the coalesce strategy.
-//        // -1 Always coalesce
-//        // 0 Never coalesce
-//        // >0 Only coalesce if the result is < this value, say 2048 (bytes).
-//        int m_coalesce;
-//        bool m_overwrite;
         // Total number of bytes in this SVF
         size_t m_bytes_total = 0;
         // Access statistics
@@ -188,20 +174,14 @@ namespace SVFS {
     private:
         // Write data at file position without checks.
         void _write(t_fpos fpos, const char *data, size_t len);
-
         void _write_new_append_old(t_fpos fpos, const char *data, size_t len, t_map::iterator iter);
-
         void _write_append_new_to_old(t_fpos fpos, const char *data, size_t len, t_map::iterator base_iter);
-
+        // NOTE: This is const but read() is not as it updates metadata.
         void _read(t_fpos fpos, size_t len, char *p) const;
-
         void _throw_diff(t_fpos fpos, const char *data, t_map::const_iterator iter, size_t index_iter) const;
-
         // Does not use mutex or checks integrity
         t_fpos _last_file_position() const noexcept;
-
         t_fpos _last_file_pos_for_block(t_map::const_iterator iter) const noexcept;
-
         /* Check internal integrity. */
         enum ERROR_CONDITION {
             ERROR_NONE = 0,
@@ -210,7 +190,6 @@ namespace SVFS {
             ERROR_BLOCKS_OVERLAP,
             ERROR_BYTE_COUNT_MISMATCH,
         };
-
         ERROR_CONDITION integrity() const noexcept;
     };
 

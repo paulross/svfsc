@@ -80,6 +80,15 @@ namespace SVFS {
         return ret;
     }
 
+    std::vector<std::string> SparseVirtualFileSystem::keys() const noexcept {
+        std::vector<std::string> ret;
+        for(const auto &iter: m_svfs) {
+            ret.push_back(iter.first);
+        }
+        return ret;
+    }
+
+
     SparseVirtualFileSystem::~SparseVirtualFileSystem() noexcept {
         for (auto &iter: m_svfs) {
             iter.second.clear();

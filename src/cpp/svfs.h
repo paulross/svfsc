@@ -45,45 +45,26 @@ namespace SVFS {
     public:
         explicit SparseVirtualFileSystem(const tSparseVirtualFileConfig &config = tSparseVirtualFileConfig()) : \
             m_config(config) {}
-
+        // Insert a new SVF
         void insert(const std::string &id, double mod_time);
+        // Remove a specific SVF.
         void remove(const std::string &id);
-
         // May raise an ExceptionSparseVirtualFileSystemOutOfRange
         [[nodiscard]] const SparseVirtualFile &at(const std::string &id) const;
         // May raise an ExceptionSparseVirtualFileSystemOutOfRange
         SparseVirtualFile &at(const std::string &id);
-
-
         // Has an SVF
         [[nodiscard]] bool has(const std::string &id) const noexcept { return m_svfs.find(id) != m_svfs.end(); }
-//        // The SVF has data. This might raise an ExceptionSparseVirtualFileSystemOutOfRange if the id does not exist in
-//        // the SVFS.
-//        bool has(const std::string &id, t_fpos fpos, size_t len) const noexcept { return at(id).has(fpos, len); }
-//        // Write data to the underlying SVF. This might raise an ExceptionSparseVirtualFileSystemOutOfRange if the
-//        // id does not exist in the SVFS or anything that the SVF.write() raises such as
-//        // ExceptionSparseVirtualFile or children notably ExceptionSparseVirtualFileDiff.
-//        void write(const std::string &id, t_fpos fpos, const char *data, size_t len) { return at(id).write(fpos, data, len); }
-//        // Read data to the underlying SVF. This might raise an ExceptionSparseVirtualFileSystemOutOfRange if the
-//        // id does not exist in the SVFS or anything that the SVF.read() raises such as
-//        // ExceptionSparseVirtualFile or children notably ExceptionSparseVirtualFileRead.
-//        void read(const std::string &id, t_fpos fpos, size_t len, char *p) { return at(id).read(fpos, len, p); }
-//        t_seek_read
-//        need(const std::string &id, t_fpos fpos, size_t len) const noexcept { return at(id).need(fpos, len); }
-
+        // Number of SVFs
         [[nodiscard]] size_t size() const noexcept { return m_svfs.size(); }
+        // Total estimated memory usage.
         [[nodiscard]] size_t size_of() const noexcept;
+        // Total number of file bytes.
         [[nodiscard]] size_t num_bytes() const noexcept;
+        // Total number of file blocks.
         [[nodiscard]] size_t num_blocks() const noexcept;
-
-        [[nodiscard]] std::vector<std::string> keys()const noexcept {
-            std::vector<std::string> ret;
-            for(const auto &iter: m_svfs) {
-                ret.push_back(iter.first);
-            }
-            return ret;
-        }
-
+        // All the SVF IDs.
+        [[nodiscard]] std::vector<std::string> keys() const noexcept;
         // Eliminate copying.
         SparseVirtualFileSystem(const SparseVirtualFileSystem &rhs) = delete;
         SparseVirtualFileSystem operator=(const SparseVirtualFileSystem &rhs) = delete;
