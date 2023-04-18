@@ -237,6 +237,59 @@ def test_SVFS_num_bytes():
     assert s.num_bytes(ID) == 4
 
 
+def test_SVFS_erase():
+    s = svfs.cSVFS()
+    ID = 'abc'
+    s.insert(ID, 1.0)
+    s.write(ID, 0, b'    ')
+    assert s.num_bytes(ID) == 4
+    s.erase(ID, 0)
+    assert s.num_bytes(ID) == 0
+
+
+def test_SVFS_erase_total_size_of():
+    s = svfs.cSVFS()
+    ID = 'abc'
+    s.insert(ID, 1.0)
+    original_size = s.total_size_of()
+    s.write(ID, 0, b'    ')
+    assert s.total_size_of() > original_size
+    s.erase(ID, 0)
+    assert s.total_size_of() == original_size
+
+
+def test_SVFS_erase_total_bytes():
+    s = svfs.cSVFS()
+    ID = 'abc'
+    s.insert(ID, 1.0)
+    s.write(ID, 0, b'    ')
+    assert s.total_bytes() == 4
+    s.erase(ID, 0)
+    assert s.total_bytes() == 0
+
+
+def test_SVFS_erase_total_blocks():
+    s = svfs.cSVFS()
+    ID = 'abc'
+    s.insert(ID, 1.0)
+    s.write(ID, 0, b'    ')
+    assert s.total_blocks() == 1
+    s.erase(ID, 0)
+    assert s.total_blocks() == 0
+
+
+def test_SVFS_erase_raises():
+    s = svfs.cSVFS()
+    ID = 'abc'
+    s.insert(ID, 1.0)
+    with pytest.raises(IOError) as err:
+        s.erase(ID, 0)
+    assert err.value.args[0] == (
+        'cp_SparseVirtualFileSystem_svf_erase: Can not erase block from a SVF id= '
+        '"abc". ERROR: SparseVirtualFile::erase(): Non-existent file position 0.'
+    )
+
+
 def main():
     # test_simulate_write_coalesced(1)
     # test_simulate_write_coalesced(2)

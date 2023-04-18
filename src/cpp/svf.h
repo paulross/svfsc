@@ -108,11 +108,13 @@ namespace SVFS {
         void clear() noexcept;
         // Remove the block at the given file position which must be the start of the block.
         // This will raise an ExceptionSparseVirtualFile if the file position is not the start of the block.
-        void erase(t_fpos fpos);
+        // Returns the length of the block erased.
+        size_t erase(t_fpos fpos);
 
         // ---- Meta information about the SVF ----
         // The existing blocks as a list of (file_position, size) pairs.
         t_seek_read blocks() const noexcept;
+        size_t block_size(t_fpos fpos) const;
         // Information about memory used:
         // size_of() gives best guess of total memory usage.
         size_t size_of() const noexcept;

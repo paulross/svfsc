@@ -263,23 +263,23 @@ private_SparseVirtualFile_svf_read_as_py_bytes(cp_SparseVirtualFile *self, unsig
     // Create a bytes object
     PyObject * ret = PyBytes_FromStringAndSize(NULL, len);
     if (!ret) {
-        PyErr_Format(PyExc_RuntimeError, "%s()#d: Could not create bytes object.", __FUNCTION__, __LINE__);
+        PyErr_Format(PyExc_RuntimeError, "%s()#%d: Could not create bytes object.", __FUNCTION__, __LINE__);
         return NULL;
     }
     try {
         self->pSvf->read(fpos, len, PyBytes_AS_STRING(ret));
     } catch (const SVFS::ExceptionSparseVirtualFileRead &err) {
-        PyErr_Format(PyExc_IOError, "%s()#d: Can not read from a SVF. ERROR: %s",
+        PyErr_Format(PyExc_IOError, "%s()#%d: Can not read from a SVF. ERROR: %s",
                      __FUNCTION__, __LINE__, err.message().c_str());
         Py_DECREF(ret);
         return NULL;
     } catch (const SVFS::ExceptionSparseVirtualFile &err) {
-        PyErr_Format(PyExc_RuntimeError, "%s()#d: Fatal error reading from a SVF. ERROR: %s",
+        PyErr_Format(PyExc_RuntimeError, "%s()#%d: Fatal error reading from a SVF. ERROR: %s",
                      __FUNCTION__, __LINE__, err.message().c_str());
         Py_DECREF(ret);
         return NULL;
     } catch (const std::exception &err) {
-        PyErr_Format(PyExc_RuntimeError, "%s()#d: FATAL caught std::exception %s", __FUNCTION__, __LINE__,
+        PyErr_Format(PyExc_RuntimeError, "%s()#%d: FATAL caught std::exception %s", __FUNCTION__, __LINE__,
                      err.what());
         Py_DECREF(ret);
         return NULL;
@@ -313,6 +313,40 @@ cp_SparseVirtualFile_read(cp_SparseVirtualFile *self, PyObject *args, PyObject *
     ret = NULL;
     finally:
     return ret;
+}
+
+
+static const char *cp_SparseVirtualFile_erase_docstring = \
+"Erase the data from the Sparse Virtual File at the given file_position which must be the beginning of a block." \
+" This will raise an IOError if a block is not present at that file position." \
+" This will raise a RuntimeError if the data can not be read for any other reason";
+
+static PyObject *
+cp_SparseVirtualFile_erase(cp_SparseVirtualFile *self, PyObject *args, PyObject *kwargs) {
+    ASSERT_FUNCTION_ENTRY_SVF(pSvf);
+
+    unsigned long long fpos = 0;
+    static const char *kwlist[] = {"file_position", NULL};
+
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "K", (char **) kwlist, &fpos)) {
+        return NULL;
+    }
+    try {
+        self->pSvf->erase(fpos);
+    } catch (const SVFS::ExceptionSparseVirtualFileErase &err) {
+        PyErr_Format(PyExc_IOError, "%s()#%d: Can not erase from a SVF. ERROR: %s",
+                     __FUNCTION__, __LINE__, err.message().c_str());
+        return NULL;
+    } catch (const SVFS::ExceptionSparseVirtualFile &err) {
+        PyErr_Format(PyExc_RuntimeError, "%s()#%d: Fatal error reading from a SVF. ERROR: %s",
+                     __FUNCTION__, __LINE__, err.message().c_str());
+        return NULL;
+    } catch (const std::exception &err) {
+        PyErr_Format(PyExc_RuntimeError, "%s()#%d: FATAL caught std::exception %s", __FUNCTION__, __LINE__,
+                     err.what());
+        return NULL;
+    }
+    Py_RETURN_NONE;
 }
 
 static const char *cp_SparseVirtualFile_need_docstring = \
@@ -718,7 +752,7 @@ cp_SparseVirtualFile___setstate__(cp_SparseVirtualFile *self, PyObject *state) {
 //    Py_ssize_t pos = 0;
 
     if (!PyDict_CheckExact(state)) {
-        PyErr_Format(PyExc_ValueError, "%s()#d: Pickled object is not a dict.", __FUNCTION__, __LINE__);
+        PyErr_Format(PyExc_ValueError, "%s()#%d: Pickled object is not a dict.", __FUNCTION__, __LINE__);
         return NULL;
     }
     /* Version check. */
@@ -726,7 +760,7 @@ cp_SparseVirtualFile___setstate__(cp_SparseVirtualFile *self, PyObject *state) {
     PyObject * temp = PyDict_GetItemString(state, PICKLE_VERSION_KEY);
     if (temp == NULL) {
         /* PyDict_GetItemString does not set any error state so we have to. */
-        PyErr_Format(PyExc_KeyError, "%s()#d: No \"%s\" in pickled dict.", __FUNCTION__, __LINE__, PICKLE_VERSION_KEY);
+        PyErr_Format(PyExc_KeyError, "%s()#%d: No \"%s\" in pickled dict.", __FUNCTION__, __LINE__, PICKLE_VERSION_KEY);
         return NULL;
     }
     int pickle_version = (int) PyLong_AsLong(temp);
@@ -738,24 +772,24 @@ cp_SparseVirtualFile___setstate__(cp_SparseVirtualFile *self, PyObject *state) {
     /* Create a tuple to pass in as args.*/
     PyObject * id = PyDict_GetItemString(state, PICKLE_ID_KEY); /* Borrowed reference. */
     if (id == NULL) {
-        PyErr_Format(PyExc_KeyError, "%s()#d: No \"%s\" in pickled dict.", __FUNCTION__, __LINE__, PICKLE_ID_KEY);
+        PyErr_Format(PyExc_KeyError, "%s()#%d: No \"%s\" in pickled dict.", __FUNCTION__, __LINE__, PICKLE_ID_KEY);
         return NULL;
     }
     if (!PyUnicode_Check(id)) {
-        PyErr_Format(PyExc_TypeError, "%s()#d: \"%s\" is not string.", __FUNCTION__, __LINE__, PICKLE_ID_KEY);
+        PyErr_Format(PyExc_TypeError, "%s()#%d: \"%s\" is not string.", __FUNCTION__, __LINE__, PICKLE_ID_KEY);
         return NULL;
     }
     Py_INCREF(id);
     PyObject * file_mod_time = PyDict_GetItemString(state, PICKLE_FILE_MOD_TIME_KEY); /* Borrowed reference. */
     if (file_mod_time == NULL) {
         Py_DECREF(id);
-        PyErr_Format(PyExc_KeyError, "%s()#d: No \"%s\" in pickled dict.", __FUNCTION__,
+        PyErr_Format(PyExc_KeyError, "%s()#%d: No \"%s\" in pickled dict.", __FUNCTION__,
                      __LINE__, PICKLE_FILE_MOD_TIME_KEY);
         return NULL;
     }
     if (!PyFloat_Check(file_mod_time)) {
         Py_DECREF(id);
-        PyErr_Format(PyExc_TypeError, "%s()#d: \"%s\" is not a double.", __FUNCTION__,
+        PyErr_Format(PyExc_TypeError, "%s()#%d: \"%s\" is not a double.", __FUNCTION__,
                      __LINE__, PICKLE_FILE_MOD_TIME_KEY);
         return NULL;
     }
@@ -785,11 +819,11 @@ cp_SparseVirtualFile___setstate__(cp_SparseVirtualFile *self, PyObject *state) {
     /* Play back the blocks. */
     PyObject * blocks = PyDict_GetItemString(state, PICKLE_BLOCKS_KEY); /* Borrowed reference. */
     if (blocks == NULL) {
-        PyErr_Format(PyExc_KeyError, "%s()#d: No \"%s\" in pickled dict.", __FUNCTION__, __LINE__, PICKLE_BLOCKS_KEY);
+        PyErr_Format(PyExc_KeyError, "%s()#%d: No \"%s\" in pickled dict.", __FUNCTION__, __LINE__, PICKLE_BLOCKS_KEY);
         return NULL;
     }
     if (!PyTuple_Check(blocks)) {
-        PyErr_Format(PyExc_TypeError, "%s()#d: \"%s\" is not a tuple.", __FUNCTION__, __LINE__, PICKLE_BLOCKS_KEY);
+        PyErr_Format(PyExc_TypeError, "%s()#%d: \"%s\" is not a tuple.", __FUNCTION__, __LINE__, PICKLE_BLOCKS_KEY);
         return NULL;
     }
     Py_INCREF(blocks);
@@ -799,14 +833,14 @@ cp_SparseVirtualFile___setstate__(cp_SparseVirtualFile *self, PyObject *state) {
         unsigned long long fpos;
         PyObject * block_bytes = NULL; /* Borrowed reference. */
         if (!PyArg_ParseTuple(fpos_bytes, "KO", &fpos, &block_bytes)) {
-            PyErr_Format(PyExc_ValueError, "%s()#d: Can not parse block (fpos, bytes) tuple.", __FUNCTION__,
+            PyErr_Format(PyExc_ValueError, "%s()#%d: Can not parse block (fpos, bytes) tuple.", __FUNCTION__,
                          __LINE__, PICKLE_BLOCKS_KEY);
             Py_DECREF(fpos_bytes);
             return NULL;
         }
         Py_INCREF(block_bytes);
         if (!PyBytes_Check(block_bytes)) {
-            PyErr_Format(PyExc_TypeError, "%s()#d: Second item of \"%s\" is not a bytes object.", __FUNCTION__,
+            PyErr_Format(PyExc_TypeError, "%s()#%d: Second item of \"%s\" is not a bytes object.", __FUNCTION__,
                          __LINE__, PICKLE_BLOCKS_KEY);
             Py_DECREF(block_bytes);
             Py_DECREF(fpos_bytes);
@@ -862,6 +896,11 @@ static PyMethodDef cp_SparseVirtualFile_methods[] = {
                 "read", (PyCFunction) cp_SparseVirtualFile_read, METH_VARARGS |
                                                                  METH_KEYWORDS,
                 cp_SparseVirtualFile_read_docstring
+        },
+        {
+                "erase", (PyCFunction) cp_SparseVirtualFile_erase, METH_VARARGS |
+                                                                 METH_KEYWORDS,
+                cp_SparseVirtualFile_erase_docstring
         },
         {
                 "need", (PyCFunction) cp_SparseVirtualFile_need, METH_VARARGS |

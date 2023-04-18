@@ -174,6 +174,52 @@ def test_SVF_read(blocks, expected_blocks):
 
 
 @pytest.mark.parametrize(
+    'blocks, erase_fpos',
+    (
+            (
+                    ((12, b' '),),
+                    12,
+            ),
+
+    ),
+    ids=[
+        'Simple erase',
+    ],
+)
+def test_SVF_erase(blocks, erase_fpos):
+    s = svfs.cSVF('id', 1.0)
+    for fpos, data in blocks:
+        s.write(fpos, data)
+    assert s.has_data(erase_fpos, 1)
+    s.erase(erase_fpos)
+    assert not s.has_data(erase_fpos, 1)
+
+
+@pytest.mark.parametrize(
+    'blocks, erase_fpos, expected_message',
+    (
+            (
+                    ((12, b' '),),
+                    0,
+                    'cp_SparseVirtualFile_erase()#338: Can not erase from a SVF. ERROR:'
+                    ' SparseVirtualFile::erase(): Non-existent file position 0.',
+            ),
+
+    ),
+    ids=[
+        'Simple erase raises',
+    ],
+)
+def test_SVF_erase_raises(blocks, erase_fpos, expected_message):
+    s = svfs.cSVF('id', 1.0)
+    for fpos, data in blocks:
+        s.write(fpos, data)
+    with pytest.raises(IOError) as err:
+        s.erase(erase_fpos)
+    assert err.value.args[0] == expected_message
+
+
+@pytest.mark.parametrize(
     'blocks, expected_blocks',
     INSERT_FPOS_BYTES_EXPECTED_BLOCKS,
     ids=INSERT_FPOS_BYTES_EXPECTED_BLOCKS_IDS,
@@ -192,12 +238,45 @@ def test_SVF_need_nothing(blocks, expected_blocks):
     INSERT_FPOS_BYTES_EXPECTED_BLOCKS,
     ids=INSERT_FPOS_BYTES_EXPECTED_BLOCKS_IDS,
 )
-def test_SVF_need(blocks, expected_blocks):
+def test_SVF_need_all(blocks, expected_blocks):
     # Empty SVF, needs everything.
     s = svfs.cSVF('id', 1.0)
     for fpos, length in expected_blocks:
         assert s.need(fpos, length) == [(fpos, length)]
         assert s.need(file_position=fpos, length=length) == [(fpos, length)]
+
+
+@pytest.mark.parametrize(
+    'blocks, need_fpos, need_length, expected_need',
+    (
+            (
+                    (),
+                    0, 6,
+                    [(0, 6), ],
+            ),
+            (
+                    ((6, 12),),
+                    0, 6,
+                    [(0, 6), ],
+            ),
+            (
+                    ((6, 12), (20, 8),),
+                    0, 32,
+                    [(0, 6), (18, 2), (28, 4),],
+            ),
+    ),
+    ids=[
+        'Empty',
+        'One block, all up to it',
+        'Two blocks, all and beyond'
+    ],
+)
+def test_SVF_need(blocks, need_fpos, need_length, expected_need):
+    s = svfs.cSVF('id', 1.0)
+    for fpos, length in blocks:
+        s.write(fpos, b' ' * length)
+    result = s.need(need_fpos, need_length)
+    assert result == expected_need
 
 
 @pytest.mark.parametrize(
@@ -253,6 +332,7 @@ def test_SVF_pickle_dumps(blocks, expected_pickle_bytes):
     # pickletools.dis(result)
     # assert 0
     assert result == expected_pickle_bytes
+
 
 @pytest.mark.parametrize(
     'blocks, expected_blocks',

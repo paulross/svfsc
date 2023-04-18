@@ -451,6 +451,25 @@ namespace SVFS {
         return ret;
     }
 
+    size_t SparseVirtualFile::block_size(t_fpos fpos) const {
+#ifdef SVF_THREAD_SAFE
+        std::lock_guard<std::mutex> mutex(m_mutex);
+#endif
+        SVF_ASSERT(integrity() == ERROR_NONE);
+
+        if (m_svf.empty()) {
+            throw ExceptionSparseVirtualFileRead("SparseVirtualFile::read(): Sparse virtual file is empty.");
+        }
+        t_map::const_iterator iter = m_svf.find(fpos);
+        if (iter == m_svf.end()) {
+            std::ostringstream os;
+            os << "SparseVirtualFile::block_size():";
+            os << " Requested file position " << fpos << " is not a block";
+            throw ExceptionSparseVirtualFileRead(os.str());
+        }
+        return iter->second.size();
+    }
+
     size_t SparseVirtualFile::size_of() const noexcept {
         SVF_ASSERT(integrity() == ERROR_NONE);
 #ifdef SVF_THREAD_SAFE
@@ -491,7 +510,7 @@ namespace SVFS {
         SVF_ASSERT(integrity() == ERROR_NONE);
     }
 
-    void SparseVirtualFile::erase(t_fpos fpos) {
+    size_t SparseVirtualFile::erase(t_fpos fpos) {
         SVF_ASSERT(integrity() == ERROR_NONE);
 #ifdef SVF_THREAD_SAFE
         std::lock_guard<std::mutex> mutex(m_mutex);
@@ -503,7 +522,10 @@ namespace SVFS {
             os << " Non-existent file position " << fpos << ".";
             throw ExceptionSparseVirtualFileErase(os.str());
         }
+        size_t ret = iter->second.size();
+        m_bytes_total -= ret;
         m_svf.erase(iter);
+        return ret;
     }
 
     SparseVirtualFile::ERROR_CONDITION

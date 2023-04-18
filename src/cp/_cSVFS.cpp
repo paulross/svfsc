@@ -465,6 +465,62 @@ finally:
     return ret;
 }
 
+static const char *cp_SparseVirtualFileSystem_svf_erase_docstring = \
+"Erases the data block in the Sparse Virtual File at a file position." \
+" This takes a string as an id and a file_position." \
+" This will raise an IndexError if the Sparse Virtual File of that id does not exist." \
+" This will raise an IOError if there is not a block at the position." \
+" This will raise a RuntimeError if the data can not be read for any other reason";
+
+static PyObject *
+cp_SparseVirtualFileSystem_svf_erase(cp_SparseVirtualFileSystem *self, PyObject *args, PyObject *kwargs) {
+    ASSERT_FUNCTION_ENTRY_SVFS(p_svfs);
+
+    PyObject *ret = NULL;
+    char *c_id = NULL;
+    std::string cpp_id;
+    unsigned long long fpos = 0;
+    static const char *kwlist[] = { "id", "file_position", NULL};
+
+    if (! PyArg_ParseTupleAndKeywords(args, kwargs, "sK", (char **)kwlist, &c_id, &fpos)) {
+        goto except;
+    }
+    cpp_id = std::string(c_id);
+    try {
+        if (self->p_svfs->has(cpp_id)) {
+            SVFS::SparseVirtualFile &svf = self->p_svfs->at(cpp_id);
+            try {
+                svf.erase(fpos);
+            } catch (const SVFS::ExceptionSparseVirtualFileErase &err) {
+                PyErr_Format(PyExc_IOError, "%s: Can not erase block from a SVF id= \"%s\". ERROR: %s",
+                        __FUNCTION__, c_id, err.message().c_str());
+                goto except;
+            } catch (const SVFS::ExceptionSparseVirtualFile &err) {
+                PyErr_Format(PyExc_RuntimeError, "%s: Fatal error erasing from a SVF id= \"%s\". ERROR: %s",
+                        __FUNCTION__, c_id, err.message().c_str());
+                goto except;
+            }
+        } else {
+            PyErr_Format(PyExc_IndexError, "%s: No SVF ID \"%s\"", __FUNCTION__, c_id);
+            goto except;
+        }
+    } catch (const std::exception &err)  {
+        PyErr_Format(PyExc_RuntimeError, "%s: FATAL caught std::exception %s", __FUNCTION__, err.what());
+        goto except;
+    }
+    Py_INCREF(Py_None);
+    ret = Py_None;
+    assert(! PyErr_Occurred());
+    assert(ret);
+    goto finally;
+except:
+    assert(PyErr_Occurred());
+    Py_XDECREF(ret);
+    ret = NULL;
+finally:
+    return ret;
+}
+
 static const char *cp_SparseVirtualFileSystem_svf_need_docstring = \
 "Given a file_position and length this returns a ordered list [(file_position, length), ...] of seek/read" \
 " instructions of data that is required to be written to the Sparse Virtual File so that a subsequent read will succeed." \
@@ -989,6 +1045,10 @@ static PyMethodDef cp_SparseVirtualFileSystem_methods[] = {
     {
         "read", (PyCFunction) cp_SparseVirtualFileSystem_svf_read, METH_VARARGS | METH_KEYWORDS,
         cp_SparseVirtualFileSystem_svf_read_docstring
+    },
+    {
+        "erase", (PyCFunction) cp_SparseVirtualFileSystem_svf_erase, METH_VARARGS | METH_KEYWORDS,
+        cp_SparseVirtualFileSystem_svf_erase_docstring
     },
     {
         "need", (PyCFunction) cp_SparseVirtualFileSystem_svf_need, METH_VARARGS | METH_KEYWORDS,
