@@ -110,6 +110,7 @@ namespace SVFS {
         return TestResult(__PRETTY_FUNCTION__, m_test_name, result, err, time_exec.count(), svf.num_bytes());
     }
 
+    /* This will raise an uncaught ExceptionTestConfiguration if miss configured. */
     const std::vector<TestCaseWrite> write_test_cases = {
 #if  0
         /* Special case with error found in RaPiVot tiff_dump.py when using a SVF:

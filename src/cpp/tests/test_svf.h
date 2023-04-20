@@ -6,6 +6,8 @@
 #define CPPSVF_TEST_SVF_H
 
 #include <string>
+#include <sstream>
+
 #include "svf.h"
 #include "test.h"
 
@@ -23,7 +25,19 @@ namespace SVFS {
             for (const auto &write_test: m_writes) {
                 /* We limit ourselves to only half the 512 byte data and then a further offset of 256 maximum. */
                 assert(write_test.first < 256);
+                if (write_test.first >= 256) {
+                    std::ostringstream os;
+                    os << "Test file position " << write_test.first;
+                    os << " >= 256";
+                    throw ExceptionTestConfiguration(os.str());
+                }
                 assert(write_test.first + write_test.second < 256);
+                if (write_test.first + write_test.second >= 256) {
+                    std::ostringstream os;
+                    os << "Test file position + size " << write_test.first;
+                    os << " >= 256";
+                    throw ExceptionTestConfiguration(os.str());
+                }
                 svf.write(write_test.first, data + write_test.first, write_test.second);
                 bytes_written += write_test.second;
             }
