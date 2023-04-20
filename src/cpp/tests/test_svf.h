@@ -21,6 +21,7 @@ namespace SVFS {
         size_t load_writes(SparseVirtualFile &svf, const char *data) const {
             size_t bytes_written = 0;
             for (const auto &write_test: m_writes) {
+                /* We limit ourselves to only half the 512 byte data and then a further offset of 256 maximum. */
                 assert(write_test.first < 256);
                 assert(write_test.first + write_test.second < 256);
                 svf.write(write_test.first, data + write_test.first, write_test.second);
