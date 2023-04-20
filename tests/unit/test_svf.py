@@ -279,6 +279,31 @@ def test_SVF_need(blocks, need_fpos, need_length, expected_need):
     assert result == expected_need
 
 
+def test_SVF_need_write_special():
+    """Special case with error found in RaPiVot tiff_dump.py when using a SVF:
+
+    TRACE: Needs: [(3102, 12)] blocks were ((0, 8), (3028, 74), (3214, 19)):
+    TRACE: Needs: block was (0, 8, 8) (77, 77, 0, 42, 0, 0, 11, 212)
+    TRACE: Needs: block was (3028, 74, 3102) (0, 15, 1, 0, 0, 3, 0, 0, 0, 1, 0, 157, 0, 0, 1, 1, 0, 3, 0, 0, 0, 1, 0, 151, 0, 0, 1, 2, 0, 3, 0, 0, 0, 1, 0, 1, 0, 0, 1, 3, 0, 3, 0, 0, 0, 1, 0, 1, 0, 0, 1, 6, 0, 3, 0, 0, 0, 1, 0, 3, 0, 0, 1, 13, 0, 2, 0, 0, 0, 19, 0, 0, 12, 142)
+    TRACE: Needs: block was (3214, 19, 3233) (112, 97, 108, 101, 116, 116, 101, 45, 49, 99, 45, 49, 98, 46, 116, 105, 102, 102, 0)
+    TRACE: Needs: Write: 3102 12 (3114) (1, 17, 0, 4, 0, 0, 0, 1, 0, 0, 0, 8)
+    TRACE: Needs: [(3102, 12)] blocks now ((0, 8), (3028, 105)):
+    TRACE: Needs: block now (0, 8, 8) (77, 77, 0, 42, 0, 0, 11, 212)
+    TRACE: Needs: block now (3028, 105, 3133) (0, 15, 1, 0, 0, 3, 0, 0, 0, 1, 0, 157, 0, 0, 1, 1, 0, 3, 0, 0, 0, 1, 0, 151, 0, 0, 1, 2, 0, 3, 0, 0, 0, 1, 0, 1, 0, 0, 1, 3, 0, 3, 0, 0, 0, 1, 0, 1, 0, 0, 1, 6, 0, 3, 0, 0, 0, 1, 0, 3, 0, 0, 1, 13, 0, 2, 0, 0, 0, 19, 0, 0, 12, 142, 1, 17, 0, 4, 0, 0, 0, 1, 0, 0, 0, 8, 112, 97, 108, 101, 116, 116, 101, 45, 49, 99, 45, 49, 98, 46, 116, 105, 102, 102, 0)
+    """
+    svf = svfs.cSVF('id', 1.0)
+    svf.write(0, b'A' * 8)
+    svf.write(3028, b'B' * 74)
+    svf.write(3214, b'C' * 19)
+    assert svf.blocks() == ((0, 8), (3028, 74), (3214, 19))
+    # This should not coalesce the last two blocks as 3102 + 12 = 3114 which is less than 3214
+    # It should extend the second block as 3028 + 74 = 3102
+    svf.write(3102, b'D' * 12)
+    # 3028 + 86 = 3114
+    assert svf.blocks() == ((0, 8), (3028, 86), (3214, 19))
+
+
+
 @pytest.mark.parametrize(
     'blocks, expected_pickle_bytes',
     (
