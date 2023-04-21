@@ -226,7 +226,6 @@ def test_sim_write_index(vr_count, lr_count):
     assert file_system.count_write(ID) == count_write
     assert file_system.bytes_write(ID) == bytes_write
     assert file_system.count_write(ID) == vr_count * lr_count + vr_count
-    return file_system.count_write(ID)
 
 
 def test_SVFS_num_bytes():
