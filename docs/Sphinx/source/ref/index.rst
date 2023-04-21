@@ -7,5 +7,4 @@ svfs's API Reference
    :maxdepth: 2
    :caption: Contents:
 
-   pSVF.rst
-   pSVFS.rst
+   svfs.rst

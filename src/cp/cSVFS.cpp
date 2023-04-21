@@ -20,10 +20,11 @@ static PyModuleDef svfsmodule = {
         " The original file is identified by a string ID."
         " Data can be written to an SVF, if the data differs from that existing an error will be raised."
         " Data can be read from an SVF, if the SVF does not have the data an error will be raised."
-        " Before any read() the SVF can describe what, if any, data is missing and the user can obtain and write that"
+        " Before any ``read()`` the SVF can describe what, if any, data is missing and the user can obtain and write that"
         " data to the SVF before reading."
-        "\n"
-        "A Sparse Virtual File System is an extension of that concept where a file ID (string) is the key to the appropriate SVF.",
+        "\n\n"
+        "A Sparse Virtual File System (SVFS) is an extension of that concept where a file ID (string) is the key to the"
+        " appropriate SVF.",
         .m_size = -1,
 };
 

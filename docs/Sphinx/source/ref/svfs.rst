@@ -1,8 +1,8 @@
 
-svfs.cSVF
----------
+Module svfs
+------------
 
-.. automodule:: svfs.cSVF
+.. automodule:: svfs
    :members:
    :undoc-members:
    :private-members:

@@ -39,9 +39,8 @@ typedef struct {
 #pragma mark Construction and destruction
 
 static PyObject *
-cp_SparseVirtualFileSystem_new(PyTypeObject *type, PyObject *Py_UNUSED(args), PyObject *Py_UNUSED(kwds))
-{
-    assert(! PyErr_Occurred());
+cp_SparseVirtualFileSystem_new(PyTypeObject *type, PyObject *Py_UNUSED(args), PyObject *Py_UNUSED(kwds)) {
+    assert(!PyErr_Occurred());
     cp_SparseVirtualFileSystem *self;
     self = (cp_SparseVirtualFileSystem *) type->tp_alloc(type, 0);
     if (self != NULL) {
@@ -49,33 +48,31 @@ cp_SparseVirtualFileSystem_new(PyTypeObject *type, PyObject *Py_UNUSED(args), Py
     }
 //    PyObject_Print((PyObject *)self, stdout);
 //    fprintf(stdout, "cp_SparseVirtualFileSystem_new() self %p\n", (void *)self);
-    assert(! PyErr_Occurred());
+    assert(!PyErr_Occurred());
     return (PyObject *) self;
 }
 
 static int
-cp_SparseVirtualFileSystem_init(cp_SparseVirtualFileSystem *self, PyObject *args, PyObject *kwds)
-{
-    assert(! PyErr_Occurred());
+cp_SparseVirtualFileSystem_init(cp_SparseVirtualFileSystem *self, PyObject *args, PyObject *kwds) {
+    assert(!PyErr_Occurred());
     static const char *kwlist[] = {"overwrite", NULL};
 //    int coalesce = -1; // Not implemented.
     int overwrite = 0;
 
 //    fprintf(stdout, "cp_SparseVirtualFileSystem_init() self %p\n", (void *)self);
     // Parse args/kwargs for coalesce (int), overwrite(bool)
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|p", const_cast<char**>(kwlist), &overwrite)) {
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "|p", const_cast<char **>(kwlist), &overwrite)) {
         assert(PyErr_Occurred());
         return -1;
     }
     self->p_svfs = new SVFS::SparseVirtualFileSystem();
 //    fprintf(stdout, "cp_SparseVirtualFileSystem_init() self->p_svfs %p\n", (void *)self->p_svfs);
-    assert(! PyErr_Occurred());
+    assert(!PyErr_Occurred());
     return 0;
 }
 
 static void
-cp_SparseVirtualFileSystem_dealloc(cp_SparseVirtualFileSystem *self)
-{
+cp_SparseVirtualFileSystem_dealloc(cp_SparseVirtualFileSystem *self) {
     delete self->p_svfs;
     Py_TYPE(self)->tp_free((PyObject *) self);
 }
@@ -103,10 +100,10 @@ cp_SparseVirtualFileSystem_keys(cp_SparseVirtualFileSystem *self) {
     ASSERT_FUNCTION_ENTRY_SVFS(p_svfs);
 
     Py_ssize_t index = 0;
-    PyObject *key = NULL;
+    PyObject * key = NULL;
     // All items set to NULL on construction.
-    PyObject *ret = PyList_New(self->p_svfs->size());
-    if (! ret) {
+    PyObject * ret = PyList_New(self->p_svfs->size());
+    if (!ret) {
         PyErr_Format(PyExc_RuntimeError, "%s: Can create list of size %d", __FUNCTION__, self->p_svfs->size());
         goto except;
     }
@@ -122,23 +119,23 @@ cp_SparseVirtualFileSystem_keys(cp_SparseVirtualFileSystem *self) {
             key = NULL; // Safety habit with stolen reference.
             ++index;
         }
-    } catch (const std::exception &err)  {
+    } catch (const std::exception &err) {
         PyErr_Format(PyExc_RuntimeError, "%s: FATAL caught std::exception %s", __FUNCTION__, err.what());
         goto except;
     }
-    assert(! PyErr_Occurred());
+    assert(!PyErr_Occurred());
     assert(ret);
     goto finally;
-except:
+    except:
     assert(PyErr_Occurred());
     if (ret) {
-        for(Py_ssize_t i = 0; i < PyList_Size(ret); ++i) {
+        for (Py_ssize_t i = 0; i < PyList_Size(ret); ++i) {
             Py_XDECREF(PyList_GET_ITEM(ret, i));
         }
     }
     Py_XDECREF(ret);
     ret = NULL;
-finally:
+    finally:
     return ret;
 }
 
@@ -149,12 +146,12 @@ static PyObject *
 cp_SparseVirtualFileSystem_insert(cp_SparseVirtualFileSystem *self, PyObject *args, PyObject *kwargs) {
     ASSERT_FUNCTION_ENTRY_SVFS(p_svfs);
 
-    PyObject *ret = NULL;
+    PyObject * ret = NULL;
     char *c_id = NULL;
     double mod_time;
-    static const char *kwlist[] = { "id", "mod_time", NULL};
+    static const char *kwlist[] = {"id", "mod_time", NULL};
 
-    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "sd", (char **)kwlist, &c_id, &mod_time)) {
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "sd", (char **) kwlist, &c_id, &mod_time)) {
         goto except;
     }
     try {
@@ -163,22 +160,22 @@ cp_SparseVirtualFileSystem_insert(cp_SparseVirtualFileSystem *self, PyObject *ar
         PyErr_Format(
                 PyExc_RuntimeError, "%s: Can not insert a new Sparse Virtual File ID = \"%s\". ERROR: %s",
                 __FUNCTION__, c_id, err.message().c_str()
-                );
+        );
         goto except;
-    } catch (const std::exception &err)  {
+    } catch (const std::exception &err) {
         PyErr_Format(PyExc_RuntimeError, "%s: FATAL caught std::exception %s", __FUNCTION__, err.what());
         goto except;
     }
     Py_INCREF(Py_None);
     ret = Py_None;
-    assert(! PyErr_Occurred());
+    assert(!PyErr_Occurred());
     assert(ret);
     goto finally;
-except:
+    except:
     assert(PyErr_Occurred());
     Py_XDECREF(ret);
     ret = NULL;
-finally:
+    finally:
     return ret;
 }
 
@@ -189,34 +186,34 @@ static PyObject *
 cp_SparseVirtualFileSystem_remove(cp_SparseVirtualFileSystem *self, PyObject *args, PyObject *kwargs) {
     ASSERT_FUNCTION_ENTRY_SVFS(p_svfs);
 
-    PyObject *ret = NULL;
+    PyObject * ret = NULL;
     char *c_id = NULL;
-    static const char *kwlist[] = { "id", NULL};
+    static const char *kwlist[] = {"id", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwargs, "s", (char **)kwlist, &c_id)) {
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "s", (char **) kwlist, &c_id)) {
         goto except;
     }
     try {
         self->p_svfs->remove(c_id);
     } catch (const SVFS::ExceptionSparseVirtualFileSystemRemove &err) {
         PyErr_Format(PyExc_IndexError, "%s: Can not remove a Sparse Virtual File. ERROR: %s",
-                __FUNCTION__, err.message().c_str()
+                     __FUNCTION__, err.message().c_str()
         );
         goto except;
-    } catch (const std::exception &err)  {
+    } catch (const std::exception &err) {
         PyErr_Format(PyExc_RuntimeError, "%s: FATAL caught std::exception %s", __FUNCTION__, err.what());
         goto except;
     }
     Py_INCREF(Py_None);
     ret = Py_None;
-    assert(! PyErr_Occurred());
+    assert(!PyErr_Occurred());
     assert(ret);
     goto finally;
-except:
+    except:
     assert(PyErr_Occurred());
     Py_XDECREF(ret);
     ret = NULL;
-finally:
+    finally:
     return ret;
 }
 
@@ -227,11 +224,11 @@ static PyObject *
 cp_SparseVirtualFileSystem_has(cp_SparseVirtualFileSystem *self, PyObject *args, PyObject *kwargs) {
     ASSERT_FUNCTION_ENTRY_SVFS(p_svfs);
 
-    PyObject *ret = NULL;
+    PyObject * ret = NULL;
     char *c_id = NULL;
-    static const char *kwlist[] = { "id", NULL};
+    static const char *kwlist[] = {"id", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwargs, "s", (char **)kwlist, &c_id)) {
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "s", (char **) kwlist, &c_id)) {
         goto except;
     }
     try {
@@ -242,18 +239,18 @@ cp_SparseVirtualFileSystem_has(cp_SparseVirtualFileSystem *self, PyObject *args,
             Py_INCREF(Py_False);
             ret = Py_False;
         }
-    } catch (const std::exception &err)  {
+    } catch (const std::exception &err) {
         PyErr_Format(PyExc_RuntimeError, "%s: FATAL caught std::exception %s", __FUNCTION__, err.what());
         goto except;
     }
-    assert(! PyErr_Occurred());
+    assert(!PyErr_Occurred());
     assert(ret);
     goto finally;
-except:
+    except:
     assert(PyErr_Occurred());
     Py_XDECREF(ret);
     ret = NULL;
-finally:
+    finally:
     return ret;
 }
 
@@ -265,7 +262,7 @@ cp_SparseVirtualFileSystem_total_size_of(cp_SparseVirtualFileSystem *self) {
     ASSERT_FUNCTION_ENTRY_SVFS(p_svfs);
     try {
         return PyLong_FromLong(self->p_svfs->size_of());
-    } catch (const std::exception &err)  {
+    } catch (const std::exception &err) {
         PyErr_Format(PyExc_RuntimeError, "%s: FATAL caught std::exception %s", __FUNCTION__, err.what());
         return NULL;
     }
@@ -278,8 +275,8 @@ static PyObject *
 cp_SparseVirtualFileSystem_total_bytes(cp_SparseVirtualFileSystem *self) {
     ASSERT_FUNCTION_ENTRY_SVFS(p_svfs);
     try {
-    return PyLong_FromLong(self->p_svfs->num_bytes());
-    } catch (const std::exception &err)  {
+        return PyLong_FromLong(self->p_svfs->num_bytes());
+    } catch (const std::exception &err) {
         PyErr_Format(PyExc_RuntimeError, "%s: FATAL caught std::exception %s", __FUNCTION__, err.what());
         return NULL;
     }
@@ -293,7 +290,7 @@ cp_SparseVirtualFileSystem_total_blocks(cp_SparseVirtualFileSystem *self) {
     ASSERT_FUNCTION_ENTRY_SVFS(p_svfs);
     try {
         return PyLong_FromLong(self->p_svfs->num_blocks());
-    } catch (const std::exception &err)  {
+    } catch (const std::exception &err) {
         PyErr_Format(PyExc_RuntimeError, "%s: FATAL caught std::exception %s", __FUNCTION__, err.what());
         return NULL;
     }
@@ -309,14 +306,14 @@ static PyObject *
 cp_SparseVirtualFileSystem_svf_has_data(cp_SparseVirtualFileSystem *self, PyObject *args, PyObject *kwargs) {
     ASSERT_FUNCTION_ENTRY_SVFS(p_svfs);
 
-    PyObject *ret = NULL;
+    PyObject * ret = NULL;
     char *c_id = NULL;
     std::string cpp_id;
     unsigned long long fpos = 0;
     unsigned long long len = 0;
-    static const char *kwlist[] = { "id", "file_position", "length", NULL};
+    static const char *kwlist[] = {"id", "file_position", "length", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwargs, "sKK", (char **)kwlist, &c_id, &fpos, &len)) {
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "sKK", (char **) kwlist, &c_id, &fpos, &len)) {
         goto except;
     }
     cpp_id = std::string(c_id);
@@ -330,7 +327,7 @@ cp_SparseVirtualFileSystem_svf_has_data(cp_SparseVirtualFileSystem *self, PyObje
                 Py_INCREF(Py_False);
                 ret = Py_False;
             }
-        } catch (const std::exception &err)  {
+        } catch (const std::exception &err) {
             PyErr_Format(PyExc_RuntimeError, "%s: FATAL caught std::exception %s", __FUNCTION__, err.what());
             goto except;
         }
@@ -338,14 +335,14 @@ cp_SparseVirtualFileSystem_svf_has_data(cp_SparseVirtualFileSystem *self, PyObje
         PyErr_Format(PyExc_IndexError, "%s: No SVF ID \"%s\"", __FUNCTION__, c_id);
         goto except;
     }
-    assert(! PyErr_Occurred());
+    assert(!PyErr_Occurred());
     assert(ret);
     goto finally;
-except:
+    except:
     assert(PyErr_Occurred());
     Py_XDECREF(ret);
     ret = NULL;
-finally:
+    finally:
     return ret;
 }
 
@@ -361,14 +358,14 @@ static PyObject *
 cp_SparseVirtualFileSystem_svf_write(cp_SparseVirtualFileSystem *self, PyObject *args, PyObject *kwargs) {
     ASSERT_FUNCTION_ENTRY_SVFS(p_svfs);
 
-    PyObject *ret = NULL;
+    PyObject * ret = NULL;
     char *c_id = NULL;
     std::string cpp_id;
     unsigned long long fpos = 0;
-    PyObject *py_bytes_data = NULL;
-    static const char *kwlist[] = { "id", "file_position", "data", NULL};
+    PyObject * py_bytes_data = NULL;
+    static const char *kwlist[] = {"id", "file_position", "data", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwargs, "sKS", (char **)kwlist, &c_id, &fpos, &py_bytes_data)) {
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "sKS", (char **) kwlist, &c_id, &fpos, &py_bytes_data)) {
         goto except;
     }
     cpp_id = std::string(c_id);
@@ -379,32 +376,32 @@ cp_SparseVirtualFileSystem_svf_write(cp_SparseVirtualFileSystem *self, PyObject 
                 svf.write(fpos, PyBytes_AS_STRING(py_bytes_data), PyBytes_Size(py_bytes_data));
             } catch (const SVFS::ExceptionSparseVirtualFileDiff &err) {
                 PyErr_Format(PyExc_IOError,
-                    "%s: Can not write to a SVF id = \"%s\" as the given data is different from what is there. ERROR: %s",
-                    __FUNCTION__, c_id, err.message().c_str());
+                             "%s: Can not write to a SVF id = \"%s\" as the given data is different from what is there. ERROR: %s",
+                             __FUNCTION__, c_id, err.message().c_str());
                 goto except;
             } catch (const SVFS::ExceptionSparseVirtualFile &err) {
                 PyErr_Format(PyExc_RuntimeError, "%s: Can not write to a SVF id = \"%s\". ERROR: %s",
-                        __FUNCTION__, c_id, err.message().c_str());
+                             __FUNCTION__, c_id, err.message().c_str());
                 goto except;
             }
         } else {
             PyErr_Format(PyExc_IndexError, "%s: No SVF ID \"%s\"", __FUNCTION__, c_id);
             goto except;
         }
-    } catch (const std::exception &err)  {
+    } catch (const std::exception &err) {
         PyErr_Format(PyExc_RuntimeError, "%s: FATAL caught std::exception %s", __FUNCTION__, err.what());
         goto except;
     }
     Py_INCREF(Py_None);
     ret = Py_None;
-    assert(! PyErr_Occurred());
+    assert(!PyErr_Occurred());
     assert(ret);
     goto finally;
-except:
+    except:
     assert(PyErr_Occurred());
     Py_XDECREF(ret);
     ret = NULL;
-finally:
+    finally:
     return ret;
 }
 
@@ -419,14 +416,14 @@ static PyObject *
 cp_SparseVirtualFileSystem_svf_read(cp_SparseVirtualFileSystem *self, PyObject *args, PyObject *kwargs) {
     ASSERT_FUNCTION_ENTRY_SVFS(p_svfs);
 
-    PyObject *ret = NULL;
+    PyObject * ret = NULL;
     char *c_id = NULL;
     std::string cpp_id;
     unsigned long long fpos = 0;
     unsigned long long len = 0;
-    static const char *kwlist[] = { "id", "file_position", "length", NULL};
+    static const char *kwlist[] = {"id", "file_position", "length", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwargs, "sKK", (char **)kwlist, &c_id, &fpos, &len)) {
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "sKK", (char **) kwlist, &c_id, &fpos, &len)) {
         goto except;
     }
     cpp_id = std::string(c_id);
@@ -439,29 +436,29 @@ cp_SparseVirtualFileSystem_svf_read(cp_SparseVirtualFileSystem *self, PyObject *
                 svf.read(fpos, len, PyBytes_AS_STRING(ret));
             } catch (const SVFS::ExceptionSparseVirtualFileRead &err) {
                 PyErr_Format(PyExc_IOError, "%s: Can not read from a SVF id= \"%s\". ERROR: %s",
-                        __FUNCTION__, c_id, err.message().c_str());
+                             __FUNCTION__, c_id, err.message().c_str());
                 goto except;
             } catch (const SVFS::ExceptionSparseVirtualFile &err) {
                 PyErr_Format(PyExc_RuntimeError, "%s: Fatal error reading from a SVF id= \"%s\". ERROR: %s",
-                        __FUNCTION__, c_id, err.message().c_str());
+                             __FUNCTION__, c_id, err.message().c_str());
                 goto except;
             }
         } else {
             PyErr_Format(PyExc_IndexError, "%s: No SVF ID \"%s\"", __FUNCTION__, c_id);
             goto except;
         }
-    } catch (const std::exception &err)  {
+    } catch (const std::exception &err) {
         PyErr_Format(PyExc_RuntimeError, "%s: FATAL caught std::exception %s", __FUNCTION__, err.what());
         goto except;
     }
-    assert(! PyErr_Occurred());
+    assert(!PyErr_Occurred());
     assert(ret);
     goto finally;
-except:
+    except:
     assert(PyErr_Occurred());
     Py_XDECREF(ret);
     ret = NULL;
-finally:
+    finally:
     return ret;
 }
 
@@ -476,13 +473,13 @@ static PyObject *
 cp_SparseVirtualFileSystem_svf_erase(cp_SparseVirtualFileSystem *self, PyObject *args, PyObject *kwargs) {
     ASSERT_FUNCTION_ENTRY_SVFS(p_svfs);
 
-    PyObject *ret = NULL;
+    PyObject * ret = NULL;
     char *c_id = NULL;
     std::string cpp_id;
     unsigned long long fpos = 0;
-    static const char *kwlist[] = { "id", "file_position", NULL};
+    static const char *kwlist[] = {"id", "file_position", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwargs, "sK", (char **)kwlist, &c_id, &fpos)) {
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "sK", (char **) kwlist, &c_id, &fpos)) {
         goto except;
     }
     cpp_id = std::string(c_id);
@@ -493,31 +490,31 @@ cp_SparseVirtualFileSystem_svf_erase(cp_SparseVirtualFileSystem *self, PyObject 
                 svf.erase(fpos);
             } catch (const SVFS::ExceptionSparseVirtualFileErase &err) {
                 PyErr_Format(PyExc_IOError, "%s: Can not erase block from a SVF id= \"%s\". ERROR: %s",
-                        __FUNCTION__, c_id, err.message().c_str());
+                             __FUNCTION__, c_id, err.message().c_str());
                 goto except;
             } catch (const SVFS::ExceptionSparseVirtualFile &err) {
                 PyErr_Format(PyExc_RuntimeError, "%s: Fatal error erasing from a SVF id= \"%s\". ERROR: %s",
-                        __FUNCTION__, c_id, err.message().c_str());
+                             __FUNCTION__, c_id, err.message().c_str());
                 goto except;
             }
         } else {
             PyErr_Format(PyExc_IndexError, "%s: No SVF ID \"%s\"", __FUNCTION__, c_id);
             goto except;
         }
-    } catch (const std::exception &err)  {
+    } catch (const std::exception &err) {
         PyErr_Format(PyExc_RuntimeError, "%s: FATAL caught std::exception %s", __FUNCTION__, err.what());
         goto except;
     }
     Py_INCREF(Py_None);
     ret = Py_None;
-    assert(! PyErr_Occurred());
+    assert(!PyErr_Occurred());
     assert(ret);
     goto finally;
-except:
+    except:
     assert(PyErr_Occurred());
     Py_XDECREF(ret);
     ret = NULL;
-finally:
+    finally:
     return ret;
 }
 
@@ -537,15 +534,15 @@ static PyObject *
 cp_SparseVirtualFileSystem_svf_need(cp_SparseVirtualFileSystem *self, PyObject *args, PyObject *kwargs) {
     ASSERT_FUNCTION_ENTRY_SVFS(p_svfs);
 
-    PyObject *ret = NULL; // PyListObject
+    PyObject * ret = NULL; // PyListObject
     char *c_id = NULL; // PyUnicodeObject
     std::string cpp_id;
-    PyObject *list_item = NULL; // PyTupleObject
+    PyObject * list_item = NULL; // PyTupleObject
     unsigned long long fpos = 0;
     unsigned long long len = 0;
-    static const char *kwlist[] = { "id", "file_position", "length", NULL};
+    static const char *kwlist[] = {"id", "file_position", "length", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwargs, "sKK", (char **)kwlist, &c_id, &fpos, &len)) {
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "sKK", (char **) kwlist, &c_id, &fpos, &len)) {
         goto except;
     }
     cpp_id = std::string(c_id);
@@ -556,7 +553,7 @@ cp_SparseVirtualFileSystem_svf_need(cp_SparseVirtualFileSystem *self, PyObject *
             ret = PyList_New(seek_read.size());
             for (size_t i = 0; i < seek_read.size(); ++i) {
                 list_item = Py_BuildValue("KK", seek_read[i].first, seek_read[i].second);
-                if (! list_item) {
+                if (!list_item) {
                     PyErr_Format(PyExc_MemoryError, "%s: Can not create tuple", __FUNCTION__);
                     goto except;
                 }
@@ -567,14 +564,14 @@ cp_SparseVirtualFileSystem_svf_need(cp_SparseVirtualFileSystem *self, PyObject *
             PyErr_Format(PyExc_IndexError, "%s: No SVF ID \"%s\"", __FUNCTION__, c_id);
             goto except;
         }
-    } catch (const std::exception &err)  {
+    } catch (const std::exception &err) {
         PyErr_Format(PyExc_RuntimeError, "%s: FATAL caught std::exception %s", __FUNCTION__, err.what());
         goto except;
     }
-    assert(! PyErr_Occurred());
+    assert(!PyErr_Occurred());
     assert(ret);
     goto finally;
-except:
+    except:
     assert(PyErr_Occurred());
     if (ret) {
         for (Py_ssize_t i = 0; i < PyList_Size(ret); ++i) {
@@ -583,7 +580,7 @@ except:
     }
     Py_XDECREF(ret);
     ret = NULL;
-finally:
+    finally:
     return ret;
 }
 
@@ -653,13 +650,13 @@ static PyObject *
 cp_SparseVirtualFileSystem_svf_blocks(cp_SparseVirtualFileSystem *self, PyObject *args, PyObject *kwargs) {
     ASSERT_FUNCTION_ENTRY_SVFS(p_svfs);
 
-    PyObject *ret = NULL; // PyTupleObject
+    PyObject * ret = NULL; // PyTupleObject
     char *c_id = NULL; // PyUnicodeObject
     std::string cpp_id;
-    PyObject *insert_item = NULL; // PyTupleObject
-    static const char *kwlist[] = { "id", NULL};
+    PyObject * insert_item = NULL; // PyTupleObject
+    static const char *kwlist[] = {"id", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwargs, "s", (char **)kwlist, &c_id)) {
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "s", (char **) kwlist, &c_id)) {
         goto except;
     }
     cpp_id = std::string(c_id);
@@ -668,13 +665,13 @@ cp_SparseVirtualFileSystem_svf_blocks(cp_SparseVirtualFileSystem *self, PyObject
             const SVFS::SparseVirtualFile &svf = self->p_svfs->at(cpp_id);
             SVFS::t_seek_read seek_read = svf.blocks();
             ret = PyTuple_New(seek_read.size());
-            if (! ret) {
+            if (!ret) {
                 PyErr_Format(PyExc_MemoryError, "%s: Can not create tuple for return", __FUNCTION__);
                 goto except;
             }
             for (size_t i = 0; i < seek_read.size(); ++i) {
                 insert_item = Py_BuildValue("KK", seek_read[i].first, seek_read[i].second);
-                if (! insert_item) {
+                if (!insert_item) {
                     PyErr_Format(PyExc_MemoryError, "%s: Can not create tuple", __FUNCTION__);
                     goto except;
                 }
@@ -685,14 +682,14 @@ cp_SparseVirtualFileSystem_svf_blocks(cp_SparseVirtualFileSystem *self, PyObject
             PyErr_Format(PyExc_IndexError, "%s: No SVF ID %s", __FUNCTION__, c_id);
             goto except;
         }
-    } catch (const std::exception &err)  {
+    } catch (const std::exception &err) {
         PyErr_Format(PyExc_RuntimeError, "%s: FATAL caught std::exception %s", __FUNCTION__, err.what());
         goto except;
     }
-    assert(! PyErr_Occurred());
+    assert(!PyErr_Occurred());
     assert(ret);
     goto finally;
-except:
+    except:
     assert(PyErr_Occurred());
     if (ret) {
         for (Py_ssize_t i = 0; i < PyList_Size(ret); ++i) {
@@ -701,23 +698,26 @@ except:
     }
     Py_XDECREF(ret);
     ret = NULL;
-finally:
+    finally:
     return ret;
 }
 
 static const char *cp_SparseVirtualFileSystem_svf_size_of_docstring = \
 "Returns the best guess of total memory usage used by the Sparse Virtual File identified by the given id." \
 " This will raise an IndexError if the Sparse Virtual File of that id does not exist.";
+
 SVFS_SVFS_METHOD_SIZE_T_WRAPPER(size_of);
 
 static const char *cp_SparseVirtualFileSystem_svf_num_bytes_docstring = \
 "Returns the number of bytes of data held by the Sparse Virtual File identified by the given id." \
 " This will raise an IndexError if the Sparse Virtual File of that id does not exist.";
+
 SVFS_SVFS_METHOD_SIZE_T_WRAPPER(num_bytes);
 
 static const char *cp_SparseVirtualFileSystem_svf_num_blocks_docstring = \
 "Returns the number of data blocks held by the Sparse Virtual File identified by the given id." \
 " This will raise an IndexError if the Sparse Virtual File of that id does not exist.";
+
 SVFS_SVFS_METHOD_SIZE_T_WRAPPER(num_blocks);
 
 static const char *cp_SparseVirtualFileSystem_svf_file_mod_time_matches_docstring = \
@@ -726,16 +726,17 @@ static const char *cp_SparseVirtualFileSystem_svf_file_mod_time_matches_docstrin
 " This will raise an IndexError if the Sparse Virtual File of that id does not exist.";
 
 static PyObject *
-cp_SparseVirtualFileSystem_svf_file_mod_time_matches(cp_SparseVirtualFileSystem *self, PyObject *args, PyObject *kwargs) {
+cp_SparseVirtualFileSystem_svf_file_mod_time_matches(cp_SparseVirtualFileSystem *self, PyObject *args,
+                                                     PyObject *kwargs) {
     ASSERT_FUNCTION_ENTRY_SVFS(p_svfs);
 
-    PyObject *ret = NULL;
+    PyObject * ret = NULL;
     char *c_id = NULL;
     double file_mod_time;
     std::string cpp_id;
-    static const char *kwlist[] = { "id", "file_mod_time", NULL};
+    static const char *kwlist[] = {"id", "file_mod_time", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwargs, "sd", (char **)kwlist, &c_id, &file_mod_time)) {
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "sd", (char **) kwlist, &c_id, &file_mod_time)) {
         goto except;
     }
     cpp_id = std::string(c_id);
@@ -753,18 +754,18 @@ cp_SparseVirtualFileSystem_svf_file_mod_time_matches(cp_SparseVirtualFileSystem 
             PyErr_Format(PyExc_IndexError, "%s: No SVF ID \"%s\"", __FUNCTION__, c_id);
             goto except;
         }
-    } catch (const std::exception &err)  {
+    } catch (const std::exception &err) {
         PyErr_Format(PyExc_RuntimeError, "%s: FATAL caught std::exception %s", __FUNCTION__, err.what());
         goto except;
     }
-    assert(! PyErr_Occurred());
+    assert(!PyErr_Occurred());
     assert(ret);
     goto finally;
-except:
+    except:
     assert(PyErr_Occurred());
     Py_XDECREF(ret);
     ret = NULL;
-finally:
+    finally:
     return ret;
 }
 
@@ -791,12 +792,12 @@ static PyObject *
 cp_SparseVirtualFileSystem_file_mod_time(cp_SparseVirtualFileSystem *self, PyObject *args, PyObject *kwargs) {
     ASSERT_FUNCTION_ENTRY_SVFS(p_svfs);
 
-    PyObject *ret = NULL;
+    PyObject * ret = NULL;
     char *c_id = NULL;
     std::string cpp_id;
-    static const char *kwlist[] = { "id", NULL};
+    static const char *kwlist[] = {"id", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwargs, "s", (char **)kwlist, &c_id)) {
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "s", (char **) kwlist, &c_id)) {
         goto except;
     }
     cpp_id = std::string(c_id);
@@ -808,39 +809,43 @@ cp_SparseVirtualFileSystem_file_mod_time(cp_SparseVirtualFileSystem *self, PyObj
             PyErr_Format(PyExc_IndexError, "%s: No SVF ID %s", __FUNCTION__, c_id);
             goto except;
         }
-    } catch (const std::exception &err)  {
+    } catch (const std::exception &err) {
         PyErr_Format(PyExc_RuntimeError, "%s: FATAL caught std::exception %s", __FUNCTION__, err.what());
         goto except;
     }
-    assert(! PyErr_Occurred());
+    assert(!PyErr_Occurred());
     assert(ret);
     goto finally;
-except:
+    except:
     assert(PyErr_Occurred());
     Py_XDECREF(ret);
     ret = NULL;
-finally:
+    finally:
     return ret;
 }
 
 static const char *cp_SparseVirtualFileSystem_svf_count_write_docstring = \
 "Returns the count of write operations on the Sparse Virtual File identified by the given id." \
 " This will raise an IndexError if the Sparse Virtual File of that id does not exist.";
+
 SVFS_SVFS_METHOD_SIZE_T_WRAPPER(count_write);
 
 static const char *cp_SparseVirtualFileSystem_svf_count_read_docstring = \
 "Returns the count of read operations on the Sparse Virtual File identified by the given id." \
 " This will raise an IndexError if the Sparse Virtual File of that id does not exist.";
+
 SVFS_SVFS_METHOD_SIZE_T_WRAPPER(count_read);
 
 static const char *cp_SparseVirtualFileSystem_svf_bytes_write_docstring = \
 "Returns the count of the number of bytes writen to the Sparse Virtual File identified by the given id." \
 " This will raise an IndexError if the Sparse Virtual File of that id does not exist.";
+
 SVFS_SVFS_METHOD_SIZE_T_WRAPPER(bytes_write);
 
 static const char *cp_SparseVirtualFileSystem_svf_bytes_read_docstring = \
 "Returns the count of the number of bytes read from the Sparse Virtual File identified by the given id." \
 " This will raise an IndexError if the Sparse Virtual File of that id does not exist.";
+
 SVFS_SVFS_METHOD_SIZE_T_WRAPPER(bytes_read);
 
 // This macro is for functions that return a datetime type such as time_write, time_read.
@@ -888,11 +893,11 @@ static const char *cp_SparseVirtualFileSystem_svf_time_write_docstring = \
 static PyObject *
 cp_SparseVirtualFileSystem_svf_time_write(cp_SparseVirtualFileSystem *self, PyObject *args, PyObject *kwargs) {
     ASSERT_FUNCTION_ENTRY_SVFS(p_svfs);
-    PyObject *ret = NULL;
+    PyObject * ret = NULL;
     char *c_id = NULL;
     std::string cpp_id;
-    static const char *kwlist[] = { "id", NULL };
-    if (! PyArg_ParseTupleAndKeywords(args, kwargs, "s", (char **)kwlist, &c_id)) {
+    static const char *kwlist[] = {"id", NULL};
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "s", (char **) kwlist, &c_id)) {
         goto except;
     }
     cpp_id = std::string(c_id);
@@ -901,11 +906,14 @@ cp_SparseVirtualFileSystem_svf_time_write(cp_SparseVirtualFileSystem *self, PyOb
             const SVFS::SparseVirtualFile &svf = self->p_svfs->at(cpp_id);
             if (svf.count_write()) {
                 auto time = svf.time_write();
-                const long seconds = std::chrono::time_point_cast<std::chrono::seconds>(time).time_since_epoch().count();
-                int micro_seconds = std::chrono::time_point_cast<std::chrono::microseconds>(time).time_since_epoch().count() % 1000000;
+                const long seconds = std::chrono::time_point_cast<std::chrono::seconds>(
+                        time).time_since_epoch().count();
+                int micro_seconds =
+                        std::chrono::time_point_cast<std::chrono::microseconds>(time).time_since_epoch().count() %
+                        1000000;
                 const std::tm *p_struct_tm = std::gmtime(&seconds);
                 ret = datetime_from_struct_tm(p_struct_tm, micro_seconds);
-                if (! ret) {
+                if (!ret) {
                     goto except;
                 }
             } else {
@@ -916,18 +924,18 @@ cp_SparseVirtualFileSystem_svf_time_write(cp_SparseVirtualFileSystem *self, PyOb
             PyErr_Format(PyExc_IndexError, "%s: No SVF ID \"%s\"", __FUNCTION__, c_id);
             goto except;
         }
-    } catch (const std::exception &err)  {
+    } catch (const std::exception &err) {
         PyErr_Format(PyExc_RuntimeError, "%s: FATAL caught std::exception %s", __FUNCTION__, err.what());
         goto except;
     }
-    assert(! PyErr_Occurred());
+    assert(!PyErr_Occurred());
     assert(ret);
     goto finally;
-except:
+    except:
     assert(PyErr_Occurred());
     Py_XDECREF(ret);
     ret = NULL;
-finally:
+    finally:
     return ret;
 }
 
@@ -941,11 +949,11 @@ static const char *cp_SparseVirtualFileSystem_svf_time_read_docstring = \
 static PyObject *
 cp_SparseVirtualFileSystem_svf_time_read(cp_SparseVirtualFileSystem *self, PyObject *args, PyObject *kwargs) {
     ASSERT_FUNCTION_ENTRY_SVFS(p_svfs);
-    PyObject *ret = NULL;
+    PyObject * ret = NULL;
     char *c_id = NULL;
     std::string cpp_id;
-    static const char *kwlist[] = { "id", NULL };
-    if (! PyArg_ParseTupleAndKeywords(args, kwargs, "s", (char **)kwlist, &c_id)) {
+    static const char *kwlist[] = {"id", NULL};
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "s", (char **) kwlist, &c_id)) {
         goto except;
     }
     cpp_id = std::string(c_id);
@@ -954,11 +962,14 @@ cp_SparseVirtualFileSystem_svf_time_read(cp_SparseVirtualFileSystem *self, PyObj
             const SVFS::SparseVirtualFile &svf = self->p_svfs->at(cpp_id);
             if (svf.count_read()) {
                 auto time = svf.time_read();
-                const long seconds = std::chrono::time_point_cast<std::chrono::seconds>(time).time_since_epoch().count();
-                int micro_seconds = std::chrono::time_point_cast<std::chrono::microseconds>(time).time_since_epoch().count() % 1000000;
+                const long seconds = std::chrono::time_point_cast<std::chrono::seconds>(
+                        time).time_since_epoch().count();
+                int micro_seconds =
+                        std::chrono::time_point_cast<std::chrono::microseconds>(time).time_since_epoch().count() %
+                        1000000;
                 const std::tm *p_struct_tm = std::gmtime(&seconds);
                 ret = datetime_from_struct_tm(p_struct_tm, micro_seconds);
-                if (! ret) {
+                if (!ret) {
                     goto except;
                 }
             } else {
@@ -969,18 +980,18 @@ cp_SparseVirtualFileSystem_svf_time_read(cp_SparseVirtualFileSystem *self, PyObj
             PyErr_Format(PyExc_IndexError, "%s: No Sparse Virtual File ID \"%s\"", __FUNCTION__, c_id);
             goto except;
         }
-    } catch (const std::exception &err)  {
+    } catch (const std::exception &err) {
         PyErr_Format(PyExc_RuntimeError, "%s: FATAL caught std::exception %s", __FUNCTION__, err.what());
         goto except;
     }
-    assert(! PyErr_Occurred());
+    assert(!PyErr_Occurred());
     assert(ret);
     goto finally;
-except:
+    except:
     assert(PyErr_Occurred());
     Py_XDECREF(ret);
     ret = NULL;
-finally:
+    finally:
     return ret;
 }
 
@@ -989,11 +1000,11 @@ finally:
 
 // Mapping method for __len__
 static Py_ssize_t
-cp_SparseVirtualFileSystem_mapping_length(PyObject *self) {
+cp_SparseVirtualFileSystem_mapping_length(PyObject * self) {
     ASSERT_FUNCTION_ENTRY_SVFS(p_svfs);
     try {
-        return ((cp_SparseVirtualFileSystem *)self)->p_svfs->size();
-    } catch (const std::exception &err)  {
+        return ((cp_SparseVirtualFileSystem *) self)->p_svfs->size();
+    } catch (const std::exception &err) {
         PyErr_Format(PyExc_RuntimeError, "%s: FATAL caught std::exception %s", __FUNCTION__, err.what());
         return NULL;
     }
@@ -1006,113 +1017,143 @@ static PyMemberDef cp_SparseVirtualFileSystem_members[] = {
 };
 
 static PyMethodDef cp_SparseVirtualFileSystem_methods[] = {
-    {
-        "keys", (PyCFunction) cp_SparseVirtualFileSystem_keys, METH_NOARGS,
-        cp_SparseVirtualFileSystem_keys_docstring
-    },
-    {
-        "insert", (PyCFunction) cp_SparseVirtualFileSystem_insert, METH_VARARGS | METH_KEYWORDS,
-        cp_SparseVirtualFileSystem_insert_docstring
-    },
-    {
-        "remove", (PyCFunction) cp_SparseVirtualFileSystem_remove, METH_VARARGS | METH_KEYWORDS,
-        cp_SparseVirtualFileSystem_remove_docstring
-    },
-    {
-        "has", (PyCFunction) cp_SparseVirtualFileSystem_has, METH_VARARGS | METH_KEYWORDS,
-        cp_SparseVirtualFileSystem_has_docstring
-    },
-    {
-        "total_size_of", (PyCFunction) cp_SparseVirtualFileSystem_total_size_of, METH_NOARGS,
-        cp_SparseVirtualFileSystem_total_size_of_docstring
-    },
-    {
-        "total_bytes", (PyCFunction) cp_SparseVirtualFileSystem_total_bytes, METH_NOARGS,
-        cp_SparseVirtualFileSystem_total_bytes_docstring
-    },
-    {
-        "total_blocks", (PyCFunction) cp_SparseVirtualFileSystem_total_blocks, METH_NOARGS,
-        cp_SparseVirtualFileSystem_total_blocks_docstring
-    },
-    {
-        "has_data", (PyCFunction) cp_SparseVirtualFileSystem_svf_has_data, METH_VARARGS | METH_KEYWORDS,
-        cp_SparseVirtualFileSystem_svf_has_data_docstring
-    },
-    {
-        "write", (PyCFunction) cp_SparseVirtualFileSystem_svf_write, METH_VARARGS | METH_KEYWORDS,
-        cp_SparseVirtualFileSystem_svf_write_docstring
-    },
-    {
-        "read", (PyCFunction) cp_SparseVirtualFileSystem_svf_read, METH_VARARGS | METH_KEYWORDS,
-        cp_SparseVirtualFileSystem_svf_read_docstring
-    },
-    {
-        "erase", (PyCFunction) cp_SparseVirtualFileSystem_svf_erase, METH_VARARGS | METH_KEYWORDS,
-        cp_SparseVirtualFileSystem_svf_erase_docstring
-    },
-    {
-        "need", (PyCFunction) cp_SparseVirtualFileSystem_svf_need, METH_VARARGS | METH_KEYWORDS,
-        cp_SparseVirtualFileSystem_svf_need_docstring
-    },
-    // ---- Meta information about the specific SVF ----
-    {
-        "blocks", (PyCFunction) cp_SparseVirtualFileSystem_svf_blocks, METH_VARARGS | METH_KEYWORDS,
-        cp_SparseVirtualFileSystem_svf_blocks_docstring
-    },
-    {
-        "size_of", (PyCFunction) cp_SparseVirtualFileSystem_svf_size_of, METH_VARARGS | METH_KEYWORDS,
-        cp_SparseVirtualFileSystem_svf_size_of_docstring
-    },
-    {
-        "num_bytes", (PyCFunction) cp_SparseVirtualFileSystem_svf_num_bytes, METH_VARARGS | METH_KEYWORDS,
-        cp_SparseVirtualFileSystem_svf_num_bytes_docstring
-    },
-    {
-        "num_blocks", (PyCFunction) cp_SparseVirtualFileSystem_svf_num_blocks, METH_VARARGS | METH_KEYWORDS,
-        cp_SparseVirtualFileSystem_svf_num_blocks_docstring
-    },
-    {
-        "file_mod_time_matches", (PyCFunction) cp_SparseVirtualFileSystem_svf_file_mod_time_matches,
-        METH_VARARGS | METH_KEYWORDS,
-        cp_SparseVirtualFileSystem_svf_file_mod_time_matches_docstring
-    },
-    // ---- Attribute access ----
-    {
-        "file_mod_time", (PyCFunction) cp_SparseVirtualFileSystem_file_mod_time, METH_VARARGS | METH_KEYWORDS,
-        cp_SparseVirtualFileSystem_file_mod_time_docstring
-    },
-    {
-        "count_write", (PyCFunction) cp_SparseVirtualFileSystem_svf_count_write, METH_VARARGS | METH_KEYWORDS,
-        cp_SparseVirtualFileSystem_svf_count_write_docstring
-    },
-    {
-        "count_read", (PyCFunction) cp_SparseVirtualFileSystem_svf_count_read, METH_VARARGS | METH_KEYWORDS,
-        cp_SparseVirtualFileSystem_svf_count_read_docstring
-    },
-    {
-        "bytes_write", (PyCFunction) cp_SparseVirtualFileSystem_svf_bytes_write, METH_VARARGS | METH_KEYWORDS,
-        cp_SparseVirtualFileSystem_svf_bytes_write_docstring
-    },
-    {
-        "bytes_read", (PyCFunction) cp_SparseVirtualFileSystem_svf_bytes_read, METH_VARARGS | METH_KEYWORDS,
-        cp_SparseVirtualFileSystem_svf_bytes_read_docstring
-    },
-    {
-        "time_write", (PyCFunction) cp_SparseVirtualFileSystem_svf_time_write, METH_VARARGS | METH_KEYWORDS,
-        cp_SparseVirtualFileSystem_svf_time_write_docstring
-    },
-    {
-        "time_read", (PyCFunction) cp_SparseVirtualFileSystem_svf_time_read, METH_VARARGS | METH_KEYWORDS,
-        cp_SparseVirtualFileSystem_svf_time_read_docstring
-    },
-    {NULL, NULL, 0, NULL}  /* Sentinel */
+        {
+                "keys",                  (PyCFunction) cp_SparseVirtualFileSystem_keys,            METH_NOARGS,
+                cp_SparseVirtualFileSystem_keys_docstring
+        },
+        {
+                "insert",                (PyCFunction) cp_SparseVirtualFileSystem_insert,          METH_VARARGS |
+                                                                                                   METH_KEYWORDS,
+                        cp_SparseVirtualFileSystem_insert_docstring
+        },
+        {
+                "remove",                (PyCFunction) cp_SparseVirtualFileSystem_remove,          METH_VARARGS |
+                                                                                                   METH_KEYWORDS,
+                        cp_SparseVirtualFileSystem_remove_docstring
+        },
+        {
+                "has",                   (PyCFunction) cp_SparseVirtualFileSystem_has,             METH_VARARGS |
+                                                                                                   METH_KEYWORDS,
+                        cp_SparseVirtualFileSystem_has_docstring
+        },
+        {
+                "total_size_of",         (PyCFunction) cp_SparseVirtualFileSystem_total_size_of,   METH_NOARGS,
+                cp_SparseVirtualFileSystem_total_size_of_docstring
+        },
+        {
+                "total_bytes",           (PyCFunction) cp_SparseVirtualFileSystem_total_bytes,     METH_NOARGS,
+                cp_SparseVirtualFileSystem_total_bytes_docstring
+        },
+        {
+                "total_blocks",          (PyCFunction) cp_SparseVirtualFileSystem_total_blocks,    METH_NOARGS,
+                cp_SparseVirtualFileSystem_total_blocks_docstring
+        },
+        {
+                "has_data",              (PyCFunction) cp_SparseVirtualFileSystem_svf_has_data,    METH_VARARGS |
+                                                                                                   METH_KEYWORDS,
+                        cp_SparseVirtualFileSystem_svf_has_data_docstring
+        },
+        {
+                "write",                 (PyCFunction) cp_SparseVirtualFileSystem_svf_write,       METH_VARARGS |
+                                                                                                   METH_KEYWORDS,
+                        cp_SparseVirtualFileSystem_svf_write_docstring
+        },
+        {
+                "read",                  (PyCFunction) cp_SparseVirtualFileSystem_svf_read,        METH_VARARGS |
+                                                                                                   METH_KEYWORDS,
+                        cp_SparseVirtualFileSystem_svf_read_docstring
+        },
+        {
+                "erase",                 (PyCFunction) cp_SparseVirtualFileSystem_svf_erase,       METH_VARARGS |
+                                                                                                   METH_KEYWORDS,
+                        cp_SparseVirtualFileSystem_svf_erase_docstring
+        },
+        {
+                "need",                  (PyCFunction) cp_SparseVirtualFileSystem_svf_need,        METH_VARARGS |
+                                                                                                   METH_KEYWORDS,
+                        cp_SparseVirtualFileSystem_svf_need_docstring
+        },
+        // ---- Meta information about the specific SVF ----
+        {
+                "blocks",                (PyCFunction) cp_SparseVirtualFileSystem_svf_blocks,      METH_VARARGS |
+                                                                                                   METH_KEYWORDS,
+                        cp_SparseVirtualFileSystem_svf_blocks_docstring
+        },
+        {
+                "size_of",               (PyCFunction) cp_SparseVirtualFileSystem_svf_size_of,     METH_VARARGS |
+                                                                                                   METH_KEYWORDS,
+                        cp_SparseVirtualFileSystem_svf_size_of_docstring
+        },
+        {
+                "num_bytes",             (PyCFunction) cp_SparseVirtualFileSystem_svf_num_bytes,   METH_VARARGS |
+                                                                                                   METH_KEYWORDS,
+                        cp_SparseVirtualFileSystem_svf_num_bytes_docstring
+        },
+        {
+                "num_blocks",            (PyCFunction) cp_SparseVirtualFileSystem_svf_num_blocks,  METH_VARARGS |
+                                                                                                   METH_KEYWORDS,
+                        cp_SparseVirtualFileSystem_svf_num_blocks_docstring
+        },
+        {
+                "file_mod_time_matches", (PyCFunction) cp_SparseVirtualFileSystem_svf_file_mod_time_matches,
+                                                                                                   METH_VARARGS |
+                                                                                                   METH_KEYWORDS,
+                        cp_SparseVirtualFileSystem_svf_file_mod_time_matches_docstring
+        },
+        // ---- Attribute access ----
+        {
+                "file_mod_time",         (PyCFunction) cp_SparseVirtualFileSystem_file_mod_time,   METH_VARARGS |
+                                                                                                   METH_KEYWORDS,
+                        cp_SparseVirtualFileSystem_file_mod_time_docstring
+        },
+        {
+                "count_write",           (PyCFunction) cp_SparseVirtualFileSystem_svf_count_write, METH_VARARGS |
+                                                                                                   METH_KEYWORDS,
+                        cp_SparseVirtualFileSystem_svf_count_write_docstring
+        },
+        {
+                "count_read",            (PyCFunction) cp_SparseVirtualFileSystem_svf_count_read,  METH_VARARGS |
+                                                                                                   METH_KEYWORDS,
+                        cp_SparseVirtualFileSystem_svf_count_read_docstring
+        },
+        {
+                "bytes_write",           (PyCFunction) cp_SparseVirtualFileSystem_svf_bytes_write, METH_VARARGS |
+                                                                                                   METH_KEYWORDS,
+                        cp_SparseVirtualFileSystem_svf_bytes_write_docstring
+        },
+        {
+                "bytes_read",            (PyCFunction) cp_SparseVirtualFileSystem_svf_bytes_read,  METH_VARARGS |
+                                                                                                   METH_KEYWORDS,
+                        cp_SparseVirtualFileSystem_svf_bytes_read_docstring
+        },
+        {
+                "time_write",            (PyCFunction) cp_SparseVirtualFileSystem_svf_time_write,  METH_VARARGS |
+                                                                                                   METH_KEYWORDS,
+                        cp_SparseVirtualFileSystem_svf_time_write_docstring
+        },
+        {
+                "time_read",             (PyCFunction) cp_SparseVirtualFileSystem_svf_time_read,   METH_VARARGS |
+                                                                                                   METH_KEYWORDS,
+                        cp_SparseVirtualFileSystem_svf_time_read_docstring
+        },
+        {NULL, NULL, 0, NULL}  /* Sentinel */
 };
 
 PyMappingMethods svfs_mapping_methods = {
-    // Just length as we don't (yet) want to expose the underlying SVF to Python code.
-    // via either mp_subscript (get), mp_ass_subscript (set).
-    .mp_length = &cp_SparseVirtualFileSystem_mapping_length,
+        // Just length as we don't (yet) want to expose the underlying SVF to Python code.
+        // via either mp_subscript (get), mp_ass_subscript (set).
+        .mp_length = &cp_SparseVirtualFileSystem_mapping_length,
 };
+
+// clang-format off
+// @formatter:off
+static const char *svfs_cSVFS_doc = PyDoc_STR(
+    "This class implements a Sparse Virtual File System where Sparse Virtual Files are mapped to a key (a string)."
+    " This can be constructed with an optional boolean overwrite flag that ensures in-memory data is overwritten"
+    " on destruction of any SVF."
+);
+// clang-format on
+// @formatter.on
 
 static PyTypeObject svfs_cSVFS = {
         PyVarObject_HEAD_INIT(NULL, 0)
@@ -1122,10 +1163,7 @@ static PyTypeObject svfs_cSVFS = {
         .tp_dealloc = (destructor) cp_SparseVirtualFileSystem_dealloc,
         .tp_as_mapping = &svfs_mapping_methods,
         .tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
-        .tp_doc = \
-        "This class implements a Sparse Virtual File System where Sparse Virtual Files are mapped to a key (a string)."
-        " This can be constructed with an optional boolean overwrite flag that ensures  in-memory data is overwritten"
-        " on destruction of any SVF.",
+        .tp_doc = svfs_cSVFS_doc,
         .tp_methods = cp_SparseVirtualFileSystem_methods,
         .tp_members = cp_SparseVirtualFileSystem_members,
         .tp_init = (initproc) cp_SparseVirtualFileSystem_init,
