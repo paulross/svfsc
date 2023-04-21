@@ -51,15 +51,20 @@ include_directories(
         src/cpp/util
 )
 
-FIND_PACKAGE(PythonLibs 3.8 REQUIRED)
+FIND_PACKAGE(PythonLibs 3.10 REQUIRED)
 IF(PYTHONLIBS_FOUND)
-    message(status " Python: ${PYTHON_INCLUDE_DIRS}")
+    message(status "    Python libraries: ${PYTHON_LIBRARIES}")
+    message(status " Python include dirs: ${PYTHON_INCLUDE_DIRS}")
+    message(status "      Python version: ${PYTHONLIBS_VERSION_STRING}")
+    message(status "      Python library: ${PYTHON_LIBRARY}")
+    message(status "  Python include dir: ${PYTHON_INCLUDE_DIR}")
+    message(status " Python include dirs: ${PYTHON_INCLUDE_DIRs}")
     INCLUDE_DIRECTORIES("${PYTHON_INCLUDE_DIRS}")
 ELSE()
     MESSAGE(FATAL_ERROR "Unable to find Python libraries.")
 ENDIF()
 
 
-target_link_libraries(cppSVF python3.8)
+target_link_libraries(cppSVF ${PYTHON_LIBRARIES})
 
 target_compile_options(cppSVF PRIVATE -Wall -Wextra -Wno-c99-extensions -pedantic)# -Werror)
