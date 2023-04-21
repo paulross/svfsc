@@ -11,6 +11,20 @@
 
 extern const char test_data_bytes_512[];
 
+// Used in place of asserts so that checks are done in release version.
+class ExceptionTest : public std::exception {
+public:
+    explicit ExceptionTest(const std::string &in_msg) : msg(in_msg) {}
+    [[nodiscard]] const std::string &message() const { return msg; }
+protected:
+    std::string msg;
+};
+
+class ExceptionTestConfiguration : public ExceptionTest {
+public:
+    explicit ExceptionTestConfiguration(const std::string &in_msg) : ExceptionTest(in_msg) {}
+};
+
 class TestResult {
 public:
     TestResult(const std::string &m_function, const std::string &m_test,
