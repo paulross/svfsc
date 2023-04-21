@@ -204,101 +204,129 @@ namespace SVFS {
         SVF_ASSERT(integrity() == ERROR_NONE);
     }
 
-    void SparseVirtualFile::_write_append_new_to_old(t_fpos fpos, const char *data, size_t len,
-            t_map::iterator base_iter) {
-        // We are in these situations:
-        //  ^===========|    |=====|
-        //  |+++++++++|
-        //
-        //  ^===========|    |=====|
-        //     |++++++|
-        //
-        //  ^===========|    |=====|
-        //     |+++++++++++|
-        //
-        //  ^===========|    |=====|
-        //     |++++++++++++++++++|
-        //
+    /**
+     * From file position, write the new_data to the block identified by base_block_iter.
+     * This may involve coalescing existing blocks that follow base_block_iter.
+     *
+     * We are in these kind of situations. 1: means original, 2: is new_data to abe added, 3: is the result.
+     * 'c' means checked equal (if required), 'A' means appended::
+     *
+     *      1: ^===========|    |=====|
+     *      2: |+++++++++|
+     *      3: ^cccccccccAA|    |=====|
+     *
+     *      1: ^===========|    |=====|
+     *      2:    |++++++|
+     *      3: ^===cccccc==|    |=====|
+     *
+     *      1: ^===========|    |=====|
+     *      2:    |+++++++++++|
+     *      3: ^===========AAA| |=====|
+     *
+     *      1: ^===========|    |=====|
+     *      2:    |++++++++++++++++++|
+     *      3: ^===ccccccccAAAAAAcccc=|
+     *
+     *      1: ^===========|    |=====|    |=====|
+     *      2:    |++++++++++++++++++++++++++|
+     *      3: ^===ccccccccAAAAAAcccccAAAAAAc====|
+     *
+     * @param fpos File position of the start of the new new_data.
+     * @param new_data The new_data
+     * @param new_data_len The length of the new data.
+     * @param base_block_iter Block to write to.
+     */
+    void SparseVirtualFile::_write_append_new_to_old(t_fpos fpos, const char *new_data, size_t new_data_len,
+                                                     t_map::iterator base_block_iter) {
         SVF_ASSERT(integrity() == ERROR_NONE);
-        assert(data);
-        assert(len > 0);
-        assert(base_iter != m_svf.end());
-        assert(fpos >= base_iter->first);
-        assert(fpos <= _last_file_pos_for_block(base_iter));
+        assert(new_data);
+        assert(new_data_len > 0);
+        assert(base_block_iter != m_svf.end());
+        assert(fpos >= base_block_iter->first);
+        assert(fpos <= _last_file_pos_for_block(base_block_iter));
 
 #ifdef DEBUG
-//        size_t fpos_end = fpos + len;
+        size_t fpos_end = fpos + new_data_len;
 #endif
-        // Diff check against base_iter
-        // Do the check to end of len or end of base_iter which ever comes first.
-        // Do not increment m_bytes_total as this is existing data.
-        // Diff check against base_iter
-        size_t index_iter = fpos - base_iter->first;
-        // Do the check to end of len or end of base_iter which ever comes first.
-        size_t delta = std::min(len, base_iter->second.size() - index_iter);
+        // Diff check against base_block_iter
+        // Do the check to end of new_data_len or end of base_block_iter which ever comes first.
+        // Do not increment m_bytes_total as this is existing new_data.
+        // Diff check against base_block_iter
+        size_t write_index_from_block_start = fpos - base_block_iter->first;
+        // Do the check to end of new_data_len or end of base_block_iter which ever comes first.
+        size_t len_check_or_copy = std::min(new_data_len, base_block_iter->second.size() - write_index_from_block_start);
         if (m_config.compare_for_diff) {
-            if (std::memcmp(base_iter->second.data() + index_iter, data, delta) != 0) {
-                _throw_diff(fpos, data, base_iter, index_iter);
+            if (std::memcmp(base_block_iter->second.data() + write_index_from_block_start, new_data, len_check_or_copy) != 0) {
+                _throw_diff(fpos, new_data, base_block_iter, write_index_from_block_start);
             }
         }
-        data += delta;
-        fpos += delta;
-        len -= delta;
-        t_map::iterator iter = std::next(base_iter);
-        while (len) {
-            if (iter == m_svf.end()) {
+        new_data += len_check_or_copy;
+        fpos += len_check_or_copy;
+        new_data_len -= len_check_or_copy;
+        t_map::iterator next_block_iter = std::next(base_block_iter);
+        while (new_data_len) {
+            if (next_block_iter == m_svf.end()) {
                 // Termination case, copy remainder
-                while (len) {
-                    base_iter->second.push_back(*data);
-                    ++data;
+                while (new_data_len) {
+                    base_block_iter->second.push_back(*new_data);
+                    ++new_data;
                     ++fpos;
-                    --len;
+                    --new_data_len;
                     m_bytes_total += 1;
                 }
-                break; // Done. Needed because we are going to do erase(iter) otherwise.
+                break; // Done. Needed because we are going to do erase(next_block_iter) otherwise.
             } else {
-                // Copy new data up to start of iter
-                while (len && fpos < iter->first) {
-                    base_iter->second.push_back(*data);
-                    ++data;
+                // Copy the new_data up to start of next_block_iter or, we have exhausted the new_data.
+                while (new_data_len && fpos < next_block_iter->first) {
+                    base_block_iter->second.push_back(*new_data);
+                    ++new_data;
                     ++fpos;
-                    --len;
+                    --new_data_len;
                     m_bytes_total += 1;
                 }
             }
-            // Diff check, but also append to base_iter.
+            if (new_data_len == 0 and fpos < next_block_iter->first) {
+                // We have exhausted new data and not reached the next block so we are done
+                break;
+            }
+            // Still data to copy, and we are up against the next block which we will coalesce into the base_block_iter.
+            write_index_from_block_start = 0;
+            // Diff check, but also append to base_block_iter.
             // Do not increment m_bytes_total as this is existing data.
-            index_iter = 0;
-            delta = std::min(len, _last_file_pos_for_block(iter) - fpos);
-            if (delta) {
-                if (std::memcmp(iter->second.data(), data, delta) != 0) {
-                    _throw_diff(fpos, data, base_iter, 0);
+            len_check_or_copy = std::min(new_data_len, _last_file_pos_for_block(next_block_iter) - fpos);
+            if (len_check_or_copy) {
+                if (m_config.compare_for_diff) {
+                    if (std::memcmp(next_block_iter->second.data(), new_data, len_check_or_copy) != 0) {
+                        _throw_diff(fpos, new_data, base_block_iter, 0);
+                    }
                 }
-                for (size_t i = 0; i < delta; ++i) {
-                    base_iter->second.push_back(*data);
-                    ++data;
+                // We could push_back either the new_data or the existing next block data. We choose the former.
+                for (size_t i = 0; i < len_check_or_copy; ++i) {
+                    base_block_iter->second.push_back(*new_data);
+                    ++new_data;
                     ++fpos;
-                    --len;
-                    ++index_iter;
+                    --new_data_len;
+                    ++write_index_from_block_start;
                 }
             }
-            // Here either data is exhausted or iter is.
-            // If data is exhausted then copy remaining from iter to base_iter.
-            // Do not increment m_bytes_total as this is existing data.
-            if (len == 0) {
-                while (index_iter < iter->second.size()) {
-                    base_iter->second.push_back(iter->second[index_iter]);
-                    ++index_iter;
+            // Here either new_data is exhausted or next_block_iter is.
+            // If new_data is exhausted then copy remaining from next_block_iter to base_block_iter.
+            // Do not increment m_bytes_total as this is existing new_data.
+            if (new_data_len == 0) {
+                while (write_index_from_block_start < next_block_iter->second.size()) {
+                    base_block_iter->second.push_back(next_block_iter->second[write_index_from_block_start]);
+                    ++write_index_from_block_start;
                 }
             }
+            // New data is not exhausted so erase next_block_iter as we have copied it and move on to the next block.
             if (m_config.overwrite_on_exit) {
-                iter->second.assign(iter->second.size(), OVERWRITE_CHAR);
+                next_block_iter->second.assign(next_block_iter->second.size(), OVERWRITE_CHAR);
             }
-            iter = m_svf.erase(iter);
+            next_block_iter = m_svf.erase(next_block_iter);
         }
-        assert(len == 0);
+        assert(new_data_len == 0);
 #ifdef DEBUG
-//        assert(fpos == fpos_end);
+        assert(fpos == fpos_end);
 #endif
         SVF_ASSERT(integrity() == ERROR_NONE);
     }
@@ -530,21 +558,28 @@ namespace SVFS {
     SparseVirtualFile::ERROR_CONDITION
     SparseVirtualFile::integrity() const noexcept {
         t_fpos prev_fpos;
+        size_t prev_size;
         t_map::const_iterator iter = m_svf.begin();
         size_t byte_count = 0;
 
         while (iter != m_svf.end()) {
+            t_fpos fpos = iter->first;
+            size_t size = iter->second.size();
             if (iter->second.empty()) {
                 return ERROR_EMPTY_BLOCK;
             }
-            if (iter != m_svf.begin() && prev_fpos == iter->first) {
+            if (iter != m_svf.begin() && fpos == prev_fpos && size == prev_size) {
+                return ERROR_DUPLICATE_BLOCK;
+            }
+            if (iter != m_svf.begin() && prev_fpos + prev_size == iter->first) {
                 return ERROR_ADJACENT_BLOCKS;
             }
-            if (iter != m_svf.begin() && prev_fpos >= iter->first) {
+            if (iter != m_svf.begin() && prev_fpos + prev_size > iter->first) {
                 return ERROR_BLOCKS_OVERLAP;
             }
-            prev_fpos = _last_file_pos_for_block(iter);
-            byte_count += iter->second.size();
+            prev_fpos = iter->first;
+            prev_size = iter->second.size();
+            byte_count += prev_size;
             ++iter;
         }
         if (byte_count != m_bytes_total) {

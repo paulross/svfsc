@@ -170,7 +170,7 @@ namespace SVFS {
         // Write data at file position without checks.
         void _write(t_fpos fpos, const char *data, size_t len);
         void _write_new_append_old(t_fpos fpos, const char *data, size_t len, t_map::iterator iter);
-        void _write_append_new_to_old(t_fpos fpos, const char *data, size_t len, t_map::iterator base_iter);
+        void _write_append_new_to_old(t_fpos fpos, const char *new_data, size_t new_data_len, t_map::iterator base_block_iter);
         // NOTE: This is const but read() is not as it updates metadata.
         void _read(t_fpos fpos, size_t len, char *p) const;
         void _throw_diff(t_fpos fpos, const char *data, t_map::const_iterator iter, size_t index_iter) const;
@@ -184,6 +184,7 @@ namespace SVFS {
             ERROR_ADJACENT_BLOCKS,
             ERROR_BLOCKS_OVERLAP,
             ERROR_BYTE_COUNT_MISMATCH,
+            ERROR_DUPLICATE_BLOCK,
         };
         ERROR_CONDITION integrity() const noexcept;
     };

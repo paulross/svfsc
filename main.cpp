@@ -19,8 +19,8 @@ int main() {
 
     std::cout << "Testing SVF all..." << std::endl;
     pass_fail += SVFS::test_svf_all(results);
-//    std::cout << "Testing SVFS all..." << std::endl;
-//    pass_fail += SVFS::test_svfs_all(results);
+    std::cout << "Testing SVFS all..." << std::endl;
+    pass_fail += SVFS::test_svfs_all(results);
 
     std::chrono::duration<double> time_exec = std::chrono::high_resolution_clock::now() - time_start;
 

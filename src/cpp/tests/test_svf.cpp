@@ -112,7 +112,7 @@ namespace SVFS {
 
     /* This will raise an uncaught ExceptionTestConfiguration if miss configured. */
     const std::vector<TestCaseWrite> write_test_cases = {
-#if  0
+#if  1
         /* Special case with error found in RaPiVot tiff_dump.py when using a SVF:
             svf.write(0, b'A' * 8)
             svf.write(3028, b'B' * 74)
@@ -156,6 +156,7 @@ namespace SVFS {
             },
         },
 #endif
+#if 1
         {"Write no blocks", {}, {}},
 
         //        |+++|
@@ -180,10 +181,10 @@ namespace SVFS {
 
         //        ^==|    |==|
         {"Add second block", {{8, 4}, {16, 4}}, {{8, 4}, {16, 4}},},
-
         //        ^==|    |==|
         //          |++++++|
         {"New joins two blocks", {{8, 4}, {16, 4}, {10, 8}}, {{8, 12}},},
+#endif
 
         //        ^==|    |==|
         //            |++|
@@ -1044,30 +1045,30 @@ namespace SVFS {
         TestCount count;
         // Write
         count += test_write_all(results);
-//        count += test_write_all_throws(results);
-//        // write() - performance
-//        count += test_perf_write_with_diff_check(results);
-//        count += test_perf_write_without_diff_check(results);
-//        count += test_perf_write_sim_index_svf(results);
-//        count += test_perf_write_1M_coalesced(results);
-//        count += test_perf_write_1M_uncoalesced(results);
-//        count += test_perf_write_1M_uncoalesced_size_of(results);
-//        // read()
-//        count += test_read_all(results);
-//        count += test_read_throws_all(results);
-//        count += test_perf_read_1M_coalesced(results);
-//        // has()
-//        count += test_has_all(results);
-//        // need()
-//        count += test_need_all(results);
-//        count += test_perf_need_sim_index(results);
-//        // erase()
-//        count += test_erase_all(results);
-//        count += test_erase_throws_all(results);
-//        count += test_perf_erase_overwrite_false(results);
-//        count += test_perf_erase_overwrite_true(results);
+        count += test_write_all_throws(results);
+        // write() - performance
+        count += test_perf_write_with_diff_check(results);
+        count += test_perf_write_without_diff_check(results);
+        count += test_perf_write_sim_index_svf(results);
+        count += test_perf_write_1M_coalesced(results);
+        count += test_perf_write_1M_uncoalesced(results);
+        count += test_perf_write_1M_uncoalesced_size_of(results);
+        // read()
+        count += test_read_all(results);
+        count += test_read_throws_all(results);
+        count += test_perf_read_1M_coalesced(results);
+        // has()
+        count += test_has_all(results);
+        // need()
+        count += test_need_all(results);
+        count += test_perf_need_sim_index(results);
+        // erase()
+        count += test_erase_all(results);
+        count += test_erase_throws_all(results);
+        count += test_perf_erase_overwrite_false(results);
+        count += test_perf_erase_overwrite_true(results);
 #ifdef SVF_THREAD_SAFE
-//        count += test_write_multithreaded(results);
+        count += test_write_multithreaded(results);
 #endif
         return count;
     }
