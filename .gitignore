@@ -64,3 +64,4 @@ tmp/
 cmake-build-debug/
 cmake-build-release/
 
+docs/Sphinx/build
