@@ -525,7 +525,7 @@ static const char *cp_SparseVirtualFileSystem_svf_need_docstring = \
 "Given a file_position and length this returns a ordered list [(file_position, length), ...] of seek/read" \
 " instructions of data that is required to be written to the Sparse Virtual File so that a subsequent read will succeed." \
 " This will raise an IndexError if the Sparse Virtual File of that id does not exist." \
-"\nUsage:\n" \
+"\nUsage::\n\n" \
 "    if not svfs.has(identity, file_position, length):\n" \
 "        for seek, read in svfs.need(file_position, length):\n" \
 "            # Somehow get the data at all seek/read positions...\n" \

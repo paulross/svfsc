@@ -252,10 +252,10 @@ cp_SparseVirtualFile_write(cp_SparseVirtualFile *self, PyObject *args, PyObject 
 }
 
 static const char *cp_SparseVirtualFile_read_docstring = \
-"Read the data from the Sparse Virtual File at file_position and length returning a bytes object." \
+"Read the data from the Sparse Virtual File at ``file_position`` and ``length`` returning a bytes object." \
 " This takes a file position and a length." \
-" This will raise an IOError if any data is not present" \
-" This will raise a RuntimeError if the data can not be read for any other reason";
+" This will raise an ``IOError`` if any data is not present" \
+" This will raise a ``RuntimeError`` if the data can not be read for any other reason";
 
 static PyObject *
 private_SparseVirtualFile_svf_read_as_py_bytes(cp_SparseVirtualFile *self, unsigned long long fpos,
@@ -317,9 +317,9 @@ cp_SparseVirtualFile_read(cp_SparseVirtualFile *self, PyObject *args, PyObject *
 
 
 static const char *cp_SparseVirtualFile_erase_docstring = \
-"Erase the data from the Sparse Virtual File at the given file_position which must be the beginning of a block." \
-" This will raise an IOError if a block is not present at that file position." \
-" This will raise a RuntimeError if the data can not be read for any other reason";
+"Erase the data from the Sparse Virtual File at the given ``file_position`` which must be the beginning of a block." \
+" This will raise an ``IOError`` if a block is not present at that file position." \
+" This will raise a ``RuntimeError`` if the data can not be read for any other reason";
 
 static PyObject *
 cp_SparseVirtualFile_erase(cp_SparseVirtualFile *self, PyObject *args, PyObject *kwargs) {
@@ -350,9 +350,9 @@ cp_SparseVirtualFile_erase(cp_SparseVirtualFile *self, PyObject *args, PyObject 
 }
 
 static const char *cp_SparseVirtualFile_need_docstring = \
-"Given a file_position and length this returns a ordered list [(file_position, length), ...] of seek/read" \
+"Given a file_position and length this returns a ordered list ``[(file_position, length), ...]`` of seek/read" \
 " instructions of data that is required to be written to the Sparse Virtual File so that a subsequent read will succeed." \
-"\nUsage:\n" \
+"\nUsage::\n\n" \
 "    if not svf.has(file_position, length):\n" \
 "        for seek, read in svf.need(file_position, length):\n" \
 "            # Somehow get the data at all seek/read positions...\n" \
@@ -429,7 +429,7 @@ bool file_mod_time_matches(const double &file_mod_time) const noexcept {
 */
 
 static const char *cp_SparseVirtualFile_blocks_docstring = \
-"This returns a ordered tuple ((file_position, length), ...) of the shape of the blocks held by the SVF in file position order.";
+"This returns a ordered tuple ``((file_position, length), ...)`` of the shape of the blocks held by the SVF in file position order.";
 
 static PyObject *
 cp_SparseVirtualFile_blocks(cp_SparseVirtualFile *self) {
@@ -636,7 +636,7 @@ cp_SparseVirtualFile_time_write(cp_SparseVirtualFile *self) {
 
 
 static const char *cp_SparseVirtualFile_time_read_docstring = \
-"Returns the timestamp of the last read from the Sparse Virtual File as a datetime.datetime." \
+"Returns the timestamp of the last read from the Sparse Virtual File as a datetime.datetime" \
 " or None if no read has taken place.";
 //SVFS_SVF_METHOD_DATETIME_WRAPPER(time_read)
 
