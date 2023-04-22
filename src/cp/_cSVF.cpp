@@ -98,7 +98,10 @@ cp_SparseVirtualFile_dealloc(cp_SparseVirtualFile *self) {
 // SVFS functions
 #pragma mark SVF functions
 
-static const char *cp_SparseVirtualFile_id_docstring = "Returns the ID of the Sparse Virtual File.";
+static const char *cp_SparseVirtualFile_id_docstring = (
+        "Returns the ID of the Sparse Virtual File."
+        "\n\nSignature:\n\n``id() -> str:``"
+);
 
 static PyObject *
 cp_SparseVirtualFile_id(cp_SparseVirtualFile *self) {
@@ -121,8 +124,10 @@ cp_SparseVirtualFile_id(cp_SparseVirtualFile *self) {
     return ret;
 }
 
-static const char *cp_SparseVirtualFile_size_of_docstring = \
-"Returns the estimate of total memory usage of the Sparse Virtual File.";
+static const char *cp_SparseVirtualFile_size_of_docstring = (
+        "Returns the estimate of total memory usage of the Sparse Virtual File."
+        "\n\nSignature:\n\n``size_of() -> int:``"
+);
 
 static PyObject *
 cp_SparseVirtualFile_size_of(cp_SparseVirtualFile *self) {
@@ -135,8 +140,10 @@ cp_SparseVirtualFile_size_of(cp_SparseVirtualFile *self) {
     }
 }
 
-static const char *cp_SparseVirtualFile_num_bytes_docstring = \
-"Returns the total number of file bytes held by the Sparse Virtual File.";
+static const char *cp_SparseVirtualFile_num_bytes_docstring = (
+        "Returns the total number of file bytes held by the Sparse Virtual File."
+        "\n\nSignature:\n\n``num_bytes() -> int:``"
+);
 
 static PyObject *
 cp_SparseVirtualFile_num_bytes(cp_SparseVirtualFile *self) {
@@ -149,8 +156,10 @@ cp_SparseVirtualFile_num_bytes(cp_SparseVirtualFile *self) {
     }
 }
 
-static const char *cp_SparseVirtualFile_num_blocks_docstring = \
-"Returns the total number of blocks of data held by the Sparse Virtual File System.";
+static const char *cp_SparseVirtualFile_num_blocks_docstring = (
+        "Returns the total number of blocks of data held by the Sparse Virtual File System."
+        "\n\nSignature:\n\n``num_blocks() -> int:``"
+);
 
 static PyObject *
 cp_SparseVirtualFile_num_blocks(cp_SparseVirtualFile *self) {
@@ -163,9 +172,11 @@ cp_SparseVirtualFile_num_blocks(cp_SparseVirtualFile *self) {
     }
 }
 
-static const char *cp_SparseVirtualFile_has_data_docstring = \
-"Checks if the Sparse Virtual File of the ID has data at the given ``file_position`` and ``length``." \
-" This returns True if the Sparse Virtual File has the data, False otherwise.";
+static const char *cp_SparseVirtualFile_has_data_docstring = (
+        "Checks if the Sparse Virtual File of the ID has data at the given ``file_position`` and ``length``."
+        " This returns True if the Sparse Virtual File has the data, False otherwise."
+        "\n\nSignature:\n\n``has_data(file_position: int, length: int) -> bool:``"
+);
 
 static PyObject *
 cp_SparseVirtualFile_has_data(cp_SparseVirtualFile *self, PyObject *args, PyObject *kwargs) {
@@ -202,12 +213,14 @@ cp_SparseVirtualFile_has_data(cp_SparseVirtualFile *self, PyObject *args, PyObje
     return ret;
 }
 
-static const char *cp_SparseVirtualFile_write_docstring = \
-"Writes the data to the Sparse Virtual File of the given ID at ``file_position`` and ``data`` as a ``bytes`` object." \
-" This will raise an ``IOError`` if the given data is different than that seen before and only" \
-" new data up to this point will be written." \
-" If the ``byte`` data is empty nothing will be done." \
-" This will raise a RuntimeError if the data can not be written for any other reason";
+static const char *cp_SparseVirtualFile_write_docstring = (
+        "Writes the data to the Sparse Virtual File of the given ID at ``file_position`` and ``data`` as a ``bytes`` object."
+        " This will raise an ``IOError`` if ``self.compare_for_diff`` is True and given data is different than"
+        " that seen before and only new data up to this point will be written."
+        " If the ``byte`` data is empty nothing will be done."
+        " This will raise a RuntimeError if the data can not be written for any other reason"
+        "\n\nSignature:\n\n``write(file_position: int, data: bytes) -> None:``"
+);
 
 static PyObject *
 cp_SparseVirtualFile_write(cp_SparseVirtualFile *self, PyObject *args, PyObject *kwargs) {
@@ -251,11 +264,13 @@ cp_SparseVirtualFile_write(cp_SparseVirtualFile *self, PyObject *args, PyObject 
     return ret;
 }
 
-static const char *cp_SparseVirtualFile_read_docstring = \
-"Read the data from the Sparse Virtual File at ``file_position`` and ``length`` returning a ``bytes`` object." \
-" This takes a file position and a length." \
-" This will raise an ``IOError`` if any data is not present" \
-" This will raise a ``RuntimeError`` if the data can not be read for any other reason";
+static const char *cp_SparseVirtualFile_read_docstring = (
+        "Read the data from the Sparse Virtual File at ``file_position`` and ``length`` returning a ``bytes`` object."
+        " This takes a file position and a length."
+        " This will raise an ``IOError`` if any data is not present"
+        " This will raise a ``RuntimeError`` if the data can not be read for any other reason"
+        "\n\nSignature:\n\n``read(file_position: int, length: int) -> bytes:``"
+);
 
 static PyObject *
 private_SparseVirtualFile_svf_read_as_py_bytes(cp_SparseVirtualFile *self, unsigned long long fpos,
@@ -316,10 +331,12 @@ cp_SparseVirtualFile_read(cp_SparseVirtualFile *self, PyObject *args, PyObject *
 }
 
 
-static const char *cp_SparseVirtualFile_erase_docstring = \
-"Erase the data from the Sparse Virtual File at the given ``file_position`` which must be the beginning of a block." \
-" This will raise an ``IOError`` if a block is not present at that file position." \
-" This will raise a ``RuntimeError`` if the data can not be read for any other reason";
+static const char *cp_SparseVirtualFile_erase_docstring = (
+        "Erase the data from the Sparse Virtual File at the given ``file_position`` which must be the beginning of a block."
+        " This will raise an ``IOError`` if a block is not present at that file position."
+        " This will raise a ``RuntimeError`` if the data can not be read for any other reason"
+        "\n\nSignature:\n\n``erase(file_position: int) -> None:``"
+);
 
 static PyObject *
 cp_SparseVirtualFile_erase(cp_SparseVirtualFile *self, PyObject *args, PyObject *kwargs) {
@@ -349,16 +366,17 @@ cp_SparseVirtualFile_erase(cp_SparseVirtualFile *self, PyObject *args, PyObject 
     Py_RETURN_NONE;
 }
 
-static const char *cp_SparseVirtualFile_need_docstring = \
-"Given a file_position and length this returns a ordered list ``[(file_position, length), ...]`` of seek/read" \
-" instructions of data that is required to be written to the Sparse Virtual File so that a subsequent read will succeed." \
-"\nUsage::\n\n" \
-"    if not svf.has(position, length):\n" \
-"        for position, read_length in svf.need(position, length):\n" \
-"            # Somehow get data as a bytes object at position...\n" \
-"            svf.write(fposition, data)\n" \
-"    return svf.read(file_position, length):\n" \
-;
+static const char *cp_SparseVirtualFile_need_docstring = (
+        "Given a file_position and length this returns a ordered list ``[(file_position, length), ...]`` of seek/read"
+        " instructions of data that is required to be written to the Sparse Virtual File so that a subsequent read will succeed."
+        "\nUsage::\n\n"
+        "    if not svf.has_data(position, length):\n"
+        "        for position, read_length in svf.need(position, length):\n"
+        "            # Somehow get data as a bytes object at position...\n"
+        "            svf.write(fposition, data)\n"
+        "    return svf.read(file_position, length):\n"
+        "\n\nSignature:\n\n``need(file_position: int, length: int) -> typing.Tuple[typing.Tuple[int, int], ...]:``"
+);
 
 static PyObject *
 cp_SparseVirtualFile_need(cp_SparseVirtualFile *self, PyObject *args, PyObject *kwargs) {
@@ -428,8 +446,11 @@ bool file_mod_time_matches(const double &file_mod_time) const noexcept {
 }
 */
 
-static const char *cp_SparseVirtualFile_blocks_docstring = \
-"This returns a ordered tuple ``((file_position, length), ...)`` of the shape of the blocks held by the SVF in file position order.";
+static const char *cp_SparseVirtualFile_blocks_docstring = (
+        "This returns a ordered tuple ``((file_position, length), ...)``"
+        " of the shape of the blocks held by the SVF in file position order."
+        "\n\nSignature:\n\n``blocks() -> typing.Tuple[typing.Tuple[int, int], ...]:``"
+);
 
 static PyObject *
 cp_SparseVirtualFile_blocks(cp_SparseVirtualFile *self) {
@@ -495,8 +516,10 @@ finally: \
     return ret; \
 }
 
-static const char *cp_SparseVirtualFile_file_mod_time_matches_docstring = \
-"Returns True if the file modification time of the Sparse Virtual File matches the given time as a float.";
+static const char *cp_SparseVirtualFile_file_mod_time_matches_docstring = (
+        "Returns True if the file modification time of the Sparse Virtual File matches the given time as a float."
+        "\n\nSignature:\n\n``file_mod_time_matches(file_mod_time: float) -> bool:``"
+);
 
 static PyObject *
 cp_SparseVirtualFile_file_mod_time_matches(cp_SparseVirtualFile *self, PyObject *args, PyObject *kwargs) {
@@ -546,8 +569,10 @@ std::chrono::time_point<std::chrono::system_clock> time_write() const noexcept {
 std::chrono::time_point<std::chrono::system_clock> time_read() const noexcept { return m_time_read; }
 */
 
-static const char *cp_SparseVirtualFile_file_mod_time_docstring = \
-"Returns the file modification time as a float in UNIX time of the Sparse Virtual File.";
+static const char *cp_SparseVirtualFile_file_mod_time_docstring = (
+        "Returns the file modification time as a float in UNIX time of the Sparse Virtual File."
+        "\n\nSignature:\n\n``file_mod_time() -> float:``"
+);
 
 static PyObject *
 cp_SparseVirtualFile_file_mod_time(cp_SparseVirtualFile *self) {
@@ -571,31 +596,41 @@ cp_SparseVirtualFile_file_mod_time(cp_SparseVirtualFile *self) {
     return ret;
 }
 
-static const char *cp_SparseVirtualFile_count_write_docstring = \
-"Returns the count of write operations on the Sparse Virtual File.";
+static const char *cp_SparseVirtualFile_count_write_docstring = (
+        "Returns the count of write operations on the Sparse Virtual File."
+        "\n\nSignature:\n\n``count_write() -> int:``"
+);
 
 SVFS_SVF_METHOD_SIZE_T_WRAPPER(count_write);
 
-static const char *cp_SparseVirtualFile_count_read_docstring = \
-"Returns the count of read operations on the Sparse Virtual File.";
+static const char *cp_SparseVirtualFile_count_read_docstring = (
+        "Returns the count of read operations on the Sparse Virtual File."
+        "\n\nSignature:\n\n``count_read() -> int:``"
+);
 
 SVFS_SVF_METHOD_SIZE_T_WRAPPER(count_read);
 
-static const char *cp_SparseVirtualFile_bytes_write_docstring = \
-"Returns the count of the number of bytes writen to the Sparse Virtual File.";
+static const char *cp_SparseVirtualFile_bytes_write_docstring = (
+        "Returns the count of the number of bytes writen to the Sparse Virtual File."
+        "\n\nSignature:\n\n``bytes_write() -> int:``"
+);
 
 SVFS_SVF_METHOD_SIZE_T_WRAPPER(bytes_write);
 
-static const char *cp_SparseVirtualFile_bytes_read_docstring = \
-"Returns the count of the number of bytes read from the Sparse Virtual File.";
+static const char *cp_SparseVirtualFile_bytes_read_docstring = (
+        "Returns the count of the number of bytes read from the Sparse Virtual File."
+        "\n\nSignature:\n\n``bytes_read() -> int:``"
+);
 
 SVFS_SVF_METHOD_SIZE_T_WRAPPER(bytes_read);
 
 // NOTE: time_read and time_write functions are very similar.
 
-static const char *cp_SparseVirtualFile_time_write_docstring = \
-"Returns the timestamp of the last write to the Sparse Virtual File as a ``datetime.datetime``" \
-" or ``None`` if no read has taken place.";
+static const char *cp_SparseVirtualFile_time_write_docstring = (
+        "Returns the timestamp of the last write to the Sparse Virtual File as a ``datetime.datetime``"
+        " or ``None`` if no read has taken place."
+        "\n\nSignature:\n\n``time_write() -> datetime.datetime:``"
+);
 //SVFS_SVF_METHOD_DATETIME_WRAPPER(time_write)
 
 static PyObject *
@@ -635,9 +670,11 @@ cp_SparseVirtualFile_time_write(cp_SparseVirtualFile *self) {
 }
 
 
-static const char *cp_SparseVirtualFile_time_read_docstring = \
-"Returns the timestamp of the last read from the Sparse Virtual File as a ``datetime.datetime``" \
-" or ``None`` if no read has taken place.";
+static const char *cp_SparseVirtualFile_time_read_docstring = (
+        "Returns the timestamp of the last read from the Sparse Virtual File as a ``datetime.datetime``"
+        " or ``None`` if no read has taken place."
+        "\n\nSignature:\n\n``time_read() -> datetime.datetime:``"
+);
 //SVFS_SVF_METHOD_DATETIME_WRAPPER(time_read)
 
 static PyObject *
@@ -968,10 +1005,13 @@ static const char *svfs_cSVF_doc = PyDoc_STR(
     " It has read/write operations and can describe what file fragments are needed, if any, before any read operation."
     "\n\n"
     "The constructor takes a string as an ID and an optionally:\n"
-    " - A file modification time as a double (default 0.0)."
+    " - A file modification time as a float (default 0.0)."
     " This can be used for checking if the actual file might been changed which might invalidate the SVF.\n"
-    " - ``overwrite_on_exit``, a boolean that will overwrite the memory on destruction (default False).\n"
-    " - ``compare_for_diff``, a boolean that will check that overlapping writes match (default True).\n"
+    " - ``overwrite_on_exit``, a boolean that will overwrite the memory on destruction (default ``False``)."
+    " If ``True`` then ``clear()`` on a 1Mb SVF typically takes 35 µs, if ``False`` 1.5 µs.\n"
+    " - ``compare_for_diff``, a boolean that will check that overlapping writes match (default ``True``)."
+    " If ``True`` this adds about 25% time to an overlapping write but gives better chance of catching changes to the"
+    " original file.\n"
     "\n\n"
     "For example::"
     "\n\n"
@@ -982,6 +1022,8 @@ static const char *svfs_cSVF_doc = PyDoc_STR(
     "       svf.read(13, 2)  # Returns b'BC'\n"
     "       svf.need(10, 12)  # Returns ((10, 2), 16, 6)), the file positions and lengths the the SVF needs\n"
     "       svf.read(1024, 18)  # SVF raises an error as it has no data here.\n"
+    "\n"
+    "Signature:\n\n``svfs.cSVF(id: str, mod_time: float = 0.0, overwrite_on_exit: bool = False, compare_for_diff: bool = True)``"
 );
 // @formatter:on
 // clang-format on

@@ -61,12 +61,12 @@ namespace SVFS {
     typedef struct SparseVirtualFileConfig {
         // If true the memory is destructively overwritten when the Sparse Virtual File is destroyed.
         // See test_perf_erase_overwrite_false()/test_perf_erase_overwrite_true() for performance comparison.
-        // If true then clear() on a 1Mb SVF takes 35 us, if false 1.5 us.
+        // If true then ``clear()`` on a 1Mb SVF typically takes 35 us, if false 1.5 us.
         bool overwrite_on_exit = false;
         // If true compare with existing data on write and if there is a difference throw an exception.
         // This trades performance (if false) for correctness (if true).
         // See test_perf_write_with_diff_check()/test_perf_write_without_diff_check()
-        // If true writing is 0.321 ms, if false 0.264.
+        // If true writing is 0.321 ms, if false 0.264 m.
         bool compare_for_diff = true;
     } tSparseVirtualFileConfig;
 

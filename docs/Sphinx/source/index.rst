@@ -11,6 +11,8 @@ Welcome to svfs's documentation!
    :caption: Contents:
 
    introduction
+   installation
+   tech_notes
    ref/index.rst
 
 Indices and tables
