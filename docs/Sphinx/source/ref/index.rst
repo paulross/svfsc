@@ -14,5 +14,5 @@ Python Interface
 C++ Interface
 ==================
 
-**TODO**
+This is `documented using Doxygen <../_static/doxygen_html/index.html>`_
 

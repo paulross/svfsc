@@ -65,4 +65,4 @@ cmake-build-debug/
 cmake-build-release/
 
 docs/Sphinx/build
-docs/doxygen
+docs/Sphinx/source/ref/doxygen

@@ -7,9 +7,13 @@
 
 #include <iostream>
 
+/**
+ * Class that saves the current iostream state and restores it on destruction.
+ */
 class SaveStreamState
 {
 public:
+    /** Constructor that takes an existing stream. */
     explicit SaveStreamState (std::ios& stream)
             : m_stream_ref (stream),
               m_stream_flags (stream.flags()),
@@ -21,6 +25,7 @@ public:
         // Uses the default ctor for std::ios_base::fmtflags
         stream.flags(std::ios_base::fmtflags());
     }
+    /** Destructor restores the stream to its previous state. */
     virtual ~SaveStreamState() {
         try {
             if (m_stream_ref) {
