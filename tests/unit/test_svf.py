@@ -279,6 +279,58 @@ def test_SVF_need(blocks, need_fpos, need_length, expected_need):
     assert result == expected_need
 
 
+@pytest.mark.parametrize(
+    'blocks, need_fpos, need_length, greedy_length, expected_need',
+    (
+            (
+                    (),
+                    0, 6, 0,
+                    [(0, 6), ],
+            ),
+            (
+                    (),
+                    0, 6, 32,
+                    [(0, 32), ],
+            ),
+            # Based on C++ tests
+            #             TestCaseNeedGreedy(
+            #                     "Need (greedy=0)",
+            #                     {{8,  4}, {16, 4}, {32, 4}},
+            #                     8, 40, 0,
+            #                     {{12, 4}, {20, 12}, {36, 12},}
+            #             ),
+            (
+                    ((8, 4), (16, 4), (32, 4),),
+                    8, 40, 0,
+                    [(12, 4), (20, 12), (36, 12), ],
+            ),
+            #             TestCaseNeedGreedy(
+            #                     "Need (greedy=8)",
+            #                     {{8,  4}, {16, 4}, {32, 4}},
+            #                     8, 40, 8,
+            #                     {{12, 20}, {36, 12},}
+            #             ),
+            (
+                    ((8, 4), (16, 4), (32, 4),),
+                    8, 40, 8,
+                    [(12, 20), (36, 12), ],
+            ),
+    ),
+    ids=[
+        'Empty greedy=0',
+        'Empty greedy=32',
+        'Three blocks greedy=0',
+        'Three blocks greedy=8',
+    ],
+)
+def test_SVF_need_greedy(blocks, need_fpos, need_length, greedy_length, expected_need):
+    s = svfs.cSVF('id', 1.0)
+    for fpos, length in blocks:
+        s.write(fpos, b' ' * length)
+    result = s.need(need_fpos, need_length, greedy_length=greedy_length)
+    assert result == expected_need
+
+
 def test_SVF_need_write_special():
     """Special case with error found in RaPiVot tiff_dump.py when using a SVF:
 

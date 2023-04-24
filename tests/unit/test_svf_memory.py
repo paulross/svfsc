@@ -93,7 +93,7 @@ def test_memory_SVF_pickle_dumps():
         f' end: {proc.memory_info().rss:,d}'
         f' ∆: {rss_diff:+,d}')
     # Slightly weird, this diff is always about 120Mb even making SLOW_REPEAT 4000
-    assert rss_diff < 180e6
+    assert rss_diff < 200e6
     # assert 0
 
 

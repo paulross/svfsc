@@ -385,7 +385,7 @@ namespace SVFS {
 #endif
 
         if (m_svf.empty()) {
-            return {{fpos, len}};
+            return {{fpos, greedy_length > 0 ? greedy_length : len}};
         }
         t_fpos fpos_to = fpos + len;
         t_seek_reads ret;

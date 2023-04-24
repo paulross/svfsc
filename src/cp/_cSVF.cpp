@@ -386,13 +386,14 @@ cp_SparseVirtualFile_need(cp_SparseVirtualFile *self, PyObject *args, PyObject *
     PyObject * list_item = NULL; // PyTupleObject
     unsigned long long fpos = 0;
     unsigned long long len = 0;
-    static const char *kwlist[] = {"file_position", "length", NULL};
+    unsigned long long greedy_len = 0;
+    static const char *kwlist[] = {"file_position", "length", "greedy_length", NULL};
 
-    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "KK", (char **) kwlist, &fpos, &len)) {
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "KK|K", (char **) kwlist, &fpos, &len, &greedy_len)) {
         goto except;
     }
     try {
-        SVFS::t_seek_reads seek_read = self->pSvf->need(fpos, len);
+        SVFS::t_seek_reads seek_read = self->pSvf->need(fpos, len, greedy_len);
         ret = PyList_New(seek_read.size());
         for (size_t i = 0; i < seek_read.size(); ++i) {
             list_item = Py_BuildValue("KK", seek_read[i].first, seek_read[i].second);

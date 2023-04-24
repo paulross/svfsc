@@ -902,6 +902,12 @@ namespace SVFS {
                     {{8, 4}}
             ),
             TestCaseNeedGreedy(
+                    "Need (greedy=32) on empty SVF",
+                    {},
+                    8, 4, 32,
+                    {{8, 32}}
+            ),
+            TestCaseNeedGreedy(
                     "Need (greedy=0)",
                     {{8,  4}, {16, 4}, {32, 4}},
                     8, 40, 0,
