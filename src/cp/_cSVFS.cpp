@@ -549,7 +549,7 @@ cp_SparseVirtualFileSystem_svf_need(cp_SparseVirtualFileSystem *self, PyObject *
     try {
         if (self->p_svfs->has(cpp_id)) {
             const SVFS::SparseVirtualFile &svf = self->p_svfs->at(cpp_id);
-            SVFS::t_seek_read seek_read = svf.need(fpos, len);
+            SVFS::t_seek_reads seek_read = svf.need(fpos, len);
             ret = PyList_New(seek_read.size());
             for (size_t i = 0; i < seek_read.size(); ++i) {
                 list_item = Py_BuildValue("KK", seek_read[i].first, seek_read[i].second);
@@ -622,7 +622,7 @@ finally: \
 /**
 // ---- Meta information about the SVF ----
 // The existing blocks.
-t_seek_read blocks() const noexcept;
+t_seek_reads blocks() const noexcept;
 
 // Information about memory used:
 // size_of() gives best guess of total memory usage.
@@ -663,7 +663,7 @@ cp_SparseVirtualFileSystem_svf_blocks(cp_SparseVirtualFileSystem *self, PyObject
     try {
         if (self->p_svfs->has(cpp_id)) {
             const SVFS::SparseVirtualFile &svf = self->p_svfs->at(cpp_id);
-            SVFS::t_seek_read seek_read = svf.blocks();
+            SVFS::t_seek_reads seek_read = svf.blocks();
             ret = PyTuple_New(seek_read.size());
             if (!ret) {
                 PyErr_Format(PyExc_MemoryError, "%s: Can not create tuple for return", __FUNCTION__);

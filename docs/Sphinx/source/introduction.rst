@@ -13,4 +13,21 @@ This is a specialised cache where a particular file might not be available but *
 reading the whole thing.
 
 ``svfs`` is written in C++ with bindings to Python.
-It can be used by any language.
+
+
+Example Python Usage
+======================
+
+Install from pypi:
+
+.. code-block:: console
+
+    $ pip install svfs
+
+Complete installation instructions are :ref:`here <installation>`.
+
+
+
+
+
+

@@ -392,7 +392,7 @@ cp_SparseVirtualFile_need(cp_SparseVirtualFile *self, PyObject *args, PyObject *
         goto except;
     }
     try {
-        SVFS::t_seek_read seek_read = self->pSvf->need(fpos, len);
+        SVFS::t_seek_reads seek_read = self->pSvf->need(fpos, len);
         ret = PyList_New(seek_read.size());
         for (size_t i = 0; i < seek_read.size(); ++i) {
             list_item = Py_BuildValue("KK", seek_read[i].first, seek_read[i].second);
@@ -426,7 +426,7 @@ cp_SparseVirtualFile_need(cp_SparseVirtualFile *self, PyObject *args, PyObject *
 /**
 // ---- Meta information about the SVF ----
 // The existing blocks.
-t_seek_read blocks() const noexcept;
+t_seek_reads blocks() const noexcept;
 
 // Information about memory used:
 // size_of() gives best guess of total memory usage.
@@ -459,7 +459,7 @@ cp_SparseVirtualFile_blocks(cp_SparseVirtualFile *self) {
     PyObject * ret = NULL; // PyTupleObject
     PyObject * insert_item = NULL; // PyTupleObject
     try {
-        SVFS::t_seek_read seek_read = self->pSvf->blocks();
+        SVFS::t_seek_reads seek_read = self->pSvf->blocks();
         ret = PyTuple_New(seek_read.size());
         if (!ret) {
             PyErr_Format(PyExc_MemoryError, "%s: Can not create tuple for return", __FUNCTION__);
@@ -735,7 +735,7 @@ static PyObject *
 cp_SparseVirtualFile___getstate__(cp_SparseVirtualFile *self, PyObject *Py_UNUSED(ignored)) {
     ASSERT_FUNCTION_ENTRY_SVF(pSvf);
 
-    SVFS::t_seek_read blocks_fpos_len = self->pSvf->blocks();
+    SVFS::t_seek_reads blocks_fpos_len = self->pSvf->blocks();
     /* Build a tuple of ((fpos, bytes), ...) */
     PyObject * blocks_fpos_bytes = PyTuple_New(blocks_fpos_len.size());
     if (!blocks_fpos_bytes) {
@@ -743,7 +743,7 @@ cp_SparseVirtualFile___getstate__(cp_SparseVirtualFile *self, PyObject *Py_UNUSE
         return NULL;
     }
     Py_ssize_t index = 0;
-    for (SVFS::t_seek_read::const_iterator iter = blocks_fpos_len.cbegin(); iter != blocks_fpos_len.cend(); ++iter) {
+    for (SVFS::t_seek_reads::const_iterator iter = blocks_fpos_len.cbegin(); iter != blocks_fpos_len.cend(); ++iter) {
         PyObject * bytes_object = private_SparseVirtualFile_svf_read_as_py_bytes(self, iter->first, iter->second);
         if (bytes_object == NULL) {
             Py_DECREF(blocks_fpos_bytes);

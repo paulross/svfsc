@@ -16,8 +16,8 @@ namespace SVFS {
 
     class TestCaseABC {
     public:
-        TestCaseABC(const std::string &m_test_name, const t_seek_read &m_writes) : m_test_name(m_test_name),
-                                                                                   m_writes(m_writes) {}
+        TestCaseABC(const std::string &m_test_name, const t_seek_reads &m_writes) : m_test_name(m_test_name),
+                                                                                    m_writes(m_writes) {}
         virtual TestResult run() const = 0;
         // Load all the specified write seek/write blocks
         size_t load_writes(SparseVirtualFile &svf, const char *data) const {
@@ -47,24 +47,24 @@ namespace SVFS {
         const std::string & test_name() const noexcept { return m_test_name; }
     protected:
         std::string m_test_name;
-        t_seek_read m_writes;
+        t_seek_reads m_writes;
     };
 
 
     class TestCaseWrite : public TestCaseABC {
     public:
-        TestCaseWrite(const std::string &m_test_name, const t_seek_read &m_writes,
-                      const t_seek_read &m_expected_blocks);
+        TestCaseWrite(const std::string &m_test_name, const t_seek_reads &m_writes,
+                      const t_seek_reads &m_expected_blocks);
 
         TestResult run() const override;
         virtual ~TestCaseWrite() =  default;
     private:
-        t_seek_read m_expected_blocks;
+        t_seek_reads m_expected_blocks;
     };
 
     class TestCaseWriteThrows : public TestCaseABC {
     public:
-        TestCaseWriteThrows(const std::string &m_test_name, const t_seek_read &m_writes,
+        TestCaseWriteThrows(const std::string &m_test_name, const t_seek_reads &m_writes,
                             t_fpos fpos, size_t len, const char *data, const std::string &message);
 
         TestResult run() const override;
@@ -80,7 +80,7 @@ namespace SVFS {
 
     class TestCaseRead : public TestCaseABC {
     public:
-        TestCaseRead(const std::string &m_test_name, const t_seek_read &m_writes,
+        TestCaseRead(const std::string &m_test_name, const t_seek_reads &m_writes,
                      t_fpos fpos, size_t len);
 
         TestResult run() const override;
@@ -94,7 +94,7 @@ namespace SVFS {
 
     class TestCaseReadThrows : public TestCaseRead {
     public:
-        TestCaseReadThrows(const std::string &m_test_name, const t_seek_read &m_writes,
+        TestCaseReadThrows(const std::string &m_test_name, const t_seek_reads &m_writes,
                            t_fpos fpos, size_t len, const std::string &message);
 
         TestResult run() const override;
@@ -107,7 +107,7 @@ namespace SVFS {
 
     class TestCaseHas : public TestCaseABC {
     public:
-        TestCaseHas(const std::string &m_test_name, const t_seek_read &m_writes,
+        TestCaseHas(const std::string &m_test_name, const t_seek_reads &m_writes,
                      t_fpos fpos, size_t len, bool expected);
 
         TestResult run() const override;
@@ -122,8 +122,8 @@ namespace SVFS {
 
     class TestCaseNeed : public TestCaseABC {
     public:
-        TestCaseNeed(const std::string &m_test_name, const t_seek_read &m_writes,
-                     t_fpos fpos, size_t len, const t_seek_read &m_need);
+        TestCaseNeed(const std::string &m_test_name, const t_seek_reads &m_writes,
+                     t_fpos fpos, size_t len, const t_seek_reads &m_need);
 
         TestResult run() const override;
 
@@ -132,12 +132,25 @@ namespace SVFS {
     protected:
         t_fpos m_fpos;
         size_t m_len;
-        t_seek_read m_need;
+        t_seek_reads m_need;
+    };
+
+    class TestCaseNeedGreedy : public TestCaseABC {
+    public:
+        explicit TestCaseNeedGreedy(const std::string &m_test_name, const t_seek_reads &m_writes,
+                     t_fpos fpos, size_t len, size_t greedy_length, const t_seek_reads &m_need);
+        TestResult run() const override;
+        virtual ~TestCaseNeedGreedy() = default;
+    protected:
+        t_fpos m_fpos;
+        size_t m_len;
+        size_t m_greedy_length;
+        t_seek_reads m_need;
     };
 
     class TestCaseErase : public TestCaseABC {
     public:
-        TestCaseErase(const std::string &m_test_name, const t_seek_read &m_writes, t_fpos fpos);
+        TestCaseErase(const std::string &m_test_name, const t_seek_reads &m_writes, t_fpos fpos);
 
         TestResult run() const override;
 
@@ -150,7 +163,7 @@ namespace SVFS {
 
     class TestCaseEraseThrows : public TestCaseErase {
     public:
-        TestCaseEraseThrows(const std::string &m_test_name, const t_seek_read &m_writes,
+        TestCaseEraseThrows(const std::string &m_test_name, const t_seek_reads &m_writes,
                            t_fpos fpos, const std::string &message);
 
         TestResult run() const override;

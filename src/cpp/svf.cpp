@@ -378,7 +378,7 @@ namespace SVFS {
         m_time_read = std::chrono::system_clock::now();
     }
 
-    t_seek_read SparseVirtualFile::need(t_fpos fpos, size_t len) const noexcept {
+    t_seek_reads SparseVirtualFile::need(t_fpos fpos, size_t len, size_t greedy_length) const noexcept {
         SVF_ASSERT(integrity() == ERROR_NONE);
 #ifdef SVF_THREAD_SAFE
         std::lock_guard<std::mutex> mutex(m_mutex);
@@ -388,7 +388,7 @@ namespace SVFS {
             return {{fpos, len}};
         }
         t_fpos fpos_to = fpos + len;
-        t_seek_read ret;
+        t_seek_reads ret;
         t_map::const_iterator iter = m_svf.upper_bound(fpos);
         if (iter == m_svf.begin()) {
             if (fpos + len <= iter->first) {
@@ -462,16 +462,56 @@ namespace SVFS {
         }
         assert(fpos == fpos_to);
         assert(len == 0);
+        if (greedy_length && !ret.empty()) {
+            ret = _minimise_seek_reads(ret, greedy_length);
+        }
         return ret;
     }
 
-    t_seek_read SparseVirtualFile::blocks() const noexcept {
+    size_t SparseVirtualFile::_amount_to_read(t_seek_read iter, size_t greedy_length) noexcept {
+        return iter.second > greedy_length ? iter.second : greedy_length;
+    }
+
+    /**
+     * May reduce the list of fle position lengths so that by coalescing them if possible up to a limit greedy_length.
+     *
+     * @param seek_reads Vector of minimal seek/reads.
+     * @param greedy_length Maximal length that allows coalescing.
+     * @return New vector of maximal seek/reads.
+     */
+    t_seek_reads SparseVirtualFile::_minimise_seek_reads(t_seek_reads seek_reads, size_t greedy_length) noexcept {
+        assert (greedy_length != 0);
+
+        t_seek_reads new_seek_reads;
+        for (const t_seek_read &seek_read: seek_reads) {
+            if (new_seek_reads.empty()) {
+                // Add the first greedy block
+                new_seek_reads.emplace_back(seek_read.first, _amount_to_read(seek_read, greedy_length));
+            } else {
+                // Compare with last new block
+                auto last_iter_of_new = new_seek_reads.end();
+                --last_iter_of_new;
+                if (seek_read.first > last_iter_of_new->first + last_iter_of_new->second) {
+                    // Add a new greedy block
+                    new_seek_reads.emplace_back(seek_read.first, _amount_to_read(seek_read, greedy_length));
+                } else if (seek_read.first + seek_read.second > last_iter_of_new->first + last_iter_of_new->second) {
+                    // Extend last block
+                    last_iter_of_new->second +=
+                            (seek_read.first + seek_read.second) - (last_iter_of_new->first + last_iter_of_new->second);
+                } // Otherwise do nothing, it is covered by greedy.
+            }
+        }
+        return new_seek_reads;
+    }
+
+
+    t_seek_reads SparseVirtualFile::blocks() const noexcept {
         SVF_ASSERT(integrity() == ERROR_NONE);
 #ifdef SVF_THREAD_SAFE
         std::lock_guard<std::mutex> mutex(m_mutex);
 #endif
 
-        t_seek_read ret;
+        t_seek_reads ret;
         for (t_map::const_iterator iter = m_svf.cbegin(); iter != m_svf.cend(); ++iter) {
             ret.push_back({ iter->first, iter->second.size() });
         }

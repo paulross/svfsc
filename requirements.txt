@@ -1,3 +1,4 @@
 psutil==5.9.5
 pytest==7.3.1
 pytest-benchmark==4.0.0
+sphinx==6.2.0

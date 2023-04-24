@@ -56,7 +56,8 @@ namespace SVFS {
     };
 
     typedef size_t t_fpos;
-    typedef std::vector<std::pair<t_fpos, size_t>> t_seek_read;
+    typedef std::pair<t_fpos, size_t> t_seek_read;
+    typedef std::vector<t_seek_read> t_seek_reads;
 
     typedef struct SparseVirtualFileConfig {
         // If true the memory is destructively overwritten when the Sparse Virtual File is destroyed.
@@ -95,7 +96,7 @@ namespace SVFS {
         // Not const as we update m_bytes_read, m_count_read, m_time_read.
         void read(t_fpos fpos, size_t len, char *p);
         // Create a new fragmentation list of seek/read instructions.
-        t_seek_read need(t_fpos fpos, size_t len) const noexcept;
+        t_seek_reads need(t_fpos fpos, size_t len, size_t greedy_length=0) const noexcept;
         // Implements the data deletion strategy.
         void clear() noexcept;
         // Remove the block at the given file position which must be the start of the block.
@@ -104,7 +105,7 @@ namespace SVFS {
         size_t erase(t_fpos fpos);
         // ---- Meta information about the SVF ----
         // The existing blocks as a list of (file_position, size) pairs.
-        t_seek_read blocks() const noexcept;
+        t_seek_reads blocks() const noexcept;
         size_t block_size(t_fpos fpos) const;
         // Information about memory used:
         // size_of() gives best guess of total memory usage.
@@ -177,7 +178,9 @@ namespace SVFS {
         // Does not use mutex or checks integrity
         t_fpos _last_file_position() const noexcept;
         t_fpos _last_file_pos_for_block(t_map::const_iterator iter) const noexcept;
-        /* Check internal integrity. */
+        static size_t _amount_to_read(t_seek_read iter, size_t greedy_length) noexcept;
+        static t_seek_reads _minimise_seek_reads(t_seek_reads seek_reads, size_t greedy_length) noexcept;
+            /* Check internal integrity. */
         enum ERROR_CONDITION {
             ERROR_NONE = 0,
             ERROR_EMPTY_BLOCK,
