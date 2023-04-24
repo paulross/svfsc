@@ -36,3 +36,11 @@ And to un-pickle:
 Pickling is *versioned* by an integer number.
 As `svfs` progresses this ensures that pickles from previous ``svfs`` versions can be detected and either rejected or read as modified.
 
+Detecting File Changes
+========================
+
+This is tricky.
+
+
+Gready Gets
+==================

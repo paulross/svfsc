@@ -369,13 +369,14 @@ cp_SparseVirtualFile_erase(cp_SparseVirtualFile *self, PyObject *args, PyObject 
 static const char *cp_SparseVirtualFile_need_docstring = (
         "Given a file_position and length this returns a ordered list ``[(file_position, length), ...]`` of seek/read"
         " instructions of data that is required to be written to the Sparse Virtual File so that a subsequent read will succeed."
+        " If greedy_length is > 0 then, if possible, blocks will be coalesced to reduce the size of the return value."
         "\nUsage::\n\n"
         "    if not svf.has_data(position, length):\n"
         "        for position, read_length in svf.need(position, length):\n"
         "            # Somehow get data as a bytes object at position...\n"
         "            svf.write(fposition, data)\n"
         "    return svf.read(file_position, length):\n"
-        "\n\nSignature:\n\n``need(file_position: int, length: int) -> typing.Tuple[typing.Tuple[int, int], ...]:``"
+        "\n\nSignature:\n\n``need(file_position: int, length: int, greedy_length: int = 0) -> typing.Tuple[typing.Tuple[int, int], ...]:``"
 );
 
 static PyObject *
