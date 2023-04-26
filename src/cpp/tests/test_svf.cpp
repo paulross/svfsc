@@ -894,6 +894,7 @@ namespace SVFS {
 // clang-format off
 // @formatter:off
     const std::vector<TestCaseNeedGreedy> need_greedy_test_cases = {
+#if 1
             TestCaseNeedGreedy(
                     "Need (greedy=0) on empty SVF",
                     {},
@@ -918,11 +919,12 @@ namespace SVFS {
                     8, 40, 0,
                     {{12, 4}, {20, 12}, {36, 12},}
             ),
+#endif
             TestCaseNeedGreedy(
-                    "Need (greedy=8)",
+                    "Need (greedy=64)",
                     {{8,  4}, {16, 4}, {32, 4}},
-                    8, 40, 8,
-                    {{12, 20}, {36, 12},}
+                    8, 40, 64,
+                    {{12, 64},}
             ),
     };
 // @formatter:on
@@ -1208,6 +1210,7 @@ namespace SVFS {
         test_debug_need_read_special_B();
 
         TestCount count;
+#if 1
         // Write
         count += test_write_all(results);
         count += test_write_all_throws(results);
@@ -1227,6 +1230,7 @@ namespace SVFS {
         // need()
         count += test_need_all(results);
         count += test_perf_need_sim_index(results);
+#endif
         count += test_need_greedy_all(results);
         // erase()
         count += test_erase_all(results);

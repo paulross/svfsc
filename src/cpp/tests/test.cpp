@@ -86,7 +86,8 @@ void write_test_results(const t_test_results &results, std::ostream &os) {
         for (const auto &result: results) {
             if (result.result() != 0) {
                 os << result.function();
-                os << " " << result.error_message();
+                os << " Name: " << result.test();
+                os << " Message: " << result.error_message();
                 os << std::endl;
             }
         }

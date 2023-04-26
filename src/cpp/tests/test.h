@@ -31,16 +31,16 @@ public:
                int m_result, const std::string &m_errro_message, double m_exec_time,
                size_t m_work_bytes) : m_function(m_function), m_test(m_test),
                                       m_result(m_result),
-                                      m_errro_message(m_errro_message),
+                                      m_error_message(m_errro_message),
                                       m_exec_time(m_exec_time),
                                       m_work_bytes(m_work_bytes) {}
     const std::string &function() const { return m_function; }
     const std::string &test() const { return m_test; }
     int result() const { return m_result; }
-    const std::string &error_message() const { return m_errro_message; }
+    const std::string &error_message() const { return m_error_message; }
     double exec_time() const { return m_exec_time; }
     size_t work_bytes() const { return m_work_bytes; }
-    bool has_error_message() const { return ! m_errro_message.empty(); }
+    bool has_error_message() const { return ! m_error_message.empty(); }
     // Returns the work rate in bytes/second.
     double work_rate() const {
         if (m_exec_time != 0.0) {
@@ -59,7 +59,7 @@ private:
     std::string m_function;
     std::string m_test;
     int m_result;
-    std::string m_errro_message;
+    std::string m_error_message;
     double m_exec_time;
     size_t m_work_bytes;
 };
