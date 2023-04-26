@@ -12,6 +12,7 @@ Welcome to svfs's documentation!
 
    introduction
    installation
+   performance
    tech_notes
    ref/index.rst
 

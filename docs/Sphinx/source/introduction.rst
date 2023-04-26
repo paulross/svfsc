@@ -1,5 +1,5 @@
 
-A Sparse Virtual File
+Sparse Virtual File
 #################################################
 
 Somtimes you don't need the whole file.

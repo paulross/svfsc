@@ -1,0 +1,207 @@
+/Users/engun/CLionProjects/cppSVF/cmake-build-release/cppSVF
+Testing SVF and SVFS...
+Testing SVF all...
+Testing SVFS all...
+Function                                                                   ----           Bytes              ms           ms/Mb            Mb/s Test
+virtual TestResult SVFS::TestCaseWrite::run() const                        pass             101        0.002090          21.698            46.1 Special (A)
+virtual TestResult SVFS::TestCaseWrite::run() const                        pass             113        0.001772          16.443            60.8 Special (B)
+virtual TestResult SVFS::TestCaseWrite::run() const                        pass               0        0.000061           0.000             0.0 Write no blocks
+virtual TestResult SVFS::TestCaseWrite::run() const                        pass               4        0.000351          92.013            10.9 Write single block
+virtual TestResult SVFS::TestCaseWrite::run() const                        pass               4        0.000484         126.878             7.9 Overwrite single block
+virtual TestResult SVFS::TestCaseWrite::run() const                        pass               5        0.000579         121.425             8.2 Extend single block - a
+virtual TestResult SVFS::TestCaseWrite::run() const                        pass               5        0.000600         125.829             7.9 Extend single block - b
+virtual TestResult SVFS::TestCaseWrite::run() const                        pass               9        0.000661          77.012            13.0 Coalesce two blocks
+virtual TestResult SVFS::TestCaseWrite::run() const                        pass               8        0.000597          78.250            12.8 Add second block
+virtual TestResult SVFS::TestCaseWrite::run() const                        pass              12        0.001534         134.043             7.5 New joins two blocks
+virtual TestResult SVFS::TestCaseWrite::run() const                        pass              12        0.001144          99.964            10.0 New just fills gap between two blocks
+virtual TestResult SVFS::TestCaseWrite::run() const                        pass              12        0.001224         106.955             9.3 New overlaps two blocks exactly
+virtual TestResult SVFS::TestCaseWrite::run() const                        pass              12        0.001022          89.304            11.2 New overlaps two blocks just short
+virtual TestResult SVFS::TestCaseWrite::run() const                        pass              14        0.001066          79.842            12.5 New overlaps two blocks and adds
+virtual TestResult SVFS::TestCaseWrite::run() const                        pass               8        0.001613         211.419             4.7 New appends old[0]
+virtual TestResult SVFS::TestCaseWrite::run() const                        pass               5        0.001136         238.236             4.2 New appends part of old[0]
+virtual TestResult SVFS::TestCaseWrite::run() const                        pass               5        0.001101         230.896             4.3 New overlaps end old[0] exactly
+virtual TestResult SVFS::TestCaseWrite::run() const                        pass               6        0.001008         176.161             5.7 New overlaps end old[0] and beyond
+virtual TestResult SVFS::TestCaseWrite::run() const                        pass              11        0.001330         126.782             7.9 New appends old[0] not [1] (a)
+virtual TestResult SVFS::TestCaseWrite::run() const                        pass              12        0.001340         117.091             8.5 New appends old[0] not [1] (b)
+virtual TestResult SVFS::TestCaseWrite::run() const                        pass              13        0.001699         137.041             7.3 New appends old[0] and [1] exactly
+virtual TestResult SVFS::TestCaseWrite::run() const                        pass              13        0.001613         130.104             7.7 New appends old[0] and [1] - just
+virtual TestResult SVFS::TestCaseWrite::run() const                        pass              13        0.001558         125.668             8.0 New appends old[0] and [1] - one byte
+virtual TestResult SVFS::TestCaseWrite::run() const                        pass              13        0.001576         127.120             7.9 New appends old[0] and [1] - all
+virtual TestResult SVFS::TestCaseWrite::run() const                        pass              14        0.001568         117.441             8.5 New appends old[0] and [1] overlapped
+virtual TestResult SVFS::TestCaseWriteThrows::run() const                  pass               4        0.000000           0.000             0.0 Throws: Overwrite single block
+TestCount SVFS::_test_perf_write_with_diff_check(bool, t_test_results &)   pass         1024000        0.260659           0.267          3746.5 256 block size, x4000, compare_for_diff=0
+TestCount SVFS::_test_perf_write_with_diff_check(bool, t_test_results &)   pass         1024000        0.330153           0.338          2957.9 256 block size, x4000, compare_for_diff=1
+TestCount SVFS::test_perf_write_sim_index_svf(t_test_results &)            pass         1048564       79.603687          79.605            12.6 Sim low level index
+TestCount SVFS::test_perf_write_1M_coalesced(t_test_results &)             pass         1048576       71.657750          71.658            14.0 1Mb,   1 sized blocks, coalesced
+TestCount SVFS::test_perf_write_1M_coalesced(t_test_results &)             pass         1048576       35.609744          35.610            28.1 1Mb,   2 sized blocks, coalesced
+TestCount SVFS::test_perf_write_1M_coalesced(t_test_results &)             pass         1048576       17.645879          17.646            56.7 1Mb,   4 sized blocks, coalesced
+TestCount SVFS::test_perf_write_1M_coalesced(t_test_results &)             pass         1048576        8.792925           8.793           113.7 1Mb,   8 sized blocks, coalesced
+TestCount SVFS::test_perf_write_1M_coalesced(t_test_results &)             pass         1048576        5.367739           5.368           186.3 1Mb,  16 sized blocks, coalesced
+TestCount SVFS::test_perf_write_1M_coalesced(t_test_results &)             pass         1048576        3.318316           3.318           301.4 1Mb,  32 sized blocks, coalesced
+TestCount SVFS::test_perf_write_1M_coalesced(t_test_results &)             pass         1048576        2.550697           2.551           392.0 1Mb,  64 sized blocks, coalesced
+TestCount SVFS::test_perf_write_1M_coalesced(t_test_results &)             pass         1048576        2.181982           2.182           458.3 1Mb, 128 sized blocks, coalesced
+TestCount SVFS::test_perf_write_1M_coalesced(t_test_results &)             pass         1048576        2.246767           2.247           445.1 1Mb, 256 sized blocks, coalesced
+TestCount SVFS::test_perf_write_1M_uncoalesced(t_test_results &)           pass         1048576      323.137855         323.138             3.1 1Mb,   1 sized blocks, uncoalesced
+TestCount SVFS::test_perf_write_1M_uncoalesced(t_test_results &)           pass         1048576      143.458867         143.459             7.0 1Mb,   2 sized blocks, uncoalesced
+TestCount SVFS::test_perf_write_1M_uncoalesced(t_test_results &)           pass         1048576       68.296910          68.297            14.6 1Mb,   4 sized blocks, uncoalesced
+TestCount SVFS::test_perf_write_1M_uncoalesced(t_test_results &)           pass         1048576       33.917283          33.917            29.5 1Mb,   8 sized blocks, uncoalesced
+TestCount SVFS::test_perf_write_1M_uncoalesced(t_test_results &)           pass         1048576       17.622333          17.622            56.7 1Mb,  16 sized blocks, uncoalesced
+TestCount SVFS::test_perf_write_1M_uncoalesced(t_test_results &)           pass         1048576       10.819814          10.820            92.4 1Mb,  32 sized blocks, uncoalesced
+TestCount SVFS::test_perf_write_1M_uncoalesced(t_test_results &)           pass         1048576        5.903501           5.904           169.4 1Mb,  64 sized blocks, uncoalesced
+TestCount SVFS::test_perf_write_1M_uncoalesced(t_test_results &)           pass         1048576        3.239088           3.239           308.7 1Mb, 128 sized blocks, uncoalesced
+TestCount SVFS::test_perf_write_1M_uncoalesced(t_test_results &)           pass         1048576        2.189376           2.189           456.8 1Mb, 256 sized blocks, uncoalesced
+TestCount SVFS::test_perf_write_1M_uncoalesced_size_of(t_test_results &)   pass        34603192      312.938951           9.483           105.5 1Mb,   1 sized blocks
+TestCount SVFS::test_perf_write_1M_uncoalesced_size_of(t_test_results &)   pass        17825976      147.691410           8.688           115.1 1Mb,   2 sized blocks
+TestCount SVFS::test_perf_write_1M_uncoalesced_size_of(t_test_results &)   pass         9437368       66.029966           7.337           136.3 1Mb,   4 sized blocks
+TestCount SVFS::test_perf_write_1M_uncoalesced_size_of(t_test_results &)   pass         5243064       36.456359           7.291           137.2 1Mb,   8 sized blocks
+TestCount SVFS::test_perf_write_1M_uncoalesced_size_of(t_test_results &)   pass         3145912       17.098887           5.699           175.5 1Mb,  16 sized blocks
+TestCount SVFS::test_perf_write_1M_uncoalesced_size_of(t_test_results &)   pass         2097336       10.832058           5.416           184.7 1Mb,  32 sized blocks
+TestCount SVFS::test_perf_write_1M_uncoalesced_size_of(t_test_results &)   pass         1573048        6.478499           4.318           231.6 1Mb,  64 sized blocks
+TestCount SVFS::test_perf_write_1M_uncoalesced_size_of(t_test_results &)   pass         1310904        3.624690           2.899           344.9 1Mb, 128 sized blocks
+TestCount SVFS::test_perf_write_1M_uncoalesced_size_of(t_test_results &)   pass         1179832        2.537725           2.255           443.4 1Mb, 256 sized blocks
+virtual TestResult SVFS::TestCaseRead::run() const                         pass               4        0.000364          95.420            10.5 Read exactly a block
+virtual TestResult SVFS::TestCaseRead::run() const                         pass               4        0.000184          48.234            20.7 Read leading part of block
+virtual TestResult SVFS::TestCaseRead::run() const                         pass               4        0.000123          32.244            31.0 Read trailing part of block
+virtual TestResult SVFS::TestCaseRead::run() const                         pass               4        0.000121          31.719            31.5 Read mid part of block
+virtual TestResult SVFS::TestCaseReadThrows::run() const                   pass               0        0.000000           0.000             0.0 Read empty SVF throws
+virtual TestResult SVFS::TestCaseReadThrows::run() const                   pass               4        0.000000           0.000             0.0 Read before block throws
+virtual TestResult SVFS::TestCaseReadThrows::run() const                   pass               4        0.000000           0.000             0.0 Read prior to block throws
+virtual TestResult SVFS::TestCaseReadThrows::run() const                   pass               4        0.000000           0.000             0.0 Read beyond block throws
+virtual TestResult SVFS::TestCaseReadThrows::run() const                   pass               4        0.000000           0.000             0.0 Read beyond end throws
+TestCount SVFS::test_perf_read_1M_coalesced(t_test_results &)              pass         1048576        0.746628           0.747          1339.4 1Mb of 256 bytes in one block
+virtual TestResult SVFS::TestCaseHas::run() const                          pass               0        0.000378           0.000             0.0 Has empty - false
+virtual TestResult SVFS::TestCaseHas::run() const                          pass               4        0.000070          18.350            54.5 Has an exact block
+virtual TestResult SVFS::TestCaseHas::run() const                          pass               4        0.000054          14.156            70.6 Has leading block
+virtual TestResult SVFS::TestCaseHas::run() const                          pass               4        0.000048          12.583            79.5 Has trailing block
+virtual TestResult SVFS::TestCaseHas::run() const                          pass               4        0.000047          12.321            81.2 Has mid block
+virtual TestResult SVFS::TestCaseHas::run() const                          pass               4        0.000066          17.302            57.8 Not has an exact block -1
+virtual TestResult SVFS::TestCaseHas::run() const                          pass               4        0.000052          13.631            73.4 Not has an exact block +1
+virtual TestResult SVFS::TestCaseNeed::run() const                         pass               0        0.000189           0.000             0.0 Need on empty SVF
+virtual TestResult SVFS::TestCaseNeed::run() const                         pass               4        0.000104          27.263            36.7 Exactly one block
+virtual TestResult SVFS::TestCaseNeed::run() const                         pass               4        0.000051          13.369            74.8 Inside one block
+virtual TestResult SVFS::TestCaseNeed::run() const                         pass               4        0.000255          66.847            15.0 All before one block
+virtual TestResult SVFS::TestCaseNeed::run() const                         pass               4        0.000151          39.584            25.3 All after one block
+virtual TestResult SVFS::TestCaseNeed::run() const                         pass               4        0.000167          43.778            22.8 Before and part of one block
+virtual TestResult SVFS::TestCaseNeed::run() const                         pass               4        0.000099          25.952            38.5 Before and all of one block
+virtual TestResult SVFS::TestCaseNeed::run() const                         pass               4        0.000246          64.487            15.5 Before, all and after one block
+virtual TestResult SVFS::TestCaseNeed::run() const                         pass               8        0.000155          20.316            49.2 Two blocks and in between (a)
+virtual TestResult SVFS::TestCaseNeed::run() const                         pass               8        0.000103          13.500            74.1 Two blocks and in between (b)
+virtual TestResult SVFS::TestCaseNeed::run() const                         pass               8        0.000101          13.238            75.5 Two blocks and in between (c)
+virtual TestResult SVFS::TestCaseNeed::run() const                         pass               8        0.000101          13.238            75.5 Two blocks and in between (d)
+virtual TestResult SVFS::TestCaseNeed::run() const                         pass               8        0.000256          33.554            29.8 Two blocks, under-run
+virtual TestResult SVFS::TestCaseNeed::run() const                         pass               8        0.000224          29.360            34.1 Two blocks, over-run
+virtual TestResult SVFS::TestCaseNeed::run() const                         pass               8        0.000321          42.074            23.8 Two blocks, under/over-run
+TestCount SVFS::_test_perf_need_sim_index(size_t, t_test_results &)        pass       190742624     1173.896250           6.453           155.0 Sim need(32) on index [6136458]
+TestCount SVFS::_test_perf_need_sim_index(size_t, t_test_results &)        pass       190742656      605.457233           3.328           300.4 Sim need(64) on index [3187385]
+TestCount SVFS::_test_perf_need_sim_index(size_t, t_test_results &)        pass       190742656      327.543531           1.801           555.4 Sim need(128) on index [1712847]
+TestCount SVFS::_test_perf_need_sim_index(size_t, t_test_results &)        pass       190742784      181.374581           0.997          1002.9 Sim need(256) on index [975579]
+TestCount SVFS::_test_perf_need_sim_index(size_t, t_test_results &)        pass       190743040      119.433187           0.657          1523.1 Sim need(512) on index [606945]
+TestCount SVFS::_test_perf_need_sim_index(size_t, t_test_results &)        pass       190743552       81.740776           0.449          2225.4 Sim need(1024) on index [422629]
+TestCount SVFS::_test_perf_need_sim_index(size_t, t_test_results &)        pass       190744576       53.688169           0.295          3388.2 Sim need(2048) on index [330469]
+TestCount SVFS::_test_perf_need_sim_index(size_t, t_test_results &)        pass       190746624       41.463321           0.228          4387.3 Sim need(4096) on index [284390]
+TestCount SVFS::_test_perf_need_sim_index(size_t, t_test_results &)        pass       190750720       24.575443           0.135          7402.3 Sim need(8192) on index [261351]
+TestCount SVFS::_test_perf_need_sim_index(size_t, t_test_results &)        pass       190758912       18.132207           0.100         10033.1 Sim need(16384) on index [249830]
+virtual TestResult SVFS::TestCaseNeedGreedy::run() const                   pass               0        0.001376           0.000             0.0 Need (greedy=0) on empty SVF
+virtual TestResult SVFS::TestCaseNeedGreedy::run() const                   pass               0        0.000202           0.000             0.0 Need 32 (greedy=4) on empty SVF
+virtual TestResult SVFS::TestCaseNeedGreedy::run() const                   pass               0        0.000224           0.000             0.0 Need (greedy=32) on empty SVF
+virtual TestResult SVFS::TestCaseNeedGreedy::run() const                   pass              12        0.014692        1283.807             0.8 Need (greedy=0)
+virtual TestResult SVFS::TestCaseNeedGreedy::run() const                   pass              12        0.001058          92.449            10.8 Need (greedy=64)
+virtual TestResult SVFS::TestCaseErase::run() const                        pass               0        0.000424           0.000             0.0 Erase a block
+virtual TestResult SVFS::TestCaseEraseThrows::run() const                  pass               0        0.000000           0.000             0.0 Erase empty SVF throws
+virtual TestResult SVFS::TestCaseEraseThrows::run() const                  pass               4        0.000000           0.000             0.0 Erase before block throws
+virtual TestResult SVFS::TestCaseEraseThrows::run() const                  pass               4        0.000000           0.000             0.0 Erase within a block throws
+virtual TestResult SVFS::TestCaseEraseThrows::run() const                  pass               4        0.000000           0.000             0.0 Erase beyond end throws
+TestCount SVFS::_test_perf_erase_overwrite(bool, t_test_results &)         pass         1048576        1.387282           1.387           720.8 1Mb, 256block size, x1000 overwrite=0
+TestCount SVFS::_test_perf_erase_overwrite(bool, t_test_results &)         pass         1048576       29.463378          29.463            33.9 1Mb, 256block size, x1000 overwrite=1
+TestCount SVFS::test_write_multithreaded_n(int, t_test_results &)          pass         1048564       67.343429          67.344            14.8 Multi threaded write [1]
+TestCount SVFS::test_write_multithreaded_n(int, t_test_results &)          pass         2097128      238.530598         119.267             8.4 Multi threaded write [2]
+TestCount SVFS::test_write_multithreaded_n(int, t_test_results &)          pass         4194256     1209.728200         302.436             3.3 Multi threaded write [4]
+TestCount SVFS::test_write_multithreaded_n(int, t_test_results &)          pass         8388512     2215.297437         276.915             3.6 Multi threaded write [8]
+TestCount SVFS::test_write_multithreaded_n(int, t_test_results &)          pass        16777024     3950.327152         246.898             4.1 Multi threaded write [16]
+TestCount SVFS::test_write_multithreaded_n(int, t_test_results &)          pass        33554048     7188.165382         224.633             4.5 Multi threaded write [32]
+TestCount SVFS::test_write_multithreaded_n(int, t_test_results &)          pass        67108096    14457.780730         225.905             4.4 Multi threaded write [64]
+TestCount SVFS::test_write_multithreaded_n(int, t_test_results &)          pass       134216192    26282.453122         205.334             4.9 Multi threaded write [128]
+TestCount SVFS::_test_perf_write_sim_index_svfs(size_t, size_t, t_test_results &)pass              44        0.009564         227.922             4.4 Sim SVFS: vr=1 lr=10
+TestCount SVFS::_test_perf_write_sim_index_svfs(size_t, size_t, t_test_results &)pass             440        0.034849          83.050            12.0 Sim SVFS: vr=10 lr=10
+TestCount SVFS::_test_perf_write_sim_index_svfs(size_t, size_t, t_test_results &)pass            4400        0.336640          80.226            12.5 Sim SVFS: vr=100 lr=10
+TestCount SVFS::_test_perf_write_sim_index_svfs(size_t, size_t, t_test_results &)pass           44000        3.237633          77.157            13.0 Sim SVFS: vr=1000 lr=10
+TestCount SVFS::_test_perf_write_sim_index_svfs(size_t, size_t, t_test_results &)pass          440000       32.825318          78.227            12.8 Sim SVFS: vr=10000 lr=10
+TestCount SVFS::_test_perf_write_sim_index_svfs(size_t, size_t, t_test_results &)pass         1048564       84.737083          84.738            11.8 Sim SVFS: vr=23831 lr=10
+TestCount SVFS::_test_perf_write_sim_index_svfs(size_t, size_t, t_test_results &)pass         4400000      415.753830          99.079            10.1 Sim SVFS: vr=100000 lr=10
+Test results [125] Pass: 125 Fail: 0 - PASSED
+main() execution time: 66.7915 (s)
+Bye bye!
+
+Process finished with exit code 0
+
+
+$ pytest tests/ --runslow
+================================================================================== test session starts ===================================================================================
+platform darwin -- Python 3.10.8, pytest-7.3.1, pluggy-1.0.0
+benchmark: 4.0.0 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+rootdir: /Users/engun/CLionProjects/cppSVF
+configfile: setup.cfg
+plugins: benchmark-4.0.0
+collected 168 items
+
+tests/benchmark/test_benchmark_svf.py .....................                                                                                                                        [ 12%]
+tests/benchmark/test_benchmark_svfs.py .....................                                                                                                                       [ 25%]
+tests/unit/test_svf.py ................................................................................                                                                            [ 72%]
+tests/unit/test_svf_memory.py ....                                                                                                                                                 [ 75%]
+tests/unit/test_svfs.py ..........................................                                                                                                                 [100%]
+
+
+------------------------------------------------------------------------------------------------------------------------ benchmark: 42 tests -------------------------------------------------------------------------------------------------------------------------
+Name (time in ns)                                    Min                         Max                        Mean                      StdDev                      Median                         IQR            Outliers             OPS            Rounds  Iterations
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+test_svfs_ctor                                  305.0000 (1.0)            4,586.9997 (1.0)              328.1308 (1.0)              150.2524 (1.0)              317.9998 (1.0)               16.0003 (1.0)          3;22  3,047,565.5062 (1.0)         910           1
+test_svf_ctor                                   459.0001 (1.50)          30,451.9999 (6.64)             533.6080 (1.63)             639.5005 (4.26)             505.0001 (1.59)              39.0000 (2.44)      78;4827  1,874,034.8030 (0.61)      53842           1
+test_svf_sim_write_coal[1024-64]              4,855.0000 (15.92)        119,034.9999 (25.95)          5,903.6418 (17.99)          3,213.2035 (21.39)          5,393.9998 (16.96)            166.0001 (10.37)   2838;9580    169,386.9706 (0.06)      89662           1
+test_svf_sim_write_coal[1024-32]              7,102.9999 (23.29)        130,243.0001 (28.39)          8,458.2341 (25.78)          3,704.7561 (24.66)          7,883.9998 (24.79)            233.9998 (14.62)  2653;15416    118,227.9883 (0.04)      80613           1
+test_svfs_sim_write_coal[1024-64]             7,366.9999 (24.15)    310,252,466.9998 (>1000.0)       62,890.1640 (191.66)     2,189,214.3020 (>1000.0)       11,803.9998 (37.12)          1,148.9997 (71.81)     77;5533     15,900.7377 (0.01)      38300           1
+test_svf_sim_write_uncoal[1024-64]            7,643.0001 (25.06)        102,331.0001 (22.31)          8,733.2009 (26.62)          3,127.3395 (20.81)          8,374.9997 (26.34)            572.9999 (35.81)   1865;2666    114,505.5527 (0.04)      72093           1
+test_svf_sim_write_index[1-10]                7,678.0002 (25.17)        120,575.0000 (26.29)          9,185.5462 (27.99)          3,781.1005 (25.16)          8,650.9999 (27.20)            311.9999 (19.50)   1728;7279    108,866.6889 (0.04)      55854           1
+test_svfs_sim_write_uncoal[1024-64]           8,658.0003 (28.39)        101,944.0001 (22.22)         10,059.4133 (30.66)          3,115.0965 (20.73)          9,588.0000 (30.15)            286.0002 (17.87)   1762;8918     99,409.3764 (0.03)      54037           1
+test_svfs_sim_write_coal[1024-32]            11,020.9999 (36.13)     84,956,661.0000 (>1000.0)       50,013.9212 (152.42)       980,811.2131 (>1000.0)       16,814.0000 (52.87)          1,254.9999 (78.44)    166;3640     19,994.4331 (0.01)      43695           1
+test_svf_sim_write_coal[1024-16]             11,667.0003 (38.25)        125,038.0001 (27.26)         13,899.4891 (42.36)          4,690.2926 (31.22)         12,947.0000 (40.71)            326.9997 (20.44)   2688;6157     71,945.0903 (0.02)      51217           1
+test_svfs_sim_write_index[1-10]              12,656.9998 (41.50)    121,717,009.9999 (>1000.0)      124,165.5381 (378.40)     2,455,150.8138 (>1000.0)       18,888.9999 (59.40)          1,178.9998 (73.69)    169;2314      8,053.7645 (0.00)      36964           1
+test_svf_sim_write_uncoal[1024-32]           13,545.0000 (44.41)        320,441.0000 (69.86)         15,737.5882 (47.96)          5,493.4977 (36.56)         14,963.0000 (47.05)            984.0001 (61.50)    931;1158     63,542.1378 (0.02)      23459           1
+test_svfs_sim_write_uncoal[1024-32]          15,369.9998 (50.39)        127,658.0001 (27.83)         17,856.2232 (54.42)          4,872.1437 (32.43)         16,969.0002 (53.36)            770.0000 (48.12)   1837;2489     56,002.8842 (0.02)      38941           1
+test_svfs_sim_write_coal[1024-16]            19,423.9997 (63.69)     97,909,059.9999 (>1000.0)       50,087.7846 (152.65)       776,887.3310 (>1000.0)       26,066.9999 (81.97)          9,206.2500 (575.38)    165;993     19,964.9477 (0.01)      36969           1
+test_svf_sim_write_coal[1024-8]              20,363.9997 (66.77)        407,422.9996 (88.82)         24,159.7624 (73.63)         11,494.8448 (76.50)         22,090.0001 (69.47)          1,929.5001 (120.59)  2807;3849     41,391.1355 (0.01)      35076           1
+test_svf_sim_write_uncoal[1024-16]           25,189.0001 (82.59)        158,816.0003 (34.62)         28,511.8986 (86.89)          7,082.7030 (47.14)         27,204.0002 (85.55)          1,978.0000 (123.62)  1539;1673     35,073.0765 (0.01)      27750           1
+test_svfs_sim_write_uncoal[1024-16]          28,736.9999 (94.22)        240,005.9998 (52.32)         33,774.0691 (102.93)         8,169.5970 (54.37)         31,706.9998 (99.71)          1,008.7499 (63.05)   1848;2979     29,608.5140 (0.01)      23795           1
+test_svfs_sim_write_coal[1024-8]             31,578.9998 (103.54)   130,136,052.0001 (>1000.0)       79,310.2950 (241.70)       913,576.6310 (>1000.0)       55,746.9998 (175.31)        24,043.4999 (>1000.0)   46;1423     12,608.7036 (0.00)      26295           1
+test_svf_sim_write_coal[1024-4]              37,752.0000 (123.78)       204,911.9998 (44.67)         42,257.7448 (128.78)         9,885.8702 (65.80)         40,782.0003 (128.25)         2,821.4999 (176.34)  1449;1543     23,664.3011 (0.01)      20772           1
+test_svf_sim_write_uncoal[1024-8]            48,476.9998 (158.94)       197,237.0001 (43.00)         56,369.8299 (171.79)        12,105.4334 (80.57)         54,092.0000 (170.10)         3,761.9998 (235.12)    753;879     17,739.9861 (0.01)      10127           1
+test_svfs_sim_write_coal[1024-4]             54,524.0000 (178.77)     3,214,042.9998 (700.69)        71,823.5143 (218.89)        54,586.3629 (363.30)        59,853.0000 (188.22)        10,764.7498 (672.78)   337;1825     13,923.0169 (0.00)      12367           1
+test_svfs_sim_write_uncoal[1024-8]           55,106.0002 (180.68)       283,185.0002 (61.74)         68,601.8628 (209.07)        20,193.9363 (134.40)        60,771.9999 (191.11)         4,075.2501 (254.70)   998;1560     14,576.8636 (0.00)       8297           1
+test_svf_sim_write_index[10-10]              72,085.9998 (236.35)    29,360,354.9999 (>1000.0)      121,648.1830 (370.73)       444,800.2066 (>1000.0)       83,020.9997 (261.07)        45,271.0003 (>1000.0)    41;333      8,220.4269 (0.00)      10999           1
+test_svf_sim_write_coal[1024-2]              74,893.0001 (245.55)       251,458.9996 (54.82)         83,377.2110 (254.10)        15,770.8374 (104.96)        80,705.0001 (253.79)         5,642.0004 (352.62)   881;1083     11,993.6849 (0.00)      12293           1
+test_svf_sim_write_uncoal[1024-4]            96,110.9999 (315.12)       335,389.0002 (73.12)        110,841.9512 (337.80)        20,515.2973 (136.54)       105,069.5000 (330.41)         8,204.0001 (512.74)    770;874      9,021.8549 (0.00)       8490           1
+test_svfs_sim_write_coal[1024-2]            100,909.0001 (330.85)       345,825.0003 (75.39)        114,619.4213 (349.31)        16,585.2292 (110.38)       110,789.0002 (348.39)         5,717.7500 (357.35)    603;950      8,724.5249 (0.00)       8683           1
+test_svfs_sim_write_uncoal[1024-4]          108,594.0003 (356.05)       548,499.9997 (119.58)       129,183.9827 (393.70)        28,157.2807 (187.40)       118,822.9999 (373.66)         8,337.4999 (521.08)    680;968      7,740.8977 (0.00)       5911           1
+test_svfs_sim_write_index[10-10]            109,183.9999 (357.98)   452,738,622.0002 (>1000.0)    2,666,595.8893 (>1000.0)   20,635,620.5694 (>1000.0)      168,371.4997 (529.47)        13,509.9999 (844.36)    97;1035        375.0100 (0.00)       5266           1
+test_svf_sim_write_coal[1024-1]             148,941.0001 (488.33)       372,603.9999 (81.23)        165,243.2552 (503.59)        26,160.0084 (174.11)       160,294.0001 (504.07)        11,018.7500 (688.66)    478;592      6,051.6842 (0.00)       4835           1
+test_svf_sim_write_uncoal[1024-2]           196,310.9999 (643.64)       469,192.9998 (102.29)       223,106.5314 (679.93)        32,257.9760 (214.69)       215,615.0003 (678.03)        16,152.0002 (>1000.0)   514;579      4,482.1637 (0.00)       4458           1
+test_svfs_sim_write_coal[1024-1]            200,791.0002 (658.33)       525,198.0001 (114.50)       229,345.0940 (698.94)        27,892.6378 (185.64)       222,237.9999 (698.86)        11,389.2501 (711.82)    533;521      4,360.2415 (0.00)       4577           1
+test_svfs_sim_write_uncoal[1024-2]          221,447.0001 (726.06)       566,294.9998 (123.46)       259,364.5169 (790.43)        41,477.5624 (276.05)       243,130.9999 (764.56)        20,634.7499 (>1000.0)   318;374      3,855.5775 (0.00)       2627           1
+test_svf_sim_write_uncoal[1024-1]           399,153.0002 (>1000.0)      857,164.0001 (186.87)       453,685.2061 (>1000.0)       57,049.4401 (379.69)       438,363.0001 (>1000.0)       25,371.0000 (>1000.0)   197;236      2,204.1715 (0.00)       1718           1
+test_svfs_sim_write_uncoal[1024-1]          447,424.9999 (>1000.0)    1,087,865.0000 (237.16)       540,335.4519 (>1000.0)       79,382.7477 (528.33)       507,888.9999 (>1000.0)       58,748.9999 (>1000.0)   270;203      1,850.7022 (0.00)       1850           1
+test_svf_sim_write_index[100-10]            760,146.0002 (>1000.0)    2,204,790.0002 (480.66)       901,279.3193 (>1000.0)      146,364.0150 (974.12)       845,265.0002 (>1000.0)       81,686.0002 (>1000.0)   116;127      1,109.5339 (0.00)       1024           1
+test_svfs_sim_write_index[100-10]         1,141,543.0004 (>1000.0)  943,887,247.0000 (>1000.0)   42,265,122.3023 (>1000.0)  124,139,454.6949 (>1000.0)    1,842,973.9998 (>1000.0)      885,306.0000 (>1000.0)    46;102         23.6602 (0.00)        473           1
+test_svf_sim_write_index[1000-10]         8,956,297.9997 (>1000.0)   15,735,759.9996 (>1000.0)   10,324,567.8692 (>1000.0)    1,461,907.4062 (>1000.0)    9,765,200.9999 (>1000.0)    1,298,890.4999 (>1000.0)     17;10         96.8564 (0.00)        107           1
+test_svf_sim_write_index[10000-10]      103,413,182.0002 (>1000.0)  136,351,673.0003 (>1000.0)  116,630,475.6251 (>1000.0)   10,353,042.9017 (>1000.0)  114,637,659.0000 (>1000.0)   12,990,879.0002 (>1000.0)       2;0          8.5741 (0.00)          8           1
+test_svfs_sim_write_index[10000-10]     157,951,613.0000 (>1000.0)  452,520,820.0002 (>1000.0)  220,247,095.7999 (>1000.0)  129,910,570.1051 (>1000.0)  162,645,071.9996 (>1000.0)   80,598,686.7502 (>1000.0)       1;1          4.5404 (0.00)          5           1
+test_svf_sim_write_index[23831-10]      254,132,906.0000 (>1000.0)  333,154,948.9999 (>1000.0)  274,774,271.9999 (>1000.0)   33,098,376.6931 (>1000.0)  263,398,757.9998 (>1000.0)   28,674,742.4999 (>1000.0)       1;1          3.6394 (0.00)          5           1
+test_svfs_sim_write_index[23831-10]     319,805,855.9997 (>1000.0)  360,894,569.9998 (>1000.0)  337,858,551.1998 (>1000.0)   18,559,866.4900 (>1000.0)  328,913,857.9999 (>1000.0)   32,354,880.0000 (>1000.0)       1;0          2.9598 (0.00)          5           1
+test_svfs_sim_write_index[1000-10]      376,004,369.0004 (>1000.0)  873,651,097.9998 (>1000.0)  549,933,583.0001 (>1000.0)  189,583,478.5678 (>1000.0)  500,312,299.0001 (>1000.0)  161,824,474.4997 (>1000.0)       1;1          1.8184 (0.00)          5           1
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Legend:
+  Outliers: 1 Standard Deviation from Mean; 1.5 IQR (InterQuartile Range) from 1st Quartile and 3rd Quartile.
+  OPS: Operations Per Second, computed as 1 / Mean
+============================================================================ 168 passed in 259.38s (0:04:19) =============================================================================
+(cppSVF_3.10_B)
+engun@Pauls-MacBook-Pro  ~/CLionProjects/cppSVF (master)
+$

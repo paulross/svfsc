@@ -1,6 +1,6 @@
 
 
-svfs's API Reference
+svfs Reference
 ######################
 
 Python Interface

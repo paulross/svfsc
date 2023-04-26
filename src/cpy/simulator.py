@@ -61,7 +61,7 @@ class Client:
         self.comms = comms
         self.server = server
 
-    def run(self, seek_reads: typing.Tuple[typing.Tuple[int, int], ...], greedy_length: int) -> typing.Tuple[int, int]:
+    def run(self, seek_reads: typing.Tuple[typing.Tuple[int, int], ...], greedy_length: int) -> typing.Tuple[int, int, int]:
         time_start = time.perf_counter()
         svf = svfs.cSVF('ID')
         time_svf = 0.0
@@ -110,7 +110,7 @@ class Client:
             time_svf += time.perf_counter() - time_svf_start
         time_exec = time.perf_counter() - time_start
         time_residual = time_exec - self.comms.total_time - self.server.total_time - time_svf
-        logger.info('has(): hits %d misses %d', has_hits, has_misses)
+        logger.info('has(): hits %d misses %d num_bytes %d', has_hits, has_misses, svf.num_bytes())
         logger.info(
             f'Comms time : {self.comms.total_time * 1000:10.3f} (ms) ({self.comms.total_time / time_exec:6.1%})')
         logger.info(
@@ -121,7 +121,7 @@ class Client:
         logger.info('SVF contents: %s Execution time: %.3f (s) %.3f (Mb/s)',
                     svf.num_bytes(), time_exec, svf.num_bytes() / time_exec / 1024 ** 2
                     )
-        return has_hits, has_misses
+        return has_hits, has_misses, svf.num_bytes()
 
 
 def run(
@@ -129,7 +129,7 @@ def run(
         greedy_length: int,
         latency_s: float, bandwidth_bit_ps: float,
         seek_rate_byte_per_s: float, read_rate_byte_per_s: float,
-) -> typing.Tuple[int, int]:
+) -> typing.Tuple[int, int, int]:
     comms = Communications(latency_s, bandwidth_bit_ps)
     server = Server(seek_rate_byte_per_s, read_rate_byte_per_s)
     client = Client(comms, server)
@@ -168,22 +168,25 @@ def main():
         while greedy_length <= 2048 * 4 * 4:
             logger.info('Running %s with greedy_length %d', name, greedy_length)
             t_start = time.perf_counter()
-            has_hits, has_misses = run(
+            has_hits, has_misses, num_bytes = run(
                 sim_examples.EXAMPLE_FILE_POSITIONS_LENGTHS[name], greedy_length,
                 args.latency / 1000, args.bandwidth * 1e6, args.seek_rate * 1e6, args.read_rate * 1e6
             )
             if name not in results_time:
                 results_time[name] = []
-            results_time[name].append((greedy_length, time.perf_counter() - t_start, has_hits, has_misses))
+            results_time[name].append((greedy_length, time.perf_counter() - t_start, has_hits, has_misses, num_bytes))
             if greedy_length == 0:
                 greedy_length = 16
             else:
                 greedy_length *= 2
     for key in results_time:
         print(f'{key}:')
-        print(f'{"greedy_length":>14} {"Time(ms)":>10} {"Hits":>8} {"Miss":>8} {"Hits%":>8}')
-        for greedy_length, tim, hits, misses in results_time[key]:
-            print(f'{greedy_length:14} {tim * 1000 :10.1f} {hits:8d} {misses:8d} {hits / (hits + misses):8.3%}')
+        print(f'{"greedy_length":>14} {"Time(ms)":>10} {"Hits":>8} {"Miss":>8} {"Hits%":>8} {"Bytes":>10}')
+        for greedy_length, tim, hits, misses, num_bytes in results_time[key]:
+            print(
+                f'{greedy_length:14} {tim * 1000 :10.1f} {hits:8d} {misses:8d} {hits / (hits + misses):8.3%}'
+                f' {num_bytes:10d}'
+            )
     print(f'Execution time: {time.perf_counter() - time_start:10.3f} (s)')
     return result
 

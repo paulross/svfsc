@@ -177,8 +177,8 @@ def test_SVF_read(blocks, expected_blocks):
     'blocks, expected_blocks',
     (
             (
-                ((0, 1024), (291_809_396, 1024)),
-                (),
+                    ((0, 1024), (291_809_396, 1024)),
+                    (),
             ),
     ),
     # ids=INSERT_FPOS_BYTES_EXPECTED_BLOCKS_IDS,
@@ -198,10 +198,10 @@ def test_SVF_read_special(blocks, expected_blocks):
         svf.write(fpos, b' ' * length)
     assert svf.blocks() == ((0, 1_024), (291_809_396, 1_024))
     assert not svf.has_data(291_810_392, 2_429)
-    assert svf.need(291_810_392, 2_429) == [(291_810_420, 2_401),]
+    assert svf.need(291_810_392, 2_429) == [(291_810_420, 2_401), ]
     svf.write(291_810_420, b' ' * 2_401)
-    # Why is the above reporting this wrong block? Off by 28 bytes.
-    assert svf.blocks() == ((0, 1_024), (291_809_396, 3_397))
+    # FIXED: Why is the above reporting this wrong block? Off by 28 bytes.
+    # assert svf.blocks() == ((0, 1_024), (291_809_396, 3_397))
     # Actual (correct) value in this test.
     assert svf.blocks() == ((0, 1_024), (291_809_396, 3_425))
     assert svf.has_data(291_810_392, 2_429)
@@ -235,7 +235,7 @@ def test_SVF_erase(blocks, erase_fpos):
             (
                     ((12, b' '),),
                     0,
-                    'cp_SparseVirtualFile_erase()#355: Can not erase from a SVF. ERROR:'
+                    'cp_SparseVirtualFile_erase()#356: Can not erase from a SVF. ERROR:'
                     ' SparseVirtualFile::erase(): Non-existent file position 0.',
             ),
 
@@ -296,7 +296,7 @@ def test_SVF_need_all(blocks, expected_blocks):
             (
                     ((6, 12), (20, 8),),
                     0, 32,
-                    [(0, 6), (18, 2), (28, 4),],
+                    [(0, 6), (18, 2), (28, 4), ],
             ),
     ),
     ids=[
@@ -346,15 +346,15 @@ def test_SVF_need(blocks, need_fpos, need_length, expected_need):
             #             ),
             (
                     ((8, 4), (16, 4), (32, 4),),
-                    8, 40, 8,
-                    [(12, 20), (36, 12), ],
+                    8, 40, 64,
+                    [(12, 64), ],
             ),
     ),
     ids=[
         'Empty greedy=0',
         'Empty greedy=32',
         'Three blocks greedy=0',
-        'Three blocks greedy=8',
+        'Three blocks greedy=64',
     ],
 )
 def test_SVF_need_greedy(blocks, need_fpos, need_length, greedy_length, expected_need):
@@ -387,7 +387,6 @@ def test_SVF_need_write_special():
     svf.write(3102, b'D' * 12)
     # 3028 + 86 = 3114
     assert svf.blocks() == ((0, 8), (3028, 86), (3214, 19))
-
 
 
 @pytest.mark.parametrize(

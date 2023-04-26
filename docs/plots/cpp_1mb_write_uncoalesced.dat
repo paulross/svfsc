@@ -1,0 +1,13 @@
+# Write 1Mb of test_data_bytes_512 in different, equally sized, blocks that are all coalesced and report the time taken.
+# Essentially only one block is created and all the other test_data_bytes_512 is appended.
+# $1   $2 $3 $4                                                                $5              $6               $7              $8             $9  $10
+# Size Function                                                                ----           Bytes              ms           ms/Mb            Mb/s Test
+1   TestCount SVFS::test_perf_write_1M_uncoalesced(t_test_results &)           pass         1048576      323.137855         323.138             3.1 1Mb,   1 sized blocks, uncoalesced
+2   TestCount SVFS::test_perf_write_1M_uncoalesced(t_test_results &)           pass         1048576      143.458867         143.459             7.0 1Mb,   2 sized blocks, uncoalesced
+4   TestCount SVFS::test_perf_write_1M_uncoalesced(t_test_results &)           pass         1048576       68.296910          68.297            14.6 1Mb,   4 sized blocks, uncoalesced
+8   TestCount SVFS::test_perf_write_1M_uncoalesced(t_test_results &)           pass         1048576       33.917283          33.917            29.5 1Mb,   8 sized blocks, uncoalesced
+16  TestCount SVFS::test_perf_write_1M_uncoalesced(t_test_results &)           pass         1048576       17.622333          17.622            56.7 1Mb,  16 sized blocks, uncoalesced
+32  TestCount SVFS::test_perf_write_1M_uncoalesced(t_test_results &)           pass         1048576       10.819814          10.820            92.4 1Mb,  32 sized blocks, uncoalesced
+64  TestCount SVFS::test_perf_write_1M_uncoalesced(t_test_results &)           pass         1048576        5.903501           5.904           169.4 1Mb,  64 sized blocks, uncoalesced
+128 TestCount SVFS::test_perf_write_1M_uncoalesced(t_test_results &)           pass         1048576        3.239088           3.239           308.7 1Mb, 128 sized blocks, uncoalesced
+256 TestCount SVFS::test_perf_write_1M_uncoalesced(t_test_results &)           pass         1048576        2.189376           2.189           456.8 1Mb, 256 sized blocks, uncoalesced
