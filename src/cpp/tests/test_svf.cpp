@@ -569,7 +569,6 @@ namespace SVFS {
         return TestResult(__PRETTY_FUNCTION__, m_test_name, 0, "", 0.0, svf.num_bytes());
     }
 
-
     const std::vector<TestCaseReadThrows> read_test_cases_throw = {
             {"Read empty SVF throws",      {},       8,  4, "SparseVirtualFile::read(): Sparse virtual file is empty."},
             //        ^==|
@@ -583,11 +582,11 @@ namespace SVFS {
             //        ^==|
             //         |++|
             {"Read beyond block throws",   {{8, 4}}, 9,  4,
-                                                            "SparseVirtualFile::read(): Requested position 9 and length 4 overruns block at 8 of size 4"},
+                                                            "SparseVirtualFile::read(): Requested position 9 length 4 (end 13) overruns block that starts at 8 has size 4 (end 12). Offset into block is 1 overrun is 1 bytes"},
             //        ^==|
             //             |++|
             {"Read beyond end throws",     {{8, 4}}, 12, 4,
-                                                            "SparseVirtualFile::read(): Requested position 12 and length 4 overruns block at 8 of size 4"},
+                                                            "SparseVirtualFile::read(): Requested position 12 length 4 (end 16) overruns block that starts at 8 has size 4 (end 12). Offset into block is 4 overrun is 4 bytes"},
     };
 
 
@@ -902,6 +901,12 @@ namespace SVFS {
                     {{8, 4}}
             ),
             TestCaseNeedGreedy(
+                    "Need 32 (greedy=4) on empty SVF",
+                    {},
+                    8, 32, 4,
+                    {{8, 32}}
+            ),
+            TestCaseNeedGreedy(
                     "Need (greedy=32) on empty SVF",
                     {},
                     8, 4, 32,
@@ -1139,7 +1144,69 @@ namespace SVFS {
 
 #endif
 
+/*
+ * This bug from the simulator:
+ *
+    2023-04-25 12:05:24,776 -             simulator.py#71   - INFO     - CLIENT:  blocks was: ['(0 : 1,024 : 1,024)', '(291,809,396 : 1,024 : 291,810,420)']
+    2023-04-25 12:05:24,776 -             simulator.py#72   - INFO     - CLIENT: demands fpos      291,810,392 length  2,429 (     291,812,821)
+    2023-04-25 12:05:24,776 -             simulator.py#81   - INFO     - CLIENT:   needs fpos      291,810,420 length  2,401 (     291,812,821)
+    2023-04-25 12:05:24,799 -             simulator.py#90   - INFO     - CLIENT:   wrote fpos      291,810,420 length  2,401 (     291,812,821)
+    2023-04-25 12:05:24,799 -             simulator.py#92   - ERROR    - CLIENT: demands fpos      291,810,392 length  2,429 (     291,812,821)
+    2023-04-25 12:05:24,799 -             simulator.py#96   - ERROR    - CLIENT:  blocks now: ['(0 : 1,024 : 1,024)', '(291,809,396 : 3,397 : 291,812,793)']
+ */
+    TestResult test_debug_need_read_special_A(void) {
+        SparseVirtualFile svf("", 0.0);
+        std::string test_name(__FUNCTION__);
+        static char data[4096]; // Random
+
+        // Load the SVF
+        svf.write(0, data, 1024);
+        svf.write(291809396, data, 1024);
+        auto blocks = svf.blocks();
+
+        // Analyse the results
+        int result = 0; // Success
+        std::string err;
+        // Run the test
+        auto time_start = std::chrono::high_resolution_clock::now();
+        bool has = svf.has(291810392, 2429);
+        result |= has;
+        auto need = svf.need(291810392, 2429, 1024);
+        svf.write(291810420, data, 2401);
+        blocks = svf.blocks();
+        has = svf.has(291810392, 2429);
+
+        std::chrono::duration<double> time_exec = std::chrono::high_resolution_clock::now() - time_start;
+        return TestResult(__PRETTY_FUNCTION__, test_name, result, err, time_exec.count(), svf.num_bytes());
+    }
+
+    TestResult test_debug_need_read_special_B(void) {
+        SparseVirtualFile svf("", 0.0);
+        std::string test_name(__FUNCTION__);
+        static char data[4096]; // Random
+
+        // Load the SVF
+        auto blocks = svf.blocks();
+
+        // Analyse the results
+        int result = 0; // Success
+        std::string err;
+        // Run the test
+        auto time_start = std::chrono::high_resolution_clock::now();
+        auto need = svf.need(0, 32, 1);
+        svf.write(0, data, 32);
+        blocks = svf.blocks();
+        bool has = svf.has(0, 32);
+        result |= has;
+
+        std::chrono::duration<double> time_exec = std::chrono::high_resolution_clock::now() - time_start;
+        return TestResult(__PRETTY_FUNCTION__, test_name, result, err, time_exec.count(), svf.num_bytes());
+    }
+
     TestCount test_svf_all(t_test_results &results) {
+        test_debug_need_read_special_A();
+        test_debug_need_read_special_B();
+
         TestCount count;
         // Write
         count += test_write_all(results);

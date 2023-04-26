@@ -349,22 +349,26 @@ namespace SVFS {
             os << " Requested file position " << fpos << " precedes first block at " << iter->first;
             throw ExceptionSparseVirtualFileRead(os.str());
         }
-        size_t offset = 0;
+        size_t offset_into_block = 0;
         if (iter == m_svf.end() || iter->first != fpos) {
             --iter;
-            offset = fpos - iter->first;
+            offset_into_block = fpos - iter->first;
         }
-        if (offset + len > iter->second.size()) {
+        if (offset_into_block + len > iter->second.size()) {
             std::ostringstream os;
             os << "SparseVirtualFile::read():";
-            os << " Requested position " << fpos << " and length " << len;
-            os << " overruns block at " << iter->first << " of size " << iter->second.size();
+            os << " Requested position " << fpos << " length " << len;
+            os << " (end " << fpos + len << ")";
+            os << " overruns block that starts at " << iter->first << " has size " << iter->second.size();
+            os << " (end " << iter->first + iter->second.size() << ").";
+            os << " Offset into block is " << offset_into_block;
+            os << " overrun is " << offset_into_block + len - iter->second.size() << " bytes";
             throw ExceptionSparseVirtualFileRead(os.str());
         }
         /* TODO: memcpy()? */
         while (len) {
-            *p = iter->second[offset];
-            ++offset;
+            *p = iter->second[offset_into_block];
+            ++offset_into_block;
             ++p;
             --len;
         }
@@ -385,8 +389,9 @@ namespace SVFS {
 #endif
 
         if (m_svf.empty()) {
-            return {{fpos, greedy_length > 0 ? greedy_length : len}};
+            return {{fpos, greedy_length > len ? greedy_length : len}};
         }
+        size_t original_len = len;
         t_fpos fpos_to = fpos + len;
         t_seek_reads ret;
         t_map::const_iterator iter = m_svf.upper_bound(fpos);
@@ -462,7 +467,7 @@ namespace SVFS {
         }
         assert(fpos == fpos_to);
         assert(len == 0);
-        if (greedy_length && !ret.empty()) {
+        if (greedy_length && greedy_length > original_len && !ret.empty()) {
             ret = _minimise_seek_reads(ret, greedy_length);
         }
         return ret;

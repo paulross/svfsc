@@ -236,6 +236,7 @@ cp_SparseVirtualFile_write(cp_SparseVirtualFile *self, PyObject *args, PyObject 
     }
     if (PyBytes_GET_SIZE(py_bytes_data) > 0) {
         try {
+//            fprintf(stdout, "TRACE: %s Writing fpos %llu length %zd\n", __FUNCTION__, fpos, PyBytes_Size(py_bytes_data));
             self->pSvf->write(fpos, PyBytes_AS_STRING(py_bytes_data), PyBytes_Size(py_bytes_data));
         } catch (const SVFS::ExceptionSparseVirtualFileDiff &err) {
             PyErr_Format(PyExc_IOError,

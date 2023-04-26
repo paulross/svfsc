@@ -174,6 +174,40 @@ def test_SVF_read(blocks, expected_blocks):
 
 
 @pytest.mark.parametrize(
+    'blocks, expected_blocks',
+    (
+            (
+                ((0, 1024), (291_809_396, 1024)),
+                (),
+            ),
+    ),
+    # ids=INSERT_FPOS_BYTES_EXPECTED_BLOCKS_IDS,
+)
+def test_SVF_read_special(blocks, expected_blocks):
+    """This bug from the simulator:
+
+    2023-04-25 12:05:24,776 -             simulator.py#71   - INFO     - CLIENT:  blocks was: ['(0 : 1,024 : 1,024)', '(291,809,396 : 1,024 : 291,810,420)']
+    2023-04-25 12:05:24,776 -             simulator.py#72   - INFO     - CLIENT: demands fpos      291,810,392 length  2,429 (     291,812,821)
+    2023-04-25 12:05:24,776 -             simulator.py#81   - INFO     - CLIENT:   needs fpos      291,810,420 length  2,401 (     291,812,821)
+    2023-04-25 12:05:24,799 -             simulator.py#90   - INFO     - CLIENT:   wrote fpos      291,810,420 length  2,401 (     291,812,821)
+    2023-04-25 12:05:24,799 -             simulator.py#92   - ERROR    - CLIENT: demands fpos      291,810,392 length  2,429 (     291,812,821)
+    2023-04-25 12:05:24,799 -             simulator.py#96   - ERROR    - CLIENT:  blocks now: ['(0 : 1,024 : 1,024)', '(291,809,396 : 3,397 : 291,812,793)']
+    """
+    svf = svfs.cSVF('id')
+    for fpos, length in blocks:
+        svf.write(fpos, b' ' * length)
+    assert svf.blocks() == ((0, 1_024), (291_809_396, 1_024))
+    assert not svf.has_data(291_810_392, 2_429)
+    assert svf.need(291_810_392, 2_429) == [(291_810_420, 2_401),]
+    svf.write(291_810_420, b' ' * 2_401)
+    # Why is the above reporting this wrong block? Off by 28 bytes.
+    assert svf.blocks() == ((0, 1_024), (291_809_396, 3_397))
+    # Actual (correct) value in this test.
+    assert svf.blocks() == ((0, 1_024), (291_809_396, 3_425))
+    assert svf.has_data(291_810_392, 2_429)
+
+
+@pytest.mark.parametrize(
     'blocks, erase_fpos',
     (
             (

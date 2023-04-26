@@ -1,9 +1,10 @@
 """Examples of seek read operations."""
 
 # A fictitious example of a Sparse File
+# This has 32 bytes of data every 64 bytes over a size of 20480.
 EXAMPLE_FILE_POSITIONS_LENGTHS_SYNTHETIC = tuple((fpos, 32) for fpos in range(0, 2048 * 10, 64))
 
-# This is seek read operations from the openslide test image CMU-1.tiff
+# This is seek read operations to get all the TIFF metadata from the open-slide test image CMU-1.tiff
 EXAMPLE_FILE_POSITIONS_LENGTHS_TIFF_CMU_1 = (
     (0, 4), (4, 12), (291809396, 8), (291809404, 20), (291809424, 20), (291809444, 20), (291809464, 20),
     (291809484, 20), (291809504, 20), (291810392, 2429), (291809524, 20), (291809544, 20), (291809564, 20),

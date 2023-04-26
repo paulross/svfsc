@@ -60,7 +60,7 @@ void write_test_results(const t_test_results &results, std::ostream &os) {
     os << std::setw(16) << "Mb/s";
     os << " Test";
     os << std::endl;
-
+    size_t failures = 0;
     for (const auto &result: results) {
         os << std::left;
         os << std::setw(75) << result.function();
@@ -68,6 +68,7 @@ void write_test_results(const t_test_results &results, std::ostream &os) {
             os << "pass";
         } else {
             os << "FAIL";
+            failures++;
         }
         os << std::right << std::fixed;
         os << std::setw(16) << result.work_bytes();
@@ -79,5 +80,15 @@ void write_test_results(const t_test_results &results, std::ostream &os) {
         }
         os << " " << result.test();
         os << std::endl;
+    }
+    if (failures) {
+        os << "Failed tests:" << std::endl;
+        for (const auto &result: results) {
+            if (result.result() != 0) {
+                os << result.function();
+                os << " " << result.error_message();
+                os << std::endl;
+            }
+        }
     }
 }

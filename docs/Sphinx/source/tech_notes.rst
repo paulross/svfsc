@@ -44,3 +44,10 @@ This is tricky.
 
 Gready Gets
 ==================
+
+With a high latency connection it will be expensive to make a lot of small requests.svfs
+
+
+.. image:: ../../plots/greedy_length_synthetic.png
+
+.. image:: ../../plots/greedy_length_tiff.png
