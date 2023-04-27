@@ -1184,7 +1184,7 @@ namespace SVFS {
     2023-04-25 12:05:24,799 -             simulator.py#92   - ERROR    - CLIENT: demands fpos      291,810,392 length  2,429 (     291,812,821)
     2023-04-25 12:05:24,799 -             simulator.py#96   - ERROR    - CLIENT:  blocks now: ['(0 : 1,024 : 1,024)', '(291,809,396 : 3,397 : 291,812,793)']
  */
-    TestResult test_debug_need_read_special_A(void) {
+    TestResult test_debug_need_read_special_A() {
         SparseVirtualFile svf("", 0.0);
         std::string test_name(__FUNCTION__);
         static char data[4096]; // Random
@@ -1210,7 +1210,7 @@ namespace SVFS {
         return TestResult(__PRETTY_FUNCTION__, test_name, result, err, time_exec.count(), svf.num_bytes());
     }
 
-    TestResult test_debug_need_read_special_B(void) {
+    TestResult test_debug_need_read_special_B() {
         SparseVirtualFile svf("", 0.0);
         std::string test_name(__FUNCTION__);
         static char data[4096]; // Random

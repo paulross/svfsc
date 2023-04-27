@@ -1,7 +1,4 @@
-#define PY_SSIZE_T_CLEAN
-
-#include <Python.h>
-#include "structmember.h"
+#include "cp_svfs.h"
 
 #include "_cSVFS.cpp"
 #include "_cSVF.cpp"
@@ -37,6 +34,33 @@ PyInit_svfs(void)
     if (m == NULL) {
         return NULL;
     }
+    if (PyModule_AddIntConstant(m, "SVF_THREAD_SAFE",
+#ifdef SVF_THREAD_SAFE
+    SVF_THREAD_SAFE
+#else
+    0
+#endif
+                                )) {
+        return NULL;
+    }
+    if (PyModule_AddIntConstant(m, "SVFS_THREAD_SAFE",
+#ifdef SVFS_THREAD_SAFE
+    SVFS_THREAD_SAFE
+#else
+    0
+#endif
+                                )) {
+        return NULL;
+    }
+    if (PyModule_AddIntConstant(m, "PY_THREAD_SAFE",
+#ifdef PY_THREAD_SAFE
+    1
+#else
+    0
+#endif
+                                )) {
+        return NULL;
+    }
 
     if (PyType_Ready(&svfs_cSVF) < 0) {
         return NULL;
@@ -49,6 +73,7 @@ PyInit_svfs(void)
     }
     Py_INCREF(&svfs_cSVFS);
     PyModule_AddObject(m, "cSVFS", (PyObject *) &svfs_cSVFS);
+
 
     PyDateTime_IMPORT;
     return m;

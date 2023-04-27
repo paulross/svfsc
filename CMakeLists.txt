@@ -5,6 +5,7 @@ set(CMAKE_CXX_STANDARD 17)
 #set(CMAKE_C_FLAGS "-std=c99")
 
 add_compile_definitions(SVF_THREAD_SAFE)
+add_compile_definitions(SVFS_THREAD_SAFE)
 
 IF(CMAKE_BUILD_TYPE MATCHES Debug)
     message("debug build")
@@ -43,7 +44,7 @@ add_executable(
         # NOTE: src/cp/cSVFS.cpp #includes the following files.
 #        src/cp/_cSVF.cpp
 #        src/cp/_cSVFS.cpp
-)
+        src/cp/cp_svfs.h)
 
 include_directories(
         src/cpp

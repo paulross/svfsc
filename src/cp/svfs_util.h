@@ -8,23 +8,7 @@
 #include <exception>
 #include <string>
 
-#include <Python.h>
-#include "datetime.h"
-
-//class ExceptionUtil : public std::exception {
-//public:
-//    explicit ExceptionUtil(const std::string &in_msg) : msg(in_msg) {}
-//    const std::string &message() const { return msg; }
-//protected:
-//    std::string msg;
-//};
-//
-//
-//PyObject *
-//py_unicode_from_std_string(const std::string &s);
-//std::string
-//py_unicode_to_std_string(PyObject *op);
-
+#include "cp_svfs.h"
 
 #define IMPORT_DATETIME_IF_UNINITIALISED do {   \
     if (! PyDateTimeAPI) {                      \

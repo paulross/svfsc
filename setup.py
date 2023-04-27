@@ -17,12 +17,11 @@ extra_compile_args = [
     '-Wno-c++11-compat-deprecated-writable-strings',
     '-std=c++11',
     # '-Isrc/cpp',
-    # We implement mutex with Python's thread locking so we don't want the
-    # overhead of C++'s thread locking as well.
-    # '-USVF_THREAD_SAFE',
-
-    # Until we use m_coalesce
-    '-Wno-unused-private-field',
+    # We implement mutex with Python's thread locking:
+    # AcquireLock _lock(self);
+    # So we don't want the overhead of C++'s thread locking as well.
+    '-USVF_THREAD_SAFE',
+    '-USVFS_THREAD_SAFE',
 ]
 
 DEBUG = False

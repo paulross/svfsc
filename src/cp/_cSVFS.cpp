@@ -1,6 +1,4 @@
-#include <Python.h>
-#include "structmember.h"
-#include "datetime.h"
+#include "cp_svfs.h"
 
 #include <ctime>
 #include <memory>
@@ -22,10 +20,45 @@
 typedef struct {
     PyObject_HEAD
     SVFS::SparseVirtualFileSystem *p_svfs;
+#ifdef PY_THREAD_SAFE
+    PyThread_type_lock lock;
+#endif
 } cp_SparseVirtualFileSystem;
 
+#ifdef PY_THREAD_SAFE
+/**
+ * A RAII wrapper around the PyThread_type_lock.
+ * See https://pythonextensionpatterns.readthedocs.io/en/latest/thread_safety.html
+ * */
+class AcquireLockSVFS {
+public:
+    AcquireLockSVFS(cp_SparseVirtualFileSystem *pSVFS) : _pSVFS(pSVFS) {
+        assert(_pSL);
+        assert(_pSL->lock);
+        if (! PyThread_acquire_lock(_pSVFS->lock, NOWAIT_LOCK)) {
+            Py_BEGIN_ALLOW_THREADS
+                PyThread_acquire_lock(_pSVFS->lock, WAIT_LOCK);
+            Py_END_ALLOW_THREADS
+        }
+    }
+    ~AcquireLockSVFS() {
+        assert(_pSL);
+        assert(_pSL->lock);
+        PyThread_release_lock(_pSVFS->lock);
+    }
+private:
+    cp_SparseVirtualFileSystem *_pSVFS;
+};
+#else
+/* Make the class a NOP which should get optimised out. */
+class AcquireLockSVFS {
+public:
+    AcquireLockSVFS(SkipList *) {}
+};
+#endif
+
 // Function entry point test macro.
-// After construction we expect this invariant at the entry to each function.
+// After construction, we expect this invariant at the entry to each function.
 // The cast is necessary when used with functions that take a SVFS as a PyObject* such as
 // cp_SparseVirtualFileSystem_mapping_length
 #define ASSERT_FUNCTION_ENTRY_SVFS(member) do { \
@@ -45,6 +78,9 @@ cp_SparseVirtualFileSystem_new(PyTypeObject *type, PyObject *Py_UNUSED(args), Py
     self = (cp_SparseVirtualFileSystem *) type->tp_alloc(type, 0);
     if (self != NULL) {
         self->p_svfs = nullptr;
+#ifdef PY_THREAD_SAFE
+        self->lock = NULL;
+#endif
     }
 //    PyObject_Print((PyObject *)self, stdout);
 //    fprintf(stdout, "cp_SparseVirtualFileSystem_new() self %p\n", (void *)self);
@@ -66,6 +102,14 @@ cp_SparseVirtualFileSystem_init(cp_SparseVirtualFileSystem *self, PyObject *args
         return -1;
     }
     self->p_svfs = new SVFS::SparseVirtualFileSystem();
+#ifdef PY_THREAD_SAFE
+    self->lock = PyThread_allocate_lock();
+    if (self->lock == NULL) {
+        delete self->p_svfs;
+        PyErr_SetString(PyExc_MemoryError, "Unable to allocate thread lock.");
+        return -2;
+    }
+#endif
 //    fprintf(stdout, "cp_SparseVirtualFileSystem_init() self->p_svfs %p\n", (void *)self->p_svfs);
     assert(!PyErr_Occurred());
     return 0;
@@ -73,6 +117,12 @@ cp_SparseVirtualFileSystem_init(cp_SparseVirtualFileSystem *self, PyObject *args
 
 static void
 cp_SparseVirtualFileSystem_dealloc(cp_SparseVirtualFileSystem *self) {
+#ifdef PY_THREAD_SAFE
+    if (self->lock) {
+        PyThread_free_lock(self->lock);
+        self->lock = NULL;
+    }
+#endif
     delete self->p_svfs;
     Py_TYPE(self)->tp_free((PyObject *) self);
 }
@@ -103,6 +153,8 @@ cp_SparseVirtualFileSystem_keys(cp_SparseVirtualFileSystem *self) {
     PyObject * key = NULL;
     // All items set to NULL on construction.
     PyObject * ret = PyList_New(self->p_svfs->size());
+    AcquireLockSVFS _lock(self);
+
     if (!ret) {
         PyErr_Format(PyExc_RuntimeError, "%s: Can create list of size %d", __FUNCTION__, self->p_svfs->size());
         goto except;
@@ -150,6 +202,7 @@ cp_SparseVirtualFileSystem_insert(cp_SparseVirtualFileSystem *self, PyObject *ar
     char *c_id = NULL;
     double mod_time;
     static const char *kwlist[] = {"id", "mod_time", NULL};
+    AcquireLockSVFS _lock(self);
 
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "sd", (char **) kwlist, &c_id, &mod_time)) {
         goto except;
@@ -189,6 +242,7 @@ cp_SparseVirtualFileSystem_remove(cp_SparseVirtualFileSystem *self, PyObject *ar
     PyObject * ret = NULL;
     char *c_id = NULL;
     static const char *kwlist[] = {"id", NULL};
+    AcquireLockSVFS _lock(self);
 
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "s", (char **) kwlist, &c_id)) {
         goto except;
@@ -312,6 +366,7 @@ cp_SparseVirtualFileSystem_svf_has_data(cp_SparseVirtualFileSystem *self, PyObje
     unsigned long long fpos = 0;
     unsigned long long len = 0;
     static const char *kwlist[] = {"id", "file_position", "length", NULL};
+    AcquireLockSVFS _lock(self);
 
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "sKK", (char **) kwlist, &c_id, &fpos, &len)) {
         goto except;
@@ -364,6 +419,7 @@ cp_SparseVirtualFileSystem_svf_write(cp_SparseVirtualFileSystem *self, PyObject 
     unsigned long long fpos = 0;
     PyObject * py_bytes_data = NULL;
     static const char *kwlist[] = {"id", "file_position", "data", NULL};
+    AcquireLockSVFS _lock(self);
 
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "sKS", (char **) kwlist, &c_id, &fpos, &py_bytes_data)) {
         goto except;
@@ -422,6 +478,7 @@ cp_SparseVirtualFileSystem_svf_read(cp_SparseVirtualFileSystem *self, PyObject *
     unsigned long long fpos = 0;
     unsigned long long len = 0;
     static const char *kwlist[] = {"id", "file_position", "length", NULL};
+    AcquireLockSVFS _lock(self);
 
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "sKK", (char **) kwlist, &c_id, &fpos, &len)) {
         goto except;
@@ -478,6 +535,7 @@ cp_SparseVirtualFileSystem_svf_erase(cp_SparseVirtualFileSystem *self, PyObject 
     std::string cpp_id;
     unsigned long long fpos = 0;
     static const char *kwlist[] = {"id", "file_position", NULL};
+    AcquireLockSVFS _lock(self);
 
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "sK", (char **) kwlist, &c_id, &fpos)) {
         goto except;
@@ -541,6 +599,7 @@ cp_SparseVirtualFileSystem_svf_need(cp_SparseVirtualFileSystem *self, PyObject *
     unsigned long long fpos = 0;
     unsigned long long len = 0;
     static const char *kwlist[] = {"id", "file_position", "length", NULL};
+    AcquireLockSVFS _lock(self);
 
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "sKK", (char **) kwlist, &c_id, &fpos, &len)) {
         goto except;
@@ -591,6 +650,7 @@ cp_SparseVirtualFileSystem_svf_##method_name(cp_SparseVirtualFileSystem *self, P
     PyObject *ret = NULL; \
     char *c_id = NULL; \
     std::string cpp_id; \
+    AcquireLockSVFS _lock(self); \
     static const char *kwlist[] = { "id", NULL}; \
     if (! PyArg_ParseTupleAndKeywords(args, kwargs, "s", (char **)kwlist, &c_id)) { \
         goto except; \
@@ -655,6 +715,7 @@ cp_SparseVirtualFileSystem_svf_blocks(cp_SparseVirtualFileSystem *self, PyObject
     std::string cpp_id;
     PyObject * insert_item = NULL; // PyTupleObject
     static const char *kwlist[] = {"id", NULL};
+    AcquireLockSVFS _lock(self);
 
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "s", (char **) kwlist, &c_id)) {
         goto except;
@@ -735,6 +796,7 @@ cp_SparseVirtualFileSystem_svf_file_mod_time_matches(cp_SparseVirtualFileSystem 
     double file_mod_time;
     std::string cpp_id;
     static const char *kwlist[] = {"id", "file_mod_time", NULL};
+    AcquireLockSVFS _lock(self);
 
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "sd", (char **) kwlist, &c_id, &file_mod_time)) {
         goto except;
@@ -796,6 +858,7 @@ cp_SparseVirtualFileSystem_file_mod_time(cp_SparseVirtualFileSystem *self, PyObj
     char *c_id = NULL;
     std::string cpp_id;
     static const char *kwlist[] = {"id", NULL};
+    AcquireLockSVFS _lock(self);
 
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "s", (char **) kwlist, &c_id)) {
         goto except;
@@ -897,6 +960,8 @@ cp_SparseVirtualFileSystem_svf_time_write(cp_SparseVirtualFileSystem *self, PyOb
     char *c_id = NULL;
     std::string cpp_id;
     static const char *kwlist[] = {"id", NULL};
+    AcquireLockSVFS _lock(self);
+
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "s", (char **) kwlist, &c_id)) {
         goto except;
     }
@@ -953,6 +1018,8 @@ cp_SparseVirtualFileSystem_svf_time_read(cp_SparseVirtualFileSystem *self, PyObj
     char *c_id = NULL;
     std::string cpp_id;
     static const char *kwlist[] = {"id", NULL};
+    AcquireLockSVFS _lock(self);
+
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "s", (char **) kwlist, &c_id)) {
         goto except;
     }
@@ -1161,6 +1228,7 @@ static PyTypeObject svfs_cSVFS = {
         .tp_basicsize = sizeof(cp_SparseVirtualFileSystem),
         .tp_itemsize = 0,
         .tp_dealloc = (destructor) cp_SparseVirtualFileSystem_dealloc,
+        // Mapping methods, just __len__
         .tp_as_mapping = &svfs_mapping_methods,
         .tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
         .tp_doc = svfs_cSVFS_doc,
@@ -1168,7 +1236,6 @@ static PyTypeObject svfs_cSVFS = {
         .tp_members = cp_SparseVirtualFileSystem_members,
         .tp_init = (initproc) cp_SparseVirtualFileSystem_init,
         .tp_new = cp_SparseVirtualFileSystem_new,
-        // Mapping methods, just __len__
 };
 
 #pragma mark - END SVFS
