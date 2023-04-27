@@ -1,7 +1,9 @@
 import pickle
 import pickletools
 import sys
+import threading
 import time
+import typing
 
 import psutil
 import pytest
@@ -457,3 +459,51 @@ def test_SVF_pickle_loads(blocks, expected_blocks):
     pickle_result = pickle.dumps(s)
     new_s = pickle.loads(pickle_result)
     assert new_s.blocks() == expected_blocks
+
+
+def write_to_svf(svf: svfs.cSVF, values: typing.Tuple[int, int], offset: int):
+    for fpos, length in values:
+        svf.write(fpos + offset, b' ' * length)
+
+
+@pytest.mark.parametrize(
+    'number_of_threads, expected_bytes',
+    (
+            (0, 1024**2),
+            (1, 1024**2),
+            (2, 1024**2),
+            (4, 1024**2),
+            (8, 1024**2),
+            (16, 1024**2),
+            (32, 1024**2),
+            (64, 1024**2),
+            (128, 1024**2),
+    ),
+)
+def test_multit_hreaded_write(number_of_threads, expected_bytes):
+    """Tests multi-threaded write()."""
+    svf = svfs.cSVF("Some ID")
+    blocks = ((fpos * 2, 8) for fpos in range(0, 1024 * 1024, 8))
+    if number_of_threads:
+        threads = [
+            threading.Thread(
+                name='write[{:6d}]'.format((i + 2) * 1000),
+                target=write_to_svf,
+                args=(svf, blocks, i * 2_000_000)
+            ) for i in range(number_of_threads)
+        ]
+        time_start = time.perf_counter()
+        for thread in threads:
+            thread.start()
+        main_thread = threading.current_thread()
+        for t in threading.enumerate():
+            if t is not main_thread:
+                t.join()
+        time_exec = time.perf_counter() - time_start
+    else:
+        time_start = time.perf_counter()
+        write_to_svf(svf, blocks, 0)
+        time_exec = time.perf_counter() - time_start
+    print()
+    print(f'Number of threads: {number_of_threads:3d} time {time_exec * 1000:8.3f} (ms)')
+    assert svf.num_bytes() == expected_bytes
