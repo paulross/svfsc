@@ -10,8 +10,11 @@
 #include <map>
 #include <chrono>
 #include <cassert>
+
 #ifdef SVF_THREAD_SAFE
+
 #include <mutex>
+
 #endif
 
 #ifdef DEBUG
@@ -23,28 +26,30 @@
 
 namespace SVFS {
 
-// Exception specialisation for the SparseVirtualFile.
+    /// Exception specialisation for the SparseVirtualFile.
     class ExceptionSparseVirtualFile : public std::exception {
     public:
         explicit ExceptionSparseVirtualFile(const std::string &in_msg) : msg(in_msg) {}
+
         [[nodiscard]] const std::string &message() const { return msg; }
+
     protected:
         std::string msg;
     };
 
-// Might be thrown during a write operation which fails.
+    /// Might be thrown during a write operation which fails.
     class ExceptionSparseVirtualFileWrite : public ExceptionSparseVirtualFile {
     public:
         explicit ExceptionSparseVirtualFileWrite(const std::string &in_msg) : ExceptionSparseVirtualFile(in_msg) {}
     };
 
-// Might be thrown during a write operation where the data differs.
+    /// Might be thrown during a write operation where the data differs.
     class ExceptionSparseVirtualFileDiff : public ExceptionSparseVirtualFileWrite {
     public:
         explicit ExceptionSparseVirtualFileDiff(const std::string &in_msg) : ExceptionSparseVirtualFileWrite(in_msg) {}
     };
 
-// Might be thrown during a write operation where the data differs.
+    /// Might be thrown during a write operation where the data differs.
     class ExceptionSparseVirtualFileRead : public ExceptionSparseVirtualFile {
     public:
         explicit ExceptionSparseVirtualFileRead(const std::string &in_msg) : ExceptionSparseVirtualFile(in_msg) {}
@@ -59,91 +64,127 @@ namespace SVFS {
     typedef std::pair<t_fpos, size_t> t_seek_read;
     typedef std::vector<t_seek_read> t_seek_reads;
 
+    /**
+     * Configuration for the Sparse Virtual File.
+     */
     typedef struct SparseVirtualFileConfig {
-        // If true the memory is destructively overwritten when the Sparse Virtual File is destroyed.
-        // See test_perf_erase_overwrite_false()/test_perf_erase_overwrite_true() for performance comparison.
-        // If true then ``clear()`` on a 1Mb SVF typically takes 35 us, if false 1.5 us.
+        /**
+         * If \c true the memory is destructively overwritten when the Sparse Virtual File is destroyed.
+         * See \c test_perf_erase_overwrite_false() and \c test_perf_erase_overwrite_true() for performance comparison.
+         * If \c true then \c clear() on a 1Mb SVF typically takes 35 us, if false 1.5 us.
+         */
         bool overwrite_on_exit = false;
-        // If true compare with existing data on write and if there is a difference throw an exception.
-        // This trades performance (if false) for correctness (if true).
-        // See test_perf_write_with_diff_check()/test_perf_write_without_diff_check()
-        // If true writing is 0.321 ms, if false 0.264 m.
+        /**
+         * If \c true compare with existing data on write and if there is a difference throw an exception.
+         * This trades performance (if \c false) for correctness (if \c true).
+         * See \c test_perf_write_with_diff_check() and \c test_perf_write_without_diff_check()
+         * If \c true writing is 0.321 ms, if \c false 0.264 m.
+         */
         bool compare_for_diff = true;
     } tSparseVirtualFileConfig;
 
     class SparseVirtualFile {
     public:
-        /*
+        /**
          * Create a Sparse Virtual File
-         * id - The unique identifier for this file.
-         * mod_time - The modification time of the remote file in UNIX seconds, this is used for integrity checking.
-         * config - See tSparseVirtualFileConfig above.
+         * @param id The unique identifier for this file.
+         * @param mod_time The modification time of the remote file in UNIX seconds, this is used for integrity checking.
+         * @param config See \c tSparseVirtualFileConfig above.
          */
         SparseVirtualFile(const std::string &id, double mod_time,
-                const tSparseVirtualFileConfig &config = tSparseVirtualFileConfig()) : \
+                          const tSparseVirtualFileConfig &config = tSparseVirtualFileConfig()) : \
             m_id(id), \
             m_file_mod_time(mod_time), \
             m_config(config),
             m_time_write(std::chrono::time_point<std::chrono::system_clock>::min()), \
             m_time_read(std::chrono::time_point<std::chrono::system_clock>::min()) {
         }
+
         // ---- Read and write etc. ----
-        // Do I have the data?
+        /// Do I have the data?
         bool has(t_fpos fpos, size_t len) const noexcept;
-        // Write data at file position.
+
+        /// Write data at file position.
         void write(t_fpos fpos, const char *data, size_t len);
-        // Read data and write to the buffer provided by the caller.
-        // Not const as we update m_bytes_read, m_count_read, m_time_read.
+
+        /** Read data and write to the buffer provided by the caller.
+         * Not const as we update m_bytes_read, m_count_read, m_time_read. */
         void read(t_fpos fpos, size_t len, char *p);
-        // Create a new fragmentation list of seek/read instructions.
-        t_seek_reads need(t_fpos fpos, size_t len, size_t greedy_length=0) const noexcept;
-        // Implements the data deletion strategy.
+
+        /// Create a new fragmentation list of seek/read instructions.
+        t_seek_reads need(t_fpos fpos, size_t len, size_t greedy_length = 0) const noexcept;
+
+        /// Implements the data deletion strategy.
         void clear() noexcept;
-        // Remove the block at the given file position which must be the start of the block.
-        // This will raise an ExceptionSparseVirtualFile if the file position is not the start of the block.
-        // Returns the length of the block erased.
+
+        /** Remove the block at the given file position which must be the start of the block.
+         * This will raise an ExceptionSparseVirtualFile if the file position is not the start of the block.
+         * Returns the length of the block erased. */
         size_t erase(t_fpos fpos);
+
         // ---- Meta information about the SVF ----
-        // The existing blocks as a list of (file_position, size) pairs.
+        /// The existing blocks as a list of (file_position, size) pairs.
         t_seek_reads blocks() const noexcept;
+
         size_t block_size(t_fpos fpos) const;
+
         // Information about memory used:
-        // size_of() gives best guess of total memory usage.
+        /// size_of() gives best guess of total memory usage.
         size_t size_of() const noexcept;
-        // Gives exact number of data bytes held.
+
+        /// Gives exact number of data bytes held.
         size_t num_bytes() const noexcept { return m_bytes_total; };
-        // Gives exact number of blocks used.
+
+        /// Gives exact number of blocks used.
         size_t num_blocks() const noexcept { return m_svf.size(); }
-        // Uses mutex and checks integrity
+
+        /// The position of the last byte.
         t_fpos last_file_position() const noexcept;
-        // Check the clients file modification time has changed.
-        // Caller has to decide what to do...
+
+        /** Check the clients file modification time has changed.
+         * Caller has to decide what to do... */
         bool file_mod_time_matches(const double &file_mod_time) const noexcept {
             return file_mod_time == m_file_mod_time;
         }
+
         // ---- Attribute access ----
         const std::string &id() const noexcept { return m_id; }
+
         double file_mod_time() const noexcept { return m_file_mod_time; }
+
         size_t count_write() const noexcept { return m_count_write; }
+
         size_t count_read() const noexcept { return m_count_read; }
+
         size_t bytes_write() const noexcept { return m_bytes_write; }
+
         size_t bytes_read() const noexcept { return m_bytes_read; }
+
         // These can be cast to std::chrono::time_point<double>
         std::chrono::time_point<std::chrono::system_clock> time_write() const noexcept { return m_time_write; }
+
         std::chrono::time_point<std::chrono::system_clock> time_read() const noexcept { return m_time_read; }
+
         // Eliminate copying.
         SparseVirtualFile(const SparseVirtualFile &rhs) = delete;
+
         SparseVirtualFile operator=(const SparseVirtualFile &rhs) = delete;
+
 #ifdef SVF_THREAD_SAFE
-        // Prohibit moving, the mutex has no move constructor.
+
+        /// Prohibit moving, the mutex has no move constructor.
         SparseVirtualFile(SparseVirtualFile &&other) = delete;
-        SparseVirtualFile& operator=(SparseVirtualFile &&rhs) = delete;
+
+        SparseVirtualFile &operator=(SparseVirtualFile &&rhs) = delete;
+
 #else
-        // Allow moving
+        /// Allow moving
         SparseVirtualFile(SparseVirtualFile &&other) = default;
         SparseVirtualFile& operator=(SparseVirtualFile &&rhs) = default;
 #endif
+
         ~SparseVirtualFile() { clear(); }
+
     private:
         std::string m_id;
         double m_file_mod_time;
@@ -170,17 +211,27 @@ namespace SVFS {
     private:
         // Write data at file position without checks.
         void _write(t_fpos fpos, const char *data, size_t len);
+
         void _write_new_append_old(t_fpos fpos, const char *data, size_t len, t_map::iterator iter);
-        void _write_append_new_to_old(t_fpos fpos, const char *new_data, size_t new_data_len, t_map::iterator base_block_iter);
+
+        void _write_append_new_to_old(t_fpos fpos, const char *new_data, size_t new_data_len,
+                                      t_map::iterator base_block_iter);
+
         // NOTE: This is const but read() is not as it updates metadata.
         void _read(t_fpos fpos, size_t len, char *p) const;
+
         void _throw_diff(t_fpos fpos, const char *data, t_map::const_iterator iter, size_t index_iter) const;
+
         // Does not use mutex or checks integrity
         t_fpos _last_file_position() const noexcept;
+
         t_fpos _last_file_pos_for_block(t_map::const_iterator iter) const noexcept;
+
         static size_t _amount_to_read(t_seek_read iter, size_t greedy_length) noexcept;
+
         static t_seek_reads _minimise_seek_reads(t_seek_reads seek_reads, size_t greedy_length) noexcept;
-            /* Check internal integrity. */
+
+        /* Check internal integrity. */
         enum ERROR_CONDITION {
             ERROR_NONE = 0,
             ERROR_EMPTY_BLOCK,
@@ -189,6 +240,7 @@ namespace SVFS {
             ERROR_BYTE_COUNT_MISMATCH,
             ERROR_DUPLICATE_BLOCK,
         };
+
         ERROR_CONDITION integrity() const noexcept;
     };
 

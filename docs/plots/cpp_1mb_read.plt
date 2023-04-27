@@ -1,6 +1,6 @@
-set title "Writing With Multiple Threads."
+set title "Reading 1MB With Different Block Sizes."
 
-set xlabel "Number of Threads"
+set xlabel "Block Size (bytes)"
 #set xrange [0.1:100]
 set logscale x
 #set xrange [:1000]
@@ -8,13 +8,13 @@ set logscale x
 # First line specification refers to major grid lines in both x and y, the second to minor grid lines in x and y.
 set grid xtics mxtics ytics mytics linetype -1 linewidth 1, linetype 0 linewidth 1
 
-#set logscale y
-set ylabel "Relative Performance, single thread = 1.0"
-set yrange [0:]
+set logscale y
+set ylabel "Time (s)"
+# set yrange [1:]
 # set ytics 8,35,3
 
 #set logscale y2
-#set y2label "Cache Misses"
+#set y2label "Cache Nisses"
 # set y2range [1:1e9]
 #set y2tics
 
@@ -29,9 +29,8 @@ set key off
 
 set terminal png size 800,500           # choose the file format
 
-set output "cpp_write_multithreaded.png"   # choose the output device
+set output "cpp_1mb_read.png"   # choose the output device
 
-# Single thread is ((1048564 / 1e6) / (67.343429 / 1e3)) = 15.570398115605311
-plot "cpp_write_multithreaded.dat" using 1:((($7 / 1e6) / ($8 / 1e3)) / 15.570398115605311) t "Time to Write." with linespoints axes x1y1 pt 3 lw 2
+plot "cpp_1mb_read.dat" using 1:($7 / 1000) t "Time to Write (Coalesced)." with linespoints axes x1y1 pt 3 lw 2
 
 reset

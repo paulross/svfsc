@@ -441,7 +441,7 @@ namespace SVFS {
             std::chrono::duration<double> time_exec = std::chrono::high_resolution_clock::now() - time_start;
 
             std::ostringstream os;
-            os << "1Mb, " << std::setw(3) << block_size << " sized blocks";
+            os << "1Mb, " << std::setw(3) << block_size << " sized blocks" << " size_of " << svf.size_of();
             auto result = TestResult(__PRETTY_FUNCTION__, std::string(os.str()), 0, "", time_exec.count(),
                                      svf.size_of());
             count.add_result(result.result());
@@ -626,6 +626,34 @@ namespace SVFS {
         return count;
     }
 
+    // Read 1Mb of test_data_bytes_512 in different, equally sized, blocks that are not coalesced and report the time taken.
+    TestCount test_perf_read_1M_un_coalesced(t_test_results &results) {
+        const size_t SIZE = 1024 * 1024 * 1;
+        TestCount count;
+        for (size_t block_size = 1; block_size <= 512; block_size *= 2) {
+            SparseVirtualFile svf("", 0.0);
+            for (t_fpos i = 0; i < (SIZE) / block_size; ++i) {
+                t_fpos fpos = i * 512 * 2;
+                svf.write(fpos, test_data_bytes_512, block_size);
+            }
+
+            char buffer[SIZE];
+            auto time_start = std::chrono::high_resolution_clock::now();
+            for (t_fpos i = 0; i < (SIZE) / block_size; ++i) {
+                t_fpos fpos = i * 512 * 2;
+                svf.read(fpos, block_size, buffer);
+            }
+            std::chrono::duration<double> time_exec = std::chrono::high_resolution_clock::now() - time_start;
+
+            std::ostringstream os;
+            os << "1Mb " << block_size << " byte blocks " << svf.num_blocks() << " blocks ";
+            auto result = TestResult(__PRETTY_FUNCTION__, os.str(), 0, "", time_exec.count(),
+                                     svf.num_bytes());
+            count.add_result(result.result());
+            results.push_back(result);
+        }
+        return count;
+    }
 
     TestCaseHas::TestCaseHas(const std::string &m_test_name, const t_seek_reads &m_writes,
                              t_fpos fpos, size_t len, bool expected) : TestCaseABC(m_test_name, m_writes),
@@ -1224,6 +1252,7 @@ namespace SVFS {
         // read()
         count += test_read_all(results);
         count += test_read_throws_all(results);
+        count += test_perf_read_1M_un_coalesced(results);
         count += test_perf_read_1M_coalesced(results);
         // has()
         count += test_has_all(results);

@@ -1,5 +1,5 @@
 
-Module svfs
+svfs
 ------------
 
 .. automodule:: svfs

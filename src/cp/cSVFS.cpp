@@ -15,8 +15,8 @@ static PyModuleDef svfsmodule = {
         .m_doc = \
         "This module contains Sparse Virtual File System classes."
         "\n"
-        "A Sparse Virtual File (SVF) is one where some data from the actual file is held in memory at the specific"
-        " file locations as the original file."
+        "A Sparse Virtual File (SVF) is one where data from the actual file is held in memory at the relevant"
+        " file locations as in the original file."
         " The original file is identified by a string ID."
         " Data can be written to an SVF, if the data differs from that existing an error will be raised."
         " Data can be read from an SVF, if the SVF does not have the data an error will be raised."

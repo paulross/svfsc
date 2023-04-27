@@ -631,8 +631,8 @@ SVFS_SVF_METHOD_SIZE_T_WRAPPER(bytes_read);
 
 static const char *cp_SparseVirtualFile_time_write_docstring = (
         "Returns the timestamp of the last write to the Sparse Virtual File as a ``datetime.datetime``"
-        " or ``None`` if no read has taken place."
-        "\n\nSignature:\n\n``time_write() -> datetime.datetime:``"
+        " or ``None`` if no write has taken place."
+        "\n\nSignature:\n\n``time_write() -> typing.Optional[datetime.datetime]:``"
 );
 //SVFS_SVF_METHOD_DATETIME_WRAPPER(time_write)
 
@@ -676,7 +676,7 @@ cp_SparseVirtualFile_time_write(cp_SparseVirtualFile *self) {
 static const char *cp_SparseVirtualFile_time_read_docstring = (
         "Returns the timestamp of the last read from the Sparse Virtual File as a ``datetime.datetime``"
         " or ``None`` if no read has taken place."
-        "\n\nSignature:\n\n``time_read() -> datetime.datetime:``"
+        "\n\nSignature:\n\n``time_read() -> typing.Optional[datetime.datetime]:``"
 );
 //SVFS_SVF_METHOD_DATETIME_WRAPPER(time_read)
 

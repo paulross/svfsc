@@ -3,137 +3,146 @@ Testing SVF and SVFS...
 Testing SVF all...
 Testing SVFS all...
 Function                                                                   ----           Bytes              ms           ms/Mb            Mb/s Test
-virtual TestResult SVFS::TestCaseWrite::run() const                        pass             101        0.002090          21.698            46.1 Special (A)
-virtual TestResult SVFS::TestCaseWrite::run() const                        pass             113        0.001772          16.443            60.8 Special (B)
-virtual TestResult SVFS::TestCaseWrite::run() const                        pass               0        0.000061           0.000             0.0 Write no blocks
-virtual TestResult SVFS::TestCaseWrite::run() const                        pass               4        0.000351          92.013            10.9 Write single block
-virtual TestResult SVFS::TestCaseWrite::run() const                        pass               4        0.000484         126.878             7.9 Overwrite single block
-virtual TestResult SVFS::TestCaseWrite::run() const                        pass               5        0.000579         121.425             8.2 Extend single block - a
-virtual TestResult SVFS::TestCaseWrite::run() const                        pass               5        0.000600         125.829             7.9 Extend single block - b
-virtual TestResult SVFS::TestCaseWrite::run() const                        pass               9        0.000661          77.012            13.0 Coalesce two blocks
-virtual TestResult SVFS::TestCaseWrite::run() const                        pass               8        0.000597          78.250            12.8 Add second block
-virtual TestResult SVFS::TestCaseWrite::run() const                        pass              12        0.001534         134.043             7.5 New joins two blocks
-virtual TestResult SVFS::TestCaseWrite::run() const                        pass              12        0.001144          99.964            10.0 New just fills gap between two blocks
-virtual TestResult SVFS::TestCaseWrite::run() const                        pass              12        0.001224         106.955             9.3 New overlaps two blocks exactly
-virtual TestResult SVFS::TestCaseWrite::run() const                        pass              12        0.001022          89.304            11.2 New overlaps two blocks just short
-virtual TestResult SVFS::TestCaseWrite::run() const                        pass              14        0.001066          79.842            12.5 New overlaps two blocks and adds
-virtual TestResult SVFS::TestCaseWrite::run() const                        pass               8        0.001613         211.419             4.7 New appends old[0]
-virtual TestResult SVFS::TestCaseWrite::run() const                        pass               5        0.001136         238.236             4.2 New appends part of old[0]
-virtual TestResult SVFS::TestCaseWrite::run() const                        pass               5        0.001101         230.896             4.3 New overlaps end old[0] exactly
-virtual TestResult SVFS::TestCaseWrite::run() const                        pass               6        0.001008         176.161             5.7 New overlaps end old[0] and beyond
-virtual TestResult SVFS::TestCaseWrite::run() const                        pass              11        0.001330         126.782             7.9 New appends old[0] not [1] (a)
-virtual TestResult SVFS::TestCaseWrite::run() const                        pass              12        0.001340         117.091             8.5 New appends old[0] not [1] (b)
-virtual TestResult SVFS::TestCaseWrite::run() const                        pass              13        0.001699         137.041             7.3 New appends old[0] and [1] exactly
-virtual TestResult SVFS::TestCaseWrite::run() const                        pass              13        0.001613         130.104             7.7 New appends old[0] and [1] - just
-virtual TestResult SVFS::TestCaseWrite::run() const                        pass              13        0.001558         125.668             8.0 New appends old[0] and [1] - one byte
-virtual TestResult SVFS::TestCaseWrite::run() const                        pass              13        0.001576         127.120             7.9 New appends old[0] and [1] - all
-virtual TestResult SVFS::TestCaseWrite::run() const                        pass              14        0.001568         117.441             8.5 New appends old[0] and [1] overlapped
+virtual TestResult SVFS::TestCaseWrite::run() const                        pass             101        0.001259          13.071            76.5 Special (A)
+virtual TestResult SVFS::TestCaseWrite::run() const                        pass             113        0.001233          11.442            87.4 Special (B)
+virtual TestResult SVFS::TestCaseWrite::run() const                        pass               0        0.000059           0.000             0.0 Write no blocks
+virtual TestResult SVFS::TestCaseWrite::run() const                        pass               4        0.000267          69.992            14.3 Write single block
+virtual TestResult SVFS::TestCaseWrite::run() const                        pass               4        0.000435         114.033             8.8 Overwrite single block
+virtual TestResult SVFS::TestCaseWrite::run() const                        pass               5        0.000519         108.842             9.2 Extend single block - a
+virtual TestResult SVFS::TestCaseWrite::run() const                        pass               5        0.000464          97.308            10.3 Extend single block - b
+virtual TestResult SVFS::TestCaseWrite::run() const                        pass               9        0.000584          68.041            14.7 Coalesce two blocks
+virtual TestResult SVFS::TestCaseWrite::run() const                        pass               8        0.000464          60.817            16.4 Add second block
+virtual TestResult SVFS::TestCaseWrite::run() const                        pass              12        0.001197         104.595             9.6 New joins two blocks
+virtual TestResult SVFS::TestCaseWrite::run() const                        pass              12        0.001034          90.352            11.1 New just fills gap between two blocks
+virtual TestResult SVFS::TestCaseWrite::run() const                        pass              12        0.001029          89.915            11.1 New overlaps two blocks exactly
+virtual TestResult SVFS::TestCaseWrite::run() const                        pass              12        0.000876          76.546            13.1 New overlaps two blocks just short
+virtual TestResult SVFS::TestCaseWrite::run() const                        pass              14        0.000910          68.157            14.7 New overlaps two blocks and adds
+virtual TestResult SVFS::TestCaseWrite::run() const                        pass               8        0.001279         167.641             6.0 New appends old[0]
+virtual TestResult SVFS::TestCaseWrite::run() const                        pass               5        0.000968         203.004             4.9 New appends part of old[0]
+virtual TestResult SVFS::TestCaseWrite::run() const                        pass               5        0.000963         201.956             5.0 New overlaps end old[0] exactly
+virtual TestResult SVFS::TestCaseWrite::run() const                        pass               6        0.000778         135.965             7.4 New overlaps end old[0] and beyond
+virtual TestResult SVFS::TestCaseWrite::run() const                        pass              11        0.001058         100.854             9.9 New appends old[0] not [1] (a)
+virtual TestResult SVFS::TestCaseWrite::run() const                        pass              12        0.000941          82.226            12.2 New appends old[0] not [1] (b)
+virtual TestResult SVFS::TestCaseWrite::run() const                        pass              13        0.001325         106.874             9.4 New appends old[0] and [1] exactly
+virtual TestResult SVFS::TestCaseWrite::run() const                        pass              13        0.001270         102.438             9.8 New appends old[0] and [1] - just
+virtual TestResult SVFS::TestCaseWrite::run() const                        pass              13        0.001257         101.389             9.9 New appends old[0] and [1] - one byte
+virtual TestResult SVFS::TestCaseWrite::run() const                        pass              13        0.001221          98.485            10.2 New appends old[0] and [1] - all
+virtual TestResult SVFS::TestCaseWrite::run() const                        pass              14        0.001170          87.631            11.4 New appends old[0] and [1] overlapped
 virtual TestResult SVFS::TestCaseWriteThrows::run() const                  pass               4        0.000000           0.000             0.0 Throws: Overwrite single block
-TestCount SVFS::_test_perf_write_with_diff_check(bool, t_test_results &)   pass         1024000        0.260659           0.267          3746.5 256 block size, x4000, compare_for_diff=0
-TestCount SVFS::_test_perf_write_with_diff_check(bool, t_test_results &)   pass         1024000        0.330153           0.338          2957.9 256 block size, x4000, compare_for_diff=1
-TestCount SVFS::test_perf_write_sim_index_svf(t_test_results &)            pass         1048564       79.603687          79.605            12.6 Sim low level index
-TestCount SVFS::test_perf_write_1M_coalesced(t_test_results &)             pass         1048576       71.657750          71.658            14.0 1Mb,   1 sized blocks, coalesced
-TestCount SVFS::test_perf_write_1M_coalesced(t_test_results &)             pass         1048576       35.609744          35.610            28.1 1Mb,   2 sized blocks, coalesced
-TestCount SVFS::test_perf_write_1M_coalesced(t_test_results &)             pass         1048576       17.645879          17.646            56.7 1Mb,   4 sized blocks, coalesced
-TestCount SVFS::test_perf_write_1M_coalesced(t_test_results &)             pass         1048576        8.792925           8.793           113.7 1Mb,   8 sized blocks, coalesced
-TestCount SVFS::test_perf_write_1M_coalesced(t_test_results &)             pass         1048576        5.367739           5.368           186.3 1Mb,  16 sized blocks, coalesced
-TestCount SVFS::test_perf_write_1M_coalesced(t_test_results &)             pass         1048576        3.318316           3.318           301.4 1Mb,  32 sized blocks, coalesced
-TestCount SVFS::test_perf_write_1M_coalesced(t_test_results &)             pass         1048576        2.550697           2.551           392.0 1Mb,  64 sized blocks, coalesced
-TestCount SVFS::test_perf_write_1M_coalesced(t_test_results &)             pass         1048576        2.181982           2.182           458.3 1Mb, 128 sized blocks, coalesced
-TestCount SVFS::test_perf_write_1M_coalesced(t_test_results &)             pass         1048576        2.246767           2.247           445.1 1Mb, 256 sized blocks, coalesced
-TestCount SVFS::test_perf_write_1M_uncoalesced(t_test_results &)           pass         1048576      323.137855         323.138             3.1 1Mb,   1 sized blocks, uncoalesced
-TestCount SVFS::test_perf_write_1M_uncoalesced(t_test_results &)           pass         1048576      143.458867         143.459             7.0 1Mb,   2 sized blocks, uncoalesced
-TestCount SVFS::test_perf_write_1M_uncoalesced(t_test_results &)           pass         1048576       68.296910          68.297            14.6 1Mb,   4 sized blocks, uncoalesced
-TestCount SVFS::test_perf_write_1M_uncoalesced(t_test_results &)           pass         1048576       33.917283          33.917            29.5 1Mb,   8 sized blocks, uncoalesced
-TestCount SVFS::test_perf_write_1M_uncoalesced(t_test_results &)           pass         1048576       17.622333          17.622            56.7 1Mb,  16 sized blocks, uncoalesced
-TestCount SVFS::test_perf_write_1M_uncoalesced(t_test_results &)           pass         1048576       10.819814          10.820            92.4 1Mb,  32 sized blocks, uncoalesced
-TestCount SVFS::test_perf_write_1M_uncoalesced(t_test_results &)           pass         1048576        5.903501           5.904           169.4 1Mb,  64 sized blocks, uncoalesced
-TestCount SVFS::test_perf_write_1M_uncoalesced(t_test_results &)           pass         1048576        3.239088           3.239           308.7 1Mb, 128 sized blocks, uncoalesced
-TestCount SVFS::test_perf_write_1M_uncoalesced(t_test_results &)           pass         1048576        2.189376           2.189           456.8 1Mb, 256 sized blocks, uncoalesced
-TestCount SVFS::test_perf_write_1M_uncoalesced_size_of(t_test_results &)   pass        34603192      312.938951           9.483           105.5 1Mb,   1 sized blocks
-TestCount SVFS::test_perf_write_1M_uncoalesced_size_of(t_test_results &)   pass        17825976      147.691410           8.688           115.1 1Mb,   2 sized blocks
-TestCount SVFS::test_perf_write_1M_uncoalesced_size_of(t_test_results &)   pass         9437368       66.029966           7.337           136.3 1Mb,   4 sized blocks
-TestCount SVFS::test_perf_write_1M_uncoalesced_size_of(t_test_results &)   pass         5243064       36.456359           7.291           137.2 1Mb,   8 sized blocks
-TestCount SVFS::test_perf_write_1M_uncoalesced_size_of(t_test_results &)   pass         3145912       17.098887           5.699           175.5 1Mb,  16 sized blocks
-TestCount SVFS::test_perf_write_1M_uncoalesced_size_of(t_test_results &)   pass         2097336       10.832058           5.416           184.7 1Mb,  32 sized blocks
-TestCount SVFS::test_perf_write_1M_uncoalesced_size_of(t_test_results &)   pass         1573048        6.478499           4.318           231.6 1Mb,  64 sized blocks
-TestCount SVFS::test_perf_write_1M_uncoalesced_size_of(t_test_results &)   pass         1310904        3.624690           2.899           344.9 1Mb, 128 sized blocks
-TestCount SVFS::test_perf_write_1M_uncoalesced_size_of(t_test_results &)   pass         1179832        2.537725           2.255           443.4 1Mb, 256 sized blocks
-virtual TestResult SVFS::TestCaseRead::run() const                         pass               4        0.000364          95.420            10.5 Read exactly a block
-virtual TestResult SVFS::TestCaseRead::run() const                         pass               4        0.000184          48.234            20.7 Read leading part of block
-virtual TestResult SVFS::TestCaseRead::run() const                         pass               4        0.000123          32.244            31.0 Read trailing part of block
-virtual TestResult SVFS::TestCaseRead::run() const                         pass               4        0.000121          31.719            31.5 Read mid part of block
+TestCount SVFS::_test_perf_write_with_diff_check(bool, t_test_results &)   pass         1024000        0.233180           0.239          4188.0 256 block size, x4000, compare_for_diff=0
+TestCount SVFS::_test_perf_write_with_diff_check(bool, t_test_results &)   pass         1024000        0.272188           0.279          3587.8 256 block size, x4000, compare_for_diff=1
+TestCount SVFS::test_perf_write_sim_index_svf(t_test_results &)            pass         1048564       76.810058          76.811            13.0 Sim low level index
+TestCount SVFS::test_perf_write_1M_coalesced(t_test_results &)             pass         1048576       62.892674          62.893            15.9 1Mb,   1 sized blocks, coalesced
+TestCount SVFS::test_perf_write_1M_coalesced(t_test_results &)             pass         1048576       35.112635          35.113            28.5 1Mb,   2 sized blocks, coalesced
+TestCount SVFS::test_perf_write_1M_coalesced(t_test_results &)             pass         1048576       15.855578          15.856            63.1 1Mb,   4 sized blocks, coalesced
+TestCount SVFS::test_perf_write_1M_coalesced(t_test_results &)             pass         1048576        8.126010           8.126           123.1 1Mb,   8 sized blocks, coalesced
+TestCount SVFS::test_perf_write_1M_coalesced(t_test_results &)             pass         1048576        4.828088           4.828           207.1 1Mb,  16 sized blocks, coalesced
+TestCount SVFS::test_perf_write_1M_coalesced(t_test_results &)             pass         1048576        3.374053           3.374           296.4 1Mb,  32 sized blocks, coalesced
+TestCount SVFS::test_perf_write_1M_coalesced(t_test_results &)             pass         1048576        2.501053           2.501           399.8 1Mb,  64 sized blocks, coalesced
+TestCount SVFS::test_perf_write_1M_coalesced(t_test_results &)             pass         1048576        2.109191           2.109           474.1 1Mb, 128 sized blocks, coalesced
+TestCount SVFS::test_perf_write_1M_coalesced(t_test_results &)             pass         1048576        1.925496           1.925           519.3 1Mb, 256 sized blocks, coalesced
+TestCount SVFS::test_perf_write_1M_uncoalesced(t_test_results &)           pass         1048576      308.831676         308.832             3.2 1Mb,   1 sized blocks, uncoalesced
+TestCount SVFS::test_perf_write_1M_uncoalesced(t_test_results &)           pass         1048576      156.992449         156.992             6.4 1Mb,   2 sized blocks, uncoalesced
+TestCount SVFS::test_perf_write_1M_uncoalesced(t_test_results &)           pass         1048576       71.154978          71.155            14.1 1Mb,   4 sized blocks, uncoalesced
+TestCount SVFS::test_perf_write_1M_uncoalesced(t_test_results &)           pass         1048576       32.146996          32.147            31.1 1Mb,   8 sized blocks, uncoalesced
+TestCount SVFS::test_perf_write_1M_uncoalesced(t_test_results &)           pass         1048576       16.620676          16.621            60.2 1Mb,  16 sized blocks, uncoalesced
+TestCount SVFS::test_perf_write_1M_uncoalesced(t_test_results &)           pass         1048576        9.289926           9.290           107.6 1Mb,  32 sized blocks, uncoalesced
+TestCount SVFS::test_perf_write_1M_uncoalesced(t_test_results &)           pass         1048576        5.660486           5.660           176.7 1Mb,  64 sized blocks, uncoalesced
+TestCount SVFS::test_perf_write_1M_uncoalesced(t_test_results &)           pass         1048576        3.193380           3.193           313.1 1Mb, 128 sized blocks, uncoalesced
+TestCount SVFS::test_perf_write_1M_uncoalesced(t_test_results &)           pass         1048576        2.107216           2.107           474.6 1Mb, 256 sized blocks, uncoalesced
+TestCount SVFS::test_perf_write_1M_uncoalesced_size_of(t_test_results &)   pass        34603192      308.683518           9.354           106.9 1Mb,   1 sized blocks
+TestCount SVFS::test_perf_write_1M_uncoalesced_size_of(t_test_results &)   pass        17825976      147.917691           8.701           114.9 1Mb,   2 sized blocks
+TestCount SVFS::test_perf_write_1M_uncoalesced_size_of(t_test_results &)   pass         9437368       67.345456           7.483           133.6 1Mb,   4 sized blocks
+TestCount SVFS::test_perf_write_1M_uncoalesced_size_of(t_test_results &)   pass         5243064       32.347135           6.469           154.6 1Mb,   8 sized blocks
+TestCount SVFS::test_perf_write_1M_uncoalesced_size_of(t_test_results &)   pass         3145912       16.214453           5.405           185.0 1Mb,  16 sized blocks
+TestCount SVFS::test_perf_write_1M_uncoalesced_size_of(t_test_results &)   pass         2097336        9.399743           4.699           212.8 1Mb,  32 sized blocks
+TestCount SVFS::test_perf_write_1M_uncoalesced_size_of(t_test_results &)   pass         1573048        5.624665           3.749           266.7 1Mb,  64 sized blocks
+TestCount SVFS::test_perf_write_1M_uncoalesced_size_of(t_test_results &)   pass         1310904        3.169661           2.535           394.4 1Mb, 128 sized blocks
+TestCount SVFS::test_perf_write_1M_uncoalesced_size_of(t_test_results &)   pass         1179832        2.079770           1.848           541.0 1Mb, 256 sized blocks
+virtual TestResult SVFS::TestCaseRead::run() const                         pass               4        0.000326          85.459            11.7 Read exactly a block
+virtual TestResult SVFS::TestCaseRead::run() const                         pass               4        0.000091          23.855            41.9 Read leading part of block
+virtual TestResult SVFS::TestCaseRead::run() const                         pass               4        0.000101          26.477            37.8 Read trailing part of block
+virtual TestResult SVFS::TestCaseRead::run() const                         pass               4        0.000086          22.544            44.4 Read mid part of block
 virtual TestResult SVFS::TestCaseReadThrows::run() const                   pass               0        0.000000           0.000             0.0 Read empty SVF throws
 virtual TestResult SVFS::TestCaseReadThrows::run() const                   pass               4        0.000000           0.000             0.0 Read before block throws
 virtual TestResult SVFS::TestCaseReadThrows::run() const                   pass               4        0.000000           0.000             0.0 Read prior to block throws
 virtual TestResult SVFS::TestCaseReadThrows::run() const                   pass               4        0.000000           0.000             0.0 Read beyond block throws
 virtual TestResult SVFS::TestCaseReadThrows::run() const                   pass               4        0.000000           0.000             0.0 Read beyond end throws
-TestCount SVFS::test_perf_read_1M_coalesced(t_test_results &)              pass         1048576        0.746628           0.747          1339.4 1Mb of 256 bytes in one block
-virtual TestResult SVFS::TestCaseHas::run() const                          pass               0        0.000378           0.000             0.0 Has empty - false
-virtual TestResult SVFS::TestCaseHas::run() const                          pass               4        0.000070          18.350            54.5 Has an exact block
-virtual TestResult SVFS::TestCaseHas::run() const                          pass               4        0.000054          14.156            70.6 Has leading block
+TestCount SVFS::test_perf_read_1M_un_coalesced(t_test_results &)           pass         1048576      131.941393         131.941             7.6 1Mb 1 byte blocks 1048576 blocks
+TestCount SVFS::test_perf_read_1M_un_coalesced(t_test_results &)           pass         1048576       64.329339          64.329            15.5 1Mb 2 byte blocks 524288 blocks
+TestCount SVFS::test_perf_read_1M_un_coalesced(t_test_results &)           pass         1048576       34.570779          34.571            28.9 1Mb 4 byte blocks 262144 blocks
+TestCount SVFS::test_perf_read_1M_un_coalesced(t_test_results &)           pass         1048576       16.532396          16.532            60.5 1Mb 8 byte blocks 131072 blocks
+TestCount SVFS::test_perf_read_1M_un_coalesced(t_test_results &)           pass         1048576        8.589121           8.589           116.4 1Mb 16 byte blocks 65536 blocks
+TestCount SVFS::test_perf_read_1M_un_coalesced(t_test_results &)           pass         1048576        4.016583           4.017           249.0 1Mb 32 byte blocks 32768 blocks
+TestCount SVFS::test_perf_read_1M_un_coalesced(t_test_results &)           pass         1048576        2.331843           2.332           428.8 1Mb 64 byte blocks 16384 blocks
+TestCount SVFS::test_perf_read_1M_un_coalesced(t_test_results &)           pass         1048576        1.038771           1.039           962.7 1Mb 128 byte blocks 8192 blocks
+TestCount SVFS::test_perf_read_1M_un_coalesced(t_test_results &)           pass         1048576        0.830508           0.831          1204.1 1Mb 256 byte blocks 4096 blocks
+TestCount SVFS::test_perf_read_1M_un_coalesced(t_test_results &)           pass         1048576        0.459928           0.460          2174.3 1Mb 512 byte blocks 2048 blocks
+TestCount SVFS::test_perf_read_1M_coalesced(t_test_results &)              pass         1048576        0.675800           0.676          1479.7 1Mb of 256 bytes in one block
+virtual TestResult SVFS::TestCaseHas::run() const                          pass               0        0.000134           0.000             0.0 Has empty - false
+virtual TestResult SVFS::TestCaseHas::run() const                          pass               4        0.000068          17.826            56.1 Has an exact block
+virtual TestResult SVFS::TestCaseHas::run() const                          pass               4        0.000048          12.583            79.5 Has leading block
 virtual TestResult SVFS::TestCaseHas::run() const                          pass               4        0.000048          12.583            79.5 Has trailing block
-virtual TestResult SVFS::TestCaseHas::run() const                          pass               4        0.000047          12.321            81.2 Has mid block
-virtual TestResult SVFS::TestCaseHas::run() const                          pass               4        0.000066          17.302            57.8 Not has an exact block -1
-virtual TestResult SVFS::TestCaseHas::run() const                          pass               4        0.000052          13.631            73.4 Not has an exact block +1
-virtual TestResult SVFS::TestCaseNeed::run() const                         pass               0        0.000189           0.000             0.0 Need on empty SVF
-virtual TestResult SVFS::TestCaseNeed::run() const                         pass               4        0.000104          27.263            36.7 Exactly one block
-virtual TestResult SVFS::TestCaseNeed::run() const                         pass               4        0.000051          13.369            74.8 Inside one block
-virtual TestResult SVFS::TestCaseNeed::run() const                         pass               4        0.000255          66.847            15.0 All before one block
-virtual TestResult SVFS::TestCaseNeed::run() const                         pass               4        0.000151          39.584            25.3 All after one block
-virtual TestResult SVFS::TestCaseNeed::run() const                         pass               4        0.000167          43.778            22.8 Before and part of one block
-virtual TestResult SVFS::TestCaseNeed::run() const                         pass               4        0.000099          25.952            38.5 Before and all of one block
-virtual TestResult SVFS::TestCaseNeed::run() const                         pass               4        0.000246          64.487            15.5 Before, all and after one block
-virtual TestResult SVFS::TestCaseNeed::run() const                         pass               8        0.000155          20.316            49.2 Two blocks and in between (a)
-virtual TestResult SVFS::TestCaseNeed::run() const                         pass               8        0.000103          13.500            74.1 Two blocks and in between (b)
-virtual TestResult SVFS::TestCaseNeed::run() const                         pass               8        0.000101          13.238            75.5 Two blocks and in between (c)
-virtual TestResult SVFS::TestCaseNeed::run() const                         pass               8        0.000101          13.238            75.5 Two blocks and in between (d)
-virtual TestResult SVFS::TestCaseNeed::run() const                         pass               8        0.000256          33.554            29.8 Two blocks, under-run
-virtual TestResult SVFS::TestCaseNeed::run() const                         pass               8        0.000224          29.360            34.1 Two blocks, over-run
-virtual TestResult SVFS::TestCaseNeed::run() const                         pass               8        0.000321          42.074            23.8 Two blocks, under/over-run
-TestCount SVFS::_test_perf_need_sim_index(size_t, t_test_results &)        pass       190742624     1173.896250           6.453           155.0 Sim need(32) on index [6136458]
-TestCount SVFS::_test_perf_need_sim_index(size_t, t_test_results &)        pass       190742656      605.457233           3.328           300.4 Sim need(64) on index [3187385]
-TestCount SVFS::_test_perf_need_sim_index(size_t, t_test_results &)        pass       190742656      327.543531           1.801           555.4 Sim need(128) on index [1712847]
-TestCount SVFS::_test_perf_need_sim_index(size_t, t_test_results &)        pass       190742784      181.374581           0.997          1002.9 Sim need(256) on index [975579]
-TestCount SVFS::_test_perf_need_sim_index(size_t, t_test_results &)        pass       190743040      119.433187           0.657          1523.1 Sim need(512) on index [606945]
-TestCount SVFS::_test_perf_need_sim_index(size_t, t_test_results &)        pass       190743552       81.740776           0.449          2225.4 Sim need(1024) on index [422629]
-TestCount SVFS::_test_perf_need_sim_index(size_t, t_test_results &)        pass       190744576       53.688169           0.295          3388.2 Sim need(2048) on index [330469]
-TestCount SVFS::_test_perf_need_sim_index(size_t, t_test_results &)        pass       190746624       41.463321           0.228          4387.3 Sim need(4096) on index [284390]
-TestCount SVFS::_test_perf_need_sim_index(size_t, t_test_results &)        pass       190750720       24.575443           0.135          7402.3 Sim need(8192) on index [261351]
-TestCount SVFS::_test_perf_need_sim_index(size_t, t_test_results &)        pass       190758912       18.132207           0.100         10033.1 Sim need(16384) on index [249830]
-virtual TestResult SVFS::TestCaseNeedGreedy::run() const                   pass               0        0.001376           0.000             0.0 Need (greedy=0) on empty SVF
-virtual TestResult SVFS::TestCaseNeedGreedy::run() const                   pass               0        0.000202           0.000             0.0 Need 32 (greedy=4) on empty SVF
-virtual TestResult SVFS::TestCaseNeedGreedy::run() const                   pass               0        0.000224           0.000             0.0 Need (greedy=32) on empty SVF
-virtual TestResult SVFS::TestCaseNeedGreedy::run() const                   pass              12        0.014692        1283.807             0.8 Need (greedy=0)
-virtual TestResult SVFS::TestCaseNeedGreedy::run() const                   pass              12        0.001058          92.449            10.8 Need (greedy=64)
-virtual TestResult SVFS::TestCaseErase::run() const                        pass               0        0.000424           0.000             0.0 Erase a block
+virtual TestResult SVFS::TestCaseHas::run() const                          pass               4        0.000049          12.845            77.9 Has mid block
+virtual TestResult SVFS::TestCaseHas::run() const                          pass               4        0.000055          14.418            69.4 Not has an exact block -1
+virtual TestResult SVFS::TestCaseHas::run() const                          pass               4        0.000051          13.369            74.8 Not has an exact block +1
+virtual TestResult SVFS::TestCaseNeed::run() const                         pass               0        0.000277           0.000             0.0 Need on empty SVF
+virtual TestResult SVFS::TestCaseNeed::run() const                         pass               4        0.000083          21.758            46.0 Exactly one block
+virtual TestResult SVFS::TestCaseNeed::run() const                         pass               4        0.000071          18.612            53.7 Inside one block
+virtual TestResult SVFS::TestCaseNeed::run() const                         pass               4        0.000245          64.225            15.6 All before one block
+virtual TestResult SVFS::TestCaseNeed::run() const                         pass               4        0.000139          36.438            27.4 All after one block
+virtual TestResult SVFS::TestCaseNeed::run() const                         pass               4        0.000143          37.487            26.7 Before and part of one block
+virtual TestResult SVFS::TestCaseNeed::run() const                         pass               4        0.000098          25.690            38.9 Before and all of one block
+virtual TestResult SVFS::TestCaseNeed::run() const                         pass               4        0.000248          65.012            15.4 Before, all and after one block
+virtual TestResult SVFS::TestCaseNeed::run() const                         pass               8        0.000146          19.137            52.3 Two blocks and in between (a)
+virtual TestResult SVFS::TestCaseNeed::run() const                         pass               8        0.000098          12.845            77.9 Two blocks and in between (b)
+virtual TestResult SVFS::TestCaseNeed::run() const                         pass               8        0.000100          13.107            76.3 Two blocks and in between (c)
+virtual TestResult SVFS::TestCaseNeed::run() const                         pass               8        0.000099          12.976            77.1 Two blocks and in between (d)
+virtual TestResult SVFS::TestCaseNeed::run() const                         pass               8        0.000237          31.064            32.2 Two blocks, under-run
+virtual TestResult SVFS::TestCaseNeed::run() const                         pass               8        0.000226          29.622            33.8 Two blocks, over-run
+virtual TestResult SVFS::TestCaseNeed::run() const                         pass               8        0.000318          41.681            24.0 Two blocks, under/over-run
+TestCount SVFS::_test_perf_need_sim_index(size_t, t_test_results &)        pass       190742624     1255.694114           6.903           144.9 Sim need(32) on index [6136458]
+TestCount SVFS::_test_perf_need_sim_index(size_t, t_test_results &)        pass       190742656      598.690790           3.291           303.8 Sim need(64) on index [3187385]
+TestCount SVFS::_test_perf_need_sim_index(size_t, t_test_results &)        pass       190742656      306.192808           1.683           594.1 Sim need(128) on index [1712847]
+TestCount SVFS::_test_perf_need_sim_index(size_t, t_test_results &)        pass       190742784      198.422036           1.091           916.8 Sim need(256) on index [975579]
+TestCount SVFS::_test_perf_need_sim_index(size_t, t_test_results &)        pass       190743040      112.811593           0.620          1612.5 Sim need(512) on index [606945]
+TestCount SVFS::_test_perf_need_sim_index(size_t, t_test_results &)        pass       190743552       75.363357           0.414          2413.7 Sim need(1024) on index [422629]
+TestCount SVFS::_test_perf_need_sim_index(size_t, t_test_results &)        pass       190744576       55.277376           0.304          3290.8 Sim need(2048) on index [330469]
+TestCount SVFS::_test_perf_need_sim_index(size_t, t_test_results &)        pass       190746624       38.891832           0.214          4677.3 Sim need(4096) on index [284390]
+TestCount SVFS::_test_perf_need_sim_index(size_t, t_test_results &)        pass       190750720       25.204514           0.139          7217.5 Sim need(8192) on index [261351]
+TestCount SVFS::_test_perf_need_sim_index(size_t, t_test_results &)        pass       190758912       17.304056           0.095         10513.3 Sim need(16384) on index [249830]
+virtual TestResult SVFS::TestCaseNeedGreedy::run() const                   pass               0        0.000948           0.000             0.0 Need (greedy=0) on empty SVF
+virtual TestResult SVFS::TestCaseNeedGreedy::run() const                   pass               0        0.000177           0.000             0.0 Need 32 (greedy=4) on empty SVF
+virtual TestResult SVFS::TestCaseNeedGreedy::run() const                   pass               0        0.000136           0.000             0.0 Need (greedy=32) on empty SVF
+virtual TestResult SVFS::TestCaseNeedGreedy::run() const                   pass              12        0.000694          60.643            16.5 Need (greedy=0)
+virtual TestResult SVFS::TestCaseNeedGreedy::run() const                   pass              12        0.000925          80.828            12.4 Need (greedy=64)
+virtual TestResult SVFS::TestCaseErase::run() const                        pass               0        0.000347           0.000             0.0 Erase a block
 virtual TestResult SVFS::TestCaseEraseThrows::run() const                  pass               0        0.000000           0.000             0.0 Erase empty SVF throws
 virtual TestResult SVFS::TestCaseEraseThrows::run() const                  pass               4        0.000000           0.000             0.0 Erase before block throws
 virtual TestResult SVFS::TestCaseEraseThrows::run() const                  pass               4        0.000000           0.000             0.0 Erase within a block throws
 virtual TestResult SVFS::TestCaseEraseThrows::run() const                  pass               4        0.000000           0.000             0.0 Erase beyond end throws
-TestCount SVFS::_test_perf_erase_overwrite(bool, t_test_results &)         pass         1048576        1.387282           1.387           720.8 1Mb, 256block size, x1000 overwrite=0
-TestCount SVFS::_test_perf_erase_overwrite(bool, t_test_results &)         pass         1048576       29.463378          29.463            33.9 1Mb, 256block size, x1000 overwrite=1
-TestCount SVFS::test_write_multithreaded_n(int, t_test_results &)          pass         1048564       67.343429          67.344            14.8 Multi threaded write [1]
-TestCount SVFS::test_write_multithreaded_n(int, t_test_results &)          pass         2097128      238.530598         119.267             8.4 Multi threaded write [2]
-TestCount SVFS::test_write_multithreaded_n(int, t_test_results &)          pass         4194256     1209.728200         302.436             3.3 Multi threaded write [4]
-TestCount SVFS::test_write_multithreaded_n(int, t_test_results &)          pass         8388512     2215.297437         276.915             3.6 Multi threaded write [8]
-TestCount SVFS::test_write_multithreaded_n(int, t_test_results &)          pass        16777024     3950.327152         246.898             4.1 Multi threaded write [16]
-TestCount SVFS::test_write_multithreaded_n(int, t_test_results &)          pass        33554048     7188.165382         224.633             4.5 Multi threaded write [32]
-TestCount SVFS::test_write_multithreaded_n(int, t_test_results &)          pass        67108096    14457.780730         225.905             4.4 Multi threaded write [64]
-TestCount SVFS::test_write_multithreaded_n(int, t_test_results &)          pass       134216192    26282.453122         205.334             4.9 Multi threaded write [128]
-TestCount SVFS::_test_perf_write_sim_index_svfs(size_t, size_t, t_test_results &)pass              44        0.009564         227.922             4.4 Sim SVFS: vr=1 lr=10
-TestCount SVFS::_test_perf_write_sim_index_svfs(size_t, size_t, t_test_results &)pass             440        0.034849          83.050            12.0 Sim SVFS: vr=10 lr=10
-TestCount SVFS::_test_perf_write_sim_index_svfs(size_t, size_t, t_test_results &)pass            4400        0.336640          80.226            12.5 Sim SVFS: vr=100 lr=10
-TestCount SVFS::_test_perf_write_sim_index_svfs(size_t, size_t, t_test_results &)pass           44000        3.237633          77.157            13.0 Sim SVFS: vr=1000 lr=10
-TestCount SVFS::_test_perf_write_sim_index_svfs(size_t, size_t, t_test_results &)pass          440000       32.825318          78.227            12.8 Sim SVFS: vr=10000 lr=10
-TestCount SVFS::_test_perf_write_sim_index_svfs(size_t, size_t, t_test_results &)pass         1048564       84.737083          84.738            11.8 Sim SVFS: vr=23831 lr=10
-TestCount SVFS::_test_perf_write_sim_index_svfs(size_t, size_t, t_test_results &)pass         4400000      415.753830          99.079            10.1 Sim SVFS: vr=100000 lr=10
-Test results [125] Pass: 125 Fail: 0 - PASSED
-main() execution time: 66.7915 (s)
+TestCount SVFS::_test_perf_erase_overwrite(bool, t_test_results &)         pass         1048576        1.230997           1.231           812.3 1Mb, 256block size, x1000 overwrite=0
+TestCount SVFS::_test_perf_erase_overwrite(bool, t_test_results &)         pass         1048576       31.376108          31.376            31.9 1Mb, 256block size, x1000 overwrite=1
+TestCount SVFS::test_write_multithreaded_n(int, t_test_results &)          pass         1048564       67.639927          67.641            14.8 Multi threaded write [1]
+TestCount SVFS::test_write_multithreaded_n(int, t_test_results &)          pass         2097128      247.502370         123.753             8.1 Multi threaded write [2]
+TestCount SVFS::test_write_multithreaded_n(int, t_test_results &)          pass         4194256     1082.578617         270.648             3.7 Multi threaded write [4]
+TestCount SVFS::test_write_multithreaded_n(int, t_test_results &)          pass         8388512     2587.034086         323.383             3.1 Multi threaded write [8]
+TestCount SVFS::test_write_multithreaded_n(int, t_test_results &)          pass        16777024     3894.623949         243.417             4.1 Multi threaded write [16]
+TestCount SVFS::test_write_multithreaded_n(int, t_test_results &)          pass        33554048     6778.239196         211.822             4.7 Multi threaded write [32]
+TestCount SVFS::test_write_multithreaded_n(int, t_test_results &)          pass        67108096    13387.435643         209.181             4.8 Multi threaded write [64]
+TestCount SVFS::test_write_multithreaded_n(int, t_test_results &)          pass       134216192    27947.000502         218.338             4.6 Multi threaded write [128]
+TestCount SVFS::_test_perf_write_sim_index_svfs(size_t, size_t, t_test_results &)pass              44        0.010126         241.315             4.1 Sim SVFS: vr=1 lr=10
+TestCount SVFS::_test_perf_write_sim_index_svfs(size_t, size_t, t_test_results &)pass             440        0.039782          94.806            10.5 Sim SVFS: vr=10 lr=10
+TestCount SVFS::_test_perf_write_sim_index_svfs(size_t, size_t, t_test_results &)pass            4400        0.377480          89.958            11.1 Sim SVFS: vr=100 lr=10
+TestCount SVFS::_test_perf_write_sim_index_svfs(size_t, size_t, t_test_results &)pass           44000        4.600350         109.632             9.1 Sim SVFS: vr=1000 lr=10
+TestCount SVFS::_test_perf_write_sim_index_svfs(size_t, size_t, t_test_results &)pass          440000       54.032125         128.765             7.8 Sim SVFS: vr=10000 lr=10
+TestCount SVFS::_test_perf_write_sim_index_svfs(size_t, size_t, t_test_results &)pass         1048564      112.688962         112.690             8.9 Sim SVFS: vr=23831 lr=10
+TestCount SVFS::_test_perf_write_sim_index_svfs(size_t, size_t, t_test_results &)pass         4400000      443.136259         105.605             9.5 Sim SVFS: vr=100000 lr=10
+Test results [135] Pass: 135 Fail: 0 - PASSED
+main() execution time: 68.3653 (s)
 Bye bye!
 
 Process finished with exit code 0
-
 
 $ pytest tests/ --runslow
 ================================================================================== test session starts ===================================================================================

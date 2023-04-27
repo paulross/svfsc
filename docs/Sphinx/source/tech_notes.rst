@@ -40,7 +40,8 @@ And to un-pickle:
     assert new_svf.blocks() == svf.blocks()
 
 Pickling is *versioned* by an integer number.
-As `svfs` progresses this ensures that pickles from previous ``svfs`` versions can be detected and either rejected or read as modified.
+As `svfs` progresses this ensures that pickles from previous ``svfs`` versions can be detected and either rejected or
+read as modified.
 
 Using `pickletools`
 -------------------
@@ -107,21 +108,21 @@ The result will be something like:
 Detecting File Changes
 ========================
 
-This is tricky. If the remote file changes there is no real way that the `SVF` can know of this.
-There are a couple of ways that the user of an `SVF` can detect this however.
+This is tricky. If the remote file changes there is no real way that the ``SVF`` can know of this.
+There are a couple of ways that the user of an ``SVF`` can detect this however.
 
 File Modification Time
 ----------------------
 
-On construction the `SVF` can take an optional file modification time as a float.
-The user can query this with `file_mod_time()` and compare it with the latest file modification time and act
-accordingly (like using `.clear()` and reload as necessary).
+On construction the ``SVF`` can take an optional file modification time as a float.
+The user can query this with ``file_mod_time()`` and compare it with the latest file modification time and act
+accordingly (like using ``.clear()`` and reload as necessary).
 
 Cautious Overwrite
 ------------------
 
-On construction the `SVF` can take an optional flag `compare_for_diff`.
-If True, then when making a `write()` if a data difference is detected on an overwrite an `IOError` will be raised.
+On construction the ``SVF`` can take an optional flag ``compare_for_diff``.
+If True, then when making a ``write()`` if a data difference is detected on an overwrite an ``IOError`` will be raised.
 This is a weak detection technique and adds about 25% to the cost of an overlapping write.
 
 Greedy Gets
@@ -129,21 +130,21 @@ Greedy Gets
 
 With a high latency connection it will be expensive to make a lot of small requests so it makes sense to make a smaller
 number of larger GETs.
-This is done by passing a `greedy_length` value to `need()` and that will coalesce the result of `need()` where possible.
+This is done by passing a ``greedy_length`` value to ``need()`` and that will coalesce the result of ``need()`` where possible.
 
-For example an `SVF` with these `{file_position, length}` blocks:
+For example an ``SVF`` with these ``{file_position, length}`` blocks:
 
 .. code-block:: text
 
     {{8,  4}, {16, 4}, {32, 4}}
 
-Requesting 64 bytes from file position 8 gives this minimal block set by `need(8, 40)`:
+Requesting 64 bytes from file position 8 gives this minimal block set by ``need(8, 40)``:
 
 .. code-block:: text
 
     {{12, 4}, {20, 12}, {36, 12},}
 
-The same request with `need(8, 40, greedy_length=64)` gives this block set:
+The same request with ``need(8, 40, greedy_length=64)`` gives this block set:
 
 .. code-block:: text
 
@@ -152,7 +153,7 @@ The same request with `need(8, 40, greedy_length=64)` gives this block set:
 Simulator
 ---------
 
-In `cpy/simulator.py` there is a simulator that can simulate the effect of network latency and bandwidth and server
+In ``cpy/simulator.py`` there is a simulator that can simulate the effect of network latency and bandwidth and server
 seek/read times. The default configuration is:
 
 - Network latency: 10 milliseconds.
@@ -160,10 +161,10 @@ seek/read times. The default configuration is:
 - Server seek speed: 1000 million bytes per second.
 - Server read speed: 50 million bytes per second.
 
-A couple of pre-built simulation requests are in `cpy/sim_example.py`, firstly a simple read of 32 bytes of data every
+A couple of pre-built simulation requests are in ``cpy/sim_example.py``, firstly a simple read of 32 bytes of data every
 64 bytes up to a size of 20480.
 
-Here is the read time using different `greedy_length` values:
+Here is the read time using different ``greedy_length`` values:
 
 .. image:: ../../plots/greedy_length_synthetic.png
 
@@ -172,6 +173,12 @@ CMU-1.tiff (a 204 MB file):
 
 .. image:: ../../plots/greedy_length_tiff.png
 
-The minor drawback is that more bytes are read than strictly necessary. With `greedy_length=0` the minimal byte set is
-99,713 bytes total. With a `greedy_length=32,768` the total number of bytes read is 306,256.
+The minor drawback is that more bytes are read than strictly necessary. With ``greedy_length=0`` the minimal byte set is
+99,713 bytes total. With a ``greedy_length=32,768`` the total number of bytes read is 306,256.
+
+
+Thread Safety
+================
+
+If compiled with `SVF_THREAD_SAFE` a C++ mutex is introduced to preserve thread safety.
 
