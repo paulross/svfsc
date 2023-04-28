@@ -150,19 +150,23 @@ The same request with ``need(8, 40, greedy_length=64)`` gives this block set:
 
     {{12, 64},}
 
-Simulator
----------
+Network Simulator
+=====================================
 
-In ``cpy/simulator.py`` there is a simulator that can simulate the effect of network latency and bandwidth and server
-seek/read times. The default configuration is:
+In ``cpy/simulator.py`` there is a simulator that can simulate the effect of network latency and bandwidth, server
+seek/read times and writing data to a ``SVF``. The default configuration is:
 
 - Network latency: 10 milliseconds.
 - Network bandwidth: 50 million bits per second.
 - Server seek speed: 1000 million bytes per second.
 - Server read speed: 50 million bytes per second.
 
-A couple of pre-built simulation requests are in ``cpy/sim_example.py``, firstly a simple read of 32 bytes of data every
-64 bytes up to a size of 20480.
+The simulator can also take a ``greedy-length`` argument which allows you to tune your GET requests.
+
+Some pre-built simulation requests are in ``cpy/sim_example.py``:
+
+- A simple read of 32 bytes of data every  64 bytes up to a size of 20480.
+- Actual seek/read operations for reading TIFF metadata on a 200 MB TIFF file.
 
 Here is the read time using different ``greedy_length`` values:
 
@@ -176,9 +180,79 @@ CMU-1.tiff (a 204 MB file):
 The minor drawback is that more bytes are read than strictly necessary. With ``greedy_length=0`` the minimal byte set is
 99,713 bytes total. With a ``greedy_length=32,768`` the total number of bytes read is 306,256.
 
+Running the Simulator
+---------------------
+
+The simulator uses data in ``src/cpy/sim_examples.py``, in there are a couple of examples.
+These examples are just a tuple of ``(file_position, length)`` values (in any order).
+
+.. code-block:: console
+
+    $ python src/cpy/simulator.py -h
+    usage: src/cpy/simulator.py [-h] [-l LOG_LEVEL]
+                                     [--latency LATENCY]
+                                     [--bandwidth BANDWIDTH]
+                                     [--seek-rate SEEK_RATE]
+                                     [--read-rate READ_RATE]
+                                     [--greedy-length GREEDY_LENGTH]
+
+    Simulate reading into a SVF.
+
+    options:
+      -h, --help            show this help message and exit
+      -l LOG_LEVEL, --log-level LOG_LEVEL
+                            Log level.
+      --latency LATENCY     Communications channel latency (one way) in ms. [default: 10]
+      --bandwidth BANDWIDTH
+                            Communications channel bandwidth in million bits per second.
+                            [default: 50]
+      --seek-rate SEEK_RATE
+                            Server seek rate in million bytes per second. [default: 1000]
+      --read-rate READ_RATE
+                            Server read rate in million bytes per second. [default: 50]
+      --greedy-length GREEDY_LENGTH
+                            The greedy length to read fragments from the server. Zero means read
+                            every fragment. Default is to run through a range of greedy lengths
+                            and report the performance. [default: -1]
+
+With no arguments the simulator runs through a pre-prepared set of values.
+If ``greedy-lenght`` is give then the simulator just runs on that value.
+For example, exploring the simulator with a ``greedy_length`` of 1024:
+
+.. code-block:: console
+
+    $ python src/cpy/simulator.py --greedy-length=1024
+    Simulator setup:
+    Network latency 10.000 (ms) bandwidth 50.000 (M bits/s)
+    Server seek rate 1000.000 (M bytes/s) read rate 50.000 (M bytes/s)
+    2023-04-28 12:11:27,817 -             simulator.py#201  - INFO     - Running EXAMPLE_FILE_POSITIONS_LENGTHS_SYNTHETIC with greedy_length 1024
+    2023-04-28 12:11:28,284 -             simulator.py#114  - INFO     - has(): hits 300 misses 20
+    2023-04-28 12:11:28,284 -             simulator.py#115  - INFO     - Blocks 1 bytes 20480 sizeof 20634
+    2023-04-28 12:11:28,284 -             simulator.py#117  - INFO     - Comms time :    403.387 (ms) ( 86.4%) +++++++++++++++++++++++++++++++++++++++++++
+    2023-04-28 12:11:28,284 -             simulator.py#122  - INFO     - Server time:      0.429 (ms) (  0.1%)
+    2023-04-28 12:11:28,284 -             simulator.py#127  - INFO     - SVF time   :      1.286 (ms) (  0.3%)
+    2023-04-28 12:11:28,285 -             simulator.py#132  - INFO     - Residual   :     61.819 (ms) ( 13.2%) +++++++
+    2023-04-28 12:11:28,285 -             simulator.py#136  - INFO     - Total      :    466.921 (ms) (100.0%)
+    2023-04-28 12:11:28,285 -             simulator.py#137  - INFO     - SVF contents: 20480 Execution time: 0.467 (s) 0.042 (Mb/s)
+    2023-04-28 12:11:28,285 -             simulator.py#201  - INFO     - Running EXAMPLE_FILE_POSITIONS_LENGTHS_TIFF_CMU_1 with greedy_length 1024
+    2023-04-28 12:11:31,839 -             simulator.py#114  - INFO     - has(): hits 11866 misses 102
+    2023-04-28 12:11:31,839 -             simulator.py#115  - INFO     - Blocks 10 bytes 104881 sizeof 105323
+    2023-04-28 12:11:31,840 -             simulator.py#117  - INFO     - Comms time :   2057.567 (ms) ( 57.9%) +++++++++++++++++++++++++++++
+    2023-04-28 12:11:31,840 -             simulator.py#122  - INFO     - Server time:    874.965 (ms) ( 24.6%) ++++++++++++
+    2023-04-28 12:11:31,840 -             simulator.py#127  - INFO     - SVF time   :     23.065 (ms) (  0.6%)
+    2023-04-28 12:11:31,840 -             simulator.py#132  - INFO     - Residual   :    598.706 (ms) ( 16.8%) ++++++++
+    2023-04-28 12:11:31,840 -             simulator.py#136  - INFO     - Total      :   3554.303 (ms) (100.0%)
+    2023-04-28 12:11:31,840 -             simulator.py#137  - INFO     - SVF contents: 104881 Execution time: 3.554 (s) 0.028 (Mb/s)
+    EXAMPLE_FILE_POSITIONS_LENGTHS_SYNTHETIC:
+     greedy_length   Time(ms)     Hits     Miss    Hits%      Bytes
+              1024      468.1      300       20  93.750%      20480
+    EXAMPLE_FILE_POSITIONS_LENGTHS_TIFF_CMU_1:
+     greedy_length   Time(ms)     Hits     Miss    Hits%      Bytes
+              1024     3555.4    11866      102  99.148%     104881
+    Execution time:      4.027 (s)
 
 Thread Safety
-================
+=============
 
 If compiled with ``SVF_THREAD_SAFE`` and ``SVFS_THREAD_SAFE`` defined a C++ mutex is introduced to preserve thread safety.
 

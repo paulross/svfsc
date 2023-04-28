@@ -146,8 +146,10 @@ cp_SparseVirtualFileSystem_dealloc(cp_SparseVirtualFileSystem *self) {
 // SVFS functions
 #pragma mark SVFS functions
 
-static const char *cp_SparseVirtualFileSystem_keys_docstring = \
-"Returns the IDs of all the Sparse Virtual Files in the Sparse Virtual File System.";
+static const char *cp_SparseVirtualFileSystem_keys_docstring = (
+    "Returns the IDs of all the Sparse Virtual Files in the Sparse Virtual File System."
+    "\n\nSignature:\n\n``keys() -> typing.List[str]:``"
+);
 
 static PyObject *
 cp_SparseVirtualFileSystem_keys(cp_SparseVirtualFileSystem *self) {
@@ -580,17 +582,18 @@ cp_SparseVirtualFileSystem_svf_erase(cp_SparseVirtualFileSystem *self, PyObject 
     return ret;
 }
 
-static const char *cp_SparseVirtualFileSystem_svf_need_docstring = \
-"Given a file_position and length this returns a ordered list [(file_position, length), ...] of seek/read" \
-" instructions of data that is required to be written to the Sparse Virtual File so that a subsequent read will succeed." \
-" This will raise an IndexError if the Sparse Virtual File of that id does not exist." \
-"\nUsage::\n\n" \
-"    if not svfs.has(identity, file_position, length):\n" \
-"        for seek, read in svfs.need(file_position, length):\n" \
-"            # Somehow get the data at all seek/read positions...\n" \
-"            svfs.write(identity, seek, data, read)\n" \
-"    return svfs.read(identity, file_position, length):\n" \
-;
+static const char *cp_SparseVirtualFileSystem_svf_need_docstring = (
+    "Given a file_position and length this returns a ordered list [(file_position, length), ...] of seek/read"
+    " instructions of data that is required to be written to the Sparse Virtual File so that a subsequent read will succeed."
+    " This will raise an IndexError if the Sparse Virtual File of that id does not exist."
+    "\nUsage::\n\n"
+    "    if not svfs.has(identity, file_position, length):\n"
+    "        for seek, read in svfs.need(file_position, length):\n"
+    "            # Somehow get the data at all seek/read positions...\n"
+    "            svfs.write(identity, seek, data)\n"
+    "    return svfs.read(identity, file_position, length):\n"
+    "\n\nSignature:\n\n``need(id: str, file_position: int, length: int, greedy_length: int = 0) -> typing.Tuple[typing.Tuple[int, int], ...]:``"
+);
 
 static PyObject *
 cp_SparseVirtualFileSystem_svf_need(cp_SparseVirtualFileSystem *self, PyObject *args, PyObject *kwargs) {
@@ -602,17 +605,18 @@ cp_SparseVirtualFileSystem_svf_need(cp_SparseVirtualFileSystem *self, PyObject *
     PyObject * list_item = NULL; // PyTupleObject
     unsigned long long fpos = 0;
     unsigned long long len = 0;
-    static const char *kwlist[] = {"id", "file_position", "length", NULL};
+    unsigned long long greedy_length = 0;
+    static const char *kwlist[] = {"id", "file_position", "length", "greedy_length", NULL};
     AcquireLockSVFS _lock(self);
 
-    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "sKK", (char **) kwlist, &c_id, &fpos, &len)) {
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "sKK|K", (char **) kwlist, &c_id, &fpos, &len, &greedy_length)) {
         goto except;
     }
     cpp_id = std::string(c_id);
     try {
         if (self->p_svfs->has(cpp_id)) {
             const SVFS::SparseVirtualFile &svf = self->p_svfs->at(cpp_id);
-            SVFS::t_seek_reads seek_read = svf.need(fpos, len);
+            SVFS::t_seek_reads seek_read = svf.need(fpos, len, greedy_length);
             ret = PyList_New(seek_read.size());
             for (size_t i = 0; i < seek_read.size(); ++i) {
                 list_item = Py_BuildValue("KK", seek_read[i].first, seek_read[i].second);

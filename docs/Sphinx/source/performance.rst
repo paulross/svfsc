@@ -74,7 +74,7 @@ The y axis shows the time to read all blocks.
 
 .. image:: ../../plots/py_read_uncoalesced.png
 
-The Python performance is about x5 compared to C++ for the one byte case and nearly equal to C++ for the large block cases.
+The Python performance is about 5x compared to C++ for the one byte case and nearly equal to C++ for the large block cases.
 
 Write
 --------------------
@@ -86,7 +86,7 @@ This show the performance of writing 1MB of data to a ``SVF`` in two ways:
 
 .. image:: ../../plots/py_write.png
 
-The Python performance is about x3 compared to C++ for the one byte case and nearly equal to C++ for the large block cases.
+The Python performance is about 3x compared to C++ for the one byte case and nearly equal to C++ for the large block cases.
 
 Multi Threaded Write
 --------------------

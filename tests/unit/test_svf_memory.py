@@ -40,6 +40,25 @@ def test_memory_SVF_write():
 
 
 @pytest.mark.slow
+def test_memory_SVF_need():
+    proc = psutil.Process()
+    # print()
+    rss_start_overall = proc.memory_info().rss
+    s = svfs.cSVF('id', 1.0)
+    for block_index in range(SLOW_BLOCKS):
+        # Not coalesced
+        s.write(block_index * 2 * SLOW_BLOCK_SIZE, b' ' * SLOW_BLOCK_SIZE)
+    for repeat in range(SLOW_REPEAT * 10):
+        s.need(0, 1024**3)
+    rss_diff = proc.memory_info().rss - rss_start_overall
+    print(
+        f'RSS start: {rss_start_overall:,d}'
+        f' end: {proc.memory_info().rss:,d}'
+        f' ∆: {rss_diff:+,d}')
+    assert rss_diff < 20e6
+
+
+@pytest.mark.slow
 def test_memory_SVF_read():
     proc = psutil.Process()
     # print()

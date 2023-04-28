@@ -61,7 +61,8 @@ class Client:
         self.comms = comms
         self.server = server
 
-    def run(self, seek_reads: typing.Tuple[typing.Tuple[int, int], ...], greedy_length: int) -> typing.Tuple[int, int, int]:
+    def run(self, seek_reads: typing.Tuple[typing.Tuple[int, int], ...], greedy_length: int) -> typing.Tuple[
+        int, int, int]:
         time_start = time.perf_counter()
         svf = svfs.cSVF('ID')
         time_svf = 0.0
@@ -110,14 +111,32 @@ class Client:
             time_svf += time.perf_counter() - time_svf_start
         time_exec = time.perf_counter() - time_start
         time_residual = time_exec - self.comms.total_time - self.server.total_time - time_svf
-        logger.info('has(): hits %d misses %d num_bytes %d', has_hits, has_misses, svf.num_bytes())
+        logger.info('has(): hits: %d misses: %d', has_hits, has_misses)
         logger.info(
-            f'Comms time : {self.comms.total_time * 1000:10.3f} (ms) ({self.comms.total_time / time_exec:6.1%})')
+            'Blocks: %d bytes: %d sizeof: %d overhead: %d', svf.num_blocks(), svf.num_bytes(), svf.size_of(),
+            svf.size_of() - svf.num_bytes()
+        )
+        percent_str = '+' * int(0.5 + 50 * self.comms.total_time / time_exec)
         logger.info(
-            f'Server time: {self.server.total_time * 1000:10.3f} (ms) ({self.server.total_time / time_exec:6.1%})')
-        logger.info(f'SVF time   : {time_svf * 1000:10.3f} (ms) ({time_svf / time_exec:6.1%})')
-        logger.info(f'Residual   : {time_residual * 1000:10.3f} (ms) ({time_residual / time_exec:6.1%})', )
-        logger.info(f'Total      : {time_exec * 1000:10.3f} (ms) ({time_exec / time_exec:6.1%})', )
+            f'Comms time : {self.comms.total_time * 1000:10.3f} (ms) ({self.comms.total_time / time_exec:6.1%})'
+            f' {percent_str}'
+        )
+        percent_str = '+' * int(0.5 + 50 * self.server.total_time / time_exec)
+        logger.info(
+            f'Server time: {self.server.total_time * 1000:10.3f} (ms) ({self.server.total_time / time_exec:6.1%})'
+            f' {percent_str}'
+        )
+        percent_str = '+' * int(0.5 + 50 * time_svf / time_exec)
+        logger.info(
+            f'SVF time   : {time_svf * 1000:10.3f} (ms) ({time_svf / time_exec:6.1%})'
+            f' {percent_str}'
+        )
+        percent_str = '+' * int(0.5 + 50 * time_residual / time_exec)
+        logger.info(
+            f'Residual   : {time_residual * 1000:10.3f} (ms) ({time_residual / time_exec:6.1%})'
+            f' {percent_str}'
+        )
+        logger.info(f'Total      : {time_exec * 1000:10.3f} (ms) ({time_exec / time_exec:6.1%})')
         logger.info('SVF contents: %s Execution time: %.3f (s) %.3f (Mb/s)',
                     svf.num_bytes(), time_exec, svf.num_bytes() / time_exec / 1024 ** 2
                     )
@@ -149,8 +168,14 @@ def main():
                         help='Server seek rate in million bytes per second. [default: %(default)d]')
     parser.add_argument('--read-rate', type=float, default=50,
                         help='Server read rate in million bytes per second. [default: %(default)d]')
-    parser.add_argument('--greedy-length', type=int, default=0,
-                        help='The greedy length to read fragments from the server. Zero means read every fragment. [default: %(default)d]')
+    parser.add_argument('--greedy-length', type=int, default=-1,
+        help=(
+            'The greedy length to read fragments from the server.'
+            ' Zero means read every fragment.'
+            ' Default is to run through a range of greedy lengths and report the performance.'
+            ' [default: %(default)d]'
+        )
+    )
     args = parser.parse_args()
     # print('Args:', args)
     logging.basicConfig(level=args.log_level, format=LOG_FORMAT_NO_PROCESS, stream=sys.stdout)
@@ -162,23 +187,35 @@ def main():
     # for name in ('EXAMPLE_FILE_POSITIONS_LENGTHS_TIFF_CMU_1',):
     # for name in ('EXAMPLE_FILE_POSITIONS_LENGTHS_SYNTHETIC',):
     for name in sim_examples.EXAMPLE_FILE_POSITIONS_LENGTHS:
-        greedy_length = 0
-        # for greedy_length in (1024,):
-        # for greedy_length in range(0, 1024 + 32, 32):
-        while greedy_length <= 2048 * 4 * 4:
-            logger.info('Running %s with greedy_length %d', name, greedy_length)
-            t_start = time.perf_counter()
+        t_start = time.perf_counter()
+        if args.greedy_length == -1:  # Default greedy-length, use a range
+            greedy_length = 0
+            # for greedy_length in (1024,):
+            # for greedy_length in range(0, 1024 + 32, 32):
+            while greedy_length <= 2048 * 4 * 4:
+                logger.info('Running %s with greedy_length %d', name, greedy_length)
+                has_hits, has_misses, num_bytes = run(
+                    sim_examples.EXAMPLE_FILE_POSITIONS_LENGTHS[name], greedy_length,
+                    args.latency / 1000, args.bandwidth * 1e6, args.seek_rate * 1e6, args.read_rate * 1e6
+                )
+                if name not in results_time:
+                    results_time[name] = []
+                results_time[name].append(
+                    (greedy_length, time.perf_counter() - t_start, has_hits, has_misses, num_bytes))
+                if greedy_length == 0:
+                    greedy_length = 16
+                else:
+                    greedy_length *= 2
+        else:
+            logger.info('Running %s with greedy_length %d', name, args.greedy_length)
             has_hits, has_misses, num_bytes = run(
-                sim_examples.EXAMPLE_FILE_POSITIONS_LENGTHS[name], greedy_length,
+                sim_examples.EXAMPLE_FILE_POSITIONS_LENGTHS[name], args.greedy_length,
                 args.latency / 1000, args.bandwidth * 1e6, args.seek_rate * 1e6, args.read_rate * 1e6
             )
             if name not in results_time:
                 results_time[name] = []
-            results_time[name].append((greedy_length, time.perf_counter() - t_start, has_hits, has_misses, num_bytes))
-            if greedy_length == 0:
-                greedy_length = 16
-            else:
-                greedy_length *= 2
+            results_time[name].append(
+                (args.greedy_length, time.perf_counter() - t_start, has_hits, has_misses, num_bytes))
     for key in results_time:
         print(f'{key}:')
         print(f'{"greedy_length":>14} {"Time(ms)":>10} {"Hits":>8} {"Miss":>8} {"Hits%":>8} {"Bytes":>10}')
