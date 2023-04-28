@@ -1,6 +1,6 @@
-set title "Writing With Multiple Threads."
+set title "Writing 1MB With Multiple Python Threads."
 
-set xlabel "Number of Threads"
+set xlabel "Number of Python Threads"
 #set xrange [0.1:100]
 set logscale x
 #set xrange [:1000]
@@ -10,11 +10,11 @@ set grid xtics mxtics ytics mytics linetype -1 linewidth 1, linetype 0 linewidth
 
 set logscale y
 set ylabel "Time (s)"
-#set yrange [0:]
+# set yrange [1:]
 # set ytics 8,35,3
 
 #set logscale y2
-#set y2label "Cache Misses"
+#set y2label "Cache Nisses"
 # set y2range [1:1e9]
 #set y2tics
 
@@ -29,9 +29,10 @@ set key left
 
 set terminal png size 800,500           # choose the file format
 
-set output "cpp_write_multithreaded.png"   # choose the output device
+set output "py_multi_threaded_write.png"   # choose the output device
 
-plot "cpp_write_multithreaded_coalesced.dat" using 1:($9 / 1000) t "Coalesced" with linespoints axes x1y1 pt 3 lw 2, \
-    "cpp_write_multithreaded_un_coalesced.dat" using 1:($9 / 1000) t "Un-Coalesced" with linespoints axes x1y1 pt 3 lw 2
+plot "py_multi_threaded_write.dat" using 1:3 t "Coalesced" with linespoints axes x1y1 pt 3 lw 2, \
+    "py_multi_threaded_write.dat" using 1:2 t "Un-Coalesced" with linespoints axes x1y1 pt 3 lw 2
+
 
 reset

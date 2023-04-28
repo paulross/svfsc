@@ -1118,25 +1118,30 @@ namespace SVFS {
     SparseVirtualFile g_svf_multithreaded("", 0.0);
 
     // This writes to the global SVF and is used by test_write_multithreaded_num_threads in multiple threads.
-    void _write_multithreaded() {
+    void _write_multithreaded_coalesced() {
         try {
-            for (size_t vr = 0; vr < 23831; ++vr) {
-                t_fpos fpos = 80 + vr * 8004;
-                g_svf_multithreaded.write(fpos, test_data_bytes_512, 4);
-                fpos += 4;
-                for (int lrsh = 0; lrsh < 10; ++lrsh) {
-                    g_svf_multithreaded.write(fpos, test_data_bytes_512, 4);
-                    fpos += 800;
-                }
+            for (size_t fpos = 0; fpos < 1024 * 1024; fpos += 8) {
+                g_svf_multithreaded.write(fpos, test_data_bytes_512, 8);
             }
         }
         catch (ExceptionSparseVirtualFile &err) {
-            std::cout << "_write_multithreaded(): Fails: " << err.message() << std::endl;
+            std::cout << __FUNCTION__ << "(): Fails: " << err.message() << std::endl;
+        }
+    }
+
+    void _write_multithreaded_un_coalesced() {
+        try {
+            for (size_t fpos = 0; fpos < 1024 * 1024 * 2; fpos += 16) {
+                g_svf_multithreaded.write(fpos, test_data_bytes_512, 8);
+            }
+        }
+        catch (ExceptionSparseVirtualFile &err) {
+            std::cout << __FUNCTION__ << "(): Fails: " << err.message() << std::endl;
         }
     }
 
     // Launches num_threads threads and writes to a global SVF in the manner of test_perf_write_sim_index()
-    TestCount test_write_multithreaded_n(int num_threads, t_test_results &results) {
+    TestCount test_write_multithreaded(int num_threads, bool is_coalesced, t_test_results &results) {
         TestCount count;
         std::vector<std::thread> threads;
         g_svf_multithreaded.clear();
@@ -1144,7 +1149,11 @@ namespace SVFS {
         // Timed section
         auto time_start = std::chrono::high_resolution_clock::now();
         for (int i = 0; i < num_threads; ++i) {
-            threads.push_back(std::thread(_write_multithreaded));
+            if (is_coalesced) {
+                threads.push_back(std::thread(_write_multithreaded_coalesced));
+            } else {
+                threads.push_back(std::thread(_write_multithreaded_un_coalesced));
+            }
         }
         for (size_t i = 0; i < threads.size(); ++i) {
             threads[i].join();
@@ -1152,22 +1161,29 @@ namespace SVFS {
         std::chrono::duration<double> time_exec = std::chrono::high_resolution_clock::now() - time_start;
         // END: Timed section
 
-//        std::cout << "All wrote " << g_svf_multithreaded.num_bytes() << std::endl;
         size_t work_done = num_threads * g_svf_multithreaded.num_bytes();
         g_svf_multithreaded.clear();
 
         std::ostringstream os;
-        os << "Multi threaded write [" << num_threads << "]";
-        auto result = TestResult(__PRETTY_FUNCTION__, os.str(), 0, "", time_exec.count(), work_done);
+        os << "Multi threaded write [" << num_threads << "] Coalesced " << is_coalesced;
+        auto result = TestResult(__PRETTY_FUNCTION__, os.str(), 0, "", time_exec.count() / num_threads, work_done);
         count.add_result(result.result());
         results.push_back(result);
         return count;
     }
 
-    TestCount test_write_multithreaded(t_test_results &results) {
+    TestCount test_write_multithreaded_coalesced(t_test_results &results) {
         TestCount count;
-        for (int i = 1; i < 1 << 8; i *= 2) {
-            count += test_write_multithreaded_n(i, results);
+        for (int num_threads = 1; num_threads < 1 << 8; num_threads *= 2) {
+            count += test_write_multithreaded(num_threads, true, results);
+        }
+        return count;
+    }
+
+    TestCount test_write_multithreaded_un_coalesced(t_test_results &results) {
+        TestCount count;
+        for (int num_threads = 1; num_threads < 1 << 8; num_threads *= 2) {
+            count += test_write_multithreaded(num_threads, false, results);
         }
         return count;
     }
@@ -1267,7 +1283,8 @@ namespace SVFS {
         count += test_perf_erase_overwrite_false(results);
         count += test_perf_erase_overwrite_true(results);
 #ifdef SVF_THREAD_SAFE
-        count += test_write_multithreaded(results);
+        count += test_write_multithreaded_coalesced(results);
+        count += test_write_multithreaded_un_coalesced(results);
 #endif
         return count;
     }

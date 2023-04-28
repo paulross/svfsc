@@ -461,7 +461,7 @@ def test_SVF_pickle_loads(blocks, expected_blocks):
     assert new_s.blocks() == expected_blocks
 
 
-def write_to_svf(svf: svfs.cSVF, values: typing.Tuple[int, int], offset: int):
+def write_to_svf(svf: svfs.cSVF, values: typing.Tuple[typing.Tuple[int, int], ...], offset: int):
     for fpos, length in values:
         svf.write(fpos + offset, b' ' * length)
 
@@ -477,13 +477,62 @@ def write_to_svf(svf: svfs.cSVF, values: typing.Tuple[int, int], offset: int):
             (16, 1024**2),
             (32, 1024**2),
             (64, 1024**2),
-            (128, 1024**2),
     ),
 )
-def test_multit_hreaded_write(number_of_threads, expected_bytes):
+def test_multit_hreaded_write_coalesced_overwrite(number_of_threads, expected_bytes):
+    """Tests multi-threaded write() with overwriting a single coalesced 1MB block writing 8 bytes at a time."""
+    svf = svfs.cSVF("Some ID")
+    # Blocks are adjacent
+    blocks = tuple((fpos, 8) for fpos in range(0, 1024 * 1024, 8))
+    if number_of_threads:
+        threads = [
+            threading.Thread(
+                name='write[{:6d}]'.format((i + 2) * 1000),
+                target=write_to_svf,
+                # offset 0 so each thread overwrites the block.
+                args=(svf, blocks, 0)
+            ) for i in range(number_of_threads)
+        ]
+        time_start = time.perf_counter()
+        for thread in threads:
+            thread.start()
+        main_thread = threading.current_thread()
+        for t in threading.enumerate():
+            if t is not main_thread:
+                t.join()
+        time_exec = time.perf_counter() - time_start
+    else:
+        time_start = time.perf_counter()
+        write_to_svf(svf, blocks, 0)
+        time_exec = time.perf_counter() - time_start
+    print()
+    # print(f'Number of threads: {number_of_threads:3d} time {time_exec * 1000:8.3f} (ms)')
+    print(f'{number_of_threads:d} {time_exec:12.6f}')
+    assert svf.num_bytes() == expected_bytes
+    assert svf.num_blocks() == 1
+
+@pytest.mark.parametrize(
+    'number_of_threads, expected_bytes',
+    (
+            (0, 1024**2),
+            (1, 1024**2),
+            (2, 1024**2),
+            (4, 1024**2),
+            (8, 1024**2),
+            (16, 1024**2),
+            (32, 1024**2),
+            (64, 1024**2),
+            (128, 1024**2),
+            (256, 1024**2),
+    ),
+)
+def test_multi_threaded_write_un_coalesced(number_of_threads, expected_bytes):
     """Tests multi-threaded write()."""
     svf = svfs.cSVF("Some ID")
-    blocks = ((fpos * 2, 8) for fpos in range(0, 1024 * 1024, 8))
+    limit = 1024 * 1024
+    if number_of_threads > 1:
+        limit //= number_of_threads
+    blocks = tuple((fpos * 2, 8) for fpos in range(0, limit, 8))
     if number_of_threads:
         threads = [
             threading.Thread(
@@ -505,5 +554,20 @@ def test_multit_hreaded_write(number_of_threads, expected_bytes):
         write_to_svf(svf, blocks, 0)
         time_exec = time.perf_counter() - time_start
     print()
-    print(f'Number of threads: {number_of_threads:3d} time {time_exec * 1000:8.3f} (ms)')
+    # print(f'Number of threads: {number_of_threads:3d} time {time_exec * 1000:8.3f} (ms)')
+    print(f'{number_of_threads:d} {time_exec:12.6f}')
     assert svf.num_bytes() == expected_bytes
+
+
+@pytest.mark.parametrize(
+    'number_of_writes',
+    (
+        0, 1, 2, 4, 8, 16,
+    ),
+)
+def test_count_write(number_of_writes):
+    svf = svfs.cSVF("Some ID")
+    block = b' '
+    for i in range(number_of_writes):
+        svf.write(0, block)
+    assert svf.count_write() == number_of_writes

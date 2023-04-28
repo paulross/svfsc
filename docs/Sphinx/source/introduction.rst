@@ -14,6 +14,7 @@ This is a specialised cache where a particular file might not be available but *
 reading the whole thing.
 
 ``svfs`` is written in C++ with a Python interface.
+It is thread safe in both domains.
 
 Example Python Usage
 ======================
@@ -100,10 +101,10 @@ Example C++ Usage
     // What do I have to do to read 24 bytes from file position 8?
     // This returns a std::vector<std::pair<size_t, size_t>>
     // as ((file_position, read_length), ...)
-    t_seek_reads need = svf.need(8, 24);
+    auto need = svf.need(8, 24);
     // Tbhis prints ((8, 6), (20, 4),)
     std::cout << "(";
-    for (t_seek_read val: need) {
+    for (auto &val: need) {
         std::cout << "(" << val.first << ", " << val.second << "),";
     }
     std::cout << ")" << std::endl;

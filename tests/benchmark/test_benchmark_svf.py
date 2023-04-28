@@ -12,64 +12,102 @@ def test_svf_ctor(benchmark):
     benchmark(ctor)
 
 
-def _simulate_write_uncoalesced(size, block_size):
-    # SIZE = 1024 #* 1024 * 1
-    s = svfs.cSVF(ID, 12.0)
-    data = b' ' * block_size
-    block_count = size // block_size
+def _simulate_write_uncoalesced(data, block_count):
+    fpos = 0
+    svf = svfs.cSVF(ID)
     for i in range(block_count):
-        fpos = i * block_size + i
-        s.write(fpos, data)
-    return s
+        assert svf.count_write() == i
+        svf.write(fpos, data)
+        fpos += len(data) + 1
+    return svf
 
 
+@pytest.mark.slow
 @pytest.mark.parametrize(
     'size, block_size',
     (
-        (1024, 1,),
-        (1024, 2,),
-        (1024, 4,),
-        (1024, 8,),
-        (1024, 16,),
-        (1024, 32,),
-        (1024, 64,),
-    )
+            (1024 * 1024, 1,),
+            (1024 * 1024, 2,),
+            (1024 * 1024, 4,),
+            (1024 * 1024, 8,),
+            (1024 * 1024, 16,),
+            (1024 * 1024, 32,),
+            (1024 * 1024, 64,),
+            (1024 * 1024, 128,),
+            (1024 * 1024, 256,),
+            (1024 * 1024, 512,),
+            (1024 * 1024, 1024,),
+    ),
+    ids=[
+        '0001',
+        '0002',
+        '0004',
+        '0008',
+        '0016',
+        '0032',
+        '0064',
+        '0128',
+        '0256',
+        '0512',
+        '1024',
+    ]
 )
 def test_svf_sim_write_uncoal(size, block_size, benchmark):
-    s = benchmark(_simulate_write_uncoalesced, size, block_size)
-    assert s.num_bytes() == size
-    assert s.count_write() == size // block_size
-    assert len(s.blocks()) == size // block_size
-
-
-def _simulate_write_coalesced(size, block_size):
-    # SIZE = 1024 #* 1024 * 1
-    s = svfs.cSVF(ID, 12.0)
     data = b' ' * block_size
     block_count = size // block_size
+    svf = benchmark(_simulate_write_uncoalesced, data, block_count)
+    assert svf.num_bytes() == size
+    assert svf.count_write() == block_count
+    assert len(svf.blocks()) == block_count
+
+
+def _simulate_write_coalesced(data, block_count):
+    fpos = 0
+    svf = svfs.cSVF(ID)
     for i in range(block_count):
-        fpos = i * block_size
-        s.write(fpos, data)
-    return s
+        # assert svf.count_write() == i
+        svf.write(fpos, data)
+        fpos += len(data)
+    return svf
 
 
+@pytest.mark.slow
 @pytest.mark.parametrize(
     'size, block_size',
     (
-        (1024, 1,),
-        (1024, 2,),
-        (1024, 4,),
-        (1024, 8,),
-        (1024, 16,),
-        (1024, 32,),
-        (1024, 64,),
-    )
+        (1024 * 1024, 1,),
+        (1024 * 1024, 2,),
+        (1024 * 1024, 4,),
+        (1024 * 1024, 8,),
+        (1024 * 1024, 16,),
+        (1024 * 1024, 32,),
+        (1024 * 1024, 64,),
+        (1024 * 1024, 128,),
+        (1024 * 1024, 256,),
+        (1024 * 1024, 512,),
+        (1024 * 1024, 1024,),
+    ),
+    ids=[
+        '0001',
+        '0002',
+        '0004',
+        '0008',
+        '0016',
+        '0032',
+        '0064',
+        '0128',
+        '0256',
+        '0512',
+        '1024',
+    ]
 )
 def test_svf_sim_write_coal(size, block_size, benchmark):
-    s = benchmark(_simulate_write_coalesced, size, block_size)
-    assert s.num_bytes() == size
-    assert s.count_write() == size // block_size
-    assert len(s.blocks()) == 1
+    data = b' ' * block_size
+    block_count = size // block_size
+    svf = benchmark(_simulate_write_coalesced, data, block_count)
+    assert svf.num_bytes() == size
+    assert svf.count_write() == block_count
+    assert len(svf.blocks()) == 1
 
 
 #     // Simulate writing a low level RP66V1 index. Total bytes written around 1Mb.
@@ -129,6 +167,7 @@ def _sim_write_index(vr_count, lr_count):
 # Visible records are 8000 bytes long
 # Represented file size is about 190 Mb
 # 23831 * (4 + 10 * 4) is close to 1Mb
+@pytest.mark.slow
 @pytest.mark.parametrize(
     'vr_count, lr_count',
     (
@@ -143,4 +182,54 @@ def _sim_write_index(vr_count, lr_count):
 def test_svf_sim_write_index(vr_count, lr_count, benchmark):
     result = benchmark(_sim_write_index, vr_count, lr_count)
     # assert result == vr_count * lr_count
+
+
+def _simulate_read(svf: svfs.cSVF):
+    for fpos, length in svf.blocks():
+        svf.read(fpos, length)
+
+
+@pytest.mark.slow
+@pytest.mark.parametrize(
+    'size, block_size',
+    (
+            (1024 * 1024, 1,),
+            (1024 * 1024, 2,),
+            (1024 * 1024, 4,),
+            (1024 * 1024, 8,),
+            (1024 * 1024, 16,),
+            (1024 * 1024, 32,),
+            (1024 * 1024, 64,),
+            (1024 * 1024, 128,),
+            (1024 * 1024, 256,),
+            (1024 * 1024, 512,),
+            (1024 * 1024, 1024 * 1024,),
+    ),
+    ids=[
+        '0001',
+        '0002',
+        '0004',
+        '0008',
+        '0016',
+        '0032',
+        '0064',
+        '0128',
+        '0256',
+        '0512',
+        '1e6 ',
+    ]
+)
+def test_svf_sim_read_uncoal(size, block_size, benchmark):
+    data = b' ' * block_size
+    block_count = size // block_size
+    svf = svfs.cSVF("ID")
+    fpos = 0
+    for i in range(block_count):
+        svf.write(fpos, data)
+        fpos += block_size + 1
+    assert svf.num_bytes() == size
+    assert svf.count_write() == block_count
+    assert len(svf.blocks()) == block_count
+    benchmark(_simulate_read, svf)
+
 

@@ -26,6 +26,7 @@ typedef struct {
 } cp_SparseVirtualFileSystem;
 
 #ifdef PY_THREAD_SAFE
+
 /**
  * A RAII wrapper around the PyThread_type_lock.
  * See https://pythonextensionpatterns.readthedocs.io/en/latest/thread_safety.html
@@ -33,22 +34,25 @@ typedef struct {
 class AcquireLockSVFS {
 public:
     AcquireLockSVFS(cp_SparseVirtualFileSystem *pSVFS) : _pSVFS(pSVFS) {
-        assert(_pSL);
-        assert(_pSL->lock);
-        if (! PyThread_acquire_lock(_pSVFS->lock, NOWAIT_LOCK)) {
+        assert(_pSVFS);
+        assert(_pSVFS->lock);
+        if (!PyThread_acquire_lock(_pSVFS->lock, NOWAIT_LOCK)) {
             Py_BEGIN_ALLOW_THREADS
                 PyThread_acquire_lock(_pSVFS->lock, WAIT_LOCK);
             Py_END_ALLOW_THREADS
         }
     }
+
     ~AcquireLockSVFS() {
-        assert(_pSL);
-        assert(_pSL->lock);
+        assert(_pSVFS);
+        assert(_pSVFS->lock);
         PyThread_release_lock(_pSVFS->lock);
     }
+
 private:
     cp_SparseVirtualFileSystem *_pSVFS;
 };
+
 #else
 /* Make the class a NOP which should get optimised out. */
 class AcquireLockSVFS {

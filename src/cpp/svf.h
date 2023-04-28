@@ -92,11 +92,16 @@ namespace SVFS {
          * @param config See \c tSparseVirtualFileConfig above.
          */
         SparseVirtualFile(const std::string &id, double mod_time,
-                          const tSparseVirtualFileConfig &config = tSparseVirtualFileConfig()) : \
-            m_id(id), \
-            m_file_mod_time(mod_time), \
+                          const tSparseVirtualFileConfig &config = tSparseVirtualFileConfig()) :
+            m_id(id),
+            m_file_mod_time(mod_time),
             m_config(config),
-            m_time_write(std::chrono::time_point<std::chrono::system_clock>::min()), \
+            m_bytes_total(0),
+            m_count_write(0),
+            m_count_read(0),
+            m_bytes_write(0),
+            m_bytes_read(0),
+            m_time_write(std::chrono::time_point<std::chrono::system_clock>::min()),
             m_time_read(std::chrono::time_point<std::chrono::system_clock>::min()) {
         }
 

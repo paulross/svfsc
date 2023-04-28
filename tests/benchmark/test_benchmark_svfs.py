@@ -28,6 +28,7 @@ def _simulate_write_uncoalesced(size, block_size):
     return s
 
 
+@pytest.mark.slow
 @pytest.mark.parametrize(
     'size, block_size',
     (
@@ -59,6 +60,7 @@ def _simulate_write_coalesced(size, block_size):
     return s
 
 
+@pytest.mark.slow
 @pytest.mark.parametrize(
     'size, block_size',
     (
@@ -136,6 +138,7 @@ def _sim_write_index(vr_count, lr_count):
 # Visible records are 8000 bytes long
 # Represented file size is about 190 Mb
 # 23831 * (4 + 10 * 4) is close to 1Mb
+@pytest.mark.slow
 @pytest.mark.parametrize(
     'vr_count, lr_count',
     (

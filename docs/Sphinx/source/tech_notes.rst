@@ -180,5 +180,8 @@ The minor drawback is that more bytes are read than strictly necessary. With ``g
 Thread Safety
 ================
 
-If compiled with `SVF_THREAD_SAFE` a C++ mutex is introduced to preserve thread safety.
+If compiled with ``SVF_THREAD_SAFE`` and ``SVFS_THREAD_SAFE`` defined a C++ mutex is introduced to preserve thread safety.
+
+The Python implementation does *not* set ``SVF_THREAD_SAFE`` and ``SVFS_THREAD_SAFE``, instead it uses Python mutexes
+using the technique `described here <https://pythonextensionpatterns.readthedocs.io/en/latest/thread_safety.html>`_.
 

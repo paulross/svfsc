@@ -31,17 +31,17 @@ typedef struct {
 class AcquireLockSVF {
 public:
     AcquireLockSVF(cp_SparseVirtualFile *pSVF) : _pSVF(pSVF) {
-        assert(_pSL);
-        assert(_pSL->lock);
-        if (! PyThread_acquire_lock(_pSVF->lock, NOWAIT_LOCK)) {
+        assert(_pSVF);
+        assert(_pSVF->lock);
+        if (!PyThread_acquire_lock(_pSVF->lock, NOWAIT_LOCK)) {
             Py_BEGIN_ALLOW_THREADS
                 PyThread_acquire_lock(_pSVF->lock, WAIT_LOCK);
             Py_END_ALLOW_THREADS
         }
     }
     ~AcquireLockSVF() {
-        assert(_pSL);
-        assert(_pSL->lock);
+        assert(_pSVF);
+        assert(_pSVF->lock);
         PyThread_release_lock(_pSVF->lock);
     }
 private:
@@ -424,10 +424,10 @@ static const char *cp_SparseVirtualFile_need_docstring = (
         " If greedy_length is > 0 then, if possible, blocks will be coalesced to reduce the size of the return value."
         "\nUsage::\n\n"
         "    if not svf.has_data(position, length):\n"
-        "        for position, read_length in svf.need(position, length):\n"
-        "            # Somehow get data as a bytes object at position...\n"
-        "            svf.write(fposition, data)\n"
-        "    return svf.read(file_position, length):\n"
+        "        for read_fpos, read_length in svf.need(position, length):\n"
+        "            # Somehow get data as a bytes object at read_fpos, read_length...\n"
+        "            svf.write(fpos, data)\n"
+        "    return svf.read(position, length):\n"
         "\n\nSignature:\n\n``need(file_position: int, length: int, greedy_length: int = 0) -> typing.Tuple[typing.Tuple[int, int], ...]:``"
 );
 
@@ -1061,7 +1061,7 @@ static const char *svfs_cSVF_doc = PyDoc_STR(
     " This is an in-memory file that has fragments of a real file."
     " It has read/write operations and can describe what file fragments are needed, if any, before any read operation."
     "\n\n"
-    "The constructor takes a string as an ID and an optionally:\n"
+    "The constructor takes a string as an ID and optionally:\n"
     " - A file modification time as a float (default 0.0)."
     " This can be used for checking if the actual file might been changed which might invalidate the SVF.\n"
     " - ``overwrite_on_exit``, a boolean that will overwrite the memory on destruction (default ``False``)."
