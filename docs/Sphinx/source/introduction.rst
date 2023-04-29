@@ -3,15 +3,18 @@ Sparse Virtual File
 #################################################
 
 Somtimes you don't need the whole file.
-Sometimes you dont *want* the whole file.
+Sometimes you don't *want* the whole file.
 Especially if it is huge and on some remote server.
 But, you might know what parts of the file that you want and ``svfs`` can help you store them locally so it looks
 *as if* you have access to the complete file, or the pieces of interest.
 ``svfs`` is targeted at reading very large binary files such as TIFF, RP66V1, HDM5 where the structure is well known.
 
-`svfs` implements a *Sparse Virtual File System*.
+``svfs`` implements a *Sparse Virtual File System*.
 This is a specialised cache where a particular file might not be available but *parts of it can be obtained* without
 reading the whole thing.
+
+A ``SVF`` is represented internally as a map off blocks of data with their file offsets.
+Any write to an ``SVF`` will coalesce those blocks where possible.
 
 ``svfs`` is written in C++ with a Python interface.
 It is thread safe in both domains.
@@ -55,18 +58,18 @@ For example:
 
 .. code-block:: python
 
-        if not svf.has_data(position, length):
-            for position, read_length in svf.need(position, length):
-                # Somehow get data as a bytes object at position...
-                svf.write(fposition, data)
+        if not svf.has_data(file_position, length):
+            for read_position, read_length in svf.need(position, length):
+                # Somehow get data as a bytes object at (read_position, read_length)...
+                svf.write(read_position, data)
         # Now read directly
         svf.read(file_position, length)
 
-Creating a Sparse Virtual File System
+A Sparse Virtual File System
 -------------------------------------
 
 The example above uses a single Sparse Virtual File, but you can also create a Sparse Virtual File System.
-This is a key value store where the key is some string and the value a ``SVF``:
+This is a key/value store where the key is some string and the value a ``SVF``:
 
 .. code-block:: python
     :caption: Example Sparse Virtual File System
@@ -102,7 +105,7 @@ Example C++ Usage
     // This returns a std::vector<std::pair<size_t, size_t>>
     // as ((file_position, read_length), ...)
     auto need = svf.need(8, 24);
-    // Tbhis prints ((8, 6), (20, 4),)
+    // This prints ((8, 6), (20, 4),)
     std::cout << "(";
     for (auto &val: need) {
         std::cout << "(" << val.first << ", " << val.second << "),";
