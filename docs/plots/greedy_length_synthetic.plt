@@ -31,7 +31,7 @@ set terminal png size 800,500           # choose the file format
 
 set output "greedy_length_synthetic.png"   # choose the output device
 
-plot "greedy_length_synthetic.dat" using ($1 / 1024):($2 / 1000) t "Time to Read." with linespoints axes x1y1 pt 3 lw 2, \
-    "greedy_length_synthetic.dat" using ($1 / 1024):4 t "Cache Misses." with linespoints axes x1y2 pt 3 lw 2
+plot "greedy_length_synthetic.dat" using ($1 / 1024):($2 / 1000) t "Time to Read (left axis)." with linespoints axes x1y1 pt 3 lw 2, \
+    "greedy_length_synthetic.dat" using ($1 / 1024):4 t "Cache Misses (right axis)." with linespoints axes x1y2 pt 3 lw 2
 
 reset

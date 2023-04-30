@@ -136,27 +136,27 @@ For example an ``SVF`` with these ``{file_position, length}`` blocks:
 
 .. code-block:: text
 
-    {{8,  4}, {16, 4}, {32, 4}}
+    ((8,  4), (16, 4), (32, 4))
 
 Requesting 64 bytes from file position 8 gives this minimal block set by ``need(8, 40)``:
 
 .. code-block:: text
 
-    {{12, 4}, {20, 12}, {36, 12},}
+    ((12, 4), (20, 12), (36, 12),)
 
 The same request with ``need(8, 40, greedy_length=64)`` gives this block set:
 
 .. code-block:: text
 
-    {{12, 64},}
+    ((12, 64),)
 
 Network Simulator
 =====================================
 
-In ``cpy/simulator.py`` there is a simulator that can simulate the effect of network latency and bandwidth, server
+In ``cpy/simulator.py`` there is a simulator that can reproduce the effect of network latency, network bandwidth, server
 seek/read times and writing data to a ``SVF``. The default configuration is:
 
-- Network latency: 10 milliseconds.
+- Network latency (each way): 10 milliseconds.
 - Network bandwidth: 50 million bits per second.
 - Server seek speed: 1000 million bytes per second.
 - Server read speed: 50 million bytes per second.
@@ -166,19 +166,20 @@ The simulator can also take a ``greedy-length`` argument which allows you to tun
 Some pre-built simulation requests are in ``cpy/sim_example.py``:
 
 - A simple read of 32 bytes of data every  64 bytes up to a size of 20480.
-- Actual seek/read operations for reading TIFF metadata on a 200 MB TIFF file.
+- Actual seek/read operations for reading TIFF metadata on a 200 MB compressed TIFF file.
 
 Here is the read time using different ``greedy_length`` values:
 
 .. image:: ../../plots/greedy_length_synthetic.png
 
 The second example is all the seek read operations to get all the TIFF metadata from the open-slide test image
-CMU-1.tiff (a 204 MB file):
+CMU-1.tiff (a 204 MB compressed file):
 
 .. image:: ../../plots/greedy_length_tiff.png
 
 The minor drawback is that more bytes are read than strictly necessary. With ``greedy_length=0`` the minimal byte set is
 99,713 bytes total. With a ``greedy_length=32,768`` the total number of bytes read is 306,256.
+This is about 10x the minimal read but still about 1/700 of the original file.
 
 Running the Simulator
 ---------------------

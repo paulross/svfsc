@@ -2,6 +2,7 @@ Performance
 ###########
 
 This describes some of the measured performance of ``SVFS``.
+Platform is a 2018 Mac Book Pro, 2.7 GHz Intel Core i7, 16 GB 2133 MHz LPDDR3.
 
 C++ Performance
 ===============
@@ -17,7 +18,7 @@ The y axis shows the time to read all blocks.
 
 .. image:: ../../plots/cpp_1mb_read.png
 
-The one byte case corresponds to 7.6 MB/s, the 512 bytes case corresponds to 2,174 MB/s, the single 1MB block case
+The one byte case corresponds to 7.6 MB/s, the 512 bytes case corresponds to 2,170 MB/s, the single 1MB block case
 corresponds to 1,480 MB/s.
 
 Need
@@ -45,11 +46,14 @@ This show the performance of writing 1MB of data to a ``SVF`` in two ways:
 In the case of storing 1M one byte blocks the ``SVF`` consumes 34,603,192 bytes of memory, so x33.
 In the case of a 256 byte block size the ``SVF`` consumes 1,179,832 bytes of memory, just a 12.5% premium.
 
+The one byte block size performance corresponds to 14 MB/s (coalesced) and 3.1 MB/s (un-coalesced).
+The 256 byte block size performance corresponds to 445 MB/s (coalesced) and 456 MB/s (un-coalesced).
+
 Multi-threaded Writes
 ---------------------
 
 This looks at the performance where many threads might be writing independently to a single ``SVF``.
-This requires the code be compiled with ``SVF_THREAD_SAFE``.
+This requires the code be compiled with ``SVF_THREAD_SAFE`` and ``SVFS_THREAD_SAFE``.
 
 This test is done with the test function ``test_write_multithreaded_coalesced()`` and
 ``test_write_multithreaded_un_coalesced()`` with a varying number of threads.

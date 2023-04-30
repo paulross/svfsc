@@ -15,7 +15,7 @@ static PyModuleDef svfsmodule = {
         "A Sparse Virtual File (SVF) is one where data from the actual file is held in memory at the relevant"
         " file locations as in the original file."
         " The original file is identified by a string ID."
-        " Data can be written to an SVF, if the data differs from that existing an error will be raised."
+        " Data can be written to an SVF, if the data differs from that existing an error might be raised."
         " Data can be read from an SVF, if the SVF does not have the data an error will be raised."
         " Before any ``read()`` the SVF can describe what, if any, data is missing and the user can obtain and write that"
         " data to the SVF before reading."

@@ -147,8 +147,8 @@ cp_SparseVirtualFileSystem_dealloc(cp_SparseVirtualFileSystem *self) {
 #pragma mark SVFS functions
 
 static const char *cp_SparseVirtualFileSystem_keys_docstring = (
-    "Returns the IDs of all the Sparse Virtual Files in the Sparse Virtual File System."
-    "\n\nSignature:\n\n``keys() -> typing.List[str]:``"
+        "Returns the IDs of all the Sparse Virtual Files in the Sparse Virtual File System."
+        "\n\nSignature: ``keys() -> typing.List[str]:``"
 );
 
 static PyObject *
@@ -197,8 +197,10 @@ cp_SparseVirtualFileSystem_keys(cp_SparseVirtualFileSystem *self) {
     return ret;
 }
 
-static const char *cp_SparseVirtualFileSystem_insert_docstring = \
-"Inserts a Sparse Virtual File of ID and Unix file modification time as a float.";
+static const char *cp_SparseVirtualFileSystem_insert_docstring = (
+        "Inserts a Sparse Virtual File of ID and Unix file modification time as a float."
+        "\n\nSignature: ``insert(id: str) -> None:``"
+);
 
 static PyObject *
 cp_SparseVirtualFileSystem_insert(cp_SparseVirtualFileSystem *self, PyObject *args, PyObject *kwargs) {
@@ -238,8 +240,10 @@ cp_SparseVirtualFileSystem_insert(cp_SparseVirtualFileSystem *self, PyObject *ar
     return ret;
 }
 
-static const char *cp_SparseVirtualFileSystem_remove_docstring = \
-"Removes a Sparse Virtual File of ID freeing that file's memory. Will raise an IndexError if the ID is absent.";
+static const char *cp_SparseVirtualFileSystem_remove_docstring = (
+        "Removes a Sparse Virtual File of ID freeing that file's memory. Will raise an ``IndexError`` if the ID is absent."
+        "\n\nSignature: ``remove(id: str) -> None:``"
+);
 
 static PyObject *
 cp_SparseVirtualFileSystem_remove(cp_SparseVirtualFileSystem *self, PyObject *args, PyObject *kwargs) {
@@ -277,8 +281,10 @@ cp_SparseVirtualFileSystem_remove(cp_SparseVirtualFileSystem *self, PyObject *ar
     return ret;
 }
 
-static const char *cp_SparseVirtualFileSystem_has_docstring = \
-"Returns True if the Sparse Virtual File for the ID is in the Sparse Virtual File System.";
+static const char *cp_SparseVirtualFileSystem_has_docstring = (
+        "Returns True if the Sparse Virtual File for the ID is in the Sparse Virtual File System."
+        "\n\nSignature: ``has(id: str) -> bool:``"
+);
 
 static PyObject *
 cp_SparseVirtualFileSystem_has(cp_SparseVirtualFileSystem *self, PyObject *args, PyObject *kwargs) {
@@ -314,8 +320,10 @@ cp_SparseVirtualFileSystem_has(cp_SparseVirtualFileSystem *self, PyObject *args,
     return ret;
 }
 
-static const char *cp_SparseVirtualFileSystem_total_size_of_docstring = \
-"Returns the estimate of total memory usage of the Sparse Virtual File System.";
+static const char *cp_SparseVirtualFileSystem_total_size_of_docstring = (
+        "Returns the estimate of total memory usage of the Sparse Virtual File System."
+        "\n\nSignature: ``total_size_of() -> int:``"
+);
 
 static PyObject *
 cp_SparseVirtualFileSystem_total_size_of(cp_SparseVirtualFileSystem *self) {
@@ -328,8 +336,10 @@ cp_SparseVirtualFileSystem_total_size_of(cp_SparseVirtualFileSystem *self) {
     }
 }
 
-static const char *cp_SparseVirtualFileSystem_total_bytes_docstring = \
-"Returns the total number of file bytes held by the Sparse Virtual File System.";
+static const char *cp_SparseVirtualFileSystem_total_bytes_docstring = (
+        "Returns the total number of file bytes held by the Sparse Virtual File System."
+        "\n\nSignature: ``total_bytes() -> int:``"
+);
 
 static PyObject *
 cp_SparseVirtualFileSystem_total_bytes(cp_SparseVirtualFileSystem *self) {
@@ -342,8 +352,10 @@ cp_SparseVirtualFileSystem_total_bytes(cp_SparseVirtualFileSystem *self) {
     }
 }
 
-static const char *cp_SparseVirtualFileSystem_total_blocks_docstring = \
-"Returns the total number of blocks of data held by the Sparse Virtual File System.";
+static const char *cp_SparseVirtualFileSystem_total_blocks_docstring = (
+        "Returns the total number of blocks of data held by the Sparse Virtual File System."
+        "\n\nSignature: ``total_blocks() -> int:``"
+);
 
 static PyObject *
 cp_SparseVirtualFileSystem_total_blocks(cp_SparseVirtualFileSystem *self) {
@@ -356,11 +368,13 @@ cp_SparseVirtualFileSystem_total_blocks(cp_SparseVirtualFileSystem *self) {
     }
 }
 
-static const char *cp_SparseVirtualFileSystem_svf_has_data_docstring = \
-"Checks if the Sparse Virtual File of the ID has data at the given file_position and length." \
-" This takes a string as an id, a file position and a length." \
-" This returns True if the Sparse Virtual File of that id has the data, False otherwise." \
-" This will raise an IndexError if the SVF of that id does not exist.";
+static const char *cp_SparseVirtualFileSystem_svf_has_data_docstring = (
+        "Checks if the Sparse Virtual File of the ID has data at the given file_position and length."
+        " This takes a string as an id, a file position and a length."
+        " This returns True if the Sparse Virtual File of that id has the data, False otherwise."
+        " This will raise an ``IndexError`` if the SVF of that id does not exist."
+        "\n\nSignature: ``has_data(id: str, file_position: int, length: int) -> bool:``"
+);
 
 static PyObject *
 cp_SparseVirtualFileSystem_svf_has_data(cp_SparseVirtualFileSystem *self, PyObject *args, PyObject *kwargs) {
@@ -407,13 +421,15 @@ cp_SparseVirtualFileSystem_svf_has_data(cp_SparseVirtualFileSystem *self, PyObje
     return ret;
 }
 
-static const char *cp_SparseVirtualFileSystem_svf_write_docstring = \
-"Writes the data to the Sparse Virtual File of the given ID at file_position and length." \
-" This takes a string as an id, a file position and data as a bytes object." \
-" This will raise an IndexError if the SVF of that id does not exist." \
-" This will raise an IOError if the given data is different than that seen before and only" \
-" new data up to this point will be written." \
-" This will raise a RuntimeError if the data can not be written for any other reason";
+static const char *cp_SparseVirtualFileSystem_svf_write_docstring = (
+        "Writes the data to the Sparse Virtual File of the given ID at file_position and length."
+        " This takes a string as an id, a file position and data as a bytes object."
+        " This will raise an ``IndexError`` if the SVF of that id does not exist."
+        " This will raise an ``IOError`` if the given data is different than that seen before and only"
+        " new data up to this point will be written."
+        " This will raise a ``RuntimeError`` if the data can not be written for any other reason"
+        "\n\nSignature: ``write(id: str, file_position: int, data: bytes) -> None:``"
+);
 
 static PyObject *
 cp_SparseVirtualFileSystem_svf_write(cp_SparseVirtualFileSystem *self, PyObject *args, PyObject *kwargs) {
@@ -467,12 +483,14 @@ cp_SparseVirtualFileSystem_svf_write(cp_SparseVirtualFileSystem *self, PyObject 
     return ret;
 }
 
-static const char *cp_SparseVirtualFileSystem_svf_read_docstring = \
-"Read the data to the Sparse Virtual File at file_position and length returning a bytes object." \
-" This takes a string as an id, a file position and a length." \
-" This will raise an IndexError if the Sparse Virtual File of that id does not exist." \
-" This will raise an IOError if any data is not present" \
-" This will raise a RuntimeError if the data can not be read for any other reason";
+static const char *cp_SparseVirtualFileSystem_svf_read_docstring = (
+        "Read the data to the Sparse Virtual File at file_position and length returning a bytes object."
+        " This takes a string as an id, a file position and a length."
+        " This will raise an ``IndexError`` if the Sparse Virtual File of that id does not exist."
+        " This will raise an ``IOError`` if any data is not present"
+        " This will raise a ``RuntimeError`` if the data can not be read for any other reason"
+        "\n\nSignature: ``read(id: str, file_position: int, length: int) -> bytes:``"
+);
 
 static PyObject *
 cp_SparseVirtualFileSystem_svf_read(cp_SparseVirtualFileSystem *self, PyObject *args, PyObject *kwargs) {
@@ -525,12 +543,14 @@ cp_SparseVirtualFileSystem_svf_read(cp_SparseVirtualFileSystem *self, PyObject *
     return ret;
 }
 
-static const char *cp_SparseVirtualFileSystem_svf_erase_docstring = \
-"Erases the data block in the Sparse Virtual File at a file position." \
-" This takes a string as an id and a file_position." \
-" This will raise an IndexError if the Sparse Virtual File of that id does not exist." \
-" This will raise an IOError if there is not a block at the position." \
-" This will raise a RuntimeError if the data can not be read for any other reason";
+static const char *cp_SparseVirtualFileSystem_svf_erase_docstring = (
+        "Erases the data block in the Sparse Virtual File at a file position."
+        " This takes a string as an id and a file_position."
+        " This will raise an ``IndexError`` if the Sparse Virtual File of that id does not exist."
+        " This will raise an ``IOError`` if there is not a block at the position."
+        " This will raise a ``RuntimeError`` if the data can not be read for any other reason"
+        "\n\nSignature: ``erase(id: str, file_position: int) -> None:``"
+);
 
 static PyObject *
 cp_SparseVirtualFileSystem_svf_erase(cp_SparseVirtualFileSystem *self, PyObject *args, PyObject *kwargs) {
@@ -583,16 +603,16 @@ cp_SparseVirtualFileSystem_svf_erase(cp_SparseVirtualFileSystem *self, PyObject 
 }
 
 static const char *cp_SparseVirtualFileSystem_svf_need_docstring = (
-    "Given a file_position and length this returns a ordered list [(file_position, length), ...] of seek/read"
-    " instructions of data that is required to be written to the Sparse Virtual File so that a subsequent read will succeed."
-    " This will raise an IndexError if the Sparse Virtual File of that id does not exist."
-    "\nUsage::\n\n"
-    "    if not svfs.has(identity, file_position, length):\n"
-    "        for seek, read in svfs.need(file_position, length):\n"
-    "            # Somehow get the data at all seek/read positions...\n"
-    "            svfs.write(identity, seek, data)\n"
-    "    return svfs.read(identity, file_position, length):\n"
-    "\n\nSignature:\n\n``need(id: str, file_position: int, length: int, greedy_length: int = 0) -> typing.Tuple[typing.Tuple[int, int], ...]:``"
+        "Given a file_position and length this returns a ordered list ``[(file_position, length), ...]`` of seek/read"
+        " instructions of data that is required to be written to the Sparse Virtual File so that a subsequent read will succeed."
+        " If greedy_length is > 0 then, if possible, blocks will be coalesced to reduce the size of the return value."
+        "\nUsage::\n\n"
+        "    if not svfs.has(identity, file_position, length):\n"
+        "        for fpos, read_len in svfs.need(identity, file_position, length):\n"
+        "            # Somehow get the data at that seek/read position...\n"
+        "            svfs.write(identity, fpos, data)\n"
+        "    return svfs.read(identity, file_position, length):\n"
+        "\n\nSignature:\n\n``need(id: str, file_position: int, length: int, greedy_length: int = 0) -> typing.Tuple[typing.Tuple[int, int], ...]:``"
 );
 
 static PyObject *
@@ -710,9 +730,11 @@ bool file_mod_time_matches(const double &file_mod_time) const noexcept {
 }
 */
 
-static const char *cp_SparseVirtualFileSystem_svf_blocks_docstring = \
-"This returns a ordered tuple ((file_position, length), ...) of all the blocks held by the SVF identified by the given id." \
-" This will raise an IndexError if the Sparse Virtual File of that id does not exist.";
+static const char *cp_SparseVirtualFileSystem_svf_blocks_docstring = (
+        "This returns a ordered tuple ((file_position, length), ...) of all the blocks held by the SVF identified by the given id." \
+    " This will raise an ``IndexError`` if the Sparse Virtual File of that id does not exist."
+        "\n\nSignature: ``blocks(id: str) -> typing.Tuple[typing.Tuple[int, int], ...]:``"
+);
 
 static PyObject *
 cp_SparseVirtualFileSystem_svf_blocks(cp_SparseVirtualFileSystem *self, PyObject *args, PyObject *kwargs) {
@@ -771,28 +793,36 @@ cp_SparseVirtualFileSystem_svf_blocks(cp_SparseVirtualFileSystem *self, PyObject
     return ret;
 }
 
-static const char *cp_SparseVirtualFileSystem_svf_size_of_docstring = \
-"Returns the best guess of total memory usage used by the Sparse Virtual File identified by the given id." \
-" This will raise an IndexError if the Sparse Virtual File of that id does not exist.";
+static const char *cp_SparseVirtualFileSystem_svf_size_of_docstring = (
+        "Returns the best guess of total memory usage used by the Sparse Virtual File identified by the given id."
+        " This will raise an ``IndexError`` if the Sparse Virtual File of that id does not exist."
+        "\n\nSignature: ``size_of(id: str) -> int:``"
+);
 
 SVFS_SVFS_METHOD_SIZE_T_WRAPPER(size_of);
 
-static const char *cp_SparseVirtualFileSystem_svf_num_bytes_docstring = \
-"Returns the number of bytes of data held by the Sparse Virtual File identified by the given id." \
-" This will raise an IndexError if the Sparse Virtual File of that id does not exist.";
+static const char *cp_SparseVirtualFileSystem_svf_num_bytes_docstring = (
+        "Returns the number of bytes of data held by the Sparse Virtual File identified by the given id."
+        " This will raise an ``IndexError`` if the Sparse Virtual File of that id does not exist."
+        "\n\nSignature: ``num_bytes(id: str) -> int:``"
+);
 
 SVFS_SVFS_METHOD_SIZE_T_WRAPPER(num_bytes);
 
-static const char *cp_SparseVirtualFileSystem_svf_num_blocks_docstring = \
-"Returns the number of data blocks held by the Sparse Virtual File identified by the given id." \
-" This will raise an IndexError if the Sparse Virtual File of that id does not exist.";
+static const char *cp_SparseVirtualFileSystem_svf_num_blocks_docstring = (
+        "Returns the number of data blocks held by the Sparse Virtual File identified by the given id."
+        " This will raise an ``IndexError`` if the Sparse Virtual File of that id does not exist."
+        "\n\nSignature: ``num_blocks(id: str) -> int:``"
+);
 
 SVFS_SVFS_METHOD_SIZE_T_WRAPPER(num_blocks);
 
-static const char *cp_SparseVirtualFileSystem_svf_file_mod_time_matches_docstring = \
-"Returns True if the file modification time of the Sparse Virtual File identified by the given id the matches"\
-" the given time as a float." \
-" This will raise an IndexError if the Sparse Virtual File of that id does not exist.";
+static const char *cp_SparseVirtualFileSystem_svf_file_mod_time_matches_docstring = (
+        "Returns True if the file modification time of the Sparse Virtual File identified by the given id the matches"
+        " the given time as a float."
+        " This will raise an ``IndexError`` if the Sparse Virtual File of that id does not exist."
+        "\n\nSignature: ``file_mod_time_matches(id: str) -> bool:``"
+);
 
 static PyObject *
 cp_SparseVirtualFileSystem_svf_file_mod_time_matches(cp_SparseVirtualFileSystem *self, PyObject *args,
@@ -853,9 +883,11 @@ std::chrono::time_point<std::chrono::system_clock> time_write() const noexcept {
 std::chrono::time_point<std::chrono::system_clock> time_read() const noexcept { return m_time_read; }
 */
 
-static const char *cp_SparseVirtualFileSystem_file_mod_time_docstring = \
-"Returns the file modification time as a float in UNIX time of the Sparse Virtual File identified by the given id." \
-" This will raise an IndexError if the Sparse Virtual File of that id does not exist.";
+static const char *cp_SparseVirtualFileSystem_file_mod_time_docstring = (
+        "Returns the file modification time as a float in UNIX time of the Sparse Virtual File identified by the given id."
+        " This will raise an ``IndexError`` if the Sparse Virtual File of that id does not exist."
+        "\n\nSignature: ``file_mod_time(id: str) -> float:``"
+);
 
 // SVF: double file_mod_time() const noexcept { return m_file_mod_time; }
 static PyObject *
@@ -895,27 +927,35 @@ cp_SparseVirtualFileSystem_file_mod_time(cp_SparseVirtualFileSystem *self, PyObj
     return ret;
 }
 
-static const char *cp_SparseVirtualFileSystem_svf_count_write_docstring = \
-"Returns the count of write operations on the Sparse Virtual File identified by the given id." \
-" This will raise an IndexError if the Sparse Virtual File of that id does not exist.";
+static const char *cp_SparseVirtualFileSystem_svf_count_write_docstring = (
+        "Returns the count of write operations on the Sparse Virtual File identified by the given id."
+        " This will raise an ``IndexError`` if the Sparse Virtual File of that id does not exist."
+        "\n\nSignature: ``count_write(id: str) -> int:``"
+);
 
 SVFS_SVFS_METHOD_SIZE_T_WRAPPER(count_write);
 
-static const char *cp_SparseVirtualFileSystem_svf_count_read_docstring = \
-"Returns the count of read operations on the Sparse Virtual File identified by the given id." \
-" This will raise an IndexError if the Sparse Virtual File of that id does not exist.";
+static const char *cp_SparseVirtualFileSystem_svf_count_read_docstring = (
+        "Returns the count of read operations on the Sparse Virtual File identified by the given id."
+        " This will raise an ``IndexError`` if the Sparse Virtual File of that id does not exist."
+        "\n\nSignature: ``count_read(id: str) -> int:``"
+);
 
 SVFS_SVFS_METHOD_SIZE_T_WRAPPER(count_read);
 
-static const char *cp_SparseVirtualFileSystem_svf_bytes_write_docstring = \
-"Returns the count of the number of bytes writen to the Sparse Virtual File identified by the given id." \
-" This will raise an IndexError if the Sparse Virtual File of that id does not exist.";
+static const char *cp_SparseVirtualFileSystem_svf_bytes_write_docstring = (
+        "Returns the count of the number of bytes writen to the Sparse Virtual File identified by the given id."
+        " This will raise an ``IndexError`` if the Sparse Virtual File of that id does not exist."
+        "\n\nSignature: ``bytes_write(id: str) -> int:``"
+);
 
 SVFS_SVFS_METHOD_SIZE_T_WRAPPER(bytes_write);
 
-static const char *cp_SparseVirtualFileSystem_svf_bytes_read_docstring = \
-"Returns the count of the number of bytes read from the Sparse Virtual File identified by the given id." \
-" This will raise an IndexError if the Sparse Virtual File of that id does not exist.";
+static const char *cp_SparseVirtualFileSystem_svf_bytes_read_docstring = (
+        "Returns the count of the number of bytes read from the Sparse Virtual File identified by the given id."
+        " This will raise an ``IndexError`` if the Sparse Virtual File of that id does not exist."
+        "\n\nSignature: ``bytes_read(id: str) -> int:``"
+);
 
 SVFS_SVFS_METHOD_SIZE_T_WRAPPER(bytes_read);
 
@@ -955,10 +995,12 @@ finally: \
 
 // NOTE: time_read and time_write functions are very similar.
 
-static const char *cp_SparseVirtualFileSystem_svf_time_write_docstring = \
-"Returns the timestamp of the last write to the Sparse Virtual File identified by the given id as a datetime.datetime." \
-" or None if no read has taken place." \
-" This will raise an IndexError if the Sparse Virtual File of that id does not exist.";
+static const char *cp_SparseVirtualFileSystem_svf_time_write_docstring = (
+        "Returns the timestamp of the last write to the Sparse Virtual File identified by the given id as a datetime.datetime."
+        " or None if no write has taken place."
+        " This will raise an ``IndexError`` if the Sparse Virtual File of that id does not exist."
+        "\n\nSignature: ``time_write(id: str) -> typing.Optional[datetime.datetime]:``"
+);
 //SVFS_SVFS_METHOD_DATETIME_WRAPPER(time_write)
 
 static PyObject *
@@ -1013,10 +1055,12 @@ cp_SparseVirtualFileSystem_svf_time_write(cp_SparseVirtualFileSystem *self, PyOb
 }
 
 
-static const char *cp_SparseVirtualFileSystem_svf_time_read_docstring = \
-"Returns the timestamp of the last read from the Sparse Virtual File identified by the given id as a datetime.datetime." \
-" or None if no read has taken place." \
-" This will raise an IndexError if the Sparse Virtual File of that id does not exist.";
+static const char *cp_SparseVirtualFileSystem_svf_time_read_docstring = (
+        "Returns the timestamp of the last read from the Sparse Virtual File identified by the given id as a datetime.datetime."
+        " or None if no read has taken place."
+        " This will raise an ``IndexError`` if the Sparse Virtual File of that id does not exist."
+        "\n\nSignature: ``time_read(id: str) -> typing.Optional[datetime.datetime]:``"
+);
 //SVFS_SVFS_METHOD_DATETIME_WRAPPER(time_read)
 
 static PyObject *
