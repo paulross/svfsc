@@ -55,13 +55,17 @@ namespace SVFS {
         explicit ExceptionSparseVirtualFileRead(const std::string &in_msg) : ExceptionSparseVirtualFile(in_msg) {}
     };
 
+    /// Might be thrown during a erase operation where the file position is not at the exact beginning of a block.
     class ExceptionSparseVirtualFileErase : public ExceptionSparseVirtualFile {
     public:
         explicit ExceptionSparseVirtualFileErase(const std::string &in_msg) : ExceptionSparseVirtualFile(in_msg) {}
     };
 
+    /** Typedef for the file position. */
     typedef size_t t_fpos;
+    /** Typedef for a \c seek() followed by a \c read() length. */
     typedef std::pair<t_fpos, size_t> t_seek_read;
+    /** Typedef for a vector of (\c seek() followed by a \c read() ) lengths. */
     typedef std::vector<t_seek_read> t_seek_reads;
 
     /**
@@ -93,23 +97,22 @@ namespace SVFS {
          */
         SparseVirtualFile(const std::string &id, double mod_time,
                           const tSparseVirtualFileConfig &config = tSparseVirtualFileConfig()) :
-            m_id(id),
-            m_file_mod_time(mod_time),
-            m_config(config),
-            m_bytes_total(0),
-            m_count_write(0),
-            m_count_read(0),
-            m_bytes_write(0),
-            m_bytes_read(0),
-            m_time_write(std::chrono::time_point<std::chrono::system_clock>::min()),
-            m_time_read(std::chrono::time_point<std::chrono::system_clock>::min()) {
+                m_id(id),
+                m_file_mod_time(mod_time),
+                m_config(config),
+                m_bytes_total(0),
+                m_count_write(0),
+                m_count_read(0),
+                m_bytes_write(0),
+                m_bytes_read(0),
+                m_time_write(std::chrono::time_point<std::chrono::system_clock>::min()),
+                m_time_read(std::chrono::time_point<std::chrono::system_clock>::min()) {
         }
 
         // ---- Read and write etc. ----
-        /// Do I have the data?
+        /// Do I have the data at the given file position and length?
         bool has(t_fpos fpos, size_t len) const noexcept;
 
-        /// Write data at file position.
         void write(t_fpos fpos, const char *data, size_t len);
 
         /** Read data and write to the buffer provided by the caller.
@@ -153,26 +156,36 @@ namespace SVFS {
         }
 
         // ---- Attribute access ----
+        /// The ID of the file.
         const std::string &id() const noexcept { return m_id; }
 
+        /// The file modification time as a double representing UNIX seconds.
         double file_mod_time() const noexcept { return m_file_mod_time; }
 
+        /// Count of \c write() operations.
         size_t count_write() const noexcept { return m_count_write; }
 
+        /// Count of \c read() operations.
         size_t count_read() const noexcept { return m_count_read; }
 
+        /// Count of total bytes written with \c write() operations.
         size_t bytes_write() const noexcept { return m_bytes_write; }
 
+        /// Count of total bytes read with \c read() operations.
         size_t bytes_read() const noexcept { return m_bytes_read; }
 
-        // These can be cast to std::chrono::time_point<double>
+        /// Time of the last \c write() operation.
+        /// This can be cast to \c std::chrono::time_point<double>
         std::chrono::time_point<std::chrono::system_clock> time_write() const noexcept { return m_time_write; }
 
+        /// Time of the last \c read() operation.
+        /// This can be cast to \c std::chrono::time_point<double>
         std::chrono::time_point<std::chrono::system_clock> time_read() const noexcept { return m_time_read; }
 
-        // Eliminate copying.
+        /// Eliminate copying.
         SparseVirtualFile(const SparseVirtualFile &rhs) = delete;
 
+        /// Eliminate copying.
         SparseVirtualFile operator=(const SparseVirtualFile &rhs) = delete;
 
 #ifdef SVF_THREAD_SAFE
@@ -187,7 +200,7 @@ namespace SVFS {
         SparseVirtualFile(SparseVirtualFile &&other) = default;
         SparseVirtualFile& operator=(SparseVirtualFile &&rhs) = default;
 #endif
-
+        /// Destruction just clears the internal map.
         ~SparseVirtualFile() { clear(); }
 
     private:
@@ -205,9 +218,11 @@ namespace SVFS {
         // Last access times
         std::chrono::time_point<std::chrono::system_clock> m_time_write;
         std::chrono::time_point<std::chrono::system_clock> m_time_read;
-        // The actual SVF
+        /// Typedef for the data.
         typedef std::vector<char> t_val;
+        /// Typedef for the map of file blocks <file_position, data>.
         typedef std::map<t_fpos, t_val> t_map;
+        /// The actual SVF.
         t_map m_svf;
 #ifdef SVF_THREAD_SAFE
         // This adds about 5-10% execution time compared with a single threaded version.

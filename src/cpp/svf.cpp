@@ -31,7 +31,17 @@ namespace SVFS {
         return false;
     }
 
+    /**
+     * Write a brand new block into either an empty SVF or beyond the current blocks.
+     * Will raise an ExceptionSparseVirtualFileWrite if the write fails.
+     *
+     * @param fpos The file position.
+     * @param data The data.
+     * @param len The length of the data.
+     */
     void SparseVirtualFile::_write(t_fpos fpos, const char *data, size_t len) {
+        assert(m_svf.empty() || fpos > _last_file_position());
+
         t_val new_vector;
         new_vector.reserve(len);
         while (len) {
@@ -41,6 +51,7 @@ namespace SVFS {
         }
         auto size_before_insert = m_svf.size();
         m_svf.insert(m_svf.end(), {fpos, std::move(new_vector)});
+        // Sanity check.
         if (m_svf.size() != 1 + size_before_insert) {
             std::ostringstream os;
             os << "SparseVirtualFile::write():";
@@ -68,18 +79,36 @@ namespace SVFS {
         assert(0);
     }
 
+    /**
+     * Write the data a the given file position.
+     * This will either:
+     *
+     * - Write a brand new block independent of all the others.
+     * - Write a new block and coalesce other blocks onto its end.
+     * - Coalesce the new block onto an existing block and possibly others.
+     *
+     * Comments are structures like this where \c ==== are existing blocks and \c ++++ is the new block.
+     * \c ^==== shows where the iterator is pointing to. fpos is the beginning of the \c ++++ block.
+     *
+     * @code
+     *        ^===========|    |=====|
+     * |+++++++++++++++++++++++++++++++++|
+     * @endcode
+     *
+     * This also updates the write count, the number of bytes written and the last write time.
+     *
+     * If ``SVF_THREAD_SAFE`` is defined then this will acquire a lock on this ``SparseVirtualFile``.
+     *
+     * @param fpos The file position to write to.
+     * @param data The data, assumed to be of the given length.
+     * @param len The length to the data to write.
+     */
     void SparseVirtualFile::write(t_fpos fpos, const char *data, size_t len) {
         SVF_ASSERT(integrity() == ERROR_NONE);
 #ifdef SVF_THREAD_SAFE
         std::lock_guard<std::mutex> mutex(m_mutex);
 #endif
         // TODO: throw if !data, len == 0
-        // Comments are structures like this where ==== are existing blocks and ++++ is the new block.
-        // ^==== shows where the iterator is pointing to. fpos is the beginning of the ++++ bl.ock.
-        //
-        //       ^===========|    |=====|
-        //  |+++++++++++++++++++++++++++++++++|
-        //
         if (m_svf.empty() || fpos > _last_file_position()) {
             // Simple insert of new data into empty map or a node beyond the end (common case).
             _write(fpos, data, len);
@@ -110,6 +139,31 @@ namespace SVFS {
         SVF_ASSERT(integrity() == ERROR_NONE);
     }
 
+    /**
+     * Write a new block and append existing blocks to it.
+     *
+     * We are in either of these situations.
+     *
+     * @code
+     *      ^===========|  |=====|
+     * |+++++++++++++++++++++|
+     * @endcode
+     * or:
+     * @code
+     *        ^===========|
+     *  |+++++++++++++++++++++|
+     * @endcode
+     * or:
+     * @code
+     *       ^===========|
+     *  |+++++++++++++|
+     * @endcode
+     *
+     * @param fpos The file position of the start of the new block.
+     * @param data The data to write.
+     * @param len The length of the data.
+     * @param iter The iterator of the existing block (\c '^' above).
+     */
     void SparseVirtualFile::_write_new_append_old(t_fpos fpos, const char *data, size_t len, t_map::iterator iter) {
         // We are in either of these situations.
         //       ^===========|  |=====|
@@ -591,7 +645,7 @@ namespace SVFS {
         if (iter == m_svf.end()) {
             std::ostringstream os;
             os << "SparseVirtualFile::erase():";
-            os << " Non-existent file position " << fpos << ".";
+            os << " Non-existent file position " << fpos << " at start of block.";
             throw ExceptionSparseVirtualFileErase(os.str());
         }
         size_t ret = iter->second.size();
