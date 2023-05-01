@@ -285,7 +285,7 @@ def test_SVFS_erase_raises():
         s.erase(ID, 0)
     assert err.value.args[0] == (
         'cp_SparseVirtualFileSystem_svf_erase: Can not erase block from a SVF id= '
-        '"abc". ERROR: SparseVirtualFile::erase(): Non-existent file position 0.'
+        '"abc". ERROR: SparseVirtualFile::erase(): Non-existent file position 0 at start of block.'
     )
 
 

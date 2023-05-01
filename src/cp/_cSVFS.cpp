@@ -57,7 +57,7 @@ private:
 /* Make the class a NOP which should get optimised out. */
 class AcquireLockSVFS {
 public:
-    AcquireLockSVFS(SkipList *) {}
+    AcquireLockSVFS(cp_SparseVirtualFileSystem *) {}
 };
 #endif
 

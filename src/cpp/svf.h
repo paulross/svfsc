@@ -18,9 +18,10 @@
 #endif
 
 #ifdef DEBUG
-// If set then SVF_ASSERT(integrity() == ERROR_NONE); in many places which can extend the runtime by x25 or even more
+/** If set then SVF_ASSERT(integrity() == ERROR_NONE); in many places which can extend the runtime by x25 or even more. */
 #define SVF_ASSERT(x) assert(x)
 #else
+/** Empty definition. */
 #define SVF_ASSERT(x)
 #endif
 
@@ -95,8 +96,8 @@ namespace SVFS {
          * @param mod_time The modification time of the remote file in UNIX seconds, this is used for integrity checking.
          * @param config See \c tSparseVirtualFileConfig above.
          */
-        SparseVirtualFile(const std::string &id, double mod_time,
-                          const tSparseVirtualFileConfig &config = tSparseVirtualFileConfig()) :
+        explicit SparseVirtualFile(const std::string &id, double mod_time,
+                                   const tSparseVirtualFileConfig &config = tSparseVirtualFileConfig()) :
                 m_id(id),
                 m_file_mod_time(mod_time),
                 m_config(config),
@@ -200,6 +201,7 @@ namespace SVFS {
         SparseVirtualFile(SparseVirtualFile &&other) = default;
         SparseVirtualFile& operator=(SparseVirtualFile &&rhs) = default;
 #endif
+
         /// Destruction just clears the internal map.
         ~SparseVirtualFile() { clear(); }
 

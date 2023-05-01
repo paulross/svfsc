@@ -1,3 +1,10 @@
+/** @file
+ * Python wrapper around a C++ SparseVirtualFile.
+ *
+ * Naming convention:
+ *
+ * SVF functions are named cp_SparseVirtualFile_...
+ */
 #include "cp_svfs.h"
 
 #include <ctime>
@@ -9,12 +16,11 @@
 /* TODO: Implement the Buffer Protocol rather than returning a copy of the bytes? Look for PyBytes_FromStringAndSize().
  * */
 
-/**
- * Naming convention:
- *
- * SVF functions are named cp_SparseVirtualFile_...
- */
 
+/**
+ * Python wrapper around a C++ SparseVirtualFile.
+ * If \c PY_THREAD_SAFE is defined then this also contains a mutex.
+ */
 typedef struct {
     PyObject_HEAD
     SVFS::SparseVirtualFile *pSvf;
@@ -30,6 +36,11 @@ typedef struct {
  * */
 class AcquireLockSVF {
 public:
+    /**
+     * Acquire the lock on the Python cp_SparseVirtualFile
+     *
+     * @param pSVF The Python cp_SparseVirtualFile.
+     */
     AcquireLockSVF(cp_SparseVirtualFile *pSVF) : _pSVF(pSVF) {
         assert(_pSVF);
         assert(_pSVF->lock);
@@ -39,6 +50,11 @@ public:
             Py_END_ALLOW_THREADS
         }
     }
+    /**
+     * Release the lock on the Python cp_SparseVirtualFile
+     *
+     * @param pSVF The Python cp_SparseVirtualFile.
+     */
     ~AcquireLockSVF() {
         assert(_pSVF);
         assert(_pSVF->lock);
@@ -48,17 +64,18 @@ private:
     cp_SparseVirtualFile *_pSVF;
 };
 #else
-/* Make the class a NOP which should get optimised out. */
+/** Make the class a NOP which should get optimised out. */
 class AcquireLockSVF {
 public:
-    AcquireLockSVF(SkipList *) {}
+    AcquireLockSVF(cp_SparseVirtualFile *) {}
 };
 #endif
 
-// Function entry point test macro.
-// After construction we expect this invariant at the entry to each function.
-// The cast is necessary when used with functions that take a SVFS as a PyObject* such as
-// cp_SparseVirtualFile_mapping_length
+/** Function entry point test macro.
+ * After construction, we expect this invariant at the entry to each function.
+ * The cast is necessary when used with functions that take a \c SVFS as a \c PyObject* such as
+ * cp_SparseVirtualFile_mapping_length
+ */
 #define ASSERT_FUNCTION_ENTRY_SVF(member) do { \
     assert(self); \
     assert(((cp_SparseVirtualFile *)self)->member); \
@@ -69,6 +86,15 @@ public:
 // Construction and destruction
 #pragma mark Construction and destruction
 
+/**
+ * Python \c __new__() for a \c cp_SparseVirtualFile.
+ * Contents will be \c NULL.
+ *
+ * @param type The cp_SparseVirtualFile type.
+ * @param _unused_args Unused.
+ * @param _unused_kwds Unused.
+ * @return An empty cp_SparseVirtualFile.
+ */
 static PyObject *
 cp_SparseVirtualFile_new(PyTypeObject *type, PyObject *Py_UNUSED(args), PyObject *Py_UNUSED(kwds)) {
     assert(!PyErr_Occurred());
@@ -86,6 +112,14 @@ cp_SparseVirtualFile_new(PyTypeObject *type, PyObject *Py_UNUSED(args), PyObject
     return (PyObject *) self;
 }
 
+/**
+ * Initialise the cp_SparseVirtualFile.
+ *
+ * @param self The cp_SparseVirtualFile.
+ * @param args Order: "id", "mod_time", "overwrite_on_exit", "compare_for_diff".
+ * @param kwargs Can be "id", "mod_time", "overwrite_on_exit", "compare_for_diff".
+ * @return Zero on success, non-zero on failure.
+ */
 static int
 cp_SparseVirtualFile_init(cp_SparseVirtualFile *self, PyObject *args, PyObject *kwargs) {
     assert(!PyErr_Occurred());

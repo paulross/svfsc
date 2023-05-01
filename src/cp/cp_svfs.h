@@ -14,6 +14,7 @@
 #ifdef WITH_THREAD
 
 #include "pythread.h"
+
 #define PY_THREAD_SAFE
 
 #endif

@@ -8,9 +8,20 @@
 #include "svf.h"
 
 namespace SVFS {
-    // Used to overwrite the memory before discarding it.
+    /**
+     * Used to overwrite the memory before discarding it (if required).
+     */
     static const char OVERWRITE_CHAR = '0';
 
+    /**
+     * Returns \c true if this SVF already contains this data.
+     *
+     * If \c false then \c need() can say what exactly is required.
+     *
+     * @param fpos File position.
+     * @param len Read length.
+     * @return \c true if this SVF already contains this data, \c false otherwise.
+     */
     bool SparseVirtualFile::has(t_fpos fpos, size_t len) const noexcept {
         SVF_ASSERT(integrity() == ERROR_NONE);
 #ifdef SVF_THREAD_SAFE
@@ -60,6 +71,14 @@ namespace SVFS {
         }
     }
 
+    /**
+     * Throws a ExceptionSparseVirtualFileDiff with an explanation of the data difference.
+     *
+     * @param fpos File position.
+     * @param data The data.
+     * @param iter The iterator to the block which has different data.
+     * @param index_iter The index into that block where the first data difference starts.
+     */
     void
     SparseVirtualFile::_throw_diff(t_fpos fpos, const char *data, t_map::const_iterator iter, size_t index_iter) const {
         assert(data);
@@ -90,9 +109,23 @@ namespace SVFS {
      * Comments are structures like this where \c ==== are existing blocks and \c ++++ is the new block.
      * \c ^==== shows where the iterator is pointing to. fpos is the beginning of the \c ++++ block.
      *
+     * Notation:
+     *
+     *  -# Means original blocks.
+     *  -# Is new data to be added
+     *  -# Is the result.
+     *
+     *  And the characters mean:
+     *
+     * - \c = Means original data.
+     * - \c + Means new data.
+     * - \c c Means data checked equal (if required).
+     * - \c A Means new data appended or added.
+     *
      * @code
-     *        ^===========|    |=====|
-     * |+++++++++++++++++++++++++++++++++|
+     *      1:       ^===========|    |=====|
+     *      2: |+++++++++++++++++++++++++++++++++|
+     *      3: |AAAAAAcccccccccccAAAAAAcccccAAAAA|
      * @endcode
      *
      * This also updates the write count, the number of bytes written and the last write time.
@@ -133,6 +166,7 @@ namespace SVFS {
                 }
             }
         }
+        // Update internals.
         m_count_write += 1;
         m_bytes_write += len;
         m_time_write = std::chrono::system_clock::now();
@@ -144,19 +178,37 @@ namespace SVFS {
      *
      * We are in either of these situations.
      *
+     * Notation:
+     *
+     *  -# Means original blocks.
+     *  -# Is new data to be added
+     *  -# Is the result.
+     *
+     *  And the characters mean:
+     *
+     * - \c = Means original data.
+     * - \c + Means new data.
+     * - \c c Means data checked equal (if required).
+     * - \c A Means new data appended or added.
+     *
      * @code
-     *      ^===========|  |=====|
-     * |+++++++++++++++++++++|
+     *
+     * @code
+     *      1:     ^===========|  |=====|
+     *      2: |+++++++++++++++++++++|
+     *      3: |AAAAcccccccccccAAAAcc===|
      * @endcode
      * or:
      * @code
-     *        ^===========|
-     *  |+++++++++++++++++++++|
+     *      1:       ^===========|
+     *      2: |+++++++++++++++++++++|
+     *      3: |AAAAAAcccccccccccAAAA|
      * @endcode
      * or:
      * @code
-     *       ^===========|
-     *  |+++++++++++++|
+     *      1:      ^===========|
+     *      2: |+++++++++++++|
+     *      3: |AAAAAcccccccc===|
      * @endcode
      *
      * @param fpos The file position of the start of the new block.
@@ -165,15 +217,6 @@ namespace SVFS {
      * @param iter The iterator of the existing block (\c '^' above).
      */
     void SparseVirtualFile::_write_new_append_old(t_fpos fpos, const char *data, size_t len, t_map::iterator iter) {
-        // We are in either of these situations.
-        //       ^===========|  |=====|
-        //  |+++++++++++++++++++++|
-        // or:
-        //       ^===========|
-        //  |+++++++++++++++++++++|
-        // or:
-        //       ^===========|
-        //  |+++++++++++++|
         SVF_ASSERT(integrity() == ERROR_NONE);
         assert(data);
         assert(len > 0);
@@ -262,9 +305,19 @@ namespace SVFS {
      * From file position, write the new_data to the block identified by base_block_iter.
      * This may involve coalescing existing blocks that follow base_block_iter.
      *
-     * We are in these kind of situations. 1: means original, 2: is new_data to abe added, 3: is the result.
-     * 'c' means checked equal (if required), 'A' means appended::
+     * We are in these kind of situations, notation:
+     *  -# Means original blocks.
+     *  -# Is new data to be added
+     *  -# Is the result.
      *
+     *  And the characters mean:
+     *
+     * - \c = Means original data.
+     * - \c + Means new data.
+     * - \c c Means data checked equal (if required).
+     * - \c A Means new data appended.
+     *
+     * @code
      *      1: ^===========|    |=====|
      *      2: |+++++++++|
      *      3: ^ccccccccc==|    |=====|
@@ -284,6 +337,7 @@ namespace SVFS {
      *      1: ^===========|    |=====|    |=====|
      *      2:    |++++++++++++++++++++++++++|
      *      3: ^===ccccccccAAAAAAcccccAAAAAAc====|
+     * @endcode
      *
      * @param fpos File position of the start of the new new_data.
      * @param new_data The new_data
@@ -385,8 +439,14 @@ namespace SVFS {
         SVF_ASSERT(integrity() == ERROR_NONE);
     }
 
-// Read data and write to the buffer provided by the caller.
-// It is up to the caller to make sure that p can contain len chars.
+    /**
+     * Read data and write to the buffer provided by the caller.
+     * This is the const method as it does not update the internals.
+     *
+     * @param fpos File position to start the read.
+     * @param len Length of the read.
+     * @param p Buffer to copy the data into. It is up to the caller to make sure that p can contain len chars.
+     */
     void SparseVirtualFile::_read(t_fpos fpos, size_t len, char *p) const {
 #ifdef SVF_THREAD_SAFE
         std::lock_guard<std::mutex> mutex(m_mutex);
@@ -428,6 +488,14 @@ namespace SVFS {
         }
     }
 
+    /**
+     * Read data and write to the buffer provided by the caller.
+     * This also updated the non-const members.
+     *
+     * @param fpos File position to start the read.
+     * @param len Length of the read.
+     * @param p Buffer to copy the data into. It is up to the caller to make sure that p can contain len chars.
+     */
     void SparseVirtualFile::read(t_fpos fpos, size_t len, char *p) {
         _read(fpos, len, p);
         // Adjust non-const members
@@ -436,6 +504,14 @@ namespace SVFS {
         m_time_read = std::chrono::system_clock::now();
     }
 
+    /**
+     * Given a file position and a length what data do I need that I don't yet have?
+     *
+     * @param fpos File position at the start of the attempted read.
+     * @param len Length of the attemptedf read.
+     * @param greedy_length If present this makes greedy reads, fewer but larger.
+     * @return A vector of pairs (file_position, length) that this SVF needs.
+     */
     t_seek_reads SparseVirtualFile::need(t_fpos fpos, size_t len, size_t greedy_length) const noexcept {
         SVF_ASSERT(integrity() == ERROR_NONE);
 #ifdef SVF_THREAD_SAFE
@@ -527,6 +603,13 @@ namespace SVFS {
         return ret;
     }
 
+    /**
+     * Returns the maximal length to read.
+     *
+     * @param iter The current block.
+     * @param greedy_length The greed length read.
+     * @return Maximal read value.
+     */
     size_t SparseVirtualFile::_amount_to_read(t_seek_read iter, size_t greedy_length) noexcept {
         return iter.second > greedy_length ? iter.second : greedy_length;
     }
@@ -564,6 +647,11 @@ namespace SVFS {
     }
 
 
+    /**
+     * Returns a description of the current blocks as a vector of (file_position, length).
+     *
+     * @return The currently held blocks.
+     */
     t_seek_reads SparseVirtualFile::blocks() const noexcept {
         SVF_ASSERT(integrity() == ERROR_NONE);
 #ifdef SVF_THREAD_SAFE
@@ -577,6 +665,12 @@ namespace SVFS {
         return ret;
     }
 
+    /**
+     * The length of the block at a specific file position.
+     * This will throw a ExceptionSparseVirtualFileRead if the file position is not in the block entries.
+     * @param fpos File position, this must be at the start of a block.
+     * @return The block size.
+     */
     size_t SparseVirtualFile::block_size(t_fpos fpos) const {
 #ifdef SVF_THREAD_SAFE
         std::lock_guard<std::mutex> mutex(m_mutex);
@@ -584,7 +678,7 @@ namespace SVFS {
         SVF_ASSERT(integrity() == ERROR_NONE);
 
         if (m_svf.empty()) {
-            throw ExceptionSparseVirtualFileRead("SparseVirtualFile::read(): Sparse virtual file is empty.");
+            throw ExceptionSparseVirtualFileRead("SparseVirtualFile::block_size(): Sparse virtual file is empty.");
         }
         t_map::const_iterator iter = m_svf.find(fpos);
         if (iter == m_svf.end()) {
@@ -596,6 +690,11 @@ namespace SVFS {
         return iter->second.size();
     }
 
+    /**
+     * Returns the total memory usage of this SVF.
+     *
+     * @return Memory used.
+     */
     size_t SparseVirtualFile::size_of() const noexcept {
         SVF_ASSERT(integrity() == ERROR_NONE);
 #ifdef SVF_THREAD_SAFE
@@ -613,7 +712,14 @@ namespace SVFS {
         return ret;
     }
 
-// m_coalesce, m_file_mod_time are unchanged.
+    /**
+     * Clears this Sparse Virtual File.
+     * This removes all data and resets the internal counters.
+     *
+     * NOTE: m_coalesce, m_file_mod_time are maintained.
+     *
+     * NOTE: m_time_write, m_time_read are maintained.
+     */
     void SparseVirtualFile::clear() noexcept {
         SVF_ASSERT(integrity() == ERROR_NONE);
 #ifdef SVF_THREAD_SAFE
@@ -636,6 +742,13 @@ namespace SVFS {
         SVF_ASSERT(integrity() == ERROR_NONE);
     }
 
+    /**
+     * Remove a particular block.
+     * This will raise an ExceptionSparseVirtualFileErase if the file position is not exactly at the start of a block.
+     *
+     * @param fpos File position of the start of the block.
+     * @return Size of the block that was removed.
+     */
     size_t SparseVirtualFile::erase(t_fpos fpos) {
         SVF_ASSERT(integrity() == ERROR_NONE);
 #ifdef SVF_THREAD_SAFE
@@ -654,6 +767,18 @@ namespace SVFS {
         return ret;
     }
 
+    /**
+     * Internal integrity check.
+     * This checks for these error conditions:
+     *
+     * - Empty block.
+     * - Duplicate block.
+     * - Adjacent blocks.
+     * - Overlapping blocks.
+     * - Byte count missmatch.
+     *
+     * @return An error condition or \c ERROR_NONE if the integrity is correct.
+     */
     SparseVirtualFile::ERROR_CONDITION
     SparseVirtualFile::integrity() const noexcept {
         t_fpos prev_fpos;
@@ -687,8 +812,12 @@ namespace SVFS {
         return ERROR_NONE;
     }
 
-    /// Returns the largest possible file position known so far.
-    /// Of course this is not the EOF position as we may not have been offered that yet.
+    /**
+     * Returns the largest possible file position known so far.
+     * Of course this is not the EOF position as we may not have been offered that yet.
+     *
+     * @return The last know file position.
+     */
     t_fpos
     SparseVirtualFile::last_file_position() const noexcept {
         SVF_ASSERT(integrity() == ERROR_NONE);
@@ -704,8 +833,12 @@ namespace SVFS {
         }
     }
 
-    /// Returns the largest possible file position known so far.
-    /// Of course this is not the EOF position as we may not have been offered that yet.
+    /**
+     * Returns the largest possible file position known so far.
+     * Of course this is not the EOF position as we may not have been offered that yet.
+     *
+     * @return The last know file position.
+     */
     t_fpos
     SparseVirtualFile::_last_file_position() const noexcept {
         if (m_svf.empty()) {
@@ -717,6 +850,12 @@ namespace SVFS {
         }
     }
 
+    /**
+     * Returns the largest possible file position for a particular iterator.
+     *
+     * @param iter The iterator to the block.
+     * @return Last known file position.
+     */
     t_fpos
     SparseVirtualFile::_last_file_pos_for_block(t_map::const_iterator iter) const noexcept {
         // NOTE: do not SVF_ASSERT(integrity() == ERROR_NONE); as integrity() calls this so infinite recursion.

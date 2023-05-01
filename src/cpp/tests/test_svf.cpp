@@ -1051,19 +1051,19 @@ namespace SVFS {
 
 
     const std::vector<TestCaseEraseThrows> erase_test_cases_throw = {
-            {"Erase empty SVF throws",      {},       8, "SparseVirtualFile::erase(): Non-existent file position 8."},
+            {"Erase empty SVF throws",      {},       8, "SparseVirtualFile::erase(): Non-existent file position 8 at start of block."},
             //        ^==|
             //  |++|
             {"Erase before block throws",   {{8, 4}}, 2,
-                                                         "SparseVirtualFile::erase(): Non-existent file position 2."},
+                                                         "SparseVirtualFile::erase(): Non-existent file position 2 at start of block."},
             //        ^==|
             //       |++|
             {"Erase within a block throws", {{8, 4}}, 9,
-                                                         "SparseVirtualFile::erase(): Non-existent file position 9."},
+                                                         "SparseVirtualFile::erase(): Non-existent file position 9 at start of block."},
             //        ^==|
             //             |++|
             {"Erase beyond end throws",     {{8, 4}}, 12,
-                                                         "SparseVirtualFile::erase(): Non-existent file position 12."},
+                                                         "SparseVirtualFile::erase(): Non-existent file position 12 at start of block."},
     };
 
 

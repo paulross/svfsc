@@ -19,7 +19,7 @@
 
 namespace SVFS {
 
-    // Exception specialisation for the SparseVirtualFile.
+    /** Exception specialisation for the SparseVirtualFileSystem. */
     class ExceptionSparseVirtualFileSystem : public std::exception {
     public:
         explicit ExceptionSparseVirtualFileSystem(const std::string &in_msg) : msg(in_msg) {}
@@ -30,26 +30,34 @@ namespace SVFS {
         std::string msg;
     };
 
+    /** Exception specialisation for out of range error. */
     class ExceptionSparseVirtualFileSystemOutOfRange : public ExceptionSparseVirtualFileSystem {
     public:
         explicit ExceptionSparseVirtualFileSystemOutOfRange(const std::string &msg) : ExceptionSparseVirtualFileSystem(
                 msg) {}
     };
 
+    /** Exception specialisation on insert error. */
     class ExceptionSparseVirtualFileSystemInsert : public ExceptionSparseVirtualFileSystem {
     public:
         explicit ExceptionSparseVirtualFileSystemInsert(const std::string &msg) : ExceptionSparseVirtualFileSystem(
                 msg) {}
     };
 
+    /** Exception specialisation on remove error. */
     class ExceptionSparseVirtualFileSystemRemove : public ExceptionSparseVirtualFileSystem {
     public:
         explicit ExceptionSparseVirtualFileSystemRemove(const std::string &msg) : ExceptionSparseVirtualFileSystem(
                 msg) {}
     };
 
+    /**
+     * A SparseVirtualFileSystem is a key/value stor where the key is a file ID as a string and the value is a
+     * SparseVirtualFile.
+     */
     class SparseVirtualFileSystem {
     public:
+        /** Constructor takes a tSparseVirtualFileConfig that is passed to every new SparseVirtualFile */
         explicit SparseVirtualFileSystem(const tSparseVirtualFileConfig &config = tSparseVirtualFileConfig()) : \
             m_config(config) {}
 
@@ -63,7 +71,7 @@ namespace SVFS {
         [[nodiscard]] const SparseVirtualFile &at(const std::string &id) const;
 
         // May raise an ExceptionSparseVirtualFileSystemOutOfRange
-        SparseVirtualFile &at(const std::string &id);
+        [[nodiscard]] SparseVirtualFile &at(const std::string &id);
 
         // Has an SVF
         [[nodiscard]] bool has(const std::string &id) const noexcept { return m_svfs.find(id) != m_svfs.end(); }
@@ -83,9 +91,10 @@ namespace SVFS {
         // All the SVF IDs.
         [[nodiscard]] std::vector<std::string> keys() const noexcept;
 
-        // Eliminate copying.
+        /// Eliminate copying.
         SparseVirtualFileSystem(const SparseVirtualFileSystem &rhs) = delete;
 
+        /// Eliminate copying.
         SparseVirtualFileSystem operator=(const SparseVirtualFileSystem &rhs) = delete;
 
         ~SparseVirtualFileSystem() noexcept;

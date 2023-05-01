@@ -238,7 +238,7 @@ def test_SVF_erase(blocks, erase_fpos):
                     ((12, b' '),),
                     0,
                     'cp_SparseVirtualFile_erase()#406: Can not erase from a SVF. ERROR:'
-                    ' SparseVirtualFile::erase(): Non-existent file position 0.',
+                    ' SparseVirtualFile::erase(): Non-existent file position 0 at start of block.',
             ),
 
     ),
