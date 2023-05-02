@@ -19,6 +19,27 @@ Any write to an ``SVF`` will coalesce those blocks where possible.
 ``svfs`` is written in C++ with a Python interface.
 It is thread safe in both domains.
 
+Conceptually a SVFS might be used like this; the user requests some data from a remote file (for example TIFF metadata)
+from a Parser (that knows the TIFF structure).
+The Parser consults the SVFS, if the SVFS has the data the Parser parses it and returns the results to
+the user.
+If the SVFS does not have the data then the Parser consults the SVFS for what data is needed, issues the
+appropriate GET request(s) to the server, loads that data into the SVFS, then parses it as before and returns the
+results to the user.
+
+.. code-block:: console
+
+                CLIENT SIDE           |             SERVER SIDE
+                                      .
+    /------\      /--------\          |             /--------\
+    | User | <--> | Parser | <-- GET(fpos, len) --> | Server |
+    \------/      \--------/          |             \--------/
+                       |              .                  |
+                       |              |                  |
+                  /--------\          .           /-------------\
+                  |  SVFS  |          |           | File System |
+                  \--------/          .           \-------------/
+
 Example Python Usage
 ======================
 
