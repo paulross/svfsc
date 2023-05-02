@@ -138,7 +138,7 @@ For example an ``SVF`` with these ``{file_position, length}`` blocks:
 
     ((8,  4), (16, 4), (32, 4))
 
-Requesting 64 bytes from file position 8 gives this minimal block set by ``need(8, 40)``:
+Requesting 40 bytes from file position 8 gives this minimal block set by ``need(8, 40)``:
 
 .. code-block:: text
 

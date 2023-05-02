@@ -30,6 +30,7 @@ typedef struct {
 } cp_SparseVirtualFile;
 
 #ifdef PY_THREAD_SAFE
+
 /**
  * A RAII wrapper around the PyThread_type_lock.
  * See https://pythonextensionpatterns.readthedocs.io/en/latest/thread_safety.html
@@ -50,6 +51,7 @@ public:
             Py_END_ALLOW_THREADS
         }
     }
+
     /**
      * Release the lock on the Python cp_SparseVirtualFile
      *
@@ -60,9 +62,11 @@ public:
         assert(_pSVF->lock);
         PyThread_release_lock(_pSVF->lock);
     }
+
 private:
     cp_SparseVirtualFile *_pSVF;
 };
+
 #else
 /** Make the class a NOP which should get optimised out. */
 class AcquireLockSVF {
@@ -153,22 +157,26 @@ cp_SparseVirtualFile_init(cp_SparseVirtualFile *self, PyObject *args, PyObject *
     return 0;
 }
 
+/**
+ * Deallocate the SparseVirtualFile.
+ * @param self The Python SparseVirtualFile.
+ */
 static void
 cp_SparseVirtualFile_dealloc(cp_SparseVirtualFile *self) {
+    delete self->pSvf;
 #ifdef PY_THREAD_SAFE
     if (self->lock) {
         PyThread_free_lock(self->lock);
         self->lock = NULL;
     }
 #endif
-    delete self->pSvf;
     Py_TYPE(self)->tp_free((PyObject *) self);
 }
 
 // END: Construction and destruction
 #pragma mark END: Construction and destruction
 
-/* If you are interested this is a way that you can trace the input. */
+/** If you are interested this is a way that you can trace the input. */
 #define TRACE_SELF_ARGS_KWARGS \
     PyObject_Print(self, stdout, Py_PRINT_RAW); \
     fprintf(stdout, "\n"); \
@@ -192,7 +200,7 @@ cp_SparseVirtualFile_id(cp_SparseVirtualFile *self) {
     PyObject * ret = NULL;
     ret = PyUnicode_FromKindAndData(PyUnicode_1BYTE_KIND, self->pSvf->id().c_str(), self->pSvf->id().size());
     if (!ret) {
-        PyErr_Format(PyExc_RuntimeError, "%s: Can create id for %s", __FUNCTION__, self->pSvf->id().c_str());
+        PyErr_Format(PyExc_RuntimeError, "%s: Can not create id for %s", __FUNCTION__, self->pSvf->id().c_str());
         goto except;
     }
     assert(!PyErr_Occurred());

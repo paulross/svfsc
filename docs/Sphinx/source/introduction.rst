@@ -59,7 +59,7 @@ For example:
 .. code-block:: python
 
         if not svf.has_data(file_position, length):
-            for read_position, read_length in svf.need(position, length):
+            for read_position, read_length in svf.need(file_position, length):
                 # Somehow get data as a bytes object at (read_position, read_length)...
                 svf.write(read_position, data)
         # Now read directly
