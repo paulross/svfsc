@@ -6,26 +6,47 @@ Somtimes you don't need the whole file.
 Sometimes you don't *want* the whole file.
 Especially if it is huge and on some remote server.
 But, you might know what parts of the file that you want and ``svfs`` can help you store them locally so it looks
-*as if* you have access to the complete file, or the pieces of interest.
-``svfs`` is targeted at reading very large binary files such as TIFF, RP66V1, HDM5 where the structure is well known.
+*as if* you have access to the complete file but with just the pieces of interest.
 
-``svfs`` implements a *Sparse Virtual File System*.
+``svfs`` is targeted at reading very large binary files such as TIFF, RP66V1, HDF5 where the structure is well known.
+For example you might want to parse a TIFF file for its metadata or a particular image tile which is usually a tiny
+fraction of the file itself.
+
+``svfs`` implements a *Sparse Virtual File System* which is a system of *Sparse Virtual File* s.
 This is a specialised cache where a particular file might not be available but *parts of it can be obtained* without
-reading the whole thing.
-
-A ``SVF`` is represented internally as a map off blocks of data with their file offsets.
+reading the whole thing. A Sparse Virtual File (``SVF`` ) is represented internally as a map of blocks of data with
+their file offsets.
 Any write to an ``SVF`` will coalesce those blocks where possible.
+A Sparse Virtual File System (``SVFS``) is a key/value store where the key is a file ID and the value an ``SVF``.
 
 ``svfs`` is written in C++ with a Python interface.
 It is thread safe in both domains.
 
-Conceptually a SVFS might be used like this; the user requests some data from a remote file (for example TIFF metadata)
-from a Parser (that knows the TIFF structure).
+Conceptually a SVFS might be used like this; the user requests some data (for example TIFF metadata) from a local or
+remote file from a Parser that, in this example, knows the TIFF structure.
 The Parser consults the SVFS, if the SVFS has the data the Parser parses it and returns the results to
 the user.
-If the SVFS does not have the data then the Parser consults the SVFS for what data is needed, issues the
-appropriate GET request(s) to the server, loads that data into the SVFS, then parses it as before and returns the
+If the SVFS does *not* have the data then the Parser consults the SVFS for what data is needed, issues the
+appropriate ``read()`` to the local file system or GET request(s) to the remote server.
+That data is then loaded into the SVFS, then the parser parses it as before and returns the
 results to the user.
+
+Here is a conceptual example of an ``SVFS`` running on a local file system.
+
+.. code-block:: console
+
+                CLIENT SIDE           |             LOCAL FILE SYSTEM
+                                      .
+    /------\      /--------\          |              /-------------\
+    | User | <--> | Parser | <-- read(fpos, len) --> | File System |
+    \------/      \--------/          |              \-------------/
+                       |              .
+                       |              |
+                  /--------\          .
+                  |  SVFS  |          |
+                  \--------/          .
+
+Here is a conceptual example of an ``SVFS`` running with a remote file system.
 
 .. code-block:: console
 

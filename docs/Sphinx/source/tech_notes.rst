@@ -172,14 +172,53 @@ Here is the read time using different ``greedy_length`` values:
 
 .. image:: ../../plots/greedy_length_synthetic.png
 
-The second example is all the seek read operations to get all the TIFF metadata from the open-slide test image
-CMU-1.tiff (a 204 MB compressed file):
+The second example is all the seek read operations to get all the TIFF metadata from selected TIFF files:
 
-.. image:: ../../plots/greedy_length_tiff.png
+.. list-table:: Selected TIFF Files
+    :align: center
+    :widths: 50 25 25
+    :header-rows: 1
 
-The minor drawback is that more bytes are read than strictly necessary. With ``greedy_length=0`` the minimal byte set is
-99,713 bytes total. With a ``greedy_length=32,768`` the total number of bytes read is 306,256.
-This is about 10x the minimal read but still about 1/700 of the original file.
+    * - File
+      - File Size (Mb)
+      - File Events
+    * - CMU-1.tiff
+      - 194.7
+      - 62,615
+    * - TUPAC-TR-001.svs
+      - 2,145.6
+      - 1,051,242
+    * - TUPAC-TR-002.svs
+      - 657.2
+      - 84,845
+    * - TUPAC-TR-003.svs
+      - 563.3
+      - 59,936
+    * - TUPAC-TR-004.svs
+      - 744.2
+      - 291,302
+    * - TUPAC-TR-005.svs
+      - 954.5
+      - 176,754
+    * - TUPAC-TR-006.svs
+      - 945.3
+      - 254,948
+
+.. image:: ../../plots/py_sim_greedy.png
+
+The performance improvement is because ``SVF.has()`` is far more likely to succeed at larger ``greedy_length`` values.
+Here are some file examples with the count of cache hits (``SVF.has()`` succeeds) and cache misses (``SVF.has()`` fails).
+
+.. image:: ../../plots/py_sim_greedy_hits_misses.png
+
+The minor drawback is that more bytes are read than strictly necessary.
+For example with CMU-1.tiff and ``greedy_length=0`` the minimal byte set is
+256,566 bytes total. With a ``greedy_length=131,072`` the total number of bytes read is 1,179,648.
+This is about 4x the minimal read but still about 1/200 of the original file.
+
+Here are examples off the total amount of data read for different ``greedy_length`` values (NOTE: linear scale):
+
+.. image:: ../../plots/py_sim_greedy_overhead.png
 
 Running the Simulator
 ---------------------

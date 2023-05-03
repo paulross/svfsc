@@ -83,6 +83,7 @@ class Client:
         has_hits = has_misses = 0
         minimal_bytes = 0
         for fpos_demand, length_demand in seek_reads:
+            minimal_bytes += length_demand
             blocks = [f'({fpos:,d} : {length:,d} : {fpos + length:,d})' for fpos, length in svf.blocks()]
             logger.debug('CLIENT:  blocks was: %s', blocks)
             logger.debug(
@@ -94,7 +95,6 @@ class Client:
                 time_svf_start = time.perf_counter()
                 need = svf.need(fpos_demand, length_demand, greedy_length)
                 time_svf += time.perf_counter() - time_svf_start
-                minimal_bytes += length_demand
                 logger.debug(f'CLIENT:    need {need}')
                 for fpos, length in need:
                     logger.debug(f'CLIENT:    need fpos {fpos:16,d} length {length:6,d} ({fpos + length:16,d})')
@@ -166,10 +166,10 @@ def run(
         events: typing.Tuple[typing.Tuple[int, int], ...],
         greedy_length: int,
         latency_s: float, bandwidth_bit_ps: float,
-        seek_rate_byte_per_s: float, read_rate_byte_per_s: float,
+        seek_rate_byte_per_s: float, read_rate_byte_per_s: float, realtime: bool
 ) -> RunResult:
-    comms = Communications(latency_s, bandwidth_bit_ps)
-    server = Server(seek_rate_byte_per_s, read_rate_byte_per_s)
+    comms = Communications(latency_s, bandwidth_bit_ps, realtime=realtime)
+    server = Server(seek_rate_byte_per_s, read_rate_byte_per_s, realtime=realtime)
     client = Client(comms, server)
     return client.run(events, greedy_length)
 
@@ -195,6 +195,8 @@ def main():
                             ' [default: %(default)d]'
                         )
                         )
+    parser.add_argument('--realtime', action="store_true", default=False,
+                        help='Run in realtime (may be slow). [default: %(default)d]')
     args = parser.parse_args()
     # print('Args:', args)
     logging.basicConfig(level=args.log_level, format=LOG_FORMAT_NO_PROCESS, stream=sys.stdout)
@@ -211,17 +213,19 @@ def main():
             greedy_length = 0
             # for greedy_length in (1024,):
             # for greedy_length in range(0, 1024 + 32, 32):
-            while greedy_length <= 2048 * 4 * 4:
+            while greedy_length <= 2048 * 4 * 4 * 4:
                 logger.info('Running %s with %d file actions and greedy_length %d', name,
                             len(sim_examples.EXAMPLE_FILE_POSITIONS_LENGTHS[name]), greedy_length)
                 result = run(
                     sim_examples.EXAMPLE_FILE_POSITIONS_LENGTHS[name], greedy_length,
-                    args.latency / 1000, args.bandwidth * 1e6, args.seek_rate * 1e6, args.read_rate * 1e6
+                    args.latency / 1000, args.bandwidth * 1e6, args.seek_rate * 1e6, args.read_rate * 1e6, args.realtime
                 )
                 if name not in results_time:
                     results_time[name] = []
                 results_time[name].append((greedy_length, result))
                 if greedy_length == 0:
+                    greedy_length = 1
+                elif greedy_length == 1:
                     greedy_length = 16
                 else:
                     greedy_length *= 2
@@ -230,7 +234,7 @@ def main():
                         len(sim_examples.EXAMPLE_FILE_POSITIONS_LENGTHS[name]), args.greedy_length)
             result = run(
                 sim_examples.EXAMPLE_FILE_POSITIONS_LENGTHS[name], args.greedy_length,
-                args.latency / 1000, args.bandwidth * 1e6, args.seek_rate * 1e6, args.read_rate * 1e6
+                args.latency / 1000, args.bandwidth * 1e6, args.seek_rate * 1e6, args.read_rate * 1e6, args.realtime
             )
             if name not in results_time:
                 results_time[name] = []
