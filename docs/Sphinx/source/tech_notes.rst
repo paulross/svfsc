@@ -158,7 +158,7 @@ seek/read times and writing data to a ``SVF``. The default configuration is:
 
 - Network latency (each way): 10 milliseconds.
 - Network bandwidth: 50 million bits per second.
-- Server seek speed: 1000 million bytes per second.
+- Server seek speed: 10 giga bytes per second.
 - Server read speed: 50 million bytes per second.
 
 The simulator can also take a ``greedy-length`` argument which allows you to tune your GET requests.
@@ -176,38 +176,39 @@ The second example is all the seek read operations to get all the TIFF metadata 
 
 .. list-table:: Selected TIFF Files
     :align: center
-    :widths: 50 25 25
+    :widths: 25 25 25
     :header-rows: 1
 
     * - File
       - File Size (Mb)
-      - File Events
+      - File ``seek()/read()`` Events
     * - CMU-1.tiff
-      - 194.7
+      - 195
       - 62,615
     * - TUPAC-TR-001.svs
-      - 2,145.6
+      - 2,146
       - 1,051,242
     * - TUPAC-TR-002.svs
-      - 657.2
+      - 657
       - 84,845
     * - TUPAC-TR-003.svs
-      - 563.3
+      - 563
       - 59,936
     * - TUPAC-TR-004.svs
-      - 744.2
+      - 744
       - 291,302
     * - TUPAC-TR-005.svs
-      - 954.5
+      - 955
       - 176,754
     * - TUPAC-TR-006.svs
-      - 945.3
+      - 945
       - 254,948
 
 .. image:: ../../plots/images/py_sim_greedy.png
 
 The performance improvement is because ``SVF.has()`` is far more likely to succeed at larger ``greedy_length`` values.
-Here are some file examples with the count of cache hits (``SVF.has()`` succeeds) and cache misses (``SVF.has()`` fails).
+Here are some file examples with the count of cache hits (``SVF.has()`` succeeds) and cache misses (``SVF.has()`` fails)
+for different ``greedy_length`` values.
 
 .. image:: ../../plots/images/py_sim_greedy_hits_misses.png
 
