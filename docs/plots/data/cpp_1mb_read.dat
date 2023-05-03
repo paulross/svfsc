@@ -1,0 +1,15 @@
+# Read 1Mb of test_data_bytes_512 in different, equally sized, blocks that are not coalesced and report the time taken.
+# The last line is to read from a single 1Mb coalesced block.
+# $1   $2 $3 $4                                                                $5              $6               $7              $8             $9  $10
+# Size Function                                                                ----           Bytes              ms           ms/Mb            Mb/s Test
+1   TestCount SVFS::test_perf_read_1M_un_coalesced(t_test_results &)           pass         1048576      131.941393         131.941             7.6 1Mb 1 byte blocks 1048576 blocks
+2   TestCount SVFS::test_perf_read_1M_un_coalesced(t_test_results &)           pass         1048576       64.329339          64.329            15.5 1Mb 2 byte blocks 524288 blocks
+4   TestCount SVFS::test_perf_read_1M_un_coalesced(t_test_results &)           pass         1048576       34.570779          34.571            28.9 1Mb 4 byte blocks 262144 blocks
+8   TestCount SVFS::test_perf_read_1M_un_coalesced(t_test_results &)           pass         1048576       16.532396          16.532            60.5 1Mb 8 byte blocks 131072 blocks
+16  TestCount SVFS::test_perf_read_1M_un_coalesced(t_test_results &)           pass         1048576        8.589121           8.589           116.4 1Mb 16 byte blocks 65536 blocks
+32  TestCount SVFS::test_perf_read_1M_un_coalesced(t_test_results &)           pass         1048576        4.016583           4.017           249.0 1Mb 32 byte blocks 32768 blocks
+64  TestCount SVFS::test_perf_read_1M_un_coalesced(t_test_results &)           pass         1048576        2.331843           2.332           428.8 1Mb 64 byte blocks 16384 blocks
+128 TestCount SVFS::test_perf_read_1M_un_coalesced(t_test_results &)           pass         1048576        1.038771           1.039           962.7 1Mb 128 byte blocks 8192 blocks
+256 TestCount SVFS::test_perf_read_1M_un_coalesced(t_test_results &)           pass         1048576        0.830508           0.831          1204.1 1Mb 256 byte blocks 4096 blocks
+512 TestCount SVFS::test_perf_read_1M_un_coalesced(t_test_results &)           pass         1048576        0.459928           0.460          2174.3 1Mb 512 byte blocks 2048 blocks
+1e6 TestCount SVFS::test_perf_read_1M_coalesced(t_test_results &)              pass         1048576        0.675800           0.676          1479.7 1Mb of 256 bytes in one block

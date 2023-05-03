@@ -1,0 +1,21 @@
+# Results from the simulator on EXAMPLE_FILE_POSITIONS_LENGTHS_TIFF_CMU_1
+# This is seek read operations to get all the TIFF metadata from the open-slide test image CMU-1.tiff
+# Simulator setup:
+#  Network latency 10.000 (ms) bandwidth 50.000 (M bits/s)
+#  Server seek rate 1000.000 (M bytes/s) read rate 50.000 (M bytes/s)
+# EXAMPLE_FILE_POSITIONS_LENGTHS_SYNTHETIC:
+# This has 32 bytes of data every 64 bytes over a size of 20480.
+# greedy_length   Time(ms)     Hits     Miss    Hits%
+0     7283.2        0      320   0.000%
+16     7380.1        0      320   0.000%
+32     7362.5        0      320   0.000%
+64     7262.0        0      320   0.000%
+128     3646.0      160      160  50.000%
+256     1812.5      240       80  75.000%
+512      919.8      280       40  87.500%
+1024      455.5      300       20  93.750%
+2048      238.7      310       10  96.875%
+4096      120.0      315        5  98.438%
+8192       80.9      317        3  99.062%
+16384       52.7      318        2  99.375%
+32768       33.2      319        1  99.688%
