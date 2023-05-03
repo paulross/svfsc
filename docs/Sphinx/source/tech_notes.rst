@@ -170,7 +170,7 @@ Some pre-built simulation requests are in ``cpy/sim_example.py``:
 
 Here is the read time using different ``greedy_length`` values:
 
-.. image:: ../../plots/greedy_length_synthetic.png
+.. image:: ../../plots/images/greedy_length_synthetic.png
 
 The second example is all the seek read operations to get all the TIFF metadata from selected TIFF files:
 
@@ -204,12 +204,12 @@ The second example is all the seek read operations to get all the TIFF metadata 
       - 945.3
       - 254,948
 
-.. image:: ../../plots/py_sim_greedy.png
+.. image:: ../../plots/images/py_sim_greedy.png
 
 The performance improvement is because ``SVF.has()`` is far more likely to succeed at larger ``greedy_length`` values.
 Here are some file examples with the count of cache hits (``SVF.has()`` succeeds) and cache misses (``SVF.has()`` fails).
 
-.. image:: ../../plots/py_sim_greedy_hits_misses.png
+.. image:: ../../plots/images/py_sim_greedy_hits_misses.png
 
 The minor drawback is that more bytes are read than strictly necessary.
 For example with CMU-1.tiff and ``greedy_length=0`` the minimal byte set is
@@ -218,7 +218,7 @@ This is about 4x the minimal read but still about 1/200 of the original file.
 
 Here are examples off the total amount of data read for different ``greedy_length`` values (NOTE: linear scale):
 
-.. image:: ../../plots/py_sim_greedy_overhead.png
+.. image:: ../../plots/images/py_sim_greedy_overhead.png
 
 Running the Simulator
 ---------------------

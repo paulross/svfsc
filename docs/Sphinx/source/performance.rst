@@ -16,7 +16,7 @@ In the extreme right the data is coalesced into a single one Megabyte block.
 
 The y axis shows the time to read all blocks.
 
-.. image:: ../../plots/cpp_1mb_read.png
+.. image:: ../../plots/images/cpp_1mb_read.png
 
 The one byte case corresponds to 7.6 MB/s, the 512 bytes case corresponds to 2,170 MB/s, the single 1MB block case
 corresponds to 1,480 MB/s.
@@ -29,7 +29,7 @@ Total bytes written around 1Mb.
 Blocks are 800 bytes apart.
 There are 238,310 blocks.
 
-.. image:: ../../plots/cpp_need.png
+.. image:: ../../plots/images/cpp_need.png
 
 This shows good linear performance.
 
@@ -41,7 +41,7 @@ This show the performance of writing 1MB of data to a ``SVF`` in two ways:
 - Each write is contiguous with a previous one so the blocks are always coalesced. The ``SVF`` always contains only one block.
 - Each write is *not* contiguous with a previous one so the blocks are *never* coalesced. The ``SVF`` eventually contains as many blocks as writes.
 
-.. image:: ../../plots/cpp_1mb_write.png
+.. image:: ../../plots/images/cpp_1mb_write.png
 
 In the case of storing 1M one byte blocks the ``SVF`` consumes 34,603,192 bytes of memory, so x33.
 In the case of a 256 byte block size the ``SVF`` consumes 1,179,832 bytes of memory, just a 12.5% premium.
@@ -62,7 +62,7 @@ This test writes/overwrites a 1MB file with 8 bytes writes.
 In the coalesced case these writes are all to one block.
 In the un-coalesced case these writes are all to multiple (1024 * 1024 / 8) blocks.
 
-.. image:: ../../plots/cpp_write_multithreaded.png
+.. image:: ../../plots/images/cpp_write_multithreaded.png
 
 Python Performance
 ==================
@@ -76,7 +76,7 @@ In the extreme right the data is coalesced into a single one Megabyte block.
 
 The y axis shows the time to read all blocks.
 
-.. image:: ../../plots/py_read_uncoalesced.png
+.. image:: ../../plots/images/py_read_uncoalesced.png
 
 The Python performance is about 5x compared to C++ for the one byte case and nearly equal to C++ for the large block cases.
 
@@ -88,7 +88,7 @@ This show the performance of writing 1MB of data to a ``SVF`` in two ways:
 - Each write is contiguous with a previous one so the blocks are always coalesced. The ``SVF`` always contains only one block.
 - Each write is *not* contiguous with a previous one so the blocks are *never* coalesced. The ``SVF`` eventually contains as many blocks as writes.
 
-.. image:: ../../plots/py_write.png
+.. image:: ../../plots/images/py_write.png
 
 The Python performance is about 3x compared to C++ for the one byte case and nearly equal to C++ for the large block cases.
 
@@ -102,6 +102,6 @@ This test writes/overwrites a 1MB file with 8 bytes writes.
 In the coalesced case these writes are all to one block.
 In the un-coalesced case these writes are all to multiple (1024 * 1024 / 8) blocks.
 
-.. image:: ../../plots/py_multi_threaded_write.png
+.. image:: ../../plots/images/py_multi_threaded_write.png
 
 The result is quite different from the C++ result given above.

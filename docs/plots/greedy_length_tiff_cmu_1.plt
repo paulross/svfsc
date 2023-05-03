@@ -22,16 +22,16 @@ set pointsize 1
 set datafile separator whitespace
 # Curve fit
 #cost(x) = a + (b / (x/1024))
-#fit cost(x) "perf_size_of.dat" using 1:2 via a,b
+#fit cost(x) "data/perf_size_of.dat" using 1:2 via a,b
 
 set key right
 #set key off
 
 set terminal png size 800,500           # choose the file format
 
-set output "greedy_length_tiff_cmu_1.png"   # choose the output device
+set output "images/greedy_length_tiff_cmu_1.png"   # choose the output device
 
-plot "greedy_length_tiff_cmu_1.dat" using ($1 / 1024):($2 / 1000) t "Time to Read TIFF Metadata (left axis)." with linespoints axes x1y1 pt 3 lw 2, \
-    "greedy_length_tiff_cmu_1.dat" using ($1 / 1024):4 t "Cache Misses (right axis)." with linespoints axes x1y2 pt 3 lw 2
+plot "data/greedy_length_tiff_cmu_1.dat" using ($1 / 1024):($2 / 1000) t "Time to Read TIFF Metadata (left axis)." with linespoints axes x1y1 pt 3 lw 2, \
+    "data/greedy_length_tiff_cmu_1.dat" using ($1 / 1024):4 t "Cache Misses (right axis)." with linespoints axes x1y2 pt 3 lw 2
 
 reset

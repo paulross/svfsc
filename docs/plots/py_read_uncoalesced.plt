@@ -22,15 +22,15 @@ set pointsize 1
 set datafile separator whitespace
 # Curve fit
 #cost(x) = a + (b / (x/1024))
-#fit cost(x) "perf_size_of.dat" using 1:2 via a,b
+#fit cost(x) "data/perf_size_of.dat" using 1:2 via a,b
 
 #set key right
 set key off
 
 set terminal png size 800,500           # choose the file format
 
-set output "py_read_uncoalesced.png"   # choose the output device
+set output "images/py_read_uncoalesced.png"   # choose the output device
 
-plot "py_read_uncoalesced.dat" using 1:($3 / 1e9) t "Time to Read (Un-coalesced)." with linespoints axes x1y1 pt 3 lw 2
+plot "data/py_read_uncoalesced.dat" using 1:($3 / 1e9) t "Time to Read (Un-coalesced)." with linespoints axes x1y1 pt 3 lw 2
 
 reset
