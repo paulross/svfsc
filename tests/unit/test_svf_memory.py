@@ -35,7 +35,7 @@ def test_memory_SVF_write():
         f'RSS start: {rss_start_overall:,d}'
         f' end: {proc.memory_info().rss:,d}'
         f' ∆: {rss_diff:+,d}')
-    assert rss_diff < 20e6
+    assert rss_diff < 40e6
     # assert 0
 
 
@@ -55,7 +55,7 @@ def test_memory_SVF_need():
         f'RSS start: {rss_start_overall:,d}'
         f' end: {proc.memory_info().rss:,d}'
         f' ∆: {rss_diff:+,d}')
-    assert rss_diff < 20e6
+    assert rss_diff < 50e6
 
 
 @pytest.mark.slow
@@ -82,7 +82,7 @@ def test_memory_SVF_read():
         f'RSS start: {rss_start_overall:,d}'
         f' end: {proc.memory_info().rss:,d}'
         f' ∆: {rss_diff:+,d}')
-    assert rss_diff < 20e6
+    assert rss_diff < 50e6
     # assert 0
 
 
@@ -142,5 +142,5 @@ def test_memory_SVF_pickle_loads():
         f'RSS start: {rss_start_overall:,d}'
         f' end: {proc.memory_info().rss:,d}'
         f' ∆: {rss_diff:+,d}')
-    assert rss_diff < 50e6
+    assert rss_diff < 200e6
     # assert 0

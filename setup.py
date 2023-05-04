@@ -76,6 +76,7 @@ setup(
     ext_modules=[svfs_extension,],
     description="Sparse Virtual File System.",
     long_description=readme + '\n\n' + history,
+    long_description_content_type='text/x-rst',
     author="Paul Ross",
     author_email='apaulross@gmail.com',
     url='https://github.com/paulross',

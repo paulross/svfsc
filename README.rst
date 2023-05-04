@@ -73,7 +73,7 @@ Install from pypi:
 
     $ pip install svfs
 
-Complete installation instructions are :ref:`here <installation>`.
+Complete installation instructions are in the documentation.
 
 Using a Single SVF
 ------------------
@@ -114,7 +114,6 @@ The example above uses a single Sparse Virtual File, but you can also create a S
 This is a key/value store where the key is some string and the value a ``SVF``:
 
 .. code-block:: python
-    :caption: Example Sparse Virtual File System
 
     svfs = svfs.cSVFS()
     # Insert an empty SVF with a corresponding ID
