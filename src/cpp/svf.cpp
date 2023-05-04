@@ -479,12 +479,12 @@ namespace SVFS {
             os << " overrun is " << offset_into_block + len - iter->second.size() << " bytes";
             throw ExceptionSparseVirtualFileRead(os.str());
         }
-        /* TODO: memcpy()? */
-        while (len) {
-            *p = iter->second[offset_into_block];
-            ++offset_into_block;
-            ++p;
-            --len;
+        if (memcpy(p, iter->second.data() + offset_into_block, len) != p) {
+            std::ostringstream os;
+            os << "SparseVirtualFile::read():";
+            os << " memcpy failed " << fpos << " length " << len;
+            throw ExceptionSparseVirtualFileRead(os.str());
+
         }
     }
 
