@@ -12,12 +12,12 @@ But, you might know what parts of the file that you want and ``svfs`` can help y
 For example you might want to parse a TIFF file for its metadata or a particular image tile which is usually a tiny
 fraction of the file itself.
 
-``svfs`` implements a *Sparse Virtual File System* which is a system of *Sparse Virtual File* s.
-This is a specialised cache where a particular file might not be available but *parts of it can be obtained* without
-reading the whole thing. A Sparse Virtual File (``SVF`` ) is represented internally as a map of blocks of data with
-their file offsets.
+``svfs`` implements a *Sparse Virtual File*, a specialised in-memory cache where a particular file might not be
+available but *parts of it can be obtained* without reading the whole file.
+A Sparse Virtual File (``SVF`` ) is represented internally as a map of blocks of data with their file offsets.
 Any write to an ``SVF`` will coalesce those blocks where possible.
-A Sparse Virtual File System (``SVFS``) is a key/value store where the key is a file ID and the value an ``SVF``.
+A Sparse Virtual File System (``SVFS``) is an extension of this to provide a key/value store where the key is a file ID
+and the value a Sparse Virtual File.
 
 ``svfs`` is written in C++ with a Python interface.
 It is thread safe in both domains.
