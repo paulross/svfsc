@@ -15,6 +15,7 @@ Welcome to svfs's documentation!
    performance
    tech_notes
    ref/index.rst
+   license
 
 Indices and tables
 ==================

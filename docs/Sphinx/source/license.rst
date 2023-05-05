@@ -1,10 +1,9 @@
-/** @file
- *
- * A Sparse Virtual File implementation.
- *
- * Created by Paul Ross on 2020-01-22.
- *
- * @verbatim
+License
+#######
+
+
+.. code-block:: text
+
     MIT License
 
     Copyright (c) 2020-2023 Paul Ross
@@ -26,21 +25,3 @@
     LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
     SOFTWARE.
- @endverbatim
- */
-
-#ifndef CPPSVF_TEST_SVFS_H
-#define CPPSVF_TEST_SVFS_H
-
-//#include <string>
-//#include "svfs.h"
-#include "test.h"
-
-
-namespace SVFS {
-
-    TestCount test_svfs_all(t_test_results &results);
-
-} // namespace SparseVirtualFileSystem
-
-#endif //CPPSVF_TEST_SVFS_H
