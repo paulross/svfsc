@@ -18,8 +18,8 @@ The y axis shows the time to read all blocks.
 
 .. image:: ../../plots/images/cpp_1mb_read.png
 
-The one byte case corresponds to 7.6 MB/s, the 512 bytes case corresponds to 2,170 MB/s, the single 1MB block case
-corresponds to 1,480 MB/s.
+The one byte case corresponds to 6.3 MB/s, the 512 bytes case corresponds to 4,540 MB/s, the single 1MB block case
+corresponds to 2,300 MB/s.
 
 Need
 ----
