@@ -8,7 +8,8 @@ Assuming you have installed ``svfs`` (instructions are :ref:`here <installation>
 C++
 --------------
 
-Building and running ``main()`` will exercise all the C++ tests (this can take a very long time in debug):
+Building and running ``main()`` will exercise all the C++ tests (this can take a very long time for a debug version
+since there are then very thorough internal integrity checks being run):
 
 .. code-block:: console
 
