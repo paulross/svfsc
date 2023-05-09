@@ -39,9 +39,9 @@ And to un-pickle:
     assert new_svf.file_mod_date() == svf.file_mod_date()
     assert new_svf.blocks() == svf.blocks()
 
-Pickling is *versioned* by an integer number.
-As `svfs` progresses this ensures that pickles from previous ``svfs`` versions can be detected and either rejected or
-read as modified.
+Pickling is versioned by an integer number.
+As ``svfs`` progresses this ensures that pickles from previous ``svfs`` versions can be detected and either rejected or
+read and modified, if possible.
 
 Using `pickletools`
 -------------------
@@ -78,25 +78,9 @@ The result will be something like:
        32: (    MARK
        33: \x8c     SHORT_BINUNICODE 'id'
        37: \x94     MEMOIZE    (as 5)
-       38: \x8c     SHORT_BINUNICODE 'id'
-       42: \x94     MEMOIZE    (as 6)
-       43: \x8c     SHORT_BINUNICODE 'file_mod_time'
-       58: \x94     MEMOIZE    (as 7)
-       59: G        BINFLOAT   1.0
-       68: \x8c     SHORT_BINUNICODE 'blocks'
-       76: \x94     MEMOIZE    (as 8)
-       77: K        BININT1    1
-       79: C        SHORT_BINBYTES b' '
-       82: \x94     MEMOIZE    (as 9)
-       83: \x86     TUPLE2
-       84: \x94     MEMOIZE    (as 10)
-       85: K        BININT1    12
-       87: C        SHORT_BINBYTES b' '
-       90: \x94     MEMOIZE    (as 11)
-       91: \x86     TUPLE2
-       92: \x94     MEMOIZE    (as 12)
-       93: \x86     TUPLE2
-       94: \x94     MEMOIZE    (as 13)
+
+       8<---- Snip --->8
+
        95: \x8c     SHORT_BINUNICODE 'pickle_version'
       111: \x94     MEMOIZE    (as 14)
       112: K        BININT1    1
@@ -132,7 +116,7 @@ With a high latency connection it will be expensive to make a lot of small reque
 number of larger GETs.
 This is done by passing a ``greedy_length`` value to ``need()`` and that will coalesce the result of ``need()`` where possible.
 
-For example an ``SVF`` with these ``{file_position, length}`` blocks:
+For example an ``SVF`` with these ``(file_position, length)`` blocks:
 
 .. code-block:: text
 
@@ -150,6 +134,8 @@ The same request with ``need(8, 40, greedy_length=64)`` gives this block set:
 
     ((12, 64),)
 
+The shorter request, but for more data may be cheaper. This can be explored with a simulator.
+
 Network Simulator
 =====================================
 
@@ -165,22 +151,28 @@ The simulator can also take a ``greedy-length`` argument which allows you to tun
 
 Some pre-built simulation requests are in ``cpy/sim_example.py``:
 
-- A simple read of 32 bytes of data every  64 bytes up to a size of 20480.
-- Actual seek/read operations for reading TIFF metadata on a 200 MB compressed TIFF file.
+- A simple read of 32 bytes of data every 64 bytes up to a size of 20,480 bytes.
+- Actual seek/read operations for reading TIFF metadata TIFF files up to around 2GB.
+
+Synthetic File
+-----------------
 
 Here is the read time using different ``greedy_length`` values:
 
 .. image:: ../../plots/images/greedy_length_synthetic.png
 
+Reading TIFF Metadata
+-------------------------
+
 The second example is all the seek read operations to get all the TIFF metadata from selected TIFF files:
 
 .. list-table:: Selected TIFF Files
     :align: center
-    :widths: 25 25 25
+    :widths: 40 25 25
     :header-rows: 1
 
     * - File
-      - File Size (Mb)
+      - Size (MB)
       - File ``seek()/read()`` Events
     * - CMU-1.tiff
       - 195
@@ -221,21 +213,69 @@ Here are examples off the total amount of data read for different ``greedy_lengt
 
 .. image:: ../../plots/images/py_sim_greedy_overhead.png
 
+Here is a comparison with the time it takes to read TIFF metadata when the file is on the local file system and the
+simulator time for the remote file using a greedy length 64 KB.
+
+.. list-table:: Selected TIFF Files
+    :align: center
+    :widths: 40 25 25 30 20
+    :header-rows: 1
+
+    * - File
+      - Size (MB)
+      - Local (s)
+      - Remote (s)
+      - Ratio
+    * - CMU-1.tiff
+      - 195
+      - 0.139
+      - 0.413
+      - 3.0 x
+    * - TUPAC-TR-001.svs
+      - 2,146
+      - 2.14
+      - 3.22
+      - 1.5 x
+    * - TUPAC-TR-002.svs
+      - 657
+      - 0.183
+      - 0.582
+      - 3.2 x
+    * - TUPAC-TR-003.svs
+      - 563
+      - 0.130
+      - 0.512
+      - 3.9 x
+    * - TUPAC-TR-004.svs
+      - 744
+      - 0.597
+      - 1.10
+      - 1.8 x
+    * - TUPAC-TR-005.svs
+      - 955
+      - 0.361
+      - 0.815
+      - 2.3 x
+    * - TUPAC-TR-006.svs
+      - 945
+      - 0.521
+      - 1.01
+      - 1.9 x
+
+
 Running the Simulator
 ---------------------
 
-The simulator uses data in ``src/cpy/sim_examples.py``, in there are a couple of examples.
-These examples are just a tuple of ``(file_position, length)`` values (in any order).
+Here is the help information for the simulator:
 
 .. code-block:: console
 
     $ python src/cpy/simulator.py -h
-    usage: src/cpy/simulator.py [-h] [-l LOG_LEVEL]
-                                     [--latency LATENCY]
-                                     [--bandwidth BANDWIDTH]
-                                     [--seek-rate SEEK_RATE]
-                                     [--read-rate READ_RATE]
-                                     [--greedy-length GREEDY_LENGTH]
+    usage: src/cpy/simulator.py
+           [-h] [-l LOG_LEVEL] [--latency LATENCY]
+           [--bandwidth BANDWIDTH] [--seek-rate SEEK_RATE]
+           [--read-rate READ_RATE] [--greedy-length GREEDY_LENGTH]
+           [--realtime]
 
     Simulate reading into a SVF.
 
@@ -243,54 +283,63 @@ These examples are just a tuple of ``(file_position, length)`` values (in any or
       -h, --help            show this help message and exit
       -l LOG_LEVEL, --log-level LOG_LEVEL
                             Log level.
-      --latency LATENCY     Communications channel latency (one way) in ms. [default: 10]
+      --latency LATENCY     Communications channel latency (one way)
+                            in ms. [default: 10]
       --bandwidth BANDWIDTH
-                            Communications channel bandwidth in million bits per second.
-                            [default: 50]
+                            Communications channel bandwidth in
+                            million bits per second. [default: 50]
       --seek-rate SEEK_RATE
-                            Server seek rate in million bytes per second. [default: 1000]
+                            Server seek rate in million bytes per
+                            second. [default: 10000]
       --read-rate READ_RATE
-                            Server read rate in million bytes per second. [default: 50]
+                            Server read rate in million bytes per
+                            second. [default: 50]
       --greedy-length GREEDY_LENGTH
-                            The greedy length to read fragments from the server. Zero means read
-                            every fragment. Default is to run through a range of greedy lengths
-                            and report the performance. [default: -1]
+                            The greedy length to read fragments from
+                            the server. Zero means read every
+                            fragment. Default is to run through a
+                            range of greedy lengths and report the
+                            performance. [default: -1]
+      --realtime            Run in realtime (may be slow).
+                            [default: 0]
 
-With no arguments the simulator runs through a pre-prepared set of values.
-If ``greedy-lenght`` is give then the simulator just runs on that value.
-For example, exploring the simulator with a ``greedy_length`` of 1024:
+The simulator uses data in ``src/cpy/sim_examples.py``, in there are several examples of files.
+These examples are just a tuple of ``(file_position, length)`` values, however they are Run Length
+Encoded for compactness.
+
+With no arguments the simulator runs through the pre-prepared set of values with a range of ``greedy-length`` values.
+If ``greedy-length`` is give then the simulator just runs on that value.
+For example, exploring the simulator with a ``greedy_length`` of 64 KB:
 
 .. code-block:: console
 
-    $ python src/cpy/simulator.py --greedy-length=1024
+    $ python src/cpy/simulator.py --greedy-length=65536
     Simulator setup:
     Network latency 10.000 (ms) bandwidth 50.000 (M bits/s)
-    Server seek rate 1000.000 (M bytes/s) read rate 50.000 (M bytes/s)
-    2023-04-28 12:11:27,817 -             simulator.py#201  - INFO     - Running EXAMPLE_FILE_POSITIONS_LENGTHS_SYNTHETIC with greedy_length 1024
-    2023-04-28 12:11:28,284 -             simulator.py#114  - INFO     - has(): hits 300 misses 20
-    2023-04-28 12:11:28,284 -             simulator.py#115  - INFO     - Blocks 1 bytes 20480 sizeof 20634
-    2023-04-28 12:11:28,284 -             simulator.py#117  - INFO     - Comms time :    403.387 (ms) ( 86.4%) +++++++++++++++++++++++++++++++++++++++++++
-    2023-04-28 12:11:28,284 -             simulator.py#122  - INFO     - Server time:      0.429 (ms) (  0.1%)
-    2023-04-28 12:11:28,284 -             simulator.py#127  - INFO     - SVF time   :      1.286 (ms) (  0.3%)
-    2023-04-28 12:11:28,285 -             simulator.py#132  - INFO     - Residual   :     61.819 (ms) ( 13.2%) +++++++
-    2023-04-28 12:11:28,285 -             simulator.py#136  - INFO     - Total      :    466.921 (ms) (100.0%)
-    2023-04-28 12:11:28,285 -             simulator.py#137  - INFO     - SVF contents: 20480 Execution time: 0.467 (s) 0.042 (Mb/s)
-    2023-04-28 12:11:28,285 -             simulator.py#201  - INFO     - Running EXAMPLE_FILE_POSITIONS_LENGTHS_TIFF_CMU_1 with greedy_length 1024
-    2023-04-28 12:11:31,839 -             simulator.py#114  - INFO     - has(): hits 11866 misses 102
-    2023-04-28 12:11:31,839 -             simulator.py#115  - INFO     - Blocks 10 bytes 104881 sizeof 105323
-    2023-04-28 12:11:31,840 -             simulator.py#117  - INFO     - Comms time :   2057.567 (ms) ( 57.9%) +++++++++++++++++++++++++++++
-    2023-04-28 12:11:31,840 -             simulator.py#122  - INFO     - Server time:    874.965 (ms) ( 24.6%) ++++++++++++
-    2023-04-28 12:11:31,840 -             simulator.py#127  - INFO     - SVF time   :     23.065 (ms) (  0.6%)
-    2023-04-28 12:11:31,840 -             simulator.py#132  - INFO     - Residual   :    598.706 (ms) ( 16.8%) ++++++++
-    2023-04-28 12:11:31,840 -             simulator.py#136  - INFO     - Total      :   3554.303 (ms) (100.0%)
-    2023-04-28 12:11:31,840 -             simulator.py#137  - INFO     - SVF contents: 104881 Execution time: 3.554 (s) 0.028 (Mb/s)
-    EXAMPLE_FILE_POSITIONS_LENGTHS_SYNTHETIC:
-     greedy_length   Time(ms)     Hits     Miss    Hits%      Bytes
-              1024      468.1      300       20  93.750%      20480
+    Server seek rate 10000.000 (M bytes/s) read rate 50.000 (M bytes/s)
+    2023-05-09 13:00:46,285 - simulator.py#256  - INFO     - Running EXAMPLE_FILE_POSITIONS_LENGTHS_TIFF_CMU_1 with 62483 file actions and greedy_length 65536
+    2023-05-09 13:00:46,724 - simulator.py#153  - INFO     - has(): hits: 62472 misses: 11
+    2023-05-09 13:00:46,724 - simulator.py#154  - INFO     - Blocks: 8 bytes: 682936 sizeof: 683314 overhead: 378
+    2023-05-09 13:00:46,724 - simulator.py#159  - INFO     - Comms time :    335.412 (ms) ( 81.7%) +++++++++++++++++++++++++++++++++++++++++
+    2023-05-09 13:00:46,724 - simulator.py#164  - INFO     - Server time:     34.843 (ms) (  8.5%) ++++
+    2023-05-09 13:00:46,724 - simulator.py#169  - INFO     - SVF time   :     40.268 (ms) (  9.8%) +++++
+    2023-05-09 13:00:46,724 - simulator.py#179  - INFO     - Total      :    410.523 (ms) (100.0%)
+    2023-05-09 13:00:46,724 - simulator.py#180  - INFO     - SVF contents: 682936 Execution time: 0.411 (s) 1.587 (Mb/s)
+    2023-05-09 13:00:46,725 - simulator.py#256  - INFO     - Running EXAMPLE_FILE_POSITIONS_LENGTHS_TUPAC_TR_001_svs with 1051153 file actions and greedy_length 65536
+    2023-05-09 13:00:52,913 - simulator.py#153  - INFO     - has(): hits: 1051080 misses: 73
+    2023-05-09 13:00:52,913 - simulator.py#154  - INFO     - Blocks: 10 bytes: 4784128 sizeof: 4784570 overhead: 442
+    2023-05-09 13:00:52,913 - simulator.py#159  - INFO     - Comms time :   2225.938 (ms) ( 69.6%) +++++++++++++++++++++++++++++++++++
+    2023-05-09 13:00:52,913 - simulator.py#164  - INFO     - Server time:    320.664 (ms) ( 10.0%) +++++
+    2023-05-09 13:00:52,913 - simulator.py#169  - INFO     - SVF time   :    649.409 (ms) ( 20.3%) ++++++++++
+    2023-05-09 13:00:52,913 - simulator.py#179  - INFO     - Total      :   3196.010 (ms) (100.0%)
+    2023-05-09 13:00:52,913 - simulator.py#180  - INFO     - SVF contents: 4784128 Execution time: 3.196 (s) 1.428 (Mb/s)
     EXAMPLE_FILE_POSITIONS_LENGTHS_TIFF_CMU_1:
-     greedy_length   Time(ms)     Hits     Miss    Hits%      Bytes
-              1024     3555.4    11866      102  99.148%     104881
-    Execution time:      4.027 (s)
+     greedy_length   Time(ms)     Hits     Miss    Hits%   Min. Bytes   Act. Bytes  Act. / Min.     sizeof Overhead  sizeof / Act.
+             65536      410.5    62472       11  99.982%       256566       682936     266.183%     683314     +378       100.055%
+    EXAMPLE_FILE_POSITIONS_LENGTHS_TUPAC_TR_001_svs:
+     greedy_length   Time(ms)     Hits     Miss    Hits%   Min. Bytes   Act. Bytes  Act. / Min.     sizeof Overhead  sizeof / Act.
+             65536     3196.0  1051080       73  99.993%      4208118      4784128     113.688%    4784570     +442       100.009%
+    Execution time:      6.636 (s)
 
 Thread Safety
 =============

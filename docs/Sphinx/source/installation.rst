@@ -18,7 +18,6 @@ you through the process.
 .. _pip: https://pip.pypa.io
 .. _Python installation guide: http://docs.python-guide.org/en/latest/starting/installation/
 
-
 From sources
 ------------
 
@@ -48,6 +47,31 @@ Or for development:
 
     $ python setup.py develop
 
+Building the Documentation
+---------------------------
+
+Prerequisites are `Sphinx`_ and `Doxygen`_ (and Latex for the PDF documentation).
+The complete documentation can be built thus:
+
+.. _Sphinx: https://www.sphinx-doc.org/en/master/
+.. _Doxygen: https://www.doxygen.nl
+
+.. code-block:: console
+
+    $ cd docs
+    $ ./build_docs.sh
+
+The HTML documentation, which includes the Doxygen documentation, is here:
+
+.. code-block:: console
+
+    $ open Sphinx/build/html/index.html
+
+The PDF documentation, which does *not* include the Doxygen documentation, is here:
+
+.. code-block:: console
+
+    $ open Sphinx/build/latex/svfs.pdf
 
 .. _Github repo: https://github.com/paulross/svfs
 .. _tarball: https://github.com/paulross/svfs/tarball/master

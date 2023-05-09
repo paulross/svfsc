@@ -2,7 +2,7 @@ Performance
 ###########
 
 This describes some of the measured performance of ``SVFS``.
-Platform is a 2018 Mac Book Pro, 2.7 GHz Intel Core i7, 16 GB 2133 MHz LPDDR3.
+Platform is a 2018 Mac Book Pro, 2.7 GHz Intel Core i7, 16 GB RAM.
 
 C++ Performance
 ===============
@@ -26,7 +26,7 @@ Need
 
 This test simulates writing a low level RP66V1 index and then running need on it.
 Total bytes written around 1Mb.
-Blocks are 800 bytes apart.
+Blocks are about 800 bytes apart.
 There are 238,310 blocks.
 
 .. image:: ../../plots/images/cpp_need.png

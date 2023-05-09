@@ -27,9 +27,9 @@ remote file from a Parser that, in this example, knows the TIFF structure.
 The Parser consults the SVFS, if the SVFS has the data the Parser parses it and returns the results to
 the user.
 If the SVFS does *not* have the data then the Parser consults the SVFS for what data is needed, issues the
-appropriate ``read()`` to the local file system or GET request(s) to the remote server.
-That data is then loaded into the SVFS, then the parser parses it as before and returns the
-results to the user.
+appropriate ``seek()/read()`` operations to the local file system or equivalent GET request(s) to the remote
+server.
+Once that data is loaded into the SVFS the parser parses it as before and returns the results to the user.
 
 Here is a conceptual example of an ``SVFS`` running on a local file system.
 

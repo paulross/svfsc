@@ -44,7 +44,7 @@ LOG_FORMAT_NO_THREAD = (
 )
 
 LOG_FORMAT_NO_PROCESS = (
-    '%(asctime)s - %(filename)24s#%(lineno)-4d - %(levelname)-8s - %(message)s'
+    '%(asctime)s - %(filename)12s#%(lineno)-4d - %(levelname)-8s - %(message)s'
 )
 
 
