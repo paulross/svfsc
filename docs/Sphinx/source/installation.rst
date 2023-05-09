@@ -35,13 +35,16 @@ Or download the `tarball`_:
 
     $ curl -OL https://github.com/paulross/svfs/tarball/master
 
-Once you have a copy of the source, you can install it with:
+Once you have a copy of the source, create a virtual environment of your choice:
 
 .. code-block:: console
 
+    $ python3 -m venv <your_virtual_environment_directory>
+    $ source <your_virtual_environment_directory>/bin/activate
+    $ pip install -r requirements.txt
     $ python setup.py install
 
-Or for development:
+Or for development, change the last line to:
 
 .. code-block:: console
 

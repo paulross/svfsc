@@ -14,6 +14,7 @@ Welcome to svfs's documentation!
    installation
    performance
    tech_notes
+   testing
    ref/index.rst
    license
 
