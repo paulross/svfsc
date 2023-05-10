@@ -105,3 +105,25 @@ In the un-coalesced case these writes are all to multiple (1024 * 1024 / 8) bloc
 .. image:: ../../plots/images/py_multi_threaded_write.png
 
 The result is quite different from the C++ result given above.
+
+Need
+-------------
+
+This measures the performance of ``need()`` for a 1MB SVF under various conditions:
+
+One Megabyte of data is loaded into an SVF un-coalesced equal sized blocks, the block sizes range from 1 byte to 512 bytes.
+For the one byte case there are 1,000,000 blocks each of 1 byte, for the 512 byte case there are 2,048 blocks each of 512 bytes and so on.
+In the extreme right the data is coalesced into a single one Megabyte block.
+
+A ``need()`` request is made for various 'need' sizes (1KB, 64KB, 1025KB) and file positions (0, 512KB).
+For example a ``need()`` request of 64KB  on the un-coalesced SVF of 1 byte blocks will generate a need list 64K long.
+The same request on the un-coalesced SVF of 128 byte blocks will generate a need list of length 64K / 128 = 512.
+
+.. image:: ../../plots/images/py_need_1MB.png
+
+Observations:
+
+- The ``need()`` time is pretty much independent of file position.
+- The ``need()`` time for a particular size is proportional to the fragmentation of the SVF (inversely proportional to the block size).
+- The ``need()`` time is roughly proportional to the size of the need request regardless of the fragmentation of the SVF.
+- All the configurations converge on the extreme right as it is a coalesced 1MB SVF so the need list is empty.  This represents the lower bound for ``need()``, typically 0.2 µs.
