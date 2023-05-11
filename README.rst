@@ -12,12 +12,12 @@ But, you might know what parts of the file that you want and ``svfs`` can help y
 For example you might want to parse a TIFF file for its metadata or a particular image tile which is usually a tiny
 fraction of the file itself.
 
-``svfs`` implements a *Sparse Virtual File System* which is a system of *Sparse Virtual File* s.
-This is a specialised cache where a particular file might not be available but *parts of it can be obtained* without
-reading the whole thing. A Sparse Virtual File (``SVF`` ) is represented internally as a map of blocks of data with
-their file offsets.
+``svfs`` implements a *Sparse Virtual File*, a specialised in-memory cache where a particular file might not be
+available but *parts of it can be obtained* without reading the whole file.
+A Sparse Virtual File (``SVF`` ) is represented internally as a map of blocks of data with their file offsets.
 Any write to an ``SVF`` will coalesce those blocks where possible.
-A Sparse Virtual File System (``SVFS``) is a key/value store where the key is a file ID and the value an ``SVF``.
+A Sparse Virtual File System (``SVFS``) is an extension of this to provide a key/value store where the key is a file ID
+and the value a Sparse Virtual File.
 
 ``svfs`` is written in C++ with a Python interface.
 It is thread safe in both domains.
@@ -27,9 +27,9 @@ remote file from a Parser that, in this example, knows the TIFF structure.
 The Parser consults the SVFS, if the SVFS has the data the Parser parses it and returns the results to
 the user.
 If the SVFS does *not* have the data then the Parser consults the SVFS for what data is needed, issues the
-appropriate ``read()`` to the local file system or GET request(s) to the remote server.
-That data is then loaded into the SVFS, then the parser parses it as before and returns the
-results to the user.
+appropriate ``seek()/read()`` operations to the local file system or equivalent GET request(s) to the remote
+server.
+Once that data is loaded into the SVFS the parser parses it as before and returns the results to the user.
 
 Here is a conceptual example of an ``SVFS`` running on a local file system.
 
@@ -73,7 +73,7 @@ Install from pypi:
 
     $ pip install svfs
 
-Complete installation instructions are in the documentation.
+Complete installation instructions are :ref:`here <installation>`.
 
 Using a Single SVF
 ------------------
