@@ -73,7 +73,7 @@ Install from pypi:
 
     $ pip install svfs
 
-Complete installation instructions are :ref:`here <installation>`.
+Complete installation instructions are in the documentation.
 
 Using a Single SVF
 ------------------
