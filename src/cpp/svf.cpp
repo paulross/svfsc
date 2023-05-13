@@ -63,7 +63,7 @@ namespace SVFS {
         if (iter != m_svf.begin()) {
             --iter;
         }
-        t_fpos fpos_end = _last_file_pos_for_block(iter);
+        t_fpos fpos_end = _file_position_immediatly_after_block(iter);
         if (fpos >= iter->first && (fpos + len) <= fpos_end) {
             return true;
         }
@@ -79,7 +79,7 @@ namespace SVFS {
      * @param len The length of the data.
      */
     void SparseVirtualFile::_write(t_fpos fpos, const char *data, size_t len) {
-        assert(m_svf.empty() || fpos > _last_file_position());
+        assert(m_svf.empty() || fpos > _file_position_immediatly_after_end());
 
         t_val new_vector;
         new_vector.reserve(len);
@@ -170,7 +170,7 @@ namespace SVFS {
         std::lock_guard<std::mutex> mutex(m_mutex);
 #endif
         // TODO: throw if !data, len == 0
-        if (m_svf.empty() || fpos > _last_file_position()) {
+        if (m_svf.empty() || fpos > _file_position_immediatly_after_end()) {
             // Simple insert of new data into empty map or a node beyond the end (common case).
             _write(fpos, data, len);
             m_bytes_total += len;
@@ -184,7 +184,7 @@ namespace SVFS {
                 // Insert new block, possibly coalescing existing blocks.
                 _write_new_append_old(fpos, data, len, iter);
             } else {
-                if (fpos > _last_file_pos_for_block(iter)) {
+                if (fpos > _file_position_immediatly_after_block(iter)) {
                     // No overlap so just write new block
                     _write(fpos, data, len);
                     m_bytes_total += len;
@@ -283,7 +283,7 @@ namespace SVFS {
             fpos += delta;
             len -= delta;
             index_iter += delta;
-            if (_last_file_pos_for_block(iter) > fpos_end) {
+            if (_file_position_immediatly_after_block(iter) > fpos_end) {
                 // Copy rest of iter 'Z'
                 assert(len == 0);
                 //       ^=========ZZZ
@@ -379,7 +379,7 @@ namespace SVFS {
         assert(new_data_len > 0);
         assert(base_block_iter != m_svf.end());
         assert(fpos >= base_block_iter->first);
-        assert(fpos <= _last_file_pos_for_block(base_block_iter));
+        assert(fpos <= _file_position_immediatly_after_block(base_block_iter));
 
 #ifdef DEBUG
         size_t fpos_end = fpos + new_data_len;
@@ -431,7 +431,7 @@ namespace SVFS {
             write_index_from_block_start = 0;
             // Diff check, but also append to base_block_iter.
             // Do not increment m_bytes_total as this is existing data.
-            len_check_or_copy = std::min(new_data_len, _last_file_pos_for_block(next_block_iter) - fpos);
+            len_check_or_copy = std::min(new_data_len, _file_position_immediatly_after_block(next_block_iter) - fpos);
             if (len_check_or_copy) {
                 if (m_config.compare_for_diff) {
                     if (std::memcmp(next_block_iter->second.data(), new_data, len_check_or_copy) != 0) {
@@ -566,7 +566,7 @@ namespace SVFS {
             }
         } else {
             // Otherwise check the previous node with std::prev.
-            auto last_fpos = _last_file_pos_for_block(std::prev(iter));
+            auto last_fpos = _file_position_immediatly_after_block(std::prev(iter));
             if (fpos < last_fpos) {
                 // Example, change:
                 //        |==|    ^==|
@@ -611,7 +611,7 @@ namespace SVFS {
             //          ^=====|
             //          |++++|
             assert(fpos == iter->first);
-            if (fpos + len <= _last_file_pos_for_block(iter)) {
+            if (fpos + len <= _file_position_immediatly_after_block(iter)) {
                 //          ^======|
                 //          |++++|
                 fpos += len;
@@ -853,40 +853,37 @@ namespace SVFS {
 #ifdef SVF_THREAD_SAFE
         std::lock_guard<std::mutex> mutex(m_mutex);
 #endif
-        if (m_svf.empty()) {
-            return 0;
-        } else {
-            auto iter = m_svf.end();
-            --iter;
-            return _last_file_pos_for_block(iter);
-        }
+        return _file_position_immediatly_after_end();
     }
 
     /**
-     * Returns the largest possible file position known so far.
+     * Returns the file position immediately after the last block.
      * Of course this is not the EOF position as we may not have been offered that yet.
+     * This does not have use a lock.
      *
      * @return The last know file position.
      */
     t_fpos
-    SparseVirtualFile::_last_file_position() const noexcept {
+    SparseVirtualFile::_file_position_immediatly_after_end() const noexcept {
         if (m_svf.empty()) {
             return 0;
         } else {
             auto iter = m_svf.end();
             --iter;
-            return _last_file_pos_for_block(iter);
+            return _file_position_immediatly_after_block(iter);
         }
     }
 
     /**
-     * Returns the largest possible file position for a particular iterator.
+     * Returns the file position immediately after the block.
+     * 
+     * Example file position 4, block length 2 this returns 6.
      *
      * @param iter The iterator to the block.
      * @return Last known file position.
      */
     t_fpos
-    SparseVirtualFile::_last_file_pos_for_block(t_map::const_iterator iter) const noexcept {
+    SparseVirtualFile::_file_position_immediatly_after_block(t_map::const_iterator iter) const noexcept {
         // NOTE: do not SVF_ASSERT(integrity() == ERROR_NONE); as integrity() calls this so infinite recursion.
         assert(iter != m_svf.end());
 

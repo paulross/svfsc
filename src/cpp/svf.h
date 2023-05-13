@@ -272,9 +272,9 @@ namespace SVFS {
         void _throw_diff(t_fpos fpos, const char *data, t_map::const_iterator iter, size_t index_iter) const;
 
         // Does not use mutex or checks integrity
-        t_fpos _last_file_position() const noexcept;
+        t_fpos _file_position_immediatly_after_end() const noexcept;
 
-        t_fpos _last_file_pos_for_block(t_map::const_iterator iter) const noexcept;
+        t_fpos _file_position_immediatly_after_block(t_map::const_iterator iter) const noexcept;
 
         static size_t _amount_to_read(t_seek_read iter, size_t greedy_length) noexcept;
 

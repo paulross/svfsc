@@ -290,8 +290,8 @@ The Effect of Simulated Network Latency
 With the simulator we can experiment with various values of network latency, bandwidth and greedy reads.
 For example here is the result of reading TIFF metadata with different network latencies.
 
-The ZLIB curve represents *Zero Latency, Infinite Bandwidth* and thus is the network performance floor, and, as expected,
-the greedy read length has little effect:
+The ZLIB curve represents *Zero Latency, Infinite Bandwidth* and thus is the network performance floor and, as expected,
+the greedy read length has little effect there as it is an optimisation for slow networkst:
 
 .. image:: ../../plots/images/py_sim_greedy_latency.png
 
@@ -307,7 +307,8 @@ Here is the result of different bandwidths for a network latency of 10 ms.
 .. image:: ../../plots/images/py_sim_greedy_bandwidth.png
 
 With this level of network latency the bandwidth is almost irrelevant.
-As usual high greedy lengths compensate and it is only when they are above 10,000 bytes or so does the bandwidth become significant.
+As usual high greedy lengths compensate and it is only when they are above 10,000 bytes or so does the bandwidth
+become significant.
 High (64 KB) greedy reads can transform low bandwidth (10 Mbps) networks to about 10x their ZLIB time.
 
 Here is the result of different bandwidths for a network latency of 1 ms.

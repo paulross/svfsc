@@ -55,6 +55,9 @@ int main() {
     pass_fail += SVFS::test_svfs_all(results);
 #endif
     std::chrono::duration<double> time_exec = std::chrono::high_resolution_clock::now() - time_start;
+    auto result = TestResult(__PRETTY_FUNCTION__, "All tests", results.size() != 146, "", time_exec.count(), 0);
+    pass_fail.add_result(result.result());
+    results.push_back(result);
 
     // Results
     write_test_results(results, std::cout);
