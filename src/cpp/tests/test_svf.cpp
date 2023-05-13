@@ -798,49 +798,52 @@ namespace SVFS {
     const std::vector<TestCaseNeed> need_test_cases = {
             //
             //        |++|
-            {"Need on empty SVF",               {},                8,  4,  {{8,  4}}},
+            {"Need on empty SVF",                  {},                8,  4,  {{8,  4}}},
             //        ^==|
             //        |++|
-            {"Exactly one block",               {{8, 4}},          8,  4,  {},},
+            {"Exactly one block",                  {{8, 4}},          8,  4,  {},},
             //        ^==|
             //         ||
-            {"Inside one block",                {{8, 4}},          9,  2,  {},},
+            {"Inside one block",                   {{8, 4}},          9,  2,  {},},
             //        ^==|
             //    |++|
-            {"All before one block",            {{8, 4}},          4,  4,  {{4,  4}},},
+            {"All before one block",               {{8, 4}},          4,  4,  {{4,  4}},},
             //        ^==|
             //            |++|
-            {"All after one block",             {{8, 4}},          12, 4,  {{12, 4}},},
+            {"All after one block",                {{8, 4}},          12, 4,  {{12, 4}},},
             //        ^==|
             //    |+++++|
-            {"Before and part of one block",    {{8, 4}},          4,  7,  {{4,  4}},},
+            {"Before and part of one block",       {{8, 4}},          4,  7,  {{4,  4}},},
             //        ^==|
             //    |++++++|
-            {"Before and all of one block",     {{8, 4}},          4,  8,  {{4,  4}},},
+            {"Before and all of one block",        {{8, 4}},          4,  8,  {{4,  4}},},
             //        ^==|
-            //    |+++++++|
-            {"Before, all and after one block", {{8, 4}},          4,  9,  {{4,  4}, {12, 1}},},
+            //    |++++++|
+            {"Before, all of one block and after", {{8, 4}},          4,  15, {{4,  4}, {12, 7}},},
+            //        ^==|
+            //    |++++++++++|
+            {"Before, all and after one block",    {{8, 4}},          4,  9,  {{4,  4}, {12, 1}},},
             //        |==|  |==|
             //        |++++++++|
-            {"Two blocks and in between (a)",   {{8, 4}, {14, 4}}, 8,  10, {{12, 2}},},
+            {"Two blocks and in between (a)",      {{8, 4}, {14, 4}}, 8,  10, {{12, 2}},},
             //        |==|  |==|
             //        |+++++++|
-            {"Two blocks and in between (b)",   {{8, 4}, {14, 4}}, 8,  9,  {{12, 2}},},
+            {"Two blocks and in between (b)",      {{8, 4}, {14, 4}}, 8,  9,  {{12, 2}},},
             //        |==|  |==|
             //         |+++++++|
-            {"Two blocks and in between (c)",   {{8, 4}, {14, 4}}, 9,  9,  {{12, 2}},},
+            {"Two blocks and in between (c)",      {{8, 4}, {14, 4}}, 9,  9,  {{12, 2}},},
             //        |==|  |==|
             //         |++++++|
-            {"Two blocks and in between (d)",   {{8, 4}, {14, 4}}, 9,  7,  {{12, 2}},},
+            {"Two blocks and in between (d)",      {{8, 4}, {14, 4}}, 9,  7,  {{12, 2}},},
             //        |==|  |==|
             //       |++++++++|
-            {"Two blocks, under-run",           {{8, 4}, {14, 4}}, 7,  11, {{7,  1}, {12, 2}},},
+            {"Two blocks, under-run",              {{8, 4}, {14, 4}}, 7,  11, {{7,  1}, {12, 2}},},
             //        |==|  |==|
             //        |+++++++++|
-            {"Two blocks, over-run",            {{8, 4}, {14, 4}}, 8,  11, {{12, 2}, {18, 1}},},
+            {"Two blocks, over-run",               {{8, 4}, {14, 4}}, 8,  11, {{12, 2}, {18, 1}},},
             //        |==|  |==|
             //       |++++++++++|
-            {"Two blocks, under/over-run",      {{8, 4}, {14, 4}}, 7,  12, {{7,  1}, {12, 2}, {18, 1}},},
+            {"Two blocks, under/over-run",         {{8, 4}, {14, 4}}, 7,  12, {{7,  1}, {12, 2}, {18, 1}},},
     };
 
     const std::vector<TestCaseNeed> need_test_cases_special = {
@@ -971,14 +974,20 @@ namespace SVFS {
             ),
             TestCaseNeedGreedy(
                     "Need (greedy=0)",
-                    {{8,  4}, {16, 4}, {32, 4}},
+                    {{8,  4},
+                     {16, 4},
+                     {32, 4}},
                     8, 40, 0,
-                    {{12, 4}, {20, 12}, {36, 12},}
+                    {{12, 4},
+                     {20, 12},
+                     {36, 12},}
             ),
 #endif
             TestCaseNeedGreedy(
                     "Need (greedy=64)",
-                    {{8,  4}, {16, 4}, {32, 4}},
+                    {{8,  4},
+                     {16, 4},
+                     {32, 4}},
                     8, 40, 64,
                     {{12, 64},}
             ),
@@ -1277,6 +1286,50 @@ namespace SVFS {
         return TestResult(__PRETTY_FUNCTION__, test_name, result, err, time_exec.count(), svf.num_bytes());
     }
 
+    TestCount test_block_size(t_test_results &results) {
+        std::string test_name(__FUNCTION__);
+        int result = 0; // Success
+        TestCount count;
+        SparseVirtualFile svf("", 0.0);
+        svf.write(894, test_data_bytes_512, 22);
+        auto time_start = std::chrono::high_resolution_clock::now();
+        result |= svf.block_size(894) != 22;
+        std::chrono::duration<double> time_exec = std::chrono::high_resolution_clock::now() - time_start;
+        TestResult test_result = TestResult(__PRETTY_FUNCTION__, test_name, result, "", time_exec.count(),
+                                            svf.num_bytes());
+        results.push_back(test_result);
+        count.add_result(test_result.result());
+        return count;
+    }
+
+    TestCount test_block_size_throws(t_test_results &results) {
+        std::string test_name(__FUNCTION__);
+        int result = 0; // Success
+        std::string test_error_message = "";
+        TestCount count;
+        SparseVirtualFile svf("", 0.0);
+        svf.write(894, test_data_bytes_512, 22);
+        auto time_start = std::chrono::high_resolution_clock::now();
+        try {
+            svf.block_size(895);
+        } catch (ExceptionSparseVirtualFileRead &err) {
+            std::string expected_message = "SparseVirtualFile::block_size(): Requested file position 895 is not at the start of a block";
+            if (err.message() != expected_message) {
+                std::ostringstream os;
+                os << "Error message \"" << err.message() << "\" expected \"" << expected_message << "\"";
+                test_error_message = os.str();
+                result = 1;
+            }
+        }
+        std::chrono::duration<double> time_exec = std::chrono::high_resolution_clock::now() - time_start;
+        TestResult test_result = TestResult(__PRETTY_FUNCTION__, test_name, result, test_error_message,
+                                            time_exec.count(),
+                                            svf.num_bytes());
+        results.push_back(test_result);
+        count.add_result(test_result.result());
+        return count;
+    }
+
     TestCount test_svf_all(t_test_results &results) {
         test_debug_need_read_special_A();
         test_debug_need_read_special_B();
@@ -1300,10 +1353,10 @@ namespace SVFS {
         count += test_perf_read_1M_coalesced(results);
         // has()
         count += test_has_all(results);
+#endif
         // need()
         count += test_need_all(results);
         count += test_perf_need_sim_index(results);
-#endif
         count += test_need_greedy_all(results);
         // erase()
         count += test_erase_all(results);
@@ -1314,6 +1367,8 @@ namespace SVFS {
         count += test_write_multithreaded_coalesced(results);
         count += test_write_multithreaded_un_coalesced(results);
 #endif
+        count += test_block_size(results);
+        count += test_block_size_throws(results);
         return count;
     }
 

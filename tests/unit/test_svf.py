@@ -323,11 +323,20 @@ def test_SVF_need_all(blocks, expected_blocks):
                     0, 32,
                     [(0, 6), (18, 2), (28, 4), ],
             ),
+            #             //        ^==|
+            #             //    |++++++|
+            #             {"Before, all of one block and after",     {{8, 4}},          4,  15,  {{4,  4}, {12,  3}},},
+            (
+                    ((8, 4),),
+                    4, 15,
+                    [(4, 4), (12, 7),],
+            ),
     ),
     ids=[
         'Empty',
         'One block, all up to it',
-        'Two blocks, all and beyond'
+        'Two blocks, all and beyond',
+        "Before, all of one block and after",
     ],
 )
 def test_SVF_need(blocks, need_fpos, need_length, expected_need):

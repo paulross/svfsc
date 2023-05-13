@@ -390,9 +390,11 @@ namespace SVFS {
         // Diff check against base_block_iter
         size_t write_index_from_block_start = fpos - base_block_iter->first;
         // Do the check to end of new_data_len or end of base_block_iter which ever comes first.
-        size_t len_check_or_copy = std::min(new_data_len, base_block_iter->second.size() - write_index_from_block_start);
+        size_t len_check_or_copy = std::min(new_data_len,
+                                            base_block_iter->second.size() - write_index_from_block_start);
         if (m_config.compare_for_diff) {
-            if (std::memcmp(base_block_iter->second.data() + write_index_from_block_start, new_data, len_check_or_copy) != 0) {
+            if (std::memcmp(base_block_iter->second.data() + write_index_from_block_start, new_data,
+                            len_check_or_copy) != 0) {
                 _throw_diff(fpos, new_data, base_block_iter, write_index_from_block_start);
             }
         }
@@ -559,8 +561,8 @@ namespace SVFS {
                 //   |+++|
                 ret.push_back({fpos, len});
                 fpos += len;
+                // Mark that we are done.
                 len = 0;
-                // We are done.
             }
         } else {
             // Otherwise check the previous node with std::prev.
@@ -575,7 +577,7 @@ namespace SVFS {
                 fpos = std::min(fpos_to, last_fpos);
             }
         }
-        // Now walk through the remaining nodes.
+        // Now walk through the remaining nodes until we have exhausted the read.
         while (len) {
             if (iter == m_svf.end() || fpos + len <= iter->first) {
                 // Either:
@@ -674,7 +676,6 @@ namespace SVFS {
         return new_seek_reads;
     }
 
-
     /**
      * Returns a description of the current blocks as a vector of (file_position, length).
      *
@@ -688,7 +689,7 @@ namespace SVFS {
 
         t_seek_reads ret;
         for (t_map::const_iterator iter = m_svf.cbegin(); iter != m_svf.cend(); ++iter) {
-            ret.push_back({ iter->first, iter->second.size() });
+            ret.push_back({iter->first, iter->second.size()});
         }
         return ret;
     }
@@ -700,10 +701,10 @@ namespace SVFS {
      * @return The block size.
      */
     size_t SparseVirtualFile::block_size(t_fpos fpos) const {
+        SVF_ASSERT(integrity() == ERROR_NONE);
 #ifdef SVF_THREAD_SAFE
         std::lock_guard<std::mutex> mutex(m_mutex);
 #endif
-        SVF_ASSERT(integrity() == ERROR_NONE);
 
         if (m_svf.empty()) {
             throw ExceptionSparseVirtualFileRead("SparseVirtualFile::block_size(): Sparse virtual file is empty.");
@@ -712,7 +713,7 @@ namespace SVFS {
         if (iter == m_svf.end()) {
             std::ostringstream os;
             os << "SparseVirtualFile::block_size():";
-            os << " Requested file position " << fpos << " is not a block";
+            os << " Requested file position " << fpos << " is not at the start of a block";
             throw ExceptionSparseVirtualFileRead(os.str());
         }
         return iter->second.size();
