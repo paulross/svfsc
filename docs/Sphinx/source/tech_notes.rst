@@ -43,8 +43,8 @@ Pickling is versioned by an integer number.
 As ``svfs`` progresses this ensures that pickles from previous ``svfs`` versions can be detected and either rejected or
 read and modified, if possible.
 
-Using `pickletools`
--------------------
+Using ``pickletools``
+---------------------
 
 .. code-block:: python
 
@@ -116,7 +116,7 @@ With a high latency connection it will be expensive to make a lot of small reque
 number of larger GETs.
 This is done by passing a ``greedy_length`` value to ``need()`` and that will coalesce the result of ``need()`` where possible.
 
-For example an ``SVF`` with these ``(file_position, length)`` blocks:
+For example an ``SVF`` with these ``need(file_position, length)`` blocks:
 
 .. code-block:: text
 
@@ -152,7 +152,7 @@ The simulator can also take a ``greedy-length`` argument which allows you to tun
 Some pre-built simulation requests are in ``cpy/sim_example.py``:
 
 - A simple read of 32 bytes of data every 64 bytes up to a size of 20,480 bytes.
-- Actual seek/read operations for reading TIFF metadata TIFF files up to around 2GB.
+- Actual seek/read operations for reading TIFF metadata TIFF files up to around 2GB. This has a more detailed analysis of performance (below).
 
 Synthetic File
 -----------------
@@ -164,37 +164,52 @@ Here is the read time using different ``greedy_length`` values:
 Reading TIFF Metadata
 -------------------------
 
-The second example is all the seek read operations to get all the TIFF metadata from selected TIFF files:
+The second example is all the seek read operations to get all the TIFF metadata from selected TIFF files.
+For each file the table gives:
+
+- The file size in Mb
+- The number of ``seek()/read()`` operations needed to read the TIFF metadata.
+- The size of the TIFF metadata in bytes and as a proportion of the file size.
 
 .. list-table:: Selected TIFF Files
     :align: center
-    :widths: 40 25 25
+    :widths: 40 25 40 45
     :header-rows: 1
 
     * - File
       - Size (MB)
-      - File ``seek()/read()`` Events
+      - ``seek()/read()`` ops
+      - Metadata bytes (%)
     * - CMU-1.tiff
       - 195
       - 62,615
+      - 256,566 (0.126%)
     * - TUPAC-TR-001.svs
       - 2,146
       - 1,051,242
+      - 4,208,118 (0.187%)
     * - TUPAC-TR-002.svs
       - 657
       - 84,845
+      - 483,582 (0.070%)
     * - TUPAC-TR-003.svs
       - 563
       - 59,936
+      - 242,436 (0.041%)
     * - TUPAC-TR-004.svs
       - 744
       - 291,302
+      - 1,311,074 (0.168%)
     * - TUPAC-TR-005.svs
       - 955
       - 176,754
+      - 709,714 (0.071%)
     * - TUPAC-TR-006.svs
       - 945
       - 254,948
+      - 1,165,658 (0.118%)
+
+Given these sample files the time taken to read the TIFF metadata for various greed read lengths is:
 
 .. image:: ../../plots/images/py_sim_greedy.png
 
@@ -213,8 +228,12 @@ Here are examples off the total amount of data read for different ``greedy_lengt
 
 .. image:: ../../plots/images/py_sim_greedy_overhead.png
 
-Here is a comparison with the time it takes to read TIFF metadata when the file is on the local file system and the
-simulator time for the remote file using a greedy length 64 KB.
+A Comparison Against a Local File Read
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+This is a comparison of the time it takes to read TIFF metadata when the file is on the local file system with
+the simulator time for the same file, remotely with the network connection described above, using a greedy
+length 64 KB.
 
 .. list-table:: Selected TIFF Files
     :align: center
@@ -262,6 +281,41 @@ simulator time for the remote file using a greedy length 64 KB.
       - 1.01
       - 1.9 x
 
+So choosing a decent greedy length can get the remote performance within hailing distance of the local
+file performance.
+
+The Effect of Simulated Network Latency
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+With the simulator we can experiment with various values of network latency, bandwidth and greedy reads.
+For example here is the result of reading TIFF metadata with different network latencies.
+
+The ZLIB curve represents *Zero Latency, Infinite Bandwidth* and thus is the network performance floor, and, as expected,
+the greedy read length has little effect:
+
+.. image:: ../../plots/images/py_sim_greedy_latency.png
+
+As reading TIFF metadata is usually a large amount of scattered small reads then network latency has a dominant effect.
+The poor performance of high latency networks can be improved greatly by using greedy reads.
+High (64 KB) greedy reads can transform high latency (50 ms) networks to about 10x their ZLIB time.
+
+The Effect of Simulated Network Bandwidth
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Here is the result of different bandwidths for a network latency of 10 ms.
+
+.. image:: ../../plots/images/py_sim_greedy_bandwidth.png
+
+With this level of network latency the bandwidth is almost irrelevant.
+As usual high greedy lengths compensate and it is only when they are above 10,000 bytes or so does the bandwidth become significant.
+High (64 KB) greedy reads can transform low bandwidth (10 Mbps) networks to about 10x their ZLIB time.
+
+Here is the result of different bandwidths for a network latency of 1 ms.
+
+.. image:: ../../plots/images/py_sim_greedy_bandwidth_latency_1.png
+
+With this level of network latency the bandwidth becomes more significant.
+Again, medium greedy reads (optimum around 8 to 32 KB) can transform low bandwidth (10 Mbps) networks to about 10x their ZLIB time.
 
 Running the Simulator
 ---------------------
@@ -287,7 +341,8 @@ Here is the help information for the simulator:
                             in ms. [default: 10]
       --bandwidth BANDWIDTH
                             Communications channel bandwidth in
-                            million bits per second. [default: 50]
+                            million bits per second. Zero is infinite
+                            bandwidth. [default: 50]
       --seek-rate SEEK_RATE
                             Server seek rate in million bytes per
                             second. [default: 10000]

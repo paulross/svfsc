@@ -52,13 +52,16 @@ class Communications:
     """Represents the delay over a communication line."""
 
     def __init__(self, latency_s: float, bandwidth_bps: float, realtime: bool = False):
+        """Bandwith 0.0 means infinite bandwidth"""
         self.latency_s = latency_s
         self.bandwidth_bps = bandwidth_bps
         self.realtime = realtime
         self.total_time = 0.0
 
     def transmit(self, data_bytes: bytes, direction: str) -> None:
-        t = self.latency_s + 8 * len(data_bytes) / self.bandwidth_bps
+        t = self.latency_s
+        if self.bandwidth_bps:
+            t += 8 * len(data_bytes) / self.bandwidth_bps
         logger.debug('COMMS_: %s length %d delay %.3f (ms)', direction, len(data_bytes), t * 1000)
         self.total_time += t
         if self.realtime:
@@ -205,7 +208,8 @@ def main():
     parser.add_argument('--latency', type=float, default=10,
                         help='Communications channel latency (one way) in ms. [default: %(default)d]')
     parser.add_argument('--bandwidth', type=float, default=50,
-                        help='Communications channel bandwidth in million bits per second. [default: %(default)d]')
+                        help='Communications channel bandwidth in million bits per second.'
+                             ' Zero is infinite bandwidth. [default: %(default)d]')
     parser.add_argument('--seek-rate', type=float, default=10000,
                         help='Server seek rate in million bytes per second. [default: %(default)d]')
     parser.add_argument('--read-rate', type=float, default=50,
