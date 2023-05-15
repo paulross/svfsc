@@ -291,7 +291,7 @@ With the simulator we can experiment with various values of network latency, ban
 For example here is the result of reading TIFF metadata with different network latencies.
 
 The ZLIB curve represents *Zero Latency, Infinite Bandwidth* and thus is the network performance floor and, as expected,
-the greedy read length has little effect there as it is an optimisation for slow networkst:
+the greedy read length has little effect there as ``svfs`` is an optimisation for *slow* networks:
 
 .. image:: ../../plots/images/py_sim_greedy_latency.png
 

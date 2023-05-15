@@ -73,12 +73,13 @@ namespace SVFS {
     /**
      * Write a brand new block into either an empty SVF or beyond the current blocks.
      * Will raise an ExceptionSparseVirtualFileWrite if the write fails.
+     * This also updates \c m_bytes_total
      *
      * @param fpos The file position.
      * @param data The data.
      * @param len The length of the data.
      */
-    void SparseVirtualFile::_write(t_fpos fpos, const char *data, size_t len) {
+    void SparseVirtualFile::_write_new_block_after_end(t_fpos fpos, const char *data, size_t len) {
         assert(m_svf.empty() || fpos > _file_position_immediatly_after_end());
 
         t_val new_vector;
@@ -90,13 +91,14 @@ namespace SVFS {
         }
         auto size_before_insert = m_svf.size();
         m_svf.insert(m_svf.end(), {fpos, std::move(new_vector)});
-        // Sanity check.
+        // Sanity check that we really have added a new block (rather than replacing one).
         if (m_svf.size() != 1 + size_before_insert) {
             std::ostringstream os;
-            os << "SparseVirtualFile::write():";
+            os << "SparseVirtualFile::_write_new_block_after_end():";
             os << " Unable to insert new block at " << fpos;
             throw ExceptionSparseVirtualFileWrite(os.str());
         }
+        m_bytes_total += len;
     }
 
     /**
@@ -172,8 +174,7 @@ namespace SVFS {
         // TODO: throw if !data, len == 0
         if (m_svf.empty() || fpos > _file_position_immediatly_after_end()) {
             // Simple insert of new data into empty map or a node beyond the end (common case).
-            _write(fpos, data, len);
-            m_bytes_total += len;
+            _write_new_block_after_end(fpos, data, len);
         } else {
             t_map::iterator iter = m_svf.upper_bound(fpos);
             if (iter != m_svf.begin()) {
@@ -184,10 +185,10 @@ namespace SVFS {
                 // Insert new block, possibly coalescing existing blocks.
                 _write_new_append_old(fpos, data, len, iter);
             } else {
+                // Existing block.first is <= fpos
                 if (fpos > _file_position_immediatly_after_block(iter)) {
                     // No overlap so just write new block
-                    _write(fpos, data, len);
-                    m_bytes_total += len;
+                    _write_new_block_after_end(fpos, data, len);
                 } else {
                     // Append new to existing block, possibly coalescing existing blocks.
                     _write_append_new_to_old(fpos, data, len, iter);
@@ -214,29 +215,29 @@ namespace SVFS {
      *
      *  And the characters mean:
      *
-     * - \c = Means original data.
-     * - \c + Means new data.
+     * - \c % Is the new file position to write to, argument \c fpos
+     * - \c ^ Is the iterator file position, argument \c iter.first
+     * - \c = Means original data, argument \c iter.second
+     * - \c + Means new data, argument \c data.
      * - \c c Means data checked equal (if required).
      * - \c A Means new data appended or added.
      *
      * @code
-     *
-     * @code
      *      1:     ^===========|  |=====|
-     *      2: |+++++++++++++++++++++|
-     *      3: |AAAAcccccccccccAAAAcc===|
+     *      2: %+++++++++++++++++++++|
+     *      3: %AAAAcccccccccccAAAAcc===|
      * @endcode
      * or:
      * @code
      *      1:       ^===========|
-     *      2: |+++++++++++++++++++++|
-     *      3: |AAAAAAcccccccccccAAAA|
+     *      2: %+++++++++++++++++++++|
+     *      3: %AAAAAAcccccccccccAAAA|
      * @endcode
      * or:
      * @code
      *      1:      ^===========|
-     *      2: |+++++++++++++|
-     *      3: |AAAAAcccccccc===|
+     *      2: %+++++++++++++|
+     *      3: %AAAAAcccccccc===|
      * @endcode
      *
      * @param fpos The file position of the start of the new block.
@@ -259,7 +260,7 @@ namespace SVFS {
             while (len && fpos < iter->first) {
                 // Copy new data 'X' up to start of iter.
                 //       ^===========|  |=====|
-                //  |XXXX+++++++++++++XX++|
+                //  %XXXX+++++++++++++XX++|
                 new_vector.push_back(*data);
                 ++data;
                 ++fpos;
@@ -270,7 +271,7 @@ namespace SVFS {
             size_t delta = std::min(len, iter->second.size());
             // Check overlapped data matches 'Y'
             //       ^===========|  |=====|
-            //  |++++YYYYYYYYYYYYY++++|
+            //  %++++YYYYYYYYYYYYY++++|
             if (m_config.compare_for_diff) {
                 if (std::memcmp(iter->second.data(), data, delta) != 0) {
                     _throw_diff(fpos, data, iter, 0);
@@ -287,7 +288,7 @@ namespace SVFS {
                 // Copy rest of iter 'Z'
                 assert(len == 0);
                 //       ^=========ZZZ
-                //  |+++++++++++++|
+                //  %+++++++++++++|
                 // So append up to the end of iter and (maybe) go round again.
                 while (index_iter < iter->second.size()) {
                     new_vector.push_back(iter->second[index_iter]);
@@ -333,33 +334,38 @@ namespace SVFS {
      * From file position, write the new_data to the block identified by base_block_iter.
      * This may involve coalescing existing blocks that follow base_block_iter.
      *
-     * We are in these kind of situations, notation:
+     * We are in these kind of situations.
+     *
+     * Notation:
+     *
      *  -# Means original blocks.
      *  -# Is new data to be added
      *  -# Is the result.
      *
      *  And the characters mean:
      *
-     * - \c = Means original data.
-     * - \c + Means new data.
+     * - \c % Is the new file position to write to, argument \c fpos
+     * - \c ^ Is the iterator file position, argument \c base_block_iter.first
+     * - \c = Means original data, argument \c base_block_iter.second
+     * - \c + Means new data, argument \c new_data.
      * - \c c Means data checked equal (if required).
-     * - \c A Means new data appended.
+     * - \c A Means new data appended or added.
      *
      * @code
      *      1: ^===========|    |=====|
-     *      2: |+++++++++|
+     *      2: %+++++++++|
      *      3: ^ccccccccc==|    |=====|
      *
      *      1: ^===========|    |=====|
-     *      2:    |++++++|
+     *      2:    %++++++|
      *      3: ^===cccccc==|    |=====|
      *
      *      1: ^===========|    |=====|
-     *      2:    |+++++++++++|
+     *      2:    %+++++++++++|
      *      3: ^===========AAA| |=====|
      *
      *      1: ^===========|    |=====|
-     *      2:    |++++++++++++++++++|
+     *      2:    %++++++++++++++++++|
      *      3: ^===ccccccccAAAAAAcccc=|
      *
      *      1: ^===========|    |=====|    |=====|

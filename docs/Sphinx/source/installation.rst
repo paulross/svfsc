@@ -50,6 +50,11 @@ Or for development, change the last line to:
 
     $ python setup.py develop
 
+Building for C++
+----------------
+
+Consult the ``CMakeLists.txt`` at the project root for how to do this.
+
 Building the Documentation
 ---------------------------
 
