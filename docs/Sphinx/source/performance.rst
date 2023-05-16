@@ -80,32 +80,6 @@ The y axis shows the time to read all blocks.
 
 The Python performance is about 5x compared to C++ for the one byte case and nearly equal to C++ for the large block cases.
 
-Write
---------------------
-
-This show the performance of writing 1MB of data to a ``SVF`` in two ways:
-
-- Each write is contiguous with a previous one so the blocks are always coalesced. The ``SVF`` always contains only one block.
-- Each write is *not* contiguous with a previous one so the blocks are *never* coalesced. The ``SVF`` eventually contains as many blocks as writes.
-
-.. image:: ../../plots/images/py_write.png
-
-The Python performance is about 3x compared to C++ for the one byte case and nearly equal to C++ for the large block cases.
-
-Multi Threaded Write
---------------------
-
-The Python module is compiled *without* ``SVF_THREAD_SAFE`` and ``SVFS_THREAD_SAFE`` so that the C++ mutexes are not used.
-Instead Python thread locks are used with ``AcquireLockSVF`` and ``AcquireLockSVFS`` that are wrappers around ``PyThread_acquire_lock()`` and ``PyThread_release_lock()``.
-
-This test writes/overwrites a 1MB file with 8 bytes writes.
-In the coalesced case these writes are all to one block.
-In the un-coalesced case these writes are all to multiple (1024 * 1024 / 8) blocks.
-
-.. image:: ../../plots/images/py_multi_threaded_write.png
-
-The result is quite different from the C++ result given above.
-
 Need
 -------------
 
@@ -127,3 +101,29 @@ Observations:
 - The ``need()`` time for a particular size is proportional to the fragmentation of the SVF (inversely proportional to the block size).
 - The ``need()`` time is roughly proportional to the size of the need request regardless of the fragmentation of the SVF.
 - All the configurations converge on the extreme right as it is a coalesced 1MB SVF so the need list is empty.  This represents the lower bound for ``need()``, typically 0.2 µs.
+
+Write
+--------------------
+
+This show the performance of writing 1MB of data to a ``SVF`` in two ways:
+
+- Each write is contiguous with a previous one so the blocks are always coalesced. The ``SVF`` always contains only one block.
+- Each write is *not* contiguous with a previous one so the blocks are *never* coalesced. The ``SVF`` eventually contains as many blocks as writes.
+
+.. image:: ../../plots/images/py_write.png
+
+The Python performance is about 3x compared to C++ for the one byte case and nearly equal to C++ for the large block cases.
+
+Multi Threaded Writes
+---------------------
+
+The Python module is compiled *without* ``SVF_THREAD_SAFE`` and ``SVFS_THREAD_SAFE`` so that the C++ mutexes are not used.
+Instead Python thread locks are used with ``AcquireLockSVF`` and ``AcquireLockSVFS`` that are wrappers around ``PyThread_acquire_lock()`` and ``PyThread_release_lock()``.
+
+This test writes/overwrites a 1MB file with 8 bytes writes.
+In the coalesced case these writes are all to one block.
+In the un-coalesced case these writes are all to multiple (1024 * 1024 / 8) blocks.
+
+.. image:: ../../plots/images/py_multi_threaded_write.png
+
+The result is quite different from the C++ result given above.

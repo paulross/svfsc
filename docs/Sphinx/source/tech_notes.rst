@@ -290,6 +290,9 @@ The Effect of Simulated Network Latency
 With the simulator we can experiment with various values of network latency, bandwidth and greedy reads.
 For example here is the result of reading TIFF metadata with different network latencies.
 
+.. index::
+    single: Zero Latency, Infinite Bandwidth
+
 The ZLIB curve represents *Zero Latency, Infinite Bandwidth* and thus is the network performance floor and, as expected,
 the greedy read length has little effect there as ``svfs`` is an optimisation for *slow* networks:
 
