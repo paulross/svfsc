@@ -89,6 +89,7 @@ create_bdist_wheel() {
     echo "---> Running setup for bdist_wheel:"
     python setup.py bdist_wheel
   done
+  deactivate_virtual_environment
 }
 
 create_sdist() {
@@ -117,6 +118,7 @@ report_all_versions_and_setups() {
     echo "---> pip list:"
     pip list
   done
+  deactivate_virtual_environment
 }
 
 show_results_of_dist() {
