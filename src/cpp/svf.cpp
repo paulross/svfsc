@@ -88,6 +88,7 @@ namespace SVFS {
             new_vector.push_back(*data);
             --len;
             ++data;
+            ++m_bytes_total;
         }
         auto size_before_insert = m_svf.size();
         m_svf.insert(m_svf.end(), {fpos, std::move(new_vector)});
@@ -98,7 +99,6 @@ namespace SVFS {
             os << " Unable to insert new block at " << fpos;
             throw ExceptionSparseVirtualFileWrite(os.str());
         }
-        m_bytes_total += len;
     }
 
     /**
