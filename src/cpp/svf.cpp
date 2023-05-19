@@ -544,7 +544,7 @@ namespace SVFS {
      * Given a file position and a length what data do I need that I don't yet have?
      *
      * @param fpos File position at the start of the attempted read.
-     * @param len Length of the attemptedf read.
+     * @param len Length of the attempted read.
      * @param greedy_length If present this makes greedy reads, fewer but larger.
      * @return A vector of pairs (file_position, length) that this SVF needs.
      */
@@ -592,7 +592,7 @@ namespace SVFS {
                 // or:
                 //              |==|
                 //   |+++++|
-                ret.push_back({fpos, len});
+                ret.emplace_back(fpos, len);
                 fpos += len;
                 len = 0;
                 break;
@@ -606,7 +606,7 @@ namespace SVFS {
             if (fpos < iter->first) {
                 assert(len >= iter->first - fpos);
                 auto bytes_added = iter->first - fpos;
-                ret.push_back({fpos, bytes_added});
+                ret.emplace_back(fpos, bytes_added);
                 len -= bytes_added;
                 fpos += bytes_added;
             }
