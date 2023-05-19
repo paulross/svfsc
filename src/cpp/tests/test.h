@@ -38,7 +38,9 @@
 
 extern const char test_data_bytes_512[];
 
-// Used in place of asserts so that checks are done in release version.
+/**
+ * Used in place of asserts so that checks are done in release version.
+ */
 class ExceptionTest : public std::exception {
 public:
     explicit ExceptionTest(const std::string &in_msg) : msg(in_msg) {}
@@ -61,22 +63,22 @@ public:
                                       m_error_message(m_errro_message),
                                       m_exec_time(m_exec_time),
                                       m_work_bytes(m_work_bytes) {}
-    const std::string &function() const { return m_function; }
-    const std::string &test() const { return m_test; }
-    int result() const { return m_result; }
-    const std::string &error_message() const { return m_error_message; }
-    double exec_time() const { return m_exec_time; }
-    size_t work_bytes() const { return m_work_bytes; }
-    bool has_error_message() const { return ! m_error_message.empty(); }
+    [[nodiscard]] const std::string &function() const { return m_function; }
+    [[nodiscard]] const std::string &test() const { return m_test; }
+    [[nodiscard]] int result() const { return m_result; }
+    [[nodiscard]] const std::string &error_message() const { return m_error_message; }
+    [[nodiscard]] double exec_time() const { return m_exec_time; }
+    [[nodiscard]] size_t work_bytes() const { return m_work_bytes; }
+    [[nodiscard]] bool has_error_message() const { return ! m_error_message.empty(); }
     // Returns the work rate in bytes/second.
-    double work_rate() const {
+    [[nodiscard]] double work_rate() const {
         if (m_exec_time != 0.0) {
             return m_work_bytes / m_exec_time;
         }
         return 0.0;
     }
     // Returns the cost in ms/Mb
-    double ms_per_mb() const {
+    [[nodiscard]] double ms_per_mb() const {
         if (m_work_bytes != 0.0) {
             return m_exec_time * 1000 * (1 << 20) / m_work_bytes;
         }
@@ -101,9 +103,9 @@ void write_test_results(const t_test_results &results, std::ostream &os);
 class TestCount {
 public:
     TestCount() : m_pass(0), m_fail(0) {}
-    size_t pass() const { return m_pass; }
-    size_t fail() const { return m_fail; }
-    size_t total() const { return m_pass + m_fail; }
+    [[nodiscard]] size_t pass() const { return m_pass; }
+    [[nodiscard]] size_t fail() const { return m_fail; }
+    [[nodiscard]] size_t total() const { return m_pass + m_fail; }
     void add_result(int result) {
         if (result) {
             m_fail += 1;

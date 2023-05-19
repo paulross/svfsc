@@ -702,7 +702,8 @@ namespace SVFS {
 
     /**
      * The length of the block at a specific file position.
-     * This will throw a ExceptionSparseVirtualFileRead if the file position is not in the block entries.
+     * This will throw a \c ExceptionSparseVirtualFileRead if the file position is not in the block entries.
+     *
      * @param fpos File position, this must be at the start of a block.
      * @return The block size.
      */

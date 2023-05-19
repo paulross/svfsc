@@ -115,6 +115,12 @@ namespace SVFS {
         bool compare_for_diff = true;
     } tSparseVirtualFileConfig;
 
+    /**
+     * Implementation of a *Sparse Virtual File*, a specialised in-memory cache where a particular
+     * file might not be available but *parts of it can be obtained* without reading the whole file.
+     * A Sparse Virtual File (SVF) is represented internally as a map of blocks of data with the
+     * key being their file offsets. Any write to an SVF will coalesce those blocks where possible.
+     */
     class SparseVirtualFile {
     public:
         /**
@@ -139,7 +145,7 @@ namespace SVFS {
 
         // ---- Read and write etc. ----
         /// Do I have the data at the given file position and length?
-        bool has(t_fpos fpos, size_t len) const noexcept;
+        [[nodiscard]] bool has(t_fpos fpos, size_t len) const noexcept;
 
         void write(t_fpos fpos, const char *data, size_t len);
 
@@ -148,7 +154,7 @@ namespace SVFS {
         void read(t_fpos fpos, size_t len, char *p);
 
         /// Create a new fragmentation list of seek/read instructions.
-        t_seek_reads need(t_fpos fpos, size_t len, size_t greedy_length = 0) const noexcept;
+        [[nodiscard]] t_seek_reads need(t_fpos fpos, size_t len, size_t greedy_length = 0) const noexcept;
 
         /// Implements the data deletion strategy.
         void clear() noexcept;
@@ -160,55 +166,59 @@ namespace SVFS {
 
         // ---- Meta information about the SVF ----
         /// The existing blocks as a list of (file_position, size) pairs.
-        t_seek_reads blocks() const noexcept;
+        [[nodiscard]] t_seek_reads blocks() const noexcept;
 
         size_t block_size(t_fpos fpos) const;
 
         // Information about memory used:
         /// size_of() gives best guess of total memory usage.
-        size_t size_of() const noexcept;
+        [[nodiscard]] size_t size_of() const noexcept;
 
         /// Gives exact number of data bytes held.
-        size_t num_bytes() const noexcept { return m_bytes_total; };
+        [[nodiscard]] size_t num_bytes() const noexcept { return m_bytes_total; };
 
         /// Gives exact number of blocks used.
-        size_t num_blocks() const noexcept { return m_svf.size(); }
+        [[nodiscard]] size_t num_blocks() const noexcept { return m_svf.size(); }
 
         /// The position of the last byte.
-        t_fpos last_file_position() const noexcept;
+        [[nodiscard]] t_fpos last_file_position() const noexcept;
 
         /** Check the clients file modification time has changed.
          * Caller has to decide what to do... */
-        bool file_mod_time_matches(const double &file_mod_time) const noexcept {
+        [[nodiscard]] bool file_mod_time_matches(const double &file_mod_time) const noexcept {
             return file_mod_time == m_file_mod_time;
         }
 
         // ---- Attribute access ----
         /// The ID of the file.
-        const std::string &id() const noexcept { return m_id; }
+        [[nodiscard]] const std::string &id() const noexcept { return m_id; }
 
         /// The file modification time as a double representing UNIX seconds.
-        double file_mod_time() const noexcept { return m_file_mod_time; }
+        [[nodiscard]] double file_mod_time() const noexcept { return m_file_mod_time; }
 
         /// Count of \c write() operations.
-        size_t count_write() const noexcept { return m_count_write; }
+        [[nodiscard]] size_t count_write() const noexcept { return m_count_write; }
 
         /// Count of \c read() operations.
-        size_t count_read() const noexcept { return m_count_read; }
+        [[nodiscard]] size_t count_read() const noexcept { return m_count_read; }
 
         /// Count of total bytes written with \c write() operations.
-        size_t bytes_write() const noexcept { return m_bytes_write; }
+        [[nodiscard]] size_t bytes_write() const noexcept { return m_bytes_write; }
 
         /// Count of total bytes read with \c read() operations.
-        size_t bytes_read() const noexcept { return m_bytes_read; }
+        [[nodiscard]] size_t bytes_read() const noexcept { return m_bytes_read; }
 
         /// Time of the last \c write() operation.
         /// This can be cast to \c std::chrono::time_point<double>
-        std::chrono::time_point<std::chrono::system_clock> time_write() const noexcept { return m_time_write; }
+        [[nodiscard]] std::chrono::time_point<std::chrono::system_clock> time_write() const noexcept {
+            return m_time_write;
+        }
 
         /// Time of the last \c read() operation.
         /// This can be cast to \c std::chrono::time_point<double>
-        std::chrono::time_point<std::chrono::system_clock> time_read() const noexcept { return m_time_read; }
+        [[nodiscard]] std::chrono::time_point<std::chrono::system_clock> time_read() const noexcept {
+            return m_time_read;
+        }
 
         /// Eliminate copying.
         SparseVirtualFile(const SparseVirtualFile &rhs) = delete;
@@ -272,13 +282,13 @@ namespace SVFS {
         void _throw_diff(t_fpos fpos, const char *data, t_map::const_iterator iter, size_t index_iter) const;
 
         // Does not use mutex or checks integrity
-        t_fpos _file_position_immediatly_after_end() const noexcept;
+        [[nodiscard]] t_fpos _file_position_immediatly_after_end() const noexcept;
 
-        t_fpos _file_position_immediatly_after_block(t_map::const_iterator iter) const noexcept;
+        [[nodiscard]] t_fpos _file_position_immediatly_after_block(t_map::const_iterator iter) const noexcept;
 
-        static size_t _amount_to_read(t_seek_read iter, size_t greedy_length) noexcept;
+        [[nodiscard]] static size_t _amount_to_read(t_seek_read iter, size_t greedy_length) noexcept;
 
-        static t_seek_reads _minimise_seek_reads(t_seek_reads seek_reads, size_t greedy_length) noexcept;
+        [[nodiscard]] static t_seek_reads _minimise_seek_reads(t_seek_reads seek_reads, size_t greedy_length) noexcept;
 
         /* Check internal integrity. */
         enum ERROR_CONDITION {
@@ -290,7 +300,7 @@ namespace SVFS {
             ERROR_DUPLICATE_BLOCK,
         };
 
-        ERROR_CONDITION integrity() const noexcept;
+        [[nodiscard]] ERROR_CONDITION integrity() const noexcept;
     };
 
 } // namespace SparseVirtualFileSystem
