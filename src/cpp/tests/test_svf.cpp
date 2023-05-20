@@ -982,7 +982,6 @@ namespace SVFS {
                      {20, 12},
                      {36, 12},}
             ),
-#endif
             TestCaseNeedGreedy(
                     "Need (greedy=64)",
                     {{8,  4},
@@ -990,6 +989,24 @@ namespace SVFS {
                      {32, 4}},
                     8, 40, 64,
                     {{12, 64},}
+            ),
+#endif
+            // Test where original length of need is < greedy length.
+            TestCaseNeedGreedy(
+                    "Need with write one byte un-coalesced (greedy=8)",
+                    {
+                            {0,  1},
+                            {2,  1},
+                            {4,  1},
+                            {6,  1},
+                            {8,  1},
+                            {10,  1},
+                            {12,  1},
+                            {14,  1},
+                            {16,  1},
+                    },
+                    0, 2, 8,
+                    {{1, 8},}
             ),
     };
 // @formatter:on
@@ -1353,10 +1370,10 @@ namespace SVFS {
         count += test_perf_read_1M_coalesced(results);
         // has()
         count += test_has_all(results);
-#endif
         // need()
         count += test_need_all(results);
         count += test_perf_need_sim_index(results);
+#endif
         count += test_need_greedy_all(results);
         // erase()
         count += test_erase_all(results);

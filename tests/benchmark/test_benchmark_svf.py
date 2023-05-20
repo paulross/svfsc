@@ -208,6 +208,16 @@ def test_svf_sim_write_index(vr_count, lr_count, benchmark):
     # assert result == vr_count * lr_count
 
 
+def _write_uncoal(block_size: int, block_count: int) -> svfs.cSVF:
+    data = b' ' * block_size
+    svf = svfs.cSVF("ID")
+    fpos = 0
+    for i in range(block_count):
+        svf.write(fpos, data)
+        fpos += block_size + 1
+    return svf
+
+
 def _simulate_read(svf: svfs.cSVF):
     for fpos, length in svf.blocks():
         svf.read(fpos, length)
@@ -244,21 +254,16 @@ def _simulate_read(svf: svfs.cSVF):
     ]
 )
 def test_svf_sim_read_uncoal(size, block_size, benchmark):
-    data = b' ' * block_size
     block_count = size // block_size
-    svf = svfs.cSVF("ID")
-    fpos = 0
-    for i in range(block_count):
-        svf.write(fpos, data)
-        fpos += block_size + 1
+    svf = _write_uncoal(block_size, block_count)
     assert svf.num_bytes() == size
     assert svf.count_write() == block_count
     assert len(svf.blocks()) == block_count
     benchmark(_simulate_read, svf)
 
 
-def _simulate_need(svf: svfs.cSVF, fpos: int, need_size: int):
-    svf.need(fpos, need_size)
+def _simulate_need(svf: svfs.cSVF, fpos: int, need_size: int, greedy_length: int):
+    svf.need(fpos, need_size, greedy_length)
 
 
 @pytest.mark.slow
@@ -412,14 +417,54 @@ def _simulate_need(svf: svfs.cSVF, fpos: int, need_size: int):
     ]
 )
 def test_svf_sim_need_uncoal(size, block_size, need_fpos, need_size, benchmark):
-    data = b' ' * block_size
     block_count = size // block_size
-    svf = svfs.cSVF("ID")
-    fpos = 0
-    for i in range(block_count):
-        svf.write(fpos, data)
-        fpos += block_size + 1
+    svf = _write_uncoal(block_size, block_count)
     assert svf.num_bytes() == size
     assert svf.count_write() == block_count
     assert len(svf.blocks()) == block_count
-    benchmark(_simulate_need, svf, need_fpos, need_size)
+    benchmark(_simulate_need, svf, need_fpos, need_size, 0)
+
+
+def _simulate_need_all(svf: svfs.cSVF, fpos: int, need_size: int, greedy_length: int):
+    while fpos < svf.last_file_position():
+        if not svf.has_data(fpos, need_size):
+            need_list = svf.need(fpos, need_size, greedy_length)
+            # print(f'TRACE: greedy_length: {greedy_length} len(need_list): {len(need_list)}')
+        fpos += need_size
+
+
+@pytest.mark.slow
+@pytest.mark.parametrize(
+    'size, block_size, need_size, greedy_length',
+    (
+            (1024, 1, 32, 0),
+            (1024, 1, 32, 512),
+            (1024, 1, 32, 1024),
+            (1024, 1, 32, 1024 * 32),
+            (1024, 1, 32, 1024 * 64),
+            (1024, 1, 256, 0),
+            (1024, 1, 256, 512),
+            (1024, 1, 256, 1024),
+            (1024, 1, 256, 1024 * 32),
+            (1024, 1, 256, 1024 * 64),
+    ),
+    ids=[
+        'Greedy:032,00000',
+        'Greedy:032,00512',
+        'Greedy:032,01024',
+        'Greedy:032,32768',
+        'Greedy:032,65536',
+        'Greedy:256,00000',
+        'Greedy:256,00512',
+        'Greedy:256,01024',
+        'Greedy:256,32768',
+        'Greedy:256,65536',
+    ]
+)
+def test_svf_sim_need_uncoal_greedy_length(size, block_size, need_size, greedy_length, benchmark):
+    block_count = size // block_size
+    svf = _write_uncoal(block_size, block_count)
+    assert svf.num_bytes() == size
+    assert svf.count_write() == block_count
+    assert len(svf.blocks()) == block_count
+    benchmark(_simulate_need_all, svf, 0, need_size, greedy_length)
