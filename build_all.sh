@@ -85,7 +85,7 @@ create_bdist_wheel() {
     # Fail fast with -x
     pytest tests -x
     # Run all tests (slow).
-    pytest tests --runslow
+    pytest tests --runslow --benchmark-sort=name
     echo "---> Running setup for bdist_wheel:"
     python setup.py bdist_wheel
   done
