@@ -55,14 +55,23 @@ def _simulate_write_uncoalesced(size, block_size):
 @pytest.mark.parametrize(
     'size, block_size',
     (
-        (1024, 1,),
-        (1024, 2,),
-        (1024, 4,),
-        (1024, 8,),
-        (1024, 16,),
-        (1024, 32,),
-        (1024, 64,),
-    )
+            (1024, 1,),
+            (1024, 2,),
+            (1024, 4,),
+            (1024, 8,),
+            (1024, 16,),
+            (1024, 32,),
+            (1024, 64,),
+    ),
+    ids=[
+        '1024-001',
+        '1024-002',
+        '1024-004',
+        '1024-008',
+        '1024-016',
+        '1024-032',
+        '1024-064',
+    ],
 )
 def test_svfs_sim_write_uncoal(size, block_size, benchmark):
     s = benchmark(_simulate_write_uncoalesced, size, block_size)
@@ -87,14 +96,23 @@ def _simulate_write_coalesced(size, block_size):
 @pytest.mark.parametrize(
     'size, block_size',
     (
-        (1024, 1,),
-        (1024, 2,),
-        (1024, 4,),
-        (1024, 8,),
-        (1024, 16,),
-        (1024, 32,),
-        (1024, 64,),
-    )
+            (1024, 1,),
+            (1024, 2,),
+            (1024, 4,),
+            (1024, 8,),
+            (1024, 16,),
+            (1024, 32,),
+            (1024, 64,),
+    ),
+    ids=[
+        '1024-001',
+        '1024-002',
+        '1024-004',
+        '1024-008',
+        '1024-016',
+        '1024-032',
+        '1024-064',
+    ],
 )
 def test_svfs_sim_write_coal(size, block_size, benchmark):
     s = benchmark(_simulate_write_coalesced, size, block_size)
@@ -165,15 +183,14 @@ def _sim_write_index(vr_count, lr_count):
 @pytest.mark.parametrize(
     'vr_count, lr_count',
     (
-        (1, 10,),
-        (10, 10,),
-        (100, 10,),
-        (1000, 10,),
-        (10000, 10,),
-        (23831, 10,),
+            (1, 10,),
+            (10, 10,),
+            (100, 10,),
+            (1000, 10,),
+            (10000, 10,),
+            (23831, 10,),
     )
 )
 def test_svfs_sim_write_index(vr_count, lr_count, benchmark):
     result = benchmark(_sim_write_index, vr_count, lr_count)
     # assert result == vr_count * lr_count
-
