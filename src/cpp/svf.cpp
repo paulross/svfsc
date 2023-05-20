@@ -544,7 +544,7 @@ namespace SVFS {
      * Given a file position and a length what data do I need that I don't yet have?
      *
      * @param fpos File position at the start of the attempted read.
-     * @param len Length of the attemptedf read.
+     * @param len Length of the attempted read.
      * @param greedy_length If present this makes greedy reads, fewer but larger.
      * @return A vector of pairs (file_position, length) that this SVF needs.
      */
@@ -592,7 +592,7 @@ namespace SVFS {
                 // or:
                 //              |==|
                 //   |+++++|
-                ret.push_back({fpos, len});
+                ret.emplace_back(fpos, len);
                 fpos += len;
                 len = 0;
                 break;
@@ -606,7 +606,7 @@ namespace SVFS {
             if (fpos < iter->first) {
                 assert(len >= iter->first - fpos);
                 auto bytes_added = iter->first - fpos;
-                ret.push_back({fpos, bytes_added});
+                ret.emplace_back(fpos, bytes_added);
                 len -= bytes_added;
                 fpos += bytes_added;
             }
@@ -657,7 +657,7 @@ namespace SVFS {
      * @param greedy_length Maximal length that allows coalescing.
      * @return New vector of maximal seek/reads.
      */
-    t_seek_reads SparseVirtualFile::_minimise_seek_reads(t_seek_reads seek_reads, size_t greedy_length) noexcept {
+    t_seek_reads SparseVirtualFile::_minimise_seek_reads(const t_seek_reads& seek_reads, size_t greedy_length) noexcept {
         assert (greedy_length != 0);
 
         t_seek_reads new_seek_reads;
@@ -695,14 +695,15 @@ namespace SVFS {
 
         t_seek_reads ret;
         for (t_map::const_iterator iter = m_svf.cbegin(); iter != m_svf.cend(); ++iter) {
-            ret.push_back({iter->first, iter->second.size()});
+            ret.emplace_back(iter->first, iter->second.size());
         }
         return ret;
     }
 
     /**
      * The length of the block at a specific file position.
-     * This will throw a ExceptionSparseVirtualFileRead if the file position is not in the block entries.
+     * This will throw a \c ExceptionSparseVirtualFileRead if the file position is not in the block entries.
+     *
      * @param fpos File position, this must be at the start of a block.
      * @return The block size.
      */
