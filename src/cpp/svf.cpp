@@ -657,7 +657,7 @@ namespace SVFS {
      * @param greedy_length Maximal length that allows coalescing.
      * @return New vector of maximal seek/reads.
      */
-    t_seek_reads SparseVirtualFile::_minimise_seek_reads(t_seek_reads seek_reads, size_t greedy_length) noexcept {
+    t_seek_reads SparseVirtualFile::_minimise_seek_reads(const t_seek_reads& seek_reads, size_t greedy_length) noexcept {
         assert (greedy_length != 0);
 
         t_seek_reads new_seek_reads;
@@ -695,7 +695,7 @@ namespace SVFS {
 
         t_seek_reads ret;
         for (t_map::const_iterator iter = m_svf.cbegin(); iter != m_svf.cend(); ++iter) {
-            ret.push_back({iter->first, iter->second.size()});
+            ret.emplace_back(iter->first, iter->second.size());
         }
         return ret;
     }
