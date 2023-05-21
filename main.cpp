@@ -73,5 +73,5 @@ int main() {
     std::cout << "main() execution time: " << time_exec.count() << " (s)" << std::endl;
 
     std::cout << "Bye bye!" << std::endl;
-    return 0;
+    return pass_fail.fail() != 0;
 }

@@ -18,6 +18,15 @@ PROJECT_NAME="svfs"
 
 #printf "%-8s %8s %10s %10s %12s\n" "Ext" "Files" "Lines" "Words" "Bytes"
 
+build_cpp() {
+  cmake --build cmake-build-release --target clean -- -j 6
+  cmake --build cmake-build-release --target cppSVF -- -j 6
+}
+
+run_cpp_tests() {
+  cmake-build-release/cppSVF
+}
+
 deactivate_virtual_environment() {
   # https://stackoverflow.com/questions/42997258/virtualenv-activate-script-wont-run-in-bash-script-with-set-euo
   set +u
@@ -134,14 +143,24 @@ show_results_of_dist() {
   echo "---> twine upload dist/*"
 }
 
+echo "===> Clean and build C++ code"
+build_cpp
+echo "===> Running C++ tests"
+run_cpp_tests
 echo "===> Removing build/ and dist/"
 #rm --recursive --force -- "build" "dist"
 rm -rf -- "build" "dist"
+echo "===> Removing virtual environments"
 remove_virtual_environments
+echo "===> Creating virtual environments"
 create_virtual_environments
+echo "===> Creating binary wheels"
 create_bdist_wheel
+echo "===> Creating source distribution"
 create_sdist
+echo "===> All versions and setups:"
 report_all_versions_and_setups
+echo "===> dist/ result:"
 show_results_of_dist
 #deactivate_virtual_environment
 echo "===> All done"
