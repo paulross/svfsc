@@ -428,8 +428,7 @@ def test_svf_need_uncoal(size, block_size, need_fpos, need_size, benchmark):
 def _simulate_need_all(svf: svfs.cSVF, fpos: int, need_size: int, greedy_length: int):
     while fpos < svf.last_file_position():
         if not svf.has_data(fpos, need_size):
-            need_list = svf.need(fpos, need_size, greedy_length)
-            # print(f'TRACE: greedy_length: {greedy_length} len(need_list): {len(need_list)}')
+            svf.need(fpos, need_size, greedy_length)
         fpos += need_size
 
 
@@ -438,29 +437,29 @@ def _simulate_need_all(svf: svfs.cSVF, fpos: int, need_size: int, greedy_length:
     'size, block_size, need_size, greedy_length',
     (
             # 8 byte reads
-            (1024, 1, 8, 1),
-            (1024, 1, 8, 512),
-            (1024, 1, 8, 1024),
-            (1024, 1, 8, 1024 * 32),
-            (1024, 1, 8, 1024 * 64),
+            (64 * 1024, 1, 8, 1),
+            (64 * 1024, 1, 8, 512),
+            (64 * 1024, 1, 8, 1024),
+            (64 * 1024, 1, 8, 1024 * 32),
+            (64 * 1024, 1, 8, 1024 * 64),
             # 32 byte reads
-            (1024, 1, 32, 1),
-            (1024, 1, 32, 512),
-            (1024, 1, 32, 1024),
-            (1024, 1, 32, 1024 * 32),
-            (1024, 1, 32, 1024 * 64),
+            (64 * 1024, 1, 32, 1),
+            (64 * 1024, 1, 32, 512),
+            (64 * 1024, 1, 32, 1024),
+            (64 * 1024, 1, 32, 1024 * 32),
+            (64 * 1024, 1, 32, 1024 * 64),
             # 128 byte reads
-            (1024, 1, 128, 1),
-            (1024, 1, 128, 512),
-            (1024, 1, 128, 1024),
-            (1024, 1, 128, 1024 * 32),
-            (1024, 1, 128, 1024 * 64),
+            (64 * 1024, 1, 128, 1),
+            (64 * 1024, 1, 128, 512),
+            (64 * 1024, 1, 128, 1024),
+            (64 * 1024, 1, 128, 1024 * 32),
+            (64 * 1024, 1, 128, 1024 * 64),
             # 512 byte reads
-            (1024, 1, 512, 1),
-            (1024, 1, 512, 512),
-            (1024, 1, 512, 1024),
-            (1024, 1, 512, 1024 * 32),
-            (1024, 1, 512, 1024 * 64),
+            (64 * 1024, 1, 512, 1),
+            (64 * 1024, 1, 512, 512),
+            (64 * 1024, 1, 512, 1024),
+            (64 * 1024, 1, 512, 1024 * 32),
+            (64 * 1024, 1, 512, 1024 * 64),
     ),
     ids=[
         'Greedy:008,00001',
@@ -486,6 +485,8 @@ def _simulate_need_all(svf: svfs.cSVF, fpos: int, need_size: int, greedy_length:
     ]
 )
 def test_svf_need_uncoal_greedy(size, block_size, need_size, greedy_length, benchmark):
+    """Populate a SVF with 64k one byte un-coalesced blocks then check need() on everything with different
+    need sizes and greedy_lengths."""
     block_count = size // block_size
     svf = _write_uncoal(block_size, block_count)
     assert svf.num_bytes() == size
