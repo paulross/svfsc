@@ -126,7 +126,8 @@ report_all_versions_and_setups() {
     echo "---> pip list:"
     pip list
   done
-  deactivate_virtual_environment
+# Don't do this as we want to use show_results_of_dist() and twine after this
+#  deactivate_virtual_environment
 }
 
 show_results_of_dist() {
