@@ -76,7 +76,7 @@ def _simulate_write_uncoalesced(data, block_count):
         '1024',
     ]
 )
-def test_svf_sim_write_uncoal(size, block_size, benchmark):
+def test_svf_write_uncoal(size, block_size, benchmark):
     data = b' ' * block_size
     block_count = size // block_size
     svf = benchmark(_simulate_write_uncoalesced, data, block_count)
@@ -125,7 +125,7 @@ def _simulate_write_coalesced(data, block_count):
         '1024',
     ]
 )
-def test_svf_sim_write_coal(size, block_size, benchmark):
+def test_svf_write_coal(size, block_size, benchmark):
     data = b' ' * block_size
     block_count = size // block_size
     svf = benchmark(_simulate_write_coalesced, data, block_count)
@@ -203,7 +203,7 @@ def _sim_write_index(vr_count, lr_count):
             (23831, 10,),
     )
 )
-def test_svf_sim_write_index(vr_count, lr_count, benchmark):
+def test_svf_write_index(vr_count, lr_count, benchmark):
     result = benchmark(_sim_write_index, vr_count, lr_count)
     # assert result == vr_count * lr_count
 
@@ -253,7 +253,7 @@ def _simulate_read(svf: svfs.cSVF):
         '1e6_',
     ]
 )
-def test_svf_sim_read_uncoal(size, block_size, benchmark):
+def test_svf_read_uncoal(size, block_size, benchmark):
     block_count = size // block_size
     svf = _write_uncoal(block_size, block_count)
     assert svf.num_bytes() == size
@@ -416,7 +416,7 @@ def _simulate_need(svf: svfs.cSVF, fpos: int, need_size: int, greedy_length: int
         '1024K,0512K,1e6_',
     ]
 )
-def test_svf_sim_need_uncoal(size, block_size, need_fpos, need_size, benchmark):
+def test_svf_need_uncoal(size, block_size, need_fpos, need_size, benchmark):
     block_count = size // block_size
     svf = _write_uncoal(block_size, block_count)
     assert svf.num_bytes() == size
@@ -437,31 +437,55 @@ def _simulate_need_all(svf: svfs.cSVF, fpos: int, need_size: int, greedy_length:
 @pytest.mark.parametrize(
     'size, block_size, need_size, greedy_length',
     (
-            (1024, 1, 32, 0),
+            # 8 byte reads
+            (1024, 1, 8, 1),
+            (1024, 1, 8, 512),
+            (1024, 1, 8, 1024),
+            (1024, 1, 8, 1024 * 32),
+            (1024, 1, 8, 1024 * 64),
+            # 32 byte reads
+            (1024, 1, 32, 1),
             (1024, 1, 32, 512),
             (1024, 1, 32, 1024),
             (1024, 1, 32, 1024 * 32),
             (1024, 1, 32, 1024 * 64),
-            (1024, 1, 256, 0),
-            (1024, 1, 256, 512),
-            (1024, 1, 256, 1024),
-            (1024, 1, 256, 1024 * 32),
-            (1024, 1, 256, 1024 * 64),
+            # 128 byte reads
+            (1024, 1, 128, 1),
+            (1024, 1, 128, 512),
+            (1024, 1, 128, 1024),
+            (1024, 1, 128, 1024 * 32),
+            (1024, 1, 128, 1024 * 64),
+            # 512 byte reads
+            (1024, 1, 512, 1),
+            (1024, 1, 512, 512),
+            (1024, 1, 512, 1024),
+            (1024, 1, 512, 1024 * 32),
+            (1024, 1, 512, 1024 * 64),
     ),
     ids=[
-        'Greedy:032,00000',
+        'Greedy:008,00001',
+        'Greedy:008,00512',
+        'Greedy:008,01024',
+        'Greedy:008,32768',
+        'Greedy:008,65536',
+        'Greedy:032,00001',
         'Greedy:032,00512',
         'Greedy:032,01024',
         'Greedy:032,32768',
         'Greedy:032,65536',
-        'Greedy:256,00000',
-        'Greedy:256,00512',
-        'Greedy:256,01024',
-        'Greedy:256,32768',
-        'Greedy:256,65536',
+        'Greedy:128,00001',
+        'Greedy:128,00512',
+        'Greedy:128,01024',
+        'Greedy:128,32768',
+        'Greedy:128,65536',
+        'Greedy:512,00001',
+        'Greedy:512,00512',
+        'Greedy:512,01024',
+        'Greedy:512,32768',
+        'Greedy:512,65536',
     ]
 )
-def test_svf_sim_need_uncoal_greedy_length(size, block_size, need_size, greedy_length, benchmark):
+def test_svf_need_uncoal_greedy(size, block_size, need_size, greedy_length, benchmark):
     block_count = size // block_size
     svf = _write_uncoal(block_size, block_count)
     assert svf.num_bytes() == size
