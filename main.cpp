@@ -59,6 +59,7 @@ int main() {
     pass_fail.add_result(result.result());
     results.push_back(result);
 
+
     // Results
     write_test_results(results, std::cout);
     std::cout << "Test results [" << pass_fail.total() << "]";
