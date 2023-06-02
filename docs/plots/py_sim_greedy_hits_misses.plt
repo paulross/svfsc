@@ -24,7 +24,8 @@ set datafile separator whitespace
 #cost(x) = a + (b / (x/1024))
 #fit cost(x) "data/perf_size_of.dat" using 1:2 via a,b
 
-set key bottom left
+# set key bottom left
+set key top right
 #set key off
 
 set terminal png size 800,500           # choose the file format
@@ -47,13 +48,32 @@ set output "images/py_sim_greedy_hits_misses.png"   # choose the output device
     "data/py_sim_greedy_TUPAC-TR-006.dat" using 1:3 t "TUPAC-TR-006 Hits" with linespoints axes x1y1 pt 3 lw 2, \
     "data/py_sim_greedy_TUPAC-TR-006.dat" using 1:4 t "TUPAC-TR-006 Miss" with linespoints axes x1y1 pt 3 lw 2
 
-plot "data/py_sim_greedy_TUPAC-TR-002.dat" using 1:3 t "TUPAC-TR-002 Hits" with linespoints axes x1y1 pt 3 lw 2, \
+# All - unused
+#plot "data/py_sim_greedy_TUPAC-TR-002.dat" using 1:3 t "TUPAC-TR-002 Hits" with linespoints axes x1y1 pt 3 lw 2, \
     "data/py_sim_greedy_TUPAC-TR-002.dat" using 1:4 t "TUPAC-TR-002 Miss" with linespoints axes x1y1 pt 3 lw 2, \
     "data/py_sim_greedy_TUPAC-TR-003.dat" using 1:3 t "TUPAC-TR-003 Hits" with linespoints axes x1y1 pt 3 lw 2, \
-    "data/py_sim_greedy_TUPAC-TR-003.dat" using 1:4 t "TUPAC-TR-003 Miss" with linespoints axes x1y1 pt 3 lw 2 #, \
+    "data/py_sim_greedy_TUPAC-TR-003.dat" using 1:4 t "TUPAC-TR-003 Miss" with linespoints axes x1y1 pt 3 lw 2, \
     "data/py_sim_greedy_TUPAC-TR-005.dat" using 1:3 t "TUPAC-TR-005 Hits" with linespoints axes x1y1 pt 3 lw 2, \
     "data/py_sim_greedy_TUPAC-TR-005.dat" using 1:4 t "TUPAC-TR-005 Miss" with linespoints axes x1y1 pt 3 lw 2, \
     "data/py_sim_greedy_TUPAC-TR-006.dat" using 1:3 t "TUPAC-TR-006 Hits" with linespoints axes x1y1 pt 3 lw 2, \
+    "data/py_sim_greedy_TUPAC-TR-006.dat" using 1:4 t "TUPAC-TR-006 Miss" with linespoints axes x1y1 pt 3 lw 2
+
+# Just 003 and 006
+#plot "data/py_sim_greedy_TUPAC-TR-003.dat" using 1:3 t "TUPAC-TR-003 Hits" with linespoints axes x1y1 pt 3 lw 2, \
+    "data/py_sim_greedy_TUPAC-TR-006.dat" using 1:3 t "TUPAC-TR-006 Hits" with linespoints axes x1y1 pt 3 lw 2, \
+    "data/py_sim_greedy_TUPAC-TR-003.dat" using 1:4 t "TUPAC-TR-003 Miss" with linespoints axes x1y1 pt 3 lw 2, \
+    "data/py_sim_greedy_TUPAC-TR-006.dat" using 1:4 t "TUPAC-TR-006 Miss" with linespoints axes x1y1 pt 3 lw 2
+
+# Just 003 and 006, misses only
+set title "Cache Misses, Selected Files."
+set ylabel "Cache Misses"
+set xrange [1:1e6]
+plot "data/py_sim_greedy_CMU-1.dat" using 1:4 t "CMU-1 Miss" with linespoints axes x1y1 pt 3 lw 2, \
+    "data/py_sim_greedy_TUPAC-TR-001.dat" using 1:4 t "TUPAC-TR-001 Miss" with linespoints axes x1y1 pt 3 lw 2, \
+    "data/py_sim_greedy_TUPAC-TR-002.dat" using 1:4 t "TUPAC-TR-002 Miss" with linespoints axes x1y1 pt 3 lw 2, \
+    "data/py_sim_greedy_TUPAC-TR-003.dat" using 1:4 t "TUPAC-TR-003 Miss" with linespoints axes x1y1 pt 3 lw 2, \
+    "data/py_sim_greedy_TUPAC-TR-004.dat" using 1:4 t "TUPAC-TR-004 Miss" with linespoints axes x1y1 pt 3 lw 2, \
+    "data/py_sim_greedy_TUPAC-TR-005.dat" using 1:4 t "TUPAC-TR-005 Miss" with linespoints axes x1y1 pt 3 lw 2, \
     "data/py_sim_greedy_TUPAC-TR-006.dat" using 1:4 t "TUPAC-TR-006 Miss" with linespoints axes x1y1 pt 3 lw 2
 
 reset
