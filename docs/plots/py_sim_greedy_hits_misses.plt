@@ -8,9 +8,9 @@ set logscale x
 # First line specification refers to major grid lines in both x and y, the second to minor grid lines in x and y.
 set grid xtics mxtics ytics mytics linetype -1 linewidth 1, linetype 0 linewidth 1
 
-#set logscale y
+set logscale y
 set ylabel "Cache Hits and Misses"
-set yrange [0:1.1e5]
+#set yrange [0:1.1e5]
 # set ytics 8,35,3
 
 #set logscale y2
@@ -24,7 +24,7 @@ set datafile separator whitespace
 #cost(x) = a + (b / (x/1024))
 #fit cost(x) "data/perf_size_of.dat" using 1:2 via a,b
 
-set key right
+set key bottom left
 #set key off
 
 set terminal png size 800,500           # choose the file format
