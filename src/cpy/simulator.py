@@ -56,14 +56,19 @@ class Communications:
         self.latency_s = latency_s
         self.bandwidth_bps = bandwidth_bps
         self.realtime = realtime
-        self.total_time = 0.0
+        self.time_latency = 0.0
+        self.time_bandwidth = 0.0
+        self.time_total = 0.0
 
     def transmit(self, data_bytes: bytes, direction: str) -> None:
         t = self.latency_s
+        self.time_latency += self.latency_s
         if self.bandwidth_bps:
-            t += 8 * len(data_bytes) / self.bandwidth_bps
+            t_bandwidth = 8 * len(data_bytes) / self.bandwidth_bps
+            t += t_bandwidth
+            self.time_bandwidth += t_bandwidth
         logger.debug('COMMS_: %s length %d delay %.3f (ms)', direction, len(data_bytes), t * 1000)
-        self.total_time += t
+        self.time_total += t
         if self.realtime:
             time.sleep(t)
 
@@ -152,15 +157,23 @@ class Client:
             svf.read(fpos_demand, length_demand)
             time_svf += time.perf_counter() - time_svf_start
         time_exec = time.perf_counter() - time_start
-        time_exec = self.comms.total_time + self.server.total_time + time_svf
+        time_exec = self.comms.time_total + self.server.total_time + time_svf
         logger.info('has(): hits: %d misses: %d', has_hits, has_misses)
         logger.info(
             'Blocks: %d bytes: %d sizeof: %d overhead: %d', svf.num_blocks(), svf.num_bytes(), svf.size_of(),
             svf.size_of() - svf.num_bytes()
         )
-        percent_str = '+' * int(0.5 + 50 * self.comms.total_time / time_exec)
         logger.info(
-            f'Comms time : {self.comms.total_time * 1000:10.3f} (ms) ({self.comms.total_time / time_exec:6.1%})'
+            f'Comms laten: {self.comms.time_latency * 1000:10.3f} (ms)'
+            f' ({self.comms.time_latency / self.comms.time_total:6.1%}) of Comms total.'
+        )
+        logger.info(
+            f'Comms bwidt: {self.comms.time_bandwidth * 1000:10.3f} (ms)'
+            f' ({self.comms.time_bandwidth / self.comms.time_total:6.1%}) of Comms total.'
+        )
+        percent_str = '+' * int(0.5 + 50 * self.comms.time_total / time_exec)
+        logger.info(
+            f'Comms time : {self.comms.time_total * 1000:10.3f} (ms) ({self.comms.time_total / time_exec:6.1%})'
             f' {percent_str}'
         )
         percent_str = '+' * int(0.5 + 50 * self.server.total_time / time_exec)
@@ -184,7 +197,7 @@ class Client:
                     svf.num_bytes(), time_exec, svf.num_bytes() / time_exec / 1024 ** 2
                     )
         return RunResult(has_hits, has_misses, minimal_bytes, svf.num_bytes(), svf.size_of(),
-                         self.comms.total_time + self.server.total_time + time_svf
+                         self.comms.time_total + self.server.total_time + time_svf
                          )
 
 
