@@ -14,7 +14,7 @@ set -o pipefail # don't hide errors within pipes
 PYTHON_VERSIONS=('3.8' '3.9' '3.10' '3.11')
 PYTHON_VENV_ROOT="${HOME}/pyenvs"
 # Used for venvs
-PROJECT_NAME="çc"
+PROJECT_NAME="svfsc"
 
 #printf "%-8s %8s %10s %10s %12s\n" "Ext" "Files" "Lines" "Words" "Bytes"
 
