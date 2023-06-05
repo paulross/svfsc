@@ -13,7 +13,7 @@ A Sparse Virtual File (``svfs.cSVF``) can be pickled:
 .. code-block:: python
 
     import pickle
-    import svfs
+    import svfsc
 
     svf = svfs.cSVF('id')
     svf.write(21, b'ABCDEF')
@@ -28,7 +28,7 @@ And to un-pickle:
 .. code-block:: python
 
     import pickle
-    import svfs
+    import svfsc
 
     svf = svfs.cSVF('id')
     svf.write(21, b'ABCDEF')
@@ -40,7 +40,7 @@ And to un-pickle:
     assert new_svf.blocks() == svf.blocks()
 
 Pickling is versioned by an integer number.
-As ``svfs`` progresses this ensures that pickles from previous ``svfs`` versions can be detected and either rejected or
+As ``svfsc`` progresses this ensures that pickles from previous ``svfsc`` versions can be detected and either rejected or
 read and modified, if possible.
 
 Using ``pickletools``
@@ -50,7 +50,7 @@ Using ``pickletools``
 
     import pickle
     import pickletools
-    import svfs
+    import svfsc
 
     svf = svfs.cSVF('id')
     svf.write(1, b' ')
@@ -294,7 +294,7 @@ For example here is the result of reading TIFF metadata with different network l
     single: Zero Latency, Infinite Bandwidth
 
 The ZLIB curve represents *Zero Latency, Infinite Bandwidth* and thus is the network performance floor and, as expected,
-the greedy read length has little effect there as ``svfs`` is an optimisation for *slow* networks:
+the greedy read length has little effect there as ``svfsc`` is an optimisation for *slow* networks:
 
 .. image:: ../../plots/images/py_sim_greedy_latency.png
 

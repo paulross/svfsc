@@ -44,7 +44,7 @@ __pycache__
 .eggs
 *.egg
 dist/
-orderedstructs.egg-info/
+svfsc.egg-info/
 
 .project
 .pydevproject

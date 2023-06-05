@@ -37,7 +37,7 @@
 
 static PyModuleDef svfsmodule = {
         PyModuleDef_HEAD_INIT,
-        .m_name = "svfs",
+        .m_name = "svfsc",
         .m_doc = \
         "This module contains Sparse Virtual File System classes."
         "\n"
@@ -55,7 +55,7 @@ static PyModuleDef svfsmodule = {
 };
 
 PyMODINIT_FUNC
-PyInit_svfs(void)
+PyInit_svfsc(void)
 {
     PyObject *m = NULL;
 
@@ -91,17 +91,17 @@ PyInit_svfs(void)
         return NULL;
     }
 
-    if (PyType_Ready(&svfs_cSVF) < 0) {
+    if (PyType_Ready(&svfsc_cSVF) < 0) {
         return NULL;
     }
-    Py_INCREF(&svfs_cSVF);
-    PyModule_AddObject(m, "cSVF", (PyObject *) &svfs_cSVF);
+    Py_INCREF(&svfsc_cSVF);
+    PyModule_AddObject(m, "cSVF", (PyObject *) &svfsc_cSVF);
 
-    if (PyType_Ready(&svfs_cSVFS) < 0) {
+    if (PyType_Ready(&svfsc_cSVFS) < 0) {
         return NULL;
     }
-    Py_INCREF(&svfs_cSVFS);
-    PyModule_AddObject(m, "cSVFS", (PyObject *) &svfs_cSVFS);
+    Py_INCREF(&svfsc_cSVF);
+    PyModule_AddObject(m, "cSVFS", (PyObject *) &svfsc_cSVFS);
 
 
     PyDateTime_IMPORT;

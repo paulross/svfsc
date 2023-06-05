@@ -23,13 +23,13 @@ SOFTWARE.
 """
 import pytest
 
-import svfs
+import svfsc
 
 ID = 'abc'
 
 
 def ctor():
-    return svfs.cSVF(id=ID, mod_time=1.0)
+    return svfsc.cSVF(id=ID, mod_time=1.0)
 
 
 def test_svf_ctor(benchmark):
@@ -38,7 +38,7 @@ def test_svf_ctor(benchmark):
 
 def _simulate_write_uncoalesced(data, block_count):
     fpos = 0
-    svf = svfs.cSVF(ID)
+    svf = svfsc.cSVF(ID)
     for i in range(block_count):
         assert svf.count_write() == i
         svf.write(fpos, data)
@@ -87,7 +87,7 @@ def test_svf_write_uncoal(size, block_size, benchmark):
 
 def _simulate_write_coalesced(data, block_count):
     fpos = 0
-    svf = svfs.cSVF(ID)
+    svf = svfsc.cSVF(ID)
     for i in range(block_count):
         # assert svf.count_write() == i
         svf.write(fpos, data)
@@ -154,7 +154,7 @@ def test_svf_write_coal(size, block_size, benchmark):
 
 
 def _sim_write_index(vr_count, lr_count):
-    file_system = svfs.cSVF(ID, 12.0)
+    file_system = svfsc.cSVF(ID, 12.0)
     vr_data = b' ' * 4
     lr_data = b' ' * 4
     count_write = 0
@@ -208,9 +208,9 @@ def test_svf_write_index(vr_count, lr_count, benchmark):
     # assert result == vr_count * lr_count
 
 
-def _write_uncoal(block_size: int, block_count: int) -> svfs.cSVF:
+def _write_uncoal(block_size: int, block_count: int) -> svfsc.cSVF:
     data = b' ' * block_size
-    svf = svfs.cSVF("ID")
+    svf = svfsc.cSVF("ID")
     fpos = 0
     for i in range(block_count):
         svf.write(fpos, data)
@@ -218,7 +218,7 @@ def _write_uncoal(block_size: int, block_count: int) -> svfs.cSVF:
     return svf
 
 
-def _simulate_read(svf: svfs.cSVF):
+def _simulate_read(svf: svfsc.cSVF):
     for fpos, length in svf.blocks():
         svf.read(fpos, length)
 
@@ -262,7 +262,7 @@ def test_svf_read_uncoal(size, block_size, benchmark):
     benchmark(_simulate_read, svf)
 
 
-def _simulate_need(svf: svfs.cSVF, fpos: int, need_size: int, greedy_length: int):
+def _simulate_need(svf: svfsc.cSVF, fpos: int, need_size: int, greedy_length: int):
     svf.need(fpos, need_size, greedy_length)
 
 
@@ -425,7 +425,7 @@ def test_svf_need_uncoal(size, block_size, need_fpos, need_size, benchmark):
     benchmark(_simulate_need, svf, need_fpos, need_size, 0)
 
 
-def _simulate_need_all(svf: svfs.cSVF, fpos: int, need_size: int, greedy_length: int):
+def _simulate_need_all(svf: svfsc.cSVF, fpos: int, need_size: int, greedy_length: int):
     while fpos < svf.last_file_position():
         if not svf.has_data(fpos, need_size):
             svf.need(fpos, need_size, greedy_length)

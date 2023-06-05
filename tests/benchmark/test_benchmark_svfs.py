@@ -25,11 +25,11 @@ import time
 
 import pytest
 
-import svfs
+import svfsc
 
 
 def ctor():
-    return svfs.cSVFS()
+    return svfsc.cSVFS()
 
 
 def test_svfs_ctor(benchmark):
@@ -41,7 +41,7 @@ ID = 'abc'
 
 def _simulate_write_uncoalesced(size, block_size):
     # SIZE = 1024 #* 1024 * 1
-    s = svfs.cSVFS()
+    s = svfsc.cSVFS()
     s.insert(ID, 12.0)
     data = b' ' * block_size
     block_count = size // block_size
@@ -82,7 +82,7 @@ def test_svfs_sim_write_uncoal(size, block_size, benchmark):
 
 def _simulate_write_coalesced(size, block_size):
     # SIZE = 1024 #* 1024 * 1
-    s = svfs.cSVFS()
+    s = svfsc.cSVFS()
     s.insert(ID, 12.0)
     data = b' ' * block_size
     block_count = size // block_size
@@ -141,7 +141,7 @@ def test_svfs_sim_write_coal(size, block_size, benchmark):
 
 
 def _sim_write_index(vr_count, lr_count):
-    file_system = svfs.cSVFS()
+    file_system = svfsc.cSVFS()
     file_system.insert(ID, 12.0)
     vr_data = b' ' * 4
     lr_data = b' ' * 4

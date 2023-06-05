@@ -3,7 +3,7 @@
 Testing
 ============
 
-Assuming you have installed ``svfs`` (instructions are :ref:`here <installation>`).
+Assuming you have installed ``svfsc`` (instructions are :ref:`here <installation>`).
 
 C++
 --------------

@@ -3,8 +3,14 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to svfs's documentation!
+Documentation for ``svfsc``
 ================================
+
+The ``svfsc`` package provides a Sparse Virtual File System which is capable of holding the essential fragments of a
+binary such a metadata.
+``svfsc`` can hold this data in-memory in an efficient way without the cost of reading the whole file.
+This is especially useful when reading large files from the cloud where the cost of accessing the whole file can be
+very high.
 
 .. toctree::
    :maxdepth: 3

@@ -1303,9 +1303,9 @@ static const char *svfs_cSVFS_doc = PyDoc_STR(
 // clang-format on
 // @formatter.on
 
-static PyTypeObject svfs_cSVFS = {
+static PyTypeObject svfsc_cSVFS = {
         PyVarObject_HEAD_INIT(NULL, 0)
-        .tp_name = "svfs.cSVFS",
+        .tp_name = "svfsc.cSVFS",
         .tp_basicsize = sizeof(cp_SparseVirtualFileSystem),
         .tp_itemsize = 0,
         .tp_dealloc = (destructor) cp_SparseVirtualFileSystem_dealloc,

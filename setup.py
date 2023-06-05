@@ -32,7 +32,7 @@ else:
     extra_compile_args.extend(['-O2', '-UDEBUG', '-DNDEBUG'])
 
 svfs_extension = Extension(
-    "svfs",
+    "svfsc",
     sources=[
         'src/cp/cSVFS.cpp',
         'src/cp/svfs_util.cpp',
@@ -71,10 +71,10 @@ test_requirements = [
 ]
 
 setup(
-    name='svfs',
-    version='0.1.0',
+    name='svfsc',
+    version='0.1.1',
     ext_modules=[svfs_extension,],
-    description="Sparse Virtual File System.",
+    description="Sparse Virtual File System Cache implemented in C++.",
     long_description=readme + '\n\n' + history,
     long_description_content_type='text/x-rst',
     author="Paul Ross",
@@ -82,7 +82,7 @@ setup(
     url='https://github.com/paulross',
 #     packages=find_packages('src'),
     license="MIT License",
-    keywords=['svfs',],
+    keywords=['svf', 'svfs','svfsc',],
     classifiers=[
         'Development Status :: 2 - Pre-Alpha',
         'Intended Audience :: Developers',

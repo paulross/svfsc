@@ -26,7 +26,7 @@ import pickle
 import psutil
 import pytest
 
-import svfs
+import svfsc
 
 
 # 1000 * 10000 * 1000 is around 10Gb
@@ -44,7 +44,7 @@ def test_memory_SVF_write():
     for repeat in range(SLOW_REPEAT):
         # rss_start = proc.memory_info().rss
         # print(f'RSS start: {proc.memory_info().rss:,d}', end='')
-        s = svfs.cSVF('id', 1.0)
+        s = svfsc.cSVF('id', 1.0)
         for block_index in range(SLOW_BLOCKS):
             # Not coalesced
             s.write(block_index * 2 * SLOW_BLOCK_SIZE, b' ' * SLOW_BLOCK_SIZE)
@@ -67,7 +67,7 @@ def test_memory_SVF_need():
     proc = psutil.Process()
     # print()
     rss_start_overall = proc.memory_info().rss
-    s = svfs.cSVF('id', 1.0)
+    s = svfsc.cSVF('id', 1.0)
     for block_index in range(SLOW_BLOCKS):
         # Not coalesced
         s.write(block_index * 2 * SLOW_BLOCK_SIZE, b' ' * SLOW_BLOCK_SIZE)
@@ -89,7 +89,7 @@ def test_memory_SVF_read():
     for repeat in range(SLOW_REPEAT):
         # rss_start = proc.memory_info().rss
         # print(f'RSS start: {proc.memory_info().rss:,d}', end='')
-        s = svfs.cSVF('id', 1.0)
+        s = svfsc.cSVF('id', 1.0)
         for block_index in range(SLOW_BLOCKS):
             # Not coalesced
             s.write(block_index * 2 * SLOW_BLOCK_SIZE, b' ' * SLOW_BLOCK_SIZE)
@@ -117,7 +117,7 @@ def test_memory_SVF_pickle_dumps():
     for repeat in range(SLOW_REPEAT):
         # rss_start = proc.memory_info().rss
         # print(f'RSS start: {proc.memory_info().rss:,d}', end='')
-        s = svfs.cSVF('id', 1.0)
+        s = svfsc.cSVF('id', 1.0)
         for block_index in range(SLOW_BLOCKS):
             # Not coalesced
             s.write(block_index * 2 * SLOW_BLOCK_SIZE, b' ' * SLOW_BLOCK_SIZE)
@@ -147,7 +147,7 @@ def test_memory_SVF_pickle_loads():
     for repeat in range(SLOW_REPEAT):
         # rss_start = proc.memory_info().rss
         # print(f'RSS start: {proc.memory_info().rss:,d}', end='')
-        s = svfs.cSVF('id', 1.0)
+        s = svfsc.cSVF('id', 1.0)
         for block_index in range(SLOW_BLOCKS):
             # Not coalesced
             s.write(block_index * 2 * SLOW_BLOCK_SIZE, b' ' * SLOW_BLOCK_SIZE)

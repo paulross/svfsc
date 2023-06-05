@@ -29,7 +29,7 @@ import sys
 import time
 import typing
 
-import svfs
+import svfsc
 
 import src.cpy.sim_examples as sim_examples
 
@@ -109,7 +109,7 @@ class Client:
 
     def run(self, seek_reads: typing.Tuple[typing.Tuple[int, int], ...], greedy_length: int) -> RunResult:
         time_start = time.perf_counter()
-        svf = svfs.cSVF('ID')
+        svf = svfsc.cSVF('ID')
         time_svf = 0.0
         has_hits = has_misses = 0
         minimal_bytes = 0

@@ -31,16 +31,16 @@ import typing
 import psutil
 import pytest
 
-import svfs
+import svfsc
 
 
 def test_SVF_ctor():
-    svfs.cSVF('id', 1.0)
-    svfs.cSVF(id='id', mod_time=1.0)
+    svfsc.cSVF('id', 1.0)
+    svfsc.cSVF(id='id', mod_time=1.0)
 
 
 def test_SVF_id():
-    s = svfs.cSVF('id', 1.0)
+    s = svfsc.cSVF('id', 1.0)
     assert s.id() == 'id'
 
 
@@ -137,7 +137,7 @@ INSERT_FPOS_BYTES_EXPECTED_BLOCKS_IDS = [
     ids=INSERT_FPOS_BYTES_EXPECTED_BLOCKS_IDS,
 )
 def test_SVF_write_success(blocks, expected_blocks):
-    s = svfs.cSVF('id', 1.0)
+    s = svfsc.cSVF('id', 1.0)
     for fpos, data in blocks:
         s.write(fpos, data)
     assert s.blocks() == expected_blocks
@@ -149,7 +149,7 @@ def test_SVF_write_success(blocks, expected_blocks):
     ids=INSERT_FPOS_BYTES_EXPECTED_BLOCKS_IDS,
 )
 def test_SVF_num_bytes(blocks, expected_blocks):
-    s = svfs.cSVF('id', 1.0)
+    s = svfsc.cSVF('id', 1.0)
     for fpos, data in blocks:
         s.write(fpos, data)
     num_bytes = 0
@@ -164,7 +164,7 @@ def test_SVF_num_bytes(blocks, expected_blocks):
     ids=INSERT_FPOS_BYTES_EXPECTED_BLOCKS_IDS,
 )
 def test_SVF_num_blocks(blocks, expected_blocks):
-    s = svfs.cSVF('id', 1.0)
+    s = svfsc.cSVF('id', 1.0)
     for fpos, data in blocks:
         s.write(fpos, data)
     assert s.num_blocks() == len(expected_blocks)
@@ -176,7 +176,7 @@ def test_SVF_num_blocks(blocks, expected_blocks):
     ids=INSERT_FPOS_BYTES_EXPECTED_BLOCKS_IDS,
 )
 def test_SVF_has_data_true(blocks, expected_blocks):
-    s = svfs.cSVF('id', 1.0)
+    s = svfsc.cSVF('id', 1.0)
     for fpos, data in blocks:
         s.write(fpos, data)
     for fpos, length in expected_blocks:
@@ -190,7 +190,7 @@ def test_SVF_has_data_true(blocks, expected_blocks):
     ids=INSERT_FPOS_BYTES_EXPECTED_BLOCKS_IDS,
 )
 def test_SVF_read(blocks, expected_blocks):
-    s = svfs.cSVF('id', 1.0)
+    s = svfsc.cSVF('id', 1.0)
     for fpos, data in blocks:
         s.write(fpos, data)
     for fpos, length in expected_blocks:
@@ -218,7 +218,7 @@ def test_SVF_read_special(blocks, expected_blocks):
     2023-04-25 12:05:24,799 -             simulator.py#92   - ERROR    - CLIENT: demands fpos      291,810,392 length  2,429 (     291,812,821)
     2023-04-25 12:05:24,799 -             simulator.py#96   - ERROR    - CLIENT:  blocks now: ['(0 : 1,024 : 1,024)', '(291,809,396 : 3,397 : 291,812,793)']
     """
-    svf = svfs.cSVF('id')
+    svf = svfsc.cSVF('id')
     for fpos, length in blocks:
         svf.write(fpos, b' ' * length)
     assert svf.blocks() == ((0, 1_024), (291_809_396, 1_024))
@@ -246,7 +246,7 @@ def test_SVF_read_special(blocks, expected_blocks):
     ],
 )
 def test_SVF_erase(blocks, erase_fpos):
-    s = svfs.cSVF('id', 1.0)
+    s = svfsc.cSVF('id', 1.0)
     for fpos, data in blocks:
         s.write(fpos, data)
     assert s.has_data(erase_fpos, 1)
@@ -270,7 +270,7 @@ def test_SVF_erase(blocks, erase_fpos):
     ],
 )
 def test_SVF_erase_raises(blocks, erase_fpos, expected_message):
-    s = svfs.cSVF('id', 1.0)
+    s = svfsc.cSVF('id', 1.0)
     for fpos, data in blocks:
         s.write(fpos, data)
     with pytest.raises(IOError) as err:
@@ -284,7 +284,7 @@ def test_SVF_erase_raises(blocks, erase_fpos, expected_message):
     ids=INSERT_FPOS_BYTES_EXPECTED_BLOCKS_IDS,
 )
 def test_SVF_need_nothing(blocks, expected_blocks):
-    s = svfs.cSVF('id', 1.0)
+    s = svfsc.cSVF('id', 1.0)
     for fpos, data in blocks:
         s.write(fpos, data)
     for fpos, length in expected_blocks:
@@ -299,7 +299,7 @@ def test_SVF_need_nothing(blocks, expected_blocks):
 )
 def test_SVF_need_all(blocks, expected_blocks):
     # Empty SVF, needs everything.
-    s = svfs.cSVF('id', 1.0)
+    s = svfsc.cSVF('id', 1.0)
     for fpos, length in expected_blocks:
         assert s.need(fpos, length) == [(fpos, length)]
         assert s.need(file_position=fpos, length=length) == [(fpos, length)]
@@ -340,7 +340,7 @@ def test_SVF_need_all(blocks, expected_blocks):
     ],
 )
 def test_SVF_need(blocks, need_fpos, need_length, expected_need):
-    s = svfs.cSVF('id', 1.0)
+    s = svfsc.cSVF('id', 1.0)
     for fpos, length in blocks:
         s.write(fpos, b' ' * length)
     result = s.need(need_fpos, need_length)
@@ -392,7 +392,7 @@ def test_SVF_need(blocks, need_fpos, need_length, expected_need):
     ],
 )
 def test_SVF_need_greedy(blocks, need_fpos, need_length, greedy_length, expected_need):
-    s = svfs.cSVF('id', 1.0)
+    s = svfsc.cSVF('id', 1.0)
     for fpos, length in blocks:
         s.write(fpos, b' ' * length)
     result = s.need(need_fpos, need_length, greedy_length=greedy_length)
@@ -411,7 +411,7 @@ def test_SVF_need_write_special():
     TRACE: Needs: block now (0, 8, 8) (77, 77, 0, 42, 0, 0, 11, 212)
     TRACE: Needs: block now (3028, 105, 3133) (0, 15, 1, 0, 0, 3, 0, 0, 0, 1, 0, 157, 0, 0, 1, 1, 0, 3, 0, 0, 0, 1, 0, 151, 0, 0, 1, 2, 0, 3, 0, 0, 0, 1, 0, 1, 0, 0, 1, 3, 0, 3, 0, 0, 0, 1, 0, 1, 0, 0, 1, 6, 0, 3, 0, 0, 0, 1, 0, 3, 0, 0, 1, 13, 0, 2, 0, 0, 0, 19, 0, 0, 12, 142, 1, 17, 0, 4, 0, 0, 0, 1, 0, 0, 0, 8, 112, 97, 108, 101, 116, 116, 101, 45, 49, 99, 45, 49, 98, 46, 116, 105, 102, 102, 0)
     """
-    svf = svfs.cSVF('id', 1.0)
+    svf = svfsc.cSVF('id', 1.0)
     svf.write(0, b'A' * 8)
     svf.write(3028, b'B' * 74)
     svf.write(3214, b'C' * 19)
@@ -428,8 +428,8 @@ def test_SVF_need_write_special():
     (
             (
                     (),
-                    b'\x80\x04\x95Y\x00\x00\x00\x00\x00\x00\x00\x8c\x04'
-                    b'svfs\x94\x8c\x04'
+                    b'\x80\x04\x95Z\x00\x00\x00\x00\x00\x00\x00\x8c\x05'
+                    b'svfsc\x94\x8c\x04'
                     b'cSVF\x94\x93\x94)\x81\x94}\x94(\x8c\x02'
                     b'id\x94\x8c\x02'
                     b'id\x94\x8c\r'
@@ -439,8 +439,8 @@ def test_SVF_need_write_special():
             ),
             (
                     ((1, b' '),),
-                    b'\x80\x04\x95b\x00\x00\x00\x00\x00\x00\x00\x8c\x04'
-                    b'svfs\x94\x8c\x04'
+                    b'\x80\x04\x95c\x00\x00\x00\x00\x00\x00\x00\x8c\x05'
+                    b'svfsc\x94\x8c\x04'
                     b'cSVF\x94\x93\x94)\x81\x94}\x94(\x8c\x02'
                     b'id\x94\x8c\x02'
                     b'id\x94\x8c\r'
@@ -450,8 +450,8 @@ def test_SVF_need_write_special():
             ),
             (
                     ((1, b' '), (12, b' '),),
-                    b'\x80\x04\x95j\x00\x00\x00\x00\x00\x00\x00\x8c\x04'
-                    b'svfs\x94\x8c\x04'
+                    b'\x80\x04\x95k\x00\x00\x00\x00\x00\x00\x00\x8c\x05'
+                    b'svfsc\x94\x8c\x04'
                     b'cSVF\x94\x93\x94)\x81\x94}\x94(\x8c\x02'
                     b'id\x94\x8c\x02'
                     b'id\x94\x8c\r'
@@ -467,7 +467,7 @@ def test_SVF_need_write_special():
     ],
 )
 def test_SVF_pickle_dumps(blocks, expected_pickle_bytes):
-    s = svfs.cSVF('id', 1.0)
+    s = svfsc.cSVF('id', 1.0)
     for fpos, data in blocks:
         s.write(fpos, data)
     result = pickle.dumps(s)
@@ -484,7 +484,7 @@ def test_SVF_pickle_dumps(blocks, expected_pickle_bytes):
     ids=INSERT_FPOS_BYTES_EXPECTED_BLOCKS_IDS,
 )
 def test_SVF_pickle_loads(blocks, expected_blocks):
-    s = svfs.cSVF('id', 1.0)
+    s = svfsc.cSVF('id', 1.0)
     for fpos, data in blocks:
         s.write(fpos, data)
     assert s.blocks() == expected_blocks
@@ -493,7 +493,7 @@ def test_SVF_pickle_loads(blocks, expected_blocks):
     assert new_s.blocks() == expected_blocks
 
 
-def write_to_svf(svf: svfs.cSVF, values: typing.Tuple[typing.Tuple[int, int], ...], offset: int):
+def write_to_svf(svf: svfsc.cSVF, values: typing.Tuple[typing.Tuple[int, int], ...], offset: int):
     for fpos, length in values:
         svf.write(fpos + offset, b' ' * length)
 
@@ -513,7 +513,7 @@ def write_to_svf(svf: svfs.cSVF, values: typing.Tuple[typing.Tuple[int, int], ..
 )
 def test_multit_hreaded_write_coalesced_overwrite(number_of_threads, expected_bytes):
     """Tests multi-threaded write() with overwriting a single coalesced 1MB block writing 8 bytes at a time."""
-    svf = svfs.cSVF("Some ID")
+    svf = svfsc.cSVF("Some ID")
     # Blocks are adjacent
     blocks = tuple((fpos, 8) for fpos in range(0, 1024 * 1024, 8))
     if number_of_threads:
@@ -560,7 +560,7 @@ def test_multit_hreaded_write_coalesced_overwrite(number_of_threads, expected_by
 )
 def test_multi_threaded_write_un_coalesced(number_of_threads, expected_bytes):
     """Tests multi-threaded write()."""
-    svf = svfs.cSVF("Some ID")
+    svf = svfsc.cSVF("Some ID")
     limit = 1024 * 1024
     if number_of_threads > 1:
         limit //= number_of_threads
@@ -598,7 +598,7 @@ def test_multi_threaded_write_un_coalesced(number_of_threads, expected_bytes):
     ),
 )
 def test_count_write(number_of_writes):
-    svf = svfs.cSVF("Some ID")
+    svf = svfsc.cSVF("Some ID")
     block = b' '
     for i in range(number_of_writes):
         svf.write(0, block)

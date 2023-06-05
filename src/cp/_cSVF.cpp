@@ -1158,22 +1158,22 @@ static const char *svfs_cSVF_doc = PyDoc_STR(
                                            "\n\n"
                                            "For example::"
                                            "\n\n"
-                                           "       import svfs\n"
+                                           "       import svfsc\n"
                                            "       \n"
-                                           "       svf = svfs.cSVF('some ID')\n"
+                                           "       svf = svfsc.cSVF('some ID')\n"
                                            "       svf.write(12, b'ABCD')\n"
                                            "       svf.read(13, 2)  # Returns b'BC'\n"
                                            "       svf.need(10, 12)  # Returns ((10, 2), 16, 6)), the file positions and lengths the the SVF needs\n"
                                            "       svf.read(1024, 18)  # SVF raises an error as it has no data here.\n"
                                            "\n"
-                                           "Signature:\n\n``svfs.cSVF(id: str, mod_time: float = 0.0, overwrite_on_exit: bool = False, compare_for_diff: bool = True)``"
+                                           "Signature:\n\n``svfsc.cSVF(id: str, mod_time: float = 0.0, overwrite_on_exit: bool = False, compare_for_diff: bool = True)``"
                                    );
 // @formatter:on
 // clang-format on
 
-static PyTypeObject svfs_cSVF = {
+static PyTypeObject svfsc_cSVF = {
         PyVarObject_HEAD_INIT(NULL, 0)
-        .tp_name = "svfs.cSVF",
+        .tp_name = "svfsc.cSVF",
         .tp_basicsize = sizeof(cp_SparseVirtualFile),
         .tp_itemsize = 0,
         .tp_dealloc = (destructor) cp_SparseVirtualFile_dealloc,

@@ -8,14 +8,14 @@ Introduction
 Somtimes you don't need the whole file.
 Sometimes you don't *want* the whole file.
 Especially if it is huge and on some remote server.
-But, you might know what parts of the file that you want and ``svfs`` can help you store them locally so it looks
+But, you might know what parts of the file that you want and ``svfsc`` can help you store them locally so it looks
 *as if* you have access to the complete file but with just the pieces of interest.
 
-``svfs`` is targeted at reading very large binary files such as TIFF, RP66V1, HDF5 where the structure is well known.
+``svfsc`` is targeted at reading very large binary files such as TIFF, RP66V1, HDF5 where the structure is well known.
 For example you might want to parse a TIFF file for its metadata or a particular image tile which is usually a tiny
 fraction of the file itself.
 
-``svfs`` implements a *Sparse Virtual File*, a specialised in-memory cache where a particular file might not be
+``svfsc`` implements a *Sparse Virtual File*, a specialised in-memory cache where a particular file might not be
 available but *parts of it can be obtained* without reading the whole file.
 A Sparse Virtual File (SVF) is represented internally as a map of blocks of data with the key being their file
 offsets.
@@ -23,7 +23,7 @@ Any write to an SVF will coalesce those blocks where possible.
 A Sparse Virtual File System (SVFS) is an extension of this to provide a key/value store where the key is a file ID
 and the value a Sparse Virtual File.
 
-``svfs`` is written in C++ with a Python interface.
+``svfsc`` is written in C++ with a Python interface.
 It is thread safe in both domains.
 
 A SVFS might be used like this:
@@ -137,7 +137,7 @@ This is a key/value store where the key is some string and the value a ``SVF``:
 Example C++ Usage
 ====================
 
-``svfs`` is written in C++ so can be used directly:
+``svfsc`` is written in C++ so can be used directly:
 
 .. code-block:: c++
 
