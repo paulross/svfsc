@@ -1,8 +1,8 @@
 
-svfs
+svfsc
 ------------
 
-.. automodule:: svfs
+.. automodule:: svfsc
    :members:
    :undoc-members:
    :private-members:

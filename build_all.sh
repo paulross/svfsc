@@ -11,9 +11,10 @@ set -o errexit  # abort on nonzero exitstatus
 set -o nounset  # abort on unbound variable
 set -o pipefail # don't hide errors within pipes
 
+# For current versions see https://devguide.python.org/versions/
 PYTHON_VERSIONS=('3.8' '3.9' '3.10' '3.11')
-PYTHON_VENV_ROOT="${HOME}/pyenvs"
 # Used for venvs
+PYTHON_VENV_ROOT="${HOME}/pyenvs"
 PROJECT_NAME="svfsc"
 
 #printf "%-8s %8s %10s %10s %12s\n" "Ext" "Files" "Lines" "Words" "Bytes"

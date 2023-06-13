@@ -33,7 +33,7 @@ A SVFS might be used like this:
 - If the SVFS does *not* have the data then the Parser consults the SVFS for what data is needed, then issues the appropriate GET request(s) to the remote server.
 - That data is used to update the SVFS, then the parser can use it and give the results to the user.
 
-Here is a conceptual example of an ``SVFS`` running on a local file system.
+Here is a conceptual example of a ``SVF`` running on a local file system containing data from a single file.
 
 .. code-block:: console
 
@@ -44,9 +44,9 @@ Here is a conceptual example of an ``SVFS`` running on a local file system.
     \------/      \--------/          |              \-------------/
                        |              .
                        |              |
-                  /--------\          .
-                  |  SVFS  |          |
-                  \--------/          .
+                   /-------\          .
+                   |  SVF  |          |
+                   \-------/          .
 
 .. raw:: latex
 
@@ -63,9 +63,9 @@ Here is a conceptual example of an ``SVFS`` running with a remote file system.
     \------/      \--------/          |             \--------/
                        |              .                  |
                        |              |                  |
-                  /--------\          .           /-------------\
-                  |  SVFS  |          |           | File System |
-                  \--------/          .           \-------------/
+                   /-------\          .           /-------------\
+                   |  SVF  |          |           | File System |
+                   \-------/          .           \-------------/
 
 Example Python Usage
 ======================
@@ -77,7 +77,7 @@ Install from pypi:
 
 .. code-block:: console
 
-    $ pip install svfs
+    $ pip install svfsc
 
 Complete installation instructions are :ref:`here <installation>`.
 
@@ -88,8 +88,10 @@ This shows the basic functionality: ``write()``, ``read()`` and ``need()``:
 
 .. code-block:: python
 
+    import svfsc
+
     # Construct a Sparse Virtual File
-    svf = svfs.cSVF('Some file ID')
+    svf = svfsc.cSVF('Some file ID')
     # Write six bytes at file position 14
     svf.write(14, b'ABCDEF')
     # Read from it
@@ -121,7 +123,7 @@ This is a key/value store where the key is some string and the value a ``SVF``:
 
 .. code-block:: python
 
-    svfs = svfs.cSVFS()
+    svfs = svfsc.cSVFS()
     # Insert an empty SVF with a corresponding ID
     ID = 'abc'
     svfs.insert(ID)
@@ -160,3 +162,15 @@ Example C++ Usage
     }
     std::cout << ")" << std::endl;
 
+
+.. note:: Naming conventions; on PyPi there is a preexisting `SVFS project <https://pypi.org/project/SVFS/>`_
+   that is no relation to this project (and seems to have been abandoned since its first release in 2012).
+   So this project was renamed to ``svfsc`` to avoid conflicts. However there are many
+   internal references to ``SVF``, ``SVFS`` and variations thereof.
+   In summary:
+
+   - The Cmake target is ``cppSVF``.
+   - The C++ code is in the namespace ``SVFS``, the important classes there are ``SVFS::SparseVirtualFile`` and ``SVFS::SparseVirtualFileSystem``.
+   - The `Python project on PyPi <https://pypi.org/project/svfsc/>`_ is named ``svfsc``. This can be installed by: ``pip install svfsc``.
+   - Access to the Python interface is done with: ``import svfsc``. The two important Python classes, equivalents of the C++ ones,  are ``svfsc.cSVF`` and ``svfsc.cSVFS``
+   - Filenames often use ``svf`` and ``svfs`` in various ways.

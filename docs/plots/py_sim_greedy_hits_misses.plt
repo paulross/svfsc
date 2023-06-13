@@ -65,7 +65,7 @@ set output "images/py_sim_greedy_hits_misses.png"   # choose the output device
     "data/py_sim_greedy_TUPAC-TR-006.dat" using 1:4 t "TUPAC-TR-006 Miss" with linespoints axes x1y1 pt 3 lw 2
 
 # Just 003 and 006, misses only
-set title "Cache Misses, Selected Files."
+set title "Cache Misses. Selected Files."
 set ylabel "Cache Misses"
 set xrange [1:1e6]
 plot "data/py_sim_greedy_CMU-1.dat" using 1:4 t "CMU-1 Miss" with linespoints axes x1y1 pt 3 lw 2, \

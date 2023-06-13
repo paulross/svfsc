@@ -8,7 +8,7 @@ Stable release
 
 .. code-block:: console
 
-    $ pip install svfs
+    $ pip install svfsc
 
 This is the preferred method to install ``svfsc``, as it will always install the most recent stable release.
 
@@ -27,13 +27,13 @@ You can either clone the public repository:
 
 .. code-block:: console
 
-    $ git clone git://github.com/paulross/svfs
+    $ git clone git://github.com/paulross/svfsc
 
 Or download the `tarball`_:
 
 .. code-block:: console
 
-    $ curl -OL https://github.com/paulross/svfs/tarball/master
+    $ curl -OL https://github.com/paulross/svfsc/tarball/master
 
 Once you have a copy of the source, create a virtual environment of your choice:
 
@@ -53,7 +53,7 @@ Or for development, change the last line to:
 Building for C++
 ----------------
 
-Consult the ``CMakeLists.txt`` at the project root for how to do this.
+Consult the ``CMakeLists.txt`` at the project root for how to do this. The build target is ``cppSVF``.
 
 Building the Documentation
 ---------------------------
@@ -79,7 +79,7 @@ The PDF documentation, which does *not* include the Doxygen documentation, is he
 
 .. code-block:: console
 
-    $ open Sphinx/build/latex/svfs.pdf
+    $ open Sphinx/build/latex/svfsc.pdf
 
-.. _Github repo: https://github.com/paulross/svfs
-.. _tarball: https://github.com/paulross/svfs/tarball/master
+.. _Github repo: https://github.com/paulross/svfsc
+.. _tarball: https://github.com/paulross/svfsc/tarball/master

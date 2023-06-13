@@ -173,41 +173,49 @@ For each file the table gives:
 
 .. list-table:: Selected TIFF Files
     :align: center
-    :widths: 40 25 40 45
+    :widths: 40 25 40 40 30
     :header-rows: 1
 
     * - File
       - Size (MB)
       - ``seek()/read()`` ops
-      - Metadata bytes (%)
+      - Metadata bytes
+      - Metadata %
     * - CMU-1.tiff
       - 195
       - 62,615
-      - 256,566 (0.126%)
+      - 256,566
+      - 0.126%
     * - TUPAC-TR-001.svs
       - 2,146
       - 1,051,242
-      - 4,208,118 (0.187%)
+      - 4,208,118
+      - 0.187%
     * - TUPAC-TR-002.svs
       - 657
       - 84,845
-      - 483,582 (0.070%)
+      - 483,582
+      - 0.070%
     * - TUPAC-TR-003.svs
       - 563
       - 59,936
-      - 242,436 (0.041%)
+      - 242,436
+      - 0.041%
     * - TUPAC-TR-004.svs
       - 744
       - 291,302
-      - 1,311,074 (0.168%)
+      - 1,311,074
+      - 0.168%
     * - TUPAC-TR-005.svs
       - 955
       - 176,754
-      - 709,714 (0.071%)
+      - 709,714
+      - 0.071%
     * - TUPAC-TR-006.svs
       - 945
       - 254,948
-      - 1,165,658 (0.118%)
+      - 1,165,658
+      - 0.118%
 
 Given these sample files the time taken to read the TIFF metadata for various greed read lengths is:
 
@@ -224,7 +232,9 @@ For example with CMU-1.tiff and ``greedy_length=0`` the minimal byte set is
 256,566 bytes total. With a ``greedy_length=131,072`` the total number of bytes read is 1,179,648.
 This is about 4x the minimal read but still about 1/200 of the original file.
 
-Here are examples off the total amount of data read for different ``greedy_length`` values (NOTE: linear scale):
+Here are examples off the total amount of data read for different ``greedy_length`` values:
+
+.. note:: Linear scale
 
 .. image:: ../../plots/images/py_sim_greedy_overhead.png
 
@@ -320,6 +330,16 @@ Here is the result of different bandwidths for a network latency of 1 ms.
 
 With this level of network latency the bandwidth becomes more significant.
 Again, medium greedy reads (optimum around 8 to 32 KB) can transform low bandwidth (10 Mbps) networks to about 10x their ZLIB time.
+
+Amazon AWS Cloud Example
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Here is an example simulation where the TIFF files are on an AWS server with a typical connection latency of 100 ms and
+a bandwidth of 1 MB/s (8Mb/s).
+
+.. image:: ../../plots/images/py_sim_greedy_AWS.png
+
+These values are very close to some measured data of TIFF files on AWS.
 
 Running the Simulator
 ---------------------
