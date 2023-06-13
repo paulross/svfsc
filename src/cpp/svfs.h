@@ -46,6 +46,8 @@
 
 namespace SVFS {
 
+#pragma mark - Exceptions
+
     /** Exception specialisation for the SparseVirtualFileSystem. */
     class ExceptionSparseVirtualFileSystem : public std::exception {
     public:
@@ -77,6 +79,8 @@ namespace SVFS {
         explicit ExceptionSparseVirtualFileSystemRemove(const std::string &msg) : ExceptionSparseVirtualFileSystem(
                 msg) {}
     };
+
+#pragma mark - The SVFS class
 
     /**
      * A SparseVirtualFileSystem is a key/value stor where the key is a file ID as a string and the value is a

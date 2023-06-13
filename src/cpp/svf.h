@@ -54,6 +54,8 @@
 
 namespace SVFS {
 
+#pragma mark - Exceptions
+
     /// Exception specialisation for the SparseVirtualFile.
     class ExceptionSparseVirtualFile : public std::exception {
     public:
@@ -89,12 +91,16 @@ namespace SVFS {
         explicit ExceptionSparseVirtualFileErase(const std::string &in_msg) : ExceptionSparseVirtualFile(in_msg) {}
     };
 
+#pragma mark - typedefs
+
     /** Typedef for the file position. */
     typedef size_t t_fpos;
     /** Typedef for a \c seek() followed by a \c read() length. */
     typedef std::pair<t_fpos, size_t> t_seek_read;
     /** Typedef for a vector of (\c seek() followed by a \c read() ) lengths. */
     typedef std::vector<t_seek_read> t_seek_reads;
+
+#pragma mark - SVF configuration
 
     /**
      * Configuration for the Sparse Virtual File.
@@ -114,6 +120,8 @@ namespace SVFS {
          */
         bool compare_for_diff = true;
     } tSparseVirtualFileConfig;
+
+#pragma mark - The SVF class
 
     /**
      * Implementation of a *Sparse Virtual File*, a specialised in-memory cache where a particular
