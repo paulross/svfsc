@@ -1,9 +1,9 @@
 set title "Simulated Time to Read Synthetic File. Latency 10ms Bandwidth 50 Mbps."
 
-set xlabel "Size of Greedy Read (kb)"
+set xlabel "Size of Greedy Read (bytes)"
 #set xrange [0.1:100]
 set logscale x
-set xrange [0.01:100]
+set xrange [10:1e5]
 
 # First line specification refers to major grid lines in both x and y, the second to minor grid lines in x and y.
 set grid xtics mxtics ytics mytics linetype -1 linewidth 1, linetype 0 linewidth 1
@@ -31,7 +31,7 @@ set terminal png size 800,500           # choose the file format
 
 set output "images/greedy_length_synthetic.png"   # choose the output device
 
-plot "data/greedy_length_synthetic.dat" using ($1 / 1024):($2 / 1000) t "Time to Read (left axis)." with linespoints axes x1y1 pt 3 lw 2, \
-    "data/greedy_length_synthetic.dat" using ($1 / 1024):4 t "Cache Misses (right axis)." with linespoints axes x1y2 pt 3 lw 2
+plot "data/greedy_length_synthetic.dat" using 1:($2 / 1000) t "Time to Read (left axis)." with linespoints axes x1y1 pt 3 lw 2, \
+    "data/greedy_length_synthetic.dat" using 1:4 t "Cache Misses (right axis)." with linespoints axes x1y2 pt 3 lw 2
 
 reset
