@@ -51,9 +51,9 @@ LOG_FORMAT_NO_PROCESS = (
 class Communications:
     """Represents the delay over a communication line."""
 
-    def __init__(self, latency_s: float, bandwidth_bps: float, realtime: bool = False):
-        """Bandwith 0.0 means infinite bandwidth"""
-        self.latency_s = latency_s
+    def __init__(self, latency_one_way_s: float, bandwidth_bps: float, realtime: bool = False):
+        """Bandwidth 0.0 means infinite bandwidth."""
+        self.latency_one_way_s = latency_one_way_s
         self.bandwidth_bps = bandwidth_bps
         self.realtime = realtime
         self.time_latency = 0.0
@@ -61,8 +61,8 @@ class Communications:
         self.time_total = 0.0
 
     def transmit(self, data_bytes: bytes, direction: str) -> None:
-        t = self.latency_s
-        self.time_latency += self.latency_s
+        t = self.latency_one_way_s
+        self.time_latency += self.latency_one_way_s
         if self.bandwidth_bps:
             t_bandwidth = 8 * len(data_bytes) / self.bandwidth_bps
             t += t_bandwidth
@@ -219,7 +219,7 @@ def main():
     parser = argparse.ArgumentParser(description='Simulate reading into a SVF.', prog=__file__)
     parser.add_argument('-l', '--log-level', dest='log_level', type=int, default=20, help='Log level.')
     parser.add_argument('--latency', type=float, default=10,
-                        help='Communications channel latency (one way) in ms. [default: %(default)d]')
+                        help='Communications channel latency (NOTE: one way) in ms. [default: %(default)d]')
     parser.add_argument('--bandwidth', type=float, default=50,
                         help='Communications channel bandwidth in million bits per second.'
                              ' Zero is infinite bandwidth. [default: %(default)d]')
@@ -243,7 +243,7 @@ def main():
 
     results_time: typing.Dict[str, typing.List[typing.Tuple[int, RunResult]]] = {}
     print('Simulator setup:')
-    print(f'Network latency {args.latency:.3f} (ms) bandwidth {args.bandwidth:.3f} (M bits/s)')
+    print(f'Network latency (one way) {args.latency:.3f} (ms) bandwidth {args.bandwidth:.3f} (M bits/s)')
     print(f'Server seek rate {args.seek_rate:.3f} (M bytes/s) read rate {args.read_rate:.3f} (M bytes/s)')
     # for name in ('EXAMPLE_FILE_POSITIONS_LENGTHS_TIFF_CMU_1',):
     # for name in ('EXAMPLE_FILE_POSITIONS_LENGTHS_SYNTHETIC',):

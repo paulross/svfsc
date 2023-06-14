@@ -297,7 +297,7 @@ file performance.
 The Effect of Simulated Network Latency
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-With the simulator we can experiment with various values of network latency, bandwidth and greedy reads.
+With the simulator we can experiment with various values of network latency (each way), bandwidth and greedy reads.
 For example here is the result of reading TIFF metadata with different network latencies.
 
 .. index::
@@ -315,7 +315,7 @@ High (64 KB) greedy reads can transform high latency (50 ms) networks to about 1
 The Effect of Simulated Network Bandwidth
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Here is the result of different bandwidths for a network latency of 10 ms.
+Here is the result of different bandwidths for a network latency (each way) of 10 ms.
 
 .. image:: ../../plots/images/py_sim_greedy_bandwidth.png
 
@@ -324,17 +324,21 @@ As usual high greedy lengths compensate and it is only when they are above 10,00
 become significant.
 High (64 KB) greedy reads can transform low bandwidth (10 Mbps) networks to about 10x their ZLIB time.
 
-Here is the result of different bandwidths for a network latency of 1 ms.
+Here is the result of different bandwidths for a network latency (each way) of 1 ms.
 
 .. image:: ../../plots/images/py_sim_greedy_bandwidth_latency_1.png
 
 With this level of network latency the bandwidth becomes more significant.
 Again, medium greedy reads (optimum around 8 to 32 KB) can transform low bandwidth (10 Mbps) networks to about 10x their ZLIB time.
 
+.. raw:: latex
+
+    \newpage
+
 Amazon AWS Cloud Example
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Here is an example simulation where the TIFF files are on an AWS server with a typical connection latency of 100 ms and
+Here is an example simulation where the TIFF files are on an AWS server with a typical connection latency (each way) of 100 ms and
 a bandwidth of 1 MB/s (8Mb/s).
 
 .. image:: ../../plots/images/py_sim_greedy_AWS.png
@@ -361,7 +365,7 @@ Here is the help information for the simulator:
       -h, --help            show this help message and exit
       -l LOG_LEVEL, --log-level LOG_LEVEL
                             Log level.
-      --latency LATENCY     Communications channel latency (one way)
+      --latency LATENCY     Communications channel latency (NOTE: one way)
                             in ms. [default: 10]
       --bandwidth BANDWIDTH
                             Communications channel bandwidth in
@@ -428,3 +432,9 @@ If compiled with ``SVF_THREAD_SAFE`` and ``SVFS_THREAD_SAFE`` defined a C++ mute
 The Python implementation does *not* set ``SVF_THREAD_SAFE`` and ``SVFS_THREAD_SAFE``, instead it uses Python mutexes
 using the technique `described here <https://pythonextensionpatterns.readthedocs.io/en/latest/thread_safety.html>`_.
 
+
+.. warning:: Thread safety is strictly limited to make each API call atomic to that thread.
+
+    There is no contention resolution among API calls.
+    For example thread A could call ``need()`` on a SVF and then thread B calls, for example,
+    ``write()``, ``erase()`` or ``clear()`` which might or would invalidate the ``need()`` information held by thread A.
