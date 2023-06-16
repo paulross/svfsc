@@ -311,6 +311,6 @@ namespace SVFS {
         [[nodiscard]] ERROR_CONDITION integrity() const noexcept;
     };
 
-} // namespace SparseVirtualFileSystem
+} // namespace SVFS
 
 #endif //CPPSVF_SVF_H

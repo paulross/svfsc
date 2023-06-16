@@ -27,7 +27,7 @@
  @endverbatim
  */
 
-#include "cp_svfs.h"
+#include "cpp_svfs.h"
 
 #include "_cSVFS.cpp"
 #include "_cSVF.cpp"
@@ -61,6 +61,21 @@ PyInit_svfsc(void)
 
     m = PyModule_Create(&svfsmodule);
     if (m == NULL) {
+        return NULL;
+    }
+    if (PyModule_AddStringConstant(m, "SVFS_CPP_VERSION", SVFS_CPP_VERSION)) {
+        return NULL;
+    }
+    if (PyModule_AddIntConstant(m, "SVFS_CPP_VERSION_MAJOR", SVFS_CPP_VERSION_MAJOR)) {
+        return NULL;
+    }
+    if (PyModule_AddIntConstant(m, "SVFS_CPP_VERSION_MINOR", SVFS_CPP_VERSION_MINOR)) {
+        return NULL;
+    }
+    if (PyModule_AddIntConstant(m, "SVFS_CPP_VERSION_PATCH", SVFS_CPP_VERSION_PATCH)) {
+        return NULL;
+    }
+    if (PyModule_AddStringConstant(m, "SVFS_CPP_VERSION_SUFFIX", SVFS_CPP_VERSION_SUFFIX)) {
         return NULL;
     }
     if (PyModule_AddIntConstant(m, "SVF_THREAD_SAFE",

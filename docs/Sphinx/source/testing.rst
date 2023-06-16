@@ -79,11 +79,12 @@ To run the full test suite including memory tests and benchmarks:
 Building and Testing Everything
 ----------------------------------
 
-There is a shell script ``build_all.sh`` at the project rooot that:
+There is a shell script ``build_all.sh`` at the project root that:
 
 - Builds the C++ code from clean and runs all the C++ tests.
 - Creates a Python virtual environment for each Python version of interest.
 - For each Python version of interest builds the Extension and runs the Python tests, including with ``--runslow``.
+- Builds the documentation using ``docs/build_docs.sh`` that creates both Doxygen and Sphinx (HTML, PDF) documentation.
 - Creates and checks the Python binary and source distributions.
 
 It takes about five minutes per Python version.

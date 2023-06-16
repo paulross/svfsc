@@ -36,6 +36,7 @@ svfs_extension = Extension(
     sources=[
         'src/cp/cSVFS.cpp',
         'src/cp/svfs_util.cpp',
+        'src/cpp/cpp_svfs.cpp',
         'src/cpp/svf.cpp',
         'src/cpp/svfs.cpp',
     ],

@@ -28,10 +28,37 @@ import threading
 import time
 import typing
 
-import psutil
 import pytest
 
 import svfsc
+
+
+@pytest.mark.parametrize(
+    'attribute',
+    (
+            'SVFS_CPP_VERSION',
+            'SVFS_CPP_VERSION_MAJOR',
+            'SVFS_CPP_VERSION_MINOR',
+            'SVFS_CPP_VERSION_PATCH',
+            'SVFS_CPP_VERSION_SUFFIX',
+    )
+)
+def test_has_versions(attribute):
+    assert hasattr(svfsc, attribute)
+
+
+@pytest.mark.parametrize(
+    'attribute, value',
+    (
+            ('SVFS_CPP_VERSION', '0.1.1'),
+            ('SVFS_CPP_VERSION_MAJOR', 0),
+            ('SVFS_CPP_VERSION_MINOR', 1),
+            ('SVFS_CPP_VERSION_PATCH', 1),
+            ('SVFS_CPP_VERSION_SUFFIX', ''),
+    )
+)
+def test_value_versions(attribute, value):
+    assert getattr(svfsc, attribute) == value
 
 
 def test_SVF_ctor():
@@ -329,7 +356,7 @@ def test_SVF_need_all(blocks, expected_blocks):
             (
                     ((8, 4),),
                     4, 15,
-                    [(4, 4), (12, 7),],
+                    [(4, 4), (12, 7), ],
             ),
     ),
     ids=[
@@ -501,14 +528,14 @@ def write_to_svf(svf: svfsc.cSVF, values: typing.Tuple[typing.Tuple[int, int], .
 @pytest.mark.parametrize(
     'number_of_threads, expected_bytes',
     (
-            (0, 1024**2),
-            (1, 1024**2),
-            (2, 1024**2),
-            (4, 1024**2),
-            (8, 1024**2),
-            (16, 1024**2),
-            (32, 1024**2),
-            (64, 1024**2),
+            (0, 1024 ** 2),
+            (1, 1024 ** 2),
+            (2, 1024 ** 2),
+            (4, 1024 ** 2),
+            (8, 1024 ** 2),
+            (16, 1024 ** 2),
+            (32, 1024 ** 2),
+            (64, 1024 ** 2),
     ),
 )
 def test_multit_hreaded_write_coalesced_overwrite(number_of_threads, expected_bytes):
@@ -543,19 +570,20 @@ def test_multit_hreaded_write_coalesced_overwrite(number_of_threads, expected_by
     assert svf.num_bytes() == expected_bytes
     assert svf.num_blocks() == 1
 
+
 @pytest.mark.parametrize(
     'number_of_threads, expected_bytes',
     (
-            (0, 1024**2),
-            (1, 1024**2),
-            (2, 1024**2),
-            (4, 1024**2),
-            (8, 1024**2),
-            (16, 1024**2),
-            (32, 1024**2),
-            (64, 1024**2),
-            (128, 1024**2),
-            (256, 1024**2),
+            (0, 1024 ** 2),
+            (1, 1024 ** 2),
+            (2, 1024 ** 2),
+            (4, 1024 ** 2),
+            (8, 1024 ** 2),
+            (16, 1024 ** 2),
+            (32, 1024 ** 2),
+            (64, 1024 ** 2),
+            (128, 1024 ** 2),
+            (256, 1024 ** 2),
     ),
 )
 def test_multi_threaded_write_un_coalesced(number_of_threads, expected_bytes):
@@ -594,7 +622,7 @@ def test_multi_threaded_write_un_coalesced(number_of_threads, expected_bytes):
 @pytest.mark.parametrize(
     'number_of_writes',
     (
-        0, 1, 2, 4, 8, 16,
+            0, 1, 2, 4, 8, 16,
     ),
 )
 def test_count_write(number_of_writes):

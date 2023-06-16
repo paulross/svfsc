@@ -203,6 +203,6 @@ namespace SVFS {
 
     TestCount test_svf_all(t_test_results &results);
 
-} // namespace SparseVirtualFileSystem
+} // namespace SVFS
 
 #endif //CPPSVF_TEST_SVF_H

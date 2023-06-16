@@ -898,4 +898,4 @@ namespace SVFS {
         return ret;
     }
 
-} // namespace SparseVirtualFileSystem
+} // namespace SVFS

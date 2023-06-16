@@ -64,7 +64,7 @@ remove_virtual_environments() {
   done
 }
 
-create_bdist_wheel() {
+create_and_test_bdist_wheel() {
   echo "---> Creating bdist_wheel for all versions..."
   for version in ${PYTHON_VERSIONS[*]}; do
     echo "---> For Python version ${version}"
@@ -104,6 +104,18 @@ create_bdist_wheel() {
 create_sdist() {
   echo "---> Running setup for sdist:"
   python setup.py sdist
+}
+
+create_documentation() {
+  echo "---> Python version:"
+  which python
+  python -VV
+  echo "---> pip list:"
+  pip list
+  echo "---> Building documentation:"
+  cd docs
+  ./build_docs.sh
+  cd ..
 }
 
 report_all_versions_and_setups() {
@@ -157,11 +169,13 @@ remove_virtual_environments
 echo "===> Creating virtual environments"
 create_virtual_environments
 echo "===> Creating binary wheels"
-create_bdist_wheel
+create_and_test_bdist_wheel
 echo "===> Creating source distribution"
 create_sdist
 echo "===> All versions and setups:"
 report_all_versions_and_setups
+echo "===> Building documentation:"
+create_documentation
 echo "===> dist/ result:"
 show_results_of_dist
 #deactivate_virtual_environment

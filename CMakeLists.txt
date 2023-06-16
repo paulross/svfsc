@@ -44,7 +44,12 @@ add_executable(
         # NOTE: src/cp/cSVFS.cpp #includes the following files.
 #        src/cp/_cSVF.cpp
 #        src/cp/_cSVFS.cpp
-        src/cp/cp_svfs.h)
+        src/cp/cp_svfs.h
+        src/cpp/cpp_svfs.h
+        src/cpp/cpp_svfs.cpp
+        src/cpp/tests/test_cpp_svfs.h
+        src/cpp/tests/test_cpp_svfs.cpp
+)
 
 include_directories(
         src/cpp
