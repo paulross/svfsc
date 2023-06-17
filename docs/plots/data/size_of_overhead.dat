@@ -1,0 +1,26 @@
+# NOTE: C++ tests. The C++ code reports 32 bytes/block. Python reports 64 bytes.
+# TestCount SVFS::test_perf_write_1M_uncoalesced_size_of(t_test_results &)   pass        34603192      312.149193           9.459           105.7 1Mb, block size   1 sized blocks num_blocks 1048576 size_of 34603192 Overhead 33554616 per block 32
+# TestCount SVFS::test_perf_write_1M_uncoalesced_size_of(t_test_results &)   pass        17825976      148.827494           8.754           114.2 1Mb, block size   2 sized blocks num_blocks 524288 size_of 17825976 Overhead 16777400 per block 32
+# TestCount SVFS::test_perf_write_1M_uncoalesced_size_of(t_test_results &)   pass         9437368       69.827580           7.758           128.9 1Mb, block size   4 sized blocks num_blocks 262144 size_of 9437368 Overhead 8388792 per block 32
+# TestCount SVFS::test_perf_write_1M_uncoalesced_size_of(t_test_results &)   pass         5243064       34.146359           6.829           146.4 1Mb, block size   8 sized blocks num_blocks 131072 size_of 5243064 Overhead 4194488 per block 32
+# TestCount SVFS::test_perf_write_1M_uncoalesced_size_of(t_test_results &)   pass         3145912       17.214098           5.738           174.3 1Mb, block size  16 sized blocks num_blocks 65536 size_of 3145912 Overhead 2097336 per block 32
+# TestCount SVFS::test_perf_write_1M_uncoalesced_size_of(t_test_results &)   pass         2097336        9.726454           4.863           205.6 1Mb, block size  32 sized blocks num_blocks 32768 size_of 2097336 Overhead 1048760 per block 32
+# TestCount SVFS::test_perf_write_1M_uncoalesced_size_of(t_test_results &)   pass         1573048        6.115982           4.077           245.3 1Mb, block size  64 sized blocks num_blocks 16384 size_of 1573048 Overhead 524472 per block 32
+# TestCount SVFS::test_perf_write_1M_uncoalesced_size_of(t_test_results &)   pass         1310904        3.169231           2.535           394.5 1Mb, block size 128 sized blocks num_blocks 8192 size_of 1310904 Overhead 262328 per block 32
+# TestCount SVFS::test_perf_write_1M_uncoalesced_size_of(t_test_results &)   pass         1179832        2.142775           1.904           525.1 1Mb, block size 256 sized blocks num_blocks 4096 size_of 1179832 Overhead 131256 per block 32
+#
+#block_size   num_blocks   num_bytes()     size_of()     Overhead    Per block
+1                       1            1          155          154          154
+1                       2            3          221          218          109
+1                       4            7          353          346           86
+1                       8           15          617          602           75
+1                      16           31         1145         1114           69
+1                      32           63         2201         2138           66
+1                      64          127         4313         4186           65
+1                     128          255         8537         8282           64
+1                     256          511        16985        16474           64
+1                     512         1023        33881        32858           64
+1                    1024         2047        67673        65626           64
+1                    2048         4095       135257       131162           64
+1                    4096         8191       270425       262234           64
+1                    8192        16383       540761       524378           64

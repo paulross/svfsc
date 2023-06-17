@@ -2,6 +2,16 @@
 Technical Notes
 ################
 
+Memory Overhead
+===============
+
+Inevitably there is an overhead to use an in-memory cache.
+This is proportional to the number of blocks held, regardless of their individual size.
+
+.. image:: ../../plots/images/size_of_overhead.png
+
+This works out at minimum of 154 bytes and asymptotically to 64 bytes a block.
+
 Pickling
 ========
 

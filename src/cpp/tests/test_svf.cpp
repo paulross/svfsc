@@ -461,15 +461,21 @@ namespace SVFS {
         for (size_t block_size = 1; block_size <= 256; block_size *= 2) {
             SparseVirtualFile svf("", 0.0);
 
+            size_t num_blocks = (1024 * 1024 * 1) / block_size;
+
             auto time_start = std::chrono::high_resolution_clock::now();
-            for (t_fpos i = 0; i < (1024 * 1024 * 1) / block_size; ++i) {
+            for (t_fpos i = 0; i < num_blocks; ++i) {
                 t_fpos fpos = i * block_size + i;
                 svf.write(fpos, test_data_bytes_512, block_size);
             }
             std::chrono::duration<double> time_exec = std::chrono::high_resolution_clock::now() - time_start;
 
             std::ostringstream os;
-            os << "1Mb, " << std::setw(3) << block_size << " sized blocks" << " size_of " << svf.size_of();
+            os << "1Mb, block size " << std::setw(3) << block_size << " sized blocks";
+            os << " num_blocks " << num_blocks;
+            os << " size_of " << svf.size_of();
+            os << " Overhead " << svf.size_of() - svf.num_bytes();
+            os << " per block " << (svf.size_of() - svf.num_bytes()) / num_blocks;
             auto result = TestResult(__PRETTY_FUNCTION__, std::string(os.str()), 0, "", time_exec.count(),
                                      svf.size_of());
             count.add_result(result.result());

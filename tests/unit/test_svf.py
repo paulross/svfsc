@@ -631,3 +631,41 @@ def test_count_write(number_of_writes):
     for i in range(number_of_writes):
         svf.write(0, block)
     assert svf.count_write() == number_of_writes
+
+
+@pytest.mark.parametrize(
+    'block_size, num_blocks',
+    (
+            (1, 1),
+            # (2, 1),
+            # (4, 1),
+            # (1, 2),
+            # (2, 2),
+            # (4, 2),
+    )
+)
+def test_SVF_size_of_overhead(block_size, num_blocks):
+    s = svfsc.cSVF('id', 1.0)
+    block = b' ' * block_size
+    fpos = 0
+    print()
+    print(f'#{"block_size":<12} {"num_blocks":12} {"num_bytes()":<12} {"size_of()":>12} {"Overhead":>12} {"Per block":>12}')
+    num_blocks = 1
+    while num_blocks < 2048 * 8:
+        for i in range(num_blocks):
+            s.write(fpos, block)
+            fpos += block_size
+            # Make un-coalesced
+            fpos += 1
+        print(
+            f'{block_size:<12d}'
+            f' {num_blocks:12d}'
+            f' {s.num_bytes():12d}'
+            f' {s.size_of():12d}'
+            f' {s.size_of() - s.num_bytes():12d}'
+            f' {(s.size_of() - s.num_bytes()) // num_blocks:12d}'
+        )
+        num_blocks *= 2
+    # assert 0
+
+
