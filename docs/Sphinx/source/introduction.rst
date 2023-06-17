@@ -12,7 +12,7 @@ But, you might know what parts of the file that you want and ``svfsc`` can help 
 *as if* you have access to the complete file but with just the pieces of interest.
 
 ``svfsc`` is targeted at reading very large binary files such as TIFF, RP66V1, HDF5 where the structure is well known.
-For example you might want to parse a TIFF file for its metadata or a particular image tile which is usually a tiny
+For example you might want to parse a TIFF file for its metadata or for a particular image tile or strip which is a tiny
 fraction of the file itself.
 
 ``svfsc`` implements a *Sparse Virtual File*, a specialised in-memory cache where a particular file might not be
@@ -103,14 +103,15 @@ This shows the basic functionality: ``write()``, ``read()`` and ``need()``:
     # the SVF then you can read directly from the SVF.
 
 The basic operation is to check if the ``SVF`` has data, if not then get it and write that data to the SVF.
-Then you can read directly.
-For example:
+Then read directly:
 
 .. code-block:: python
 
         if not svf.has_data(file_position, length):
             for read_position, read_length in svf.need(file_position, length):
-                # Somehow get data as a bytes object at (read_position, read_length)...
+                # Somehow get the data as a bytes object at (read_position, read_length)...
+                # This could be a GET request to a remote file.
+                # Then...
                 svf.write(read_position, data)
         # Now read directly
         svf.read(file_position, length)
@@ -146,7 +147,7 @@ Example C++ Usage
     #include "svf.h"
 
     SVFS::SparseVirtualFile svf("Some file ID");
-    // Write six bytes at file position 14
+    // Write six char at file position 14
     svf.write(14, "ABCDEF", 6);
     // Read from it
     char read_buffer[2];
@@ -162,15 +163,19 @@ Example C++ Usage
     }
     std::cout << ")" << std::endl;
 
+.. raw:: latex
 
-.. note:: Naming conventions; on PyPi there is a preexisting `SVFS project <https://pypi.org/project/SVFS/>`_
-   that is no relation to this project (and seems to have been abandoned since its first release in 2012).
-   So this project was renamed to ``svfsc`` to avoid conflicts. However there are many
-   internal references to ``SVF``, ``SVFS`` and variations thereof.
-   In summary:
+    \newpage
+
+.. note:: Naming conventions
+
+   On PyPi there is a preexisting `SVFS project <https://pypi.org/project/SVFS/>`_
+   (no relation, apparently abandoned since its release in 2012).
+   This project was renamed to ``svfsc``.
+   However there are many internal references to ``SVF``, ``SVFS`` and variations thereof.
 
    - The Cmake target is ``cppSVF``.
    - The C++ code is in the namespace ``SVFS``, the important classes there are ``SVFS::SparseVirtualFile`` and ``SVFS::SparseVirtualFileSystem``.
-   - The `Python project on PyPi <https://pypi.org/project/svfsc/>`_ is named ``svfsc``. This can be installed by: ``pip install svfsc``.
+   - This `Python project on PyPi <https://pypi.org/project/svfsc/>`_ is named ``svfsc``. This can be installed by: ``pip install svfsc``.
    - Access to the Python interface is done with: ``import svfsc``. The two important Python classes, equivalents of the C++ ones,  are ``svfsc.cSVF`` and ``svfsc.cSVFS``
    - Filenames often use ``svf`` and ``svfs`` in various ways.
