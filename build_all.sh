@@ -16,16 +16,17 @@ PYTHON_VERSIONS=('3.8' '3.9' '3.10' '3.11')
 # Used for venvs
 PYTHON_VENV_ROOT="${HOME}/pyenvs"
 PROJECT_NAME="svfsc"
+CPP_EXECUTABLE="cppSVF"
 
 #printf "%-8s %8s %10s %10s %12s\n" "Ext" "Files" "Lines" "Words" "Bytes"
 
 build_cpp() {
   cmake --build cmake-build-release --target clean -- -j 6
-  cmake --build cmake-build-release --target cppSVF -- -j 6
+  cmake --build cmake-build-release --target ${CPP_EXECUTABLE} -- -j 6
 }
 
 run_cpp_tests() {
-  cmake-build-release/cppSVF
+  cmake-build-release/${CPP_EXECUTABLE}
 }
 
 deactivate_virtual_environment() {
