@@ -14,6 +14,9 @@ ELSE()
     message("release build")
 ENDIF(CMAKE_BUILD_TYPE MATCHES Debug)
 
+# To deal with:
+# ld: warning: ignoring file /usr/local/Frameworks/Python.framework/Versions/3.11/lib/libpython3.11.dylib, building for macOS-arm64 but attempting to link with file built for macOS-x86_64
+set(CMAKE_OSX_ARCHITECTURES "x86_64")
 
 add_compile_options(
     "-Wall" "-Wpedantic" "-Wextra" "-fexceptions"
@@ -21,7 +24,7 @@ add_compile_options(
 )
 
 link_directories(
-    /Library/Frameworks/Python.framework/Versions/3.8/lib
+    /Library/Frameworks/Python.framework/Versions/3.11/lib
 )
 
 add_executable(

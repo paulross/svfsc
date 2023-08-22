@@ -651,13 +651,14 @@ namespace SVFS {
     }
 
     /**
-     * May reduce the list of fle position lengths so that by coalescing them if possible up to a limit greedy_length.
+     * May reduce the list of file position lengths so that by coalescing them if possible up to a limit greedy_length.
      *
      * @param seek_reads Vector of minimal seek/reads.
      * @param greedy_length Maximal length that allows coalescing.
      * @return New vector of maximal seek/reads.
      */
-    t_seek_reads SparseVirtualFile::_minimise_seek_reads(const t_seek_reads& seek_reads, size_t greedy_length) noexcept {
+    t_seek_reads
+    SparseVirtualFile::_minimise_seek_reads(const t_seek_reads &seek_reads, size_t greedy_length) noexcept {
         assert (greedy_length != 0);
 
         t_seek_reads new_seek_reads;
@@ -694,8 +695,8 @@ namespace SVFS {
 #endif
 
         t_seek_reads ret;
-        for (t_map::const_iterator iter = m_svf.cbegin(); iter != m_svf.cend(); ++iter) {
-            ret.emplace_back(iter->first, iter->second.size());
+        for (const auto &iter: m_svf) {
+            ret.emplace_back(iter.first, iter.second.size());
         }
         return ret;
     }
@@ -740,7 +741,7 @@ namespace SVFS {
 
         // Add heap referenced data sizes.
         ret += m_id.size();
-        for (auto &iter: m_svf) {
+        for (const auto &iter: m_svf) {
             ret += sizeof(iter.first);
             ret += sizeof(iter.second);
             ret += iter.second.size();
