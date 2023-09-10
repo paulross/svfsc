@@ -74,14 +74,14 @@ test_requirements = [
 setup(
     name='svfsc',
     version='0.1.1',
-    ext_modules=[svfs_extension,],
+    ext_modules=[svfs_extension, ],
     description="Sparse Virtual File System Cache implemented in C++.",
     long_description=readme + '\n\n' + history,
     long_description_content_type='text/x-rst',
     author="Paul Ross",
     author_email='apaulross@gmail.com',
     url='https://github.com/paulross',
-#     packages=find_packages('src'),
+    #     packages=find_packages('src'),
     license="MIT License",
     keywords=['svf', 'svfs','svfsc',],
     # https://pypi.org/classifiers/
