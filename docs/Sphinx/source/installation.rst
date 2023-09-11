@@ -79,7 +79,7 @@ The PDF documentation, which does *not* include the Doxygen documentation, is he
 
 .. code-block:: console
 
-    $ open Sphinx/build/latex/svfsc.pdf
+    $ open Sphinx/build/latex/svfs.pdf
 
 .. _Github repo: https://github.com/paulross/svfsc
 .. _tarball: https://github.com/paulross/svfsc/tarball/master

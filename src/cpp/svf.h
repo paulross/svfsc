@@ -32,27 +32,34 @@
 /**
  * @mainpage
 
+
+Introduction
+=============
+
 Somtimes you don't need the whole file.
 Sometimes you don't *want* the whole file.
 Especially if it is huge and on some remote server.
 But, you might know what parts of the file that you want and @c svfsc can help you store them locally so it looks
-*as if* you have access to the complete file but with just the pieces of interest.
+<em>as if</em> you have access to the complete file but with just the pieces of interest.
 
 @c svfsc is targeted at reading very large binary files such as TIFF, RP66V1, HDF5 where the structure is well known.
 For example you might want to parse a TIFF file for its metadata or for a particular image tile or strip which is a tiny
 fraction of the file itself.
 
 @c svfsc implements a *Sparse Virtual File*, a specialised in-memory cache where a particular file might not be
-available but *parts of it can be obtained* without reading the whole file.
+available but <em>parts of it can be obtained</em> without reading the whole file.
 A Sparse Virtual File (SVFS::SparseVirtualFile) is represented internally as a map of blocks of data with the key being
 their file offsets.
 Any write to an SVFS::SparseVirtualFile will coalesce these blocks where possible.
 
 A Sparse Virtual File System (SVFS::SparseVirtualFileSystem) is an extension of this to provide a key/value store where
-the key is a file ID and the value a Sparse Virtual File.
+the key is a file ID and the value a SVFS::SparseVirtualFile.
 
-@c svfsc is written in C++ with a Python interface.
-It is thread safe in both domains.
+@c svfsc is written in C++.
+It is thread safe.
+
+Usage
+------
 
 A SVFS::SparseVirtualFile might be used like this:
 
@@ -79,7 +86,7 @@ single file.
 
 @endcode
 
- Here is a conceptual example of a SVFS::SparseVirtualFile running with a remote file system.
+Here is a conceptual example of a SVFS::SparseVirtualFile running with a remote file system.
 
 @code
 
@@ -97,7 +104,7 @@ single file.
 @endcode
 
 Example C++ Usage
-====================
+-------------------
 
 @c svfsc is written in C++ so can be used directly:
 
@@ -149,6 +156,23 @@ Then read directly:
  *
  */
 
+/**
+ * @namespace SVFS
+ *
+ * @brief The namespace for all @c svfsc code.
+ */
+
+/**
+ * @namespace SVFS::Exceptions
+ *
+ * @brief The namespace for all Exceptions in @c svfsc code.
+ */
+
+/**
+ * @namespace SVFS::Test
+ *
+ * @brief The namespace for all the Test code in @c svfsc code.
+ */
 
 #ifndef CPPSVF_SVF_H
 #define CPPSVF_SVF_H

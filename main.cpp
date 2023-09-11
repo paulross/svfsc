@@ -49,21 +49,21 @@
 int main() {
     std::cout << "Testing SVF and SVFS..." << std::endl;
 
-    TestCount pass_fail;
-    t_test_results results;
+    SVFS::Test::TestCount pass_fail;
+    SVFS::Test::t_test_results results;
 
     // Test section
     auto time_start = std::chrono::high_resolution_clock::now();
 
     std::cout << "Testing SVF all..." << std::endl;
-    pass_fail += SVFS::test_svf_all(results);
-    pass_fail += SVFS::test_cp_svfs_all(results);
+    pass_fail += SVFS::Test::test_svf_all(results);
+    pass_fail += SVFS::Test::test_cp_svfs_all(results);
 #if 1
     std::cout << "Testing SVFS all..." << std::endl;
-    pass_fail += SVFS::test_svfs_all(results);
+    pass_fail += SVFS::Test::test_svfs_all(results);
 #endif
     std::chrono::duration<double> time_exec = std::chrono::high_resolution_clock::now() - time_start;
-    auto result = TestResult(__PRETTY_FUNCTION__, "All tests", results.size() != 152, "", time_exec.count(), 0);
+    auto result = SVFS::Test::TestResult(__PRETTY_FUNCTION__, "All tests", results.size() != 152, "", time_exec.count(), 0);
     pass_fail.add_result(result.result());
     results.push_back(result);
 

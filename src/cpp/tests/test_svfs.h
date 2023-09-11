@@ -38,9 +38,11 @@
 
 
 namespace SVFS {
+    namespace Test {
 
-    TestCount test_svfs_all(t_test_results &results);
+        TestCount test_svfs_all(t_test_results &results);
 
+    } // namespace Test
 } // namespace SVFS
 
 #endif //CPPSVF_TEST_SVFS_H

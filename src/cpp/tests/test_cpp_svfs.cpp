@@ -33,85 +33,88 @@
 #include "cpp_svfs.h"
 
 namespace SVFS {
-    TestCount test_cpp_version(t_test_results &results) {
-        std::string test_name(__FUNCTION__);
-        int result = 0; // Success
-        TestCount count;
+    namespace Test {
 
-        auto time_start = std::chrono::high_resolution_clock::now();
-        std::string version = SVFS_CPP_VERSION;
-        result |= version != "0.1.1";
-        std::chrono::duration<double> time_exec = std::chrono::high_resolution_clock::now() - time_start;
-        TestResult test_result = TestResult(__PRETTY_FUNCTION__, test_name, result, "", time_exec.count(), 1);
-        results.push_back(test_result);
-        count.add_result(test_result.result());
-        return count;
-    }
+        TestCount test_cpp_version(t_test_results &results) {
+            std::string test_name(__FUNCTION__);
+            int result = 0; // Success
+            TestCount count;
 
-    TestCount test_cpp_version_major(t_test_results &results) {
-        std::string test_name(__FUNCTION__);
-        int result = 0; // Success
-        TestCount count;
+            auto time_start = std::chrono::high_resolution_clock::now();
+            std::string version = SVFS_CPP_VERSION;
+            result |= version != "0.1.1";
+            std::chrono::duration<double> time_exec = std::chrono::high_resolution_clock::now() - time_start;
+            TestResult test_result = TestResult(__PRETTY_FUNCTION__, test_name, result, "", time_exec.count(), 1);
+            results.push_back(test_result);
+            count.add_result(test_result.result());
+            return count;
+        }
 
-        auto time_start = std::chrono::high_resolution_clock::now();
-        result |= SVFS_CPP_VERSION_MAJOR != 0;
-        std::chrono::duration<double> time_exec = std::chrono::high_resolution_clock::now() - time_start;
-        TestResult test_result = TestResult(__PRETTY_FUNCTION__, test_name, result, "", time_exec.count(), 1);
-        results.push_back(test_result);
-        count.add_result(test_result.result());
-        return count;
-    }
+        TestCount test_cpp_version_major(t_test_results &results) {
+            std::string test_name(__FUNCTION__);
+            int result = 0; // Success
+            TestCount count;
 
-    TestCount test_cpp_version_minor(t_test_results &results) {
-        std::string test_name(__FUNCTION__);
-        int result = 0; // Success
-        TestCount count;
+            auto time_start = std::chrono::high_resolution_clock::now();
+            result |= SVFS_CPP_VERSION_MAJOR != 0;
+            std::chrono::duration<double> time_exec = std::chrono::high_resolution_clock::now() - time_start;
+            TestResult test_result = TestResult(__PRETTY_FUNCTION__, test_name, result, "", time_exec.count(), 1);
+            results.push_back(test_result);
+            count.add_result(test_result.result());
+            return count;
+        }
 
-        auto time_start = std::chrono::high_resolution_clock::now();
-        result |= SVFS_CPP_VERSION_MINOR != 1;
-        std::chrono::duration<double> time_exec = std::chrono::high_resolution_clock::now() - time_start;
-        TestResult test_result = TestResult(__PRETTY_FUNCTION__, test_name, result, "", time_exec.count(), 1);
-        results.push_back(test_result);
-        count.add_result(test_result.result());
-        return count;
-    }
+        TestCount test_cpp_version_minor(t_test_results &results) {
+            std::string test_name(__FUNCTION__);
+            int result = 0; // Success
+            TestCount count;
 
-    TestCount test_cpp_version_patch(t_test_results &results) {
-        std::string test_name(__FUNCTION__);
-        int result = 0; // Success
-        TestCount count;
+            auto time_start = std::chrono::high_resolution_clock::now();
+            result |= SVFS_CPP_VERSION_MINOR != 1;
+            std::chrono::duration<double> time_exec = std::chrono::high_resolution_clock::now() - time_start;
+            TestResult test_result = TestResult(__PRETTY_FUNCTION__, test_name, result, "", time_exec.count(), 1);
+            results.push_back(test_result);
+            count.add_result(test_result.result());
+            return count;
+        }
 
-        auto time_start = std::chrono::high_resolution_clock::now();
-        result |= SVFS_CPP_VERSION_PATCH != 1;
-        std::chrono::duration<double> time_exec = std::chrono::high_resolution_clock::now() - time_start;
-        TestResult test_result = TestResult(__PRETTY_FUNCTION__, test_name, result, "", time_exec.count(), 1);
-        results.push_back(test_result);
-        count.add_result(test_result.result());
-        return count;
-    }
+        TestCount test_cpp_version_patch(t_test_results &results) {
+            std::string test_name(__FUNCTION__);
+            int result = 0; // Success
+            TestCount count;
 
-    TestCount test_cpp_version_suffix(t_test_results &results) {
-        std::string test_name(__FUNCTION__);
-        int result = 0; // Success
-        TestCount count;
+            auto time_start = std::chrono::high_resolution_clock::now();
+            result |= SVFS_CPP_VERSION_PATCH != 1;
+            std::chrono::duration<double> time_exec = std::chrono::high_resolution_clock::now() - time_start;
+            TestResult test_result = TestResult(__PRETTY_FUNCTION__, test_name, result, "", time_exec.count(), 1);
+            results.push_back(test_result);
+            count.add_result(test_result.result());
+            return count;
+        }
 
-        auto time_start = std::chrono::high_resolution_clock::now();
-        result |= std::string(SVFS_CPP_VERSION_SUFFIX) != "";
-        std::chrono::duration<double> time_exec = std::chrono::high_resolution_clock::now() - time_start;
-        TestResult test_result = TestResult(__PRETTY_FUNCTION__, test_name, result, "", time_exec.count(), 1);
-        results.push_back(test_result);
-        count.add_result(test_result.result());
-        return count;
-    }
+        TestCount test_cpp_version_suffix(t_test_results &results) {
+            std::string test_name(__FUNCTION__);
+            int result = 0; // Success
+            TestCount count;
 
-    TestCount test_cp_svfs_all(t_test_results &results) {
-        TestCount count;
-        count += test_cpp_version(results);
-        count += test_cpp_version_major(results);
-        count += test_cpp_version_minor(results);
-        count += test_cpp_version_patch(results);
-        count += test_cpp_version_suffix(results);
-        return count;
-    }
+            auto time_start = std::chrono::high_resolution_clock::now();
+            result |= std::string(SVFS_CPP_VERSION_SUFFIX) != "";
+            std::chrono::duration<double> time_exec = std::chrono::high_resolution_clock::now() - time_start;
+            TestResult test_result = TestResult(__PRETTY_FUNCTION__, test_name, result, "", time_exec.count(), 1);
+            results.push_back(test_result);
+            count.add_result(test_result.result());
+            return count;
+        }
 
+        TestCount test_cp_svfs_all(t_test_results &results) {
+            TestCount count;
+            count += test_cpp_version(results);
+            count += test_cpp_version_major(results);
+            count += test_cpp_version_minor(results);
+            count += test_cpp_version_patch(results);
+            count += test_cpp_version_suffix(results);
+            return count;
+        }
+
+    } // namespace Test
 } // namespace SVFS

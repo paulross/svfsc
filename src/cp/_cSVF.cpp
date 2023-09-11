@@ -487,15 +487,18 @@ cp_SparseVirtualFile_erase(cp_SparseVirtualFile *self, PyObject *args, PyObject 
     try {
         self->pSvf->erase(fpos);
     } catch (const SVFS::Exceptions::ExceptionSparseVirtualFileErase &err) {
-        PyErr_Format(PyExc_IOError, "%s()#%d: Can not erase from a SVF. ERROR: %s",
-                     __FUNCTION__, __LINE__, err.message().c_str());
+        /* Do not include line as this can vary between versions. */
+        PyErr_Format(PyExc_IOError, "%s(): Can not erase from a SVF. ERROR: %s",
+                     __FUNCTION__, err.message().c_str());
         return NULL;
     } catch (const SVFS::Exceptions::ExceptionSparseVirtualFile &err) {
-        PyErr_Format(PyExc_RuntimeError, "%s()#%d: Fatal error reading from a SVF. ERROR: %s",
-                     __FUNCTION__, __LINE__, err.message().c_str());
+        /* Do not include line as this can vary between versions. */
+        PyErr_Format(PyExc_RuntimeError, "%s(): Fatal error reading from a SVF. ERROR: %s",
+                     __FUNCTION__, err.message().c_str());
         return NULL;
     } catch (const std::exception &err) {
-        PyErr_Format(PyExc_RuntimeError, "%s()#%d: FATAL caught std::exception %s", __FUNCTION__, __LINE__,
+        /* Do not include line as this can vary between versions. */
+        PyErr_Format(PyExc_RuntimeError, "%s(): FATAL caught std::exception %s", __FUNCTION__, __LINE__,
                      err.what());
         return NULL;
     }
