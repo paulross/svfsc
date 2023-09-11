@@ -44,23 +44,25 @@ fraction of the file itself.
 
 @c svfsc implements a *Sparse Virtual File*, a specialised in-memory cache where a particular file might not be
 available but *parts of it can be obtained* without reading the whole file.
-A Sparse Virtual File (SVF) is represented internally as a map of blocks of data with the key being their file
-offsets.
-Any write to an SVF will coalesce those blocks where possible.
-A Sparse Virtual File System (SVFS) is an extension of this to provide a key/value store where the key is a file ID
-and the value a Sparse Virtual File.
+A Sparse Virtual File (SVFS::SparseVirtualFile) is represented internally as a map of blocks of data with the key being
+their file offsets.
+Any write to an SVFS::SparseVirtualFile will coalesce these blocks where possible.
+
+A Sparse Virtual File System (SVFS::SparseVirtualFileSystem) is an extension of this to provide a key/value store where
+the key is a file ID and the value a Sparse Virtual File.
 
 @c svfsc is written in C++ with a Python interface.
 It is thread safe in both domains.
 
-A SVFS might be used like this:
+A SVFS::SparseVirtualFile might be used like this:
 
 - The user requests some data (for example TIFF metadata) from a remote file using a Parser that knows the TIFF structure.
-- The Parser consults the SVFS, if the SVFS has the data then the Parser parses it and gives the results to the user.
-- If the SVFS does *not* have the data then the Parser consults the SVFS for what data is needed, then issues the appropriate GET request(s) to the remote server.
-- That data is used to update the SVFS, then the parser can use it and give the results to the user.
+- The Parser consults the SVFS::SparseVirtualFile, if the SVFS::SparseVirtualFile has the data then the Parser parses it and gives the results to the user.
+- If the SVFS::SparseVirtualFile does *not* have the data then the Parser consults the SVFS::SparseVirtualFile for what data is needed, then issues the appropriate GET request(s) to the remote server.
+- That data is used to update the SVFS::SparseVirtualFile, then the parser can use it and give the results to the user.
 
-Here is a conceptual example of a @c SVF running on a local file system containing data from a single file.
+Here is a conceptual example of a SVFS::SparseVirtualFile running on a local file system containing data from a
+single file.
 
 @code
 
@@ -77,7 +79,7 @@ Here is a conceptual example of a @c SVF running on a local file system containi
 
 @endcode
 
- Here is a conceptual example of an @c SVFS running with a remote file system.
+ Here is a conceptual example of a SVFS::SparseVirtualFile running with a remote file system.
 
 @code
 
@@ -104,11 +106,14 @@ Example C++ Usage
 
     // Using an arbitrary modification time of 0.0
     SVFS::SparseVirtualFile svf("Some file ID", 0.0);
+
     // Write six char at file position 14
     svf.write(14, "ABCDEF", 6);
+
     // Read from it
     char read_buffer[2];
     svf.read(16, 2, read_buffer);
+
     // What do I have to do to read 24 bytes from file position 8?
     // This returns a std::vector<std::pair<size_t, size_t>>
     // as ((file_position, read_length), ...)
@@ -119,6 +124,27 @@ Example C++ Usage
         std::cout << "(" << val.first << ", " << val.second << "),";
     }
     std::cout << ")" << std::endl;
+@endcode
+
+The basic operation is to check if the SVFS::SparseVirtualFile has data, if not then get it and write that data to the
+SVFS::SparseVirtualFile.
+Then read directly:
+
+@code
+        if (!svf.has_data(file_position, length)) {
+
+            // Iterate through the minimal block set to read.
+            for (auto &val: svf.need(file_position, length)) {
+                // Somehow get the data at (val.first, val.second)...
+                // This could be a GET request to a remote file.
+                // Then...
+                svf.write(val.first, data, val.second)
+            }
+
+        }
+
+        // Now read directly
+        svf.read(file_position, length)
 @endcode
  *
  */
@@ -229,10 +255,11 @@ namespace SVFS {
     class SparseVirtualFile {
     public:
         /**
-         * Create a Sparse Virtual File
-         * @param id The unique identifier for this file.
+         * @brief Create a Sparse Virtual File
+         *
+         * @param id The identifier for this file.
          * @param mod_time The modification time of the remote file in UNIX seconds, this is used for integrity checking.
-         * @param config See \c tSparseVirtualFileConfig above.
+         * @param config See \c SVFS::SparseVirtualFileConfig.
          */
         explicit SparseVirtualFile(const std::string &id, double mod_time,
                                    const tSparseVirtualFileConfig &config = tSparseVirtualFileConfig()) :

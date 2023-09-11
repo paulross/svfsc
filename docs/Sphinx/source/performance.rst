@@ -3,6 +3,7 @@ Performance
 
 This describes some of the measured performance of ``SVFS``.
 Platform is a 2018 Mac Book Pro, 2.7 GHz Intel Core i7, 16 GB RAM.
+Memory read/write performance on this machine is typically 4,000 to 5,000 MB/s.
 
 C++ Performance
 ===============

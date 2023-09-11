@@ -31,7 +31,7 @@ cd ..
 
 echo ""
 echo "Finished!"
-echo "Sphinx HTML is in Sphinx/build/index.html"
+echo "Sphinx HTML is in Sphinx/build/html/index.html"
 echo "Sphinx PDF is in Sphinx/build/latex/svfs.pdf"
 echo "Doxygen HTML is copied into Sphinx/build/html/_static/doxygen_html/index.html"
 echo "Doxygen PDF is in Sphinx/source/ref/doxygen/latex/svfs_doxygen.pdf"

@@ -548,6 +548,12 @@ namespace SVFS {
     /**
      * @brief Given a file position and a length what data do I need that I don't yet have?
      *
+     * This takes an optional argument @c greedy_length that can be useful when dealing with remote files on high
+     * latency networks.
+     * The @c greedy_length will determine the then minimum read length and this may well change a series of small
+     * reads into a shorter series of larger reads.
+     * This might well improve the read performance at the expense of cacheing extra unused data.
+     *
      * @param fpos File position at the start of the attempted read.
      * @param len Length of the attempted read.
      * @param greedy_length If present this makes greedy reads, fewer but larger.
@@ -656,7 +662,7 @@ namespace SVFS {
     }
 
     /**
-     * @brief May reduce the list of file position lengths by coalescing them if possible up to a limit @c greedy_length.
+     * @brief May reduce the list of file position/lengths by coalescing them if possible up to a limit @c greedy_length.
      *
      * @param seek_reads Vector of minimal seek/reads.
      * @param greedy_length Maximal length that allows coalescing.
