@@ -98,7 +98,7 @@ namespace SVFS {
             std::ostringstream os;
             os << "SparseVirtualFile::_write_new_block_after_end():";
             os << " Unable to insert new block at " << fpos;
-            throw ExceptionSparseVirtualFileWrite(os.str());
+            throw Exceptions::ExceptionSparseVirtualFileWrite(os.str());
         }
     }
 
@@ -123,7 +123,7 @@ namespace SVFS {
             os << " '" << *(data) << "' != '" << iter->second[index_iter] << "'";
             os << " Ordinal " << static_cast<int>(*data) << " != " << static_cast<int>(iter->second[index_iter]);
             std::string str = os.str();
-            throw ExceptionSparseVirtualFileDiff(str);
+            throw Exceptions::ExceptionSparseVirtualFileDiff(str);
         }
         // Assert as this should now never be called is there is _not_ a diff.
         assert(0);
@@ -328,7 +328,7 @@ namespace SVFS {
             std::ostringstream os;
             os << "SparseVirtualFile::write():";
             os << " Unable to insert new block at " << fpos_start;
-            throw ExceptionSparseVirtualFileWrite(os.str());
+            throw Exceptions::ExceptionSparseVirtualFileWrite(os.str());
         }
         assert(len == 0);
         assert(fpos == fpos_end);
@@ -495,14 +495,14 @@ namespace SVFS {
         SVF_ASSERT(integrity() == ERROR_NONE);
 
         if (m_svf.empty()) {
-            throw ExceptionSparseVirtualFileRead("SparseVirtualFile::read(): Sparse virtual file is empty.");
+            throw Exceptions::ExceptionSparseVirtualFileRead("SparseVirtualFile::read(): Sparse virtual file is empty.");
         }
         t_map::const_iterator iter = m_svf.lower_bound(fpos);
         if (iter == m_svf.begin() && iter->first != fpos) {
             std::ostringstream os;
             os << "SparseVirtualFile::read():";
             os << " Requested file position " << fpos << " precedes first block at " << iter->first;
-            throw ExceptionSparseVirtualFileRead(os.str());
+            throw Exceptions::ExceptionSparseVirtualFileRead(os.str());
         }
         size_t offset_into_block = 0;
         if (iter == m_svf.end() || iter->first != fpos) {
@@ -518,13 +518,13 @@ namespace SVFS {
             os << " (end " << iter->first + iter->second.size() << ").";
             os << " Offset into block is " << offset_into_block;
             os << " overrun is " << offset_into_block + len - iter->second.size() << " bytes";
-            throw ExceptionSparseVirtualFileRead(os.str());
+            throw Exceptions::ExceptionSparseVirtualFileRead(os.str());
         }
         if (memcpy(p, iter->second.data() + offset_into_block, len) != p) {
             std::ostringstream os;
             os << "SparseVirtualFile::read():";
             os << " memcpy failed " << fpos << " length " << len;
-            throw ExceptionSparseVirtualFileRead(os.str());
+            throw Exceptions::ExceptionSparseVirtualFileRead(os.str());
 
         }
     }
@@ -727,14 +727,14 @@ namespace SVFS {
 #endif
 
         if (m_svf.empty()) {
-            throw ExceptionSparseVirtualFileRead("SparseVirtualFile::block_size(): Sparse virtual file is empty.");
+            throw Exceptions::ExceptionSparseVirtualFileRead("SparseVirtualFile::block_size(): Sparse virtual file is empty.");
         }
         t_map::const_iterator iter = m_svf.find(fpos);
         if (iter == m_svf.end()) {
             std::ostringstream os;
             os << "SparseVirtualFile::block_size():";
             os << " Requested file position " << fpos << " is not at the start of a block";
-            throw ExceptionSparseVirtualFileRead(os.str());
+            throw Exceptions::ExceptionSparseVirtualFileRead(os.str());
         }
         return iter->second.size();
     }
@@ -810,7 +810,7 @@ namespace SVFS {
             std::ostringstream os;
             os << "SparseVirtualFile::erase():";
             os << " Non-existent file position " << fpos << " at start of block.";
-            throw ExceptionSparseVirtualFileErase(os.str());
+            throw Exceptions::ExceptionSparseVirtualFileErase(os.str());
         }
         size_t ret = iter->second.size();
         m_bytes_total -= ret;

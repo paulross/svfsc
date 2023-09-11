@@ -74,7 +74,7 @@ namespace SVFS {
         auto time_start = std::chrono::high_resolution_clock::now();
         try {
             bytes_written += load_writes(svf, test_data_bytes_512);
-        } catch (ExceptionSparseVirtualFile &err) {
+        } catch (Exceptions::ExceptionSparseVirtualFile &err) {
             return TestResult(__PRETTY_FUNCTION__, m_test_name, 1, err.message(), 0.0, 0);
         }
         std::chrono::duration<double> time_exec = std::chrono::high_resolution_clock::now() - time_start;
@@ -346,7 +346,7 @@ namespace SVFS {
             load_writes(svf, test_data_bytes_512);
             svf.write(m_fpos, m_data, m_len);
             return TestResult(__PRETTY_FUNCTION__, m_test_name, 1, "Write test failed to throw.", 0.0, 0);
-        } catch (ExceptionSparseVirtualFileWrite &err) {
+        } catch (Exceptions::ExceptionSparseVirtualFileWrite &err) {
             if (err.message() != m_message) {
                 std::ostringstream os;
                 os << "Error message \"" << err.message() << "\" expected \"" << m_message << "\"";
@@ -525,7 +525,7 @@ namespace SVFS {
         // Load the SVF
         try {
             load_writes(svf, test_data_bytes_512);
-        } catch (ExceptionSparseVirtualFile &err) {
+        } catch (Exceptions::ExceptionSparseVirtualFile &err) {
             return TestResult(__PRETTY_FUNCTION__, m_test_name, 1, err.message(), 0.0, 0);
         }
 
@@ -538,7 +538,7 @@ namespace SVFS {
         auto time_start = std::chrono::high_resolution_clock::now();
         try {
             svf.read(m_fpos, m_len, read_buffer);
-        } catch (ExceptionSparseVirtualFileRead &err) {
+        } catch (Exceptions::ExceptionSparseVirtualFileRead &err) {
             return TestResult(__PRETTY_FUNCTION__, m_test_name, 1, err.message(), 0.0, 0);
         }
         std::chrono::duration<double> time_exec = std::chrono::high_resolution_clock::now() - time_start;
@@ -612,7 +612,7 @@ namespace SVFS {
         // Load the SVF
         try {
             load_writes(svf, test_data_bytes_512);
-        } catch (ExceptionSparseVirtualFile &err) {
+        } catch (Exceptions::ExceptionSparseVirtualFile &err) {
             return TestResult(__PRETTY_FUNCTION__, m_test_name, 1, err.message(), 0.0, 0);
         }
         // Run the test.
@@ -620,7 +620,7 @@ namespace SVFS {
         try {
             svf.read(m_fpos, m_len, read_buffer);
             return TestResult(__PRETTY_FUNCTION__, m_test_name, 1, "Test failed to throw.", 0.0, 0);
-        } catch (ExceptionSparseVirtualFileRead &err) {
+        } catch (Exceptions::ExceptionSparseVirtualFileRead &err) {
             if (err.message() != m_message) {
                 std::ostringstream os;
                 os << "Error message \"" << err.message() << "\" expected \"" << m_message << "\"";
@@ -732,7 +732,7 @@ namespace SVFS {
         // Load the SVF
         try {
             load_writes(svf, test_data_bytes_512);
-        } catch (ExceptionSparseVirtualFile &err) {
+        } catch (Exceptions::ExceptionSparseVirtualFile &err) {
             return TestResult(__PRETTY_FUNCTION__, m_test_name, 1, err.message(), 0.0, 0);
         }
 
@@ -751,7 +751,7 @@ namespace SVFS {
                 return TestResult(__PRETTY_FUNCTION__, m_test_name, 1, os.str(), time_exec.count(), svf.num_bytes());
             }
             return TestResult(__PRETTY_FUNCTION__, m_test_name, 0, "", time_exec.count(), svf.num_bytes());
-        } catch (ExceptionSparseVirtualFileRead &err) {
+        } catch (Exceptions::ExceptionSparseVirtualFileRead &err) {
             return TestResult(__PRETTY_FUNCTION__, m_test_name, 1, err.message(), 0.0, 0);
         }
     }
@@ -805,7 +805,7 @@ namespace SVFS {
         // Load the SVF
         try {
             load_writes(svf, test_data_bytes_512);
-        } catch (ExceptionSparseVirtualFile &err) {
+        } catch (Exceptions::ExceptionSparseVirtualFile &err) {
             return TestResult(__PRETTY_FUNCTION__, m_test_name, 1, err.message(), 0.0, 0);
         }
 
@@ -960,7 +960,7 @@ namespace SVFS {
         // Load the SVF
         try {
             load_writes(svf, test_data_bytes_512);
-        } catch (ExceptionSparseVirtualFile &err) {
+        } catch (Exceptions::ExceptionSparseVirtualFile &err) {
             return TestResult(__PRETTY_FUNCTION__, m_test_name, 1, err.message(), 0.0, 0);
         }
 
@@ -1074,7 +1074,7 @@ namespace SVFS {
         // Load the SVF
         try {
             load_writes(svf, test_data_bytes_512);
-        } catch (ExceptionSparseVirtualFile &err) {
+        } catch (Exceptions::ExceptionSparseVirtualFile &err) {
             return TestResult(__PRETTY_FUNCTION__, m_test_name, 1, err.message(), 0.0, 0);
         }
 
@@ -1086,7 +1086,7 @@ namespace SVFS {
         auto time_start = std::chrono::high_resolution_clock::now();
         try {
             svf.erase(m_fpos);
-        } catch (ExceptionSparseVirtualFileRead &err) {
+        } catch (Exceptions::ExceptionSparseVirtualFileRead &err) {
             return TestResult(__PRETTY_FUNCTION__, m_test_name, 1, err.message(), 0.0, 0);
         }
         std::chrono::duration<double> time_exec = std::chrono::high_resolution_clock::now() - time_start;
@@ -1123,14 +1123,14 @@ namespace SVFS {
         // Load the SVF
         try {
             load_writes(svf, test_data_bytes_512);
-        } catch (ExceptionSparseVirtualFile &err) {
+        } catch (Exceptions::ExceptionSparseVirtualFile &err) {
             return TestResult(__PRETTY_FUNCTION__, m_test_name, 1, err.message(), 0.0, 0);
         }
         // Run the test.
         try {
             svf.erase(m_fpos);
             return TestResult(__PRETTY_FUNCTION__, m_test_name, 1, "Test failed to throw.", 0.0, 0);
-        } catch (ExceptionSparseVirtualFileErase &err) {
+        } catch (Exceptions::ExceptionSparseVirtualFileErase &err) {
             if (err.message() != m_message) {
                 std::ostringstream os;
                 os << "Error message \"" << err.message() << "\" expected \"" << m_message << "\"";
@@ -1215,7 +1215,7 @@ namespace SVFS {
                 g_svf_multithreaded.write(fpos, test_data_bytes_512, 8);
             }
         }
-        catch (ExceptionSparseVirtualFile &err) {
+        catch (Exceptions::ExceptionSparseVirtualFile &err) {
             std::cout << __FUNCTION__ << "(): Fails: " << err.message() << std::endl;
         }
     }
@@ -1226,7 +1226,7 @@ namespace SVFS {
                 g_svf_multithreaded.write(fpos, test_data_bytes_512, 8);
             }
         }
-        catch (ExceptionSparseVirtualFile &err) {
+        catch (Exceptions::ExceptionSparseVirtualFile &err) {
             std::cout << __FUNCTION__ << "(): Fails: " << err.message() << std::endl;
         }
     }
@@ -1366,7 +1366,7 @@ namespace SVFS {
         auto time_start = std::chrono::high_resolution_clock::now();
         try {
             svf.block_size(895);
-        } catch (ExceptionSparseVirtualFileRead &err) {
+        } catch (Exceptions::ExceptionSparseVirtualFileRead &err) {
             std::string expected_message = "SparseVirtualFile::block_size(): Requested file position 895 is not at the start of a block";
             if (err.message() != expected_message) {
                 std::ostringstream os;

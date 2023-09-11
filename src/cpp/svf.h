@@ -177,40 +177,45 @@ namespace SVFS {
 
 #pragma mark - Exceptions
 
-    /// Exception specialisation for the SparseVirtualFile.
-    class ExceptionSparseVirtualFile : public std::exception {
-    public:
-        explicit ExceptionSparseVirtualFile(const std::string &in_msg) : msg(in_msg) {}
+    namespace Exceptions {
 
-        [[nodiscard]] const std::string &message() const { return msg; }
+        /// Exception specialisation for the SparseVirtualFile.
+        class ExceptionSparseVirtualFile : public std::exception {
+        public:
+            explicit ExceptionSparseVirtualFile(const std::string &in_msg) : msg(in_msg) {}
 
-    protected:
-        std::string msg;
-    };
+            [[nodiscard]] const std::string &message() const { return msg; }
 
-    /// Might be thrown during a write operation which fails.
-    class ExceptionSparseVirtualFileWrite : public ExceptionSparseVirtualFile {
-    public:
-        explicit ExceptionSparseVirtualFileWrite(const std::string &in_msg) : ExceptionSparseVirtualFile(in_msg) {}
-    };
+        protected:
+            std::string msg;
+        };
 
-    /// Might be thrown during a write operation where the data differs.
-    class ExceptionSparseVirtualFileDiff : public ExceptionSparseVirtualFileWrite {
-    public:
-        explicit ExceptionSparseVirtualFileDiff(const std::string &in_msg) : ExceptionSparseVirtualFileWrite(in_msg) {}
-    };
+        /// Might be thrown during a write operation which fails.
+        class ExceptionSparseVirtualFileWrite : public ExceptionSparseVirtualFile {
+        public:
+            explicit ExceptionSparseVirtualFileWrite(const std::string &in_msg) : ExceptionSparseVirtualFile(in_msg) {}
+        };
 
-    /// Might be thrown during a write operation where the data differs.
-    class ExceptionSparseVirtualFileRead : public ExceptionSparseVirtualFile {
-    public:
-        explicit ExceptionSparseVirtualFileRead(const std::string &in_msg) : ExceptionSparseVirtualFile(in_msg) {}
-    };
+        /// Might be thrown during a write operation where the data differs.
+        class ExceptionSparseVirtualFileDiff : public ExceptionSparseVirtualFileWrite {
+        public:
+            explicit ExceptionSparseVirtualFileDiff(const std::string &in_msg) : ExceptionSparseVirtualFileWrite(
+                    in_msg) {}
+        };
 
-    /// Might be thrown during a erase operation where the file position is not at the exact beginning of a block.
-    class ExceptionSparseVirtualFileErase : public ExceptionSparseVirtualFile {
-    public:
-        explicit ExceptionSparseVirtualFileErase(const std::string &in_msg) : ExceptionSparseVirtualFile(in_msg) {}
-    };
+        /// Might be thrown during a write operation where the data differs.
+        class ExceptionSparseVirtualFileRead : public ExceptionSparseVirtualFile {
+        public:
+            explicit ExceptionSparseVirtualFileRead(const std::string &in_msg) : ExceptionSparseVirtualFile(in_msg) {}
+        };
+
+        /// Might be thrown during a erase operation where the file position is not at the exact beginning of a block.
+        class ExceptionSparseVirtualFileErase : public ExceptionSparseVirtualFile {
+        public:
+            explicit ExceptionSparseVirtualFileErase(const std::string &in_msg) : ExceptionSparseVirtualFile(in_msg) {}
+        };
+
+    } //namespace Exceptions {
 
 #pragma mark - typedefs
 
