@@ -40,6 +40,12 @@
 #include "test_cpp_svfs.h"
 
 
+/**
+ * @brief Main entry point.
+ *
+ * This runs all the C++ tests.
+ * @return 0 on success, non-zero on failure.
+ */
 int main() {
     std::cout << "Testing SVF and SVFS..." << std::endl;
 

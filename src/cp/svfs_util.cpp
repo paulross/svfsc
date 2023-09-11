@@ -52,6 +52,13 @@
 //    return ret;
 //}
 
+/**
+ * Create a Python datetime.datetime from a struct std::tm with additional microseconds.
+ *
+ * @param bdt C++ time struct.
+ * @param usecond Additional microseconds.
+ * @return A Python datetime.datetime or NULL on failure in which case a Python Exception will have been set.
+ */
 PyObject *
 datetime_from_struct_tm(const std::tm *bdt, int usecond) {
     PyObject * ret = NULL;

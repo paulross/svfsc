@@ -37,12 +37,12 @@
 
 namespace SVFS {
     /**
-     * Used to overwrite the memory before discarding it (if required).
+     * @brief Used to overwrite the memory before discarding it (if required).
      */
     static const char OVERWRITE_CHAR = '0';
 
     /**
-     * Returns \c true if this SVF already contains this data.
+     * @brief Returns \c true if this SVF already contains this data.
      *
      * If \c false then \c need() can say what exactly is required.
      *
@@ -71,7 +71,8 @@ namespace SVFS {
     }
 
     /**
-     * Write a brand new block into either an empty SVF or beyond the current blocks.
+     * @brief Write a brand new block into either an empty SVF or beyond the current blocks.
+     *
      * Will raise an ExceptionSparseVirtualFileWrite if the write fails.
      * This also updates \c m_bytes_total
      *
@@ -102,7 +103,7 @@ namespace SVFS {
     }
 
     /**
-     * Throws a ExceptionSparseVirtualFileDiff with an explanation of the data difference.
+     * @brief Throws a ExceptionSparseVirtualFileDiff with an explanation of the data difference.
      *
      * @param fpos File position.
      * @param data The data.
@@ -129,15 +130,19 @@ namespace SVFS {
     }
 
     /**
-     * Write the data a the given file position.
+     * @brief Write the data a the given file position.
+     *
      * This will either:
      *
      * - Write a brand new block independent of all the others.
      * - Write a new block and coalesce other blocks onto its end.
      * - Coalesce the new block onto an existing block and possibly others.
      *
-     * Comments are structures like this where \c ==== are existing blocks and \c ++++ is the new block.
-     * \c ^==== shows where the iterator is pointing to. fpos is the beginning of the \c ++++ block.
+     * Comments are structures like this where:
+     *
+     * - \c ==== are existing blocks.
+     * - \c ++++ is the new block. File position is the beginning of the \c ++++ block.
+     * - \c ^==== shows where the iterator is pointing to.
      *
      * Notation:
      *
@@ -203,7 +208,7 @@ namespace SVFS {
     }
 
     /**
-     * Write a new block and append existing blocks to it.
+     * @brief Write a new block and append existing blocks to it.
      *
      * We are in either of these situations.
      *
@@ -331,10 +336,10 @@ namespace SVFS {
     }
 
     /**
-     * From file position, write the new_data to the block identified by base_block_iter.
+     * @brief From file position, write the new_data to the block identified by base_block_iter.
      * This may involve coalescing existing blocks that follow base_block_iter.
      *
-     * We are in these kind of situations.
+     * We are in these kind of situations:
      *
      * Notation:
      *
@@ -476,7 +481,7 @@ namespace SVFS {
     }
 
     /**
-     * Read data and write to the buffer provided by the caller.
+     * @brief Read data and write to the buffer provided by the caller.
      * This is the const method as it does not update the internals.
      *
      * @param fpos File position to start the read.
@@ -525,7 +530,7 @@ namespace SVFS {
     }
 
     /**
-     * Read data and write to the buffer provided by the caller.
+     * @brief Read data and write to the buffer provided by the caller.
      * This also updated the non-const members.
      *
      * @param fpos File position to start the read.
@@ -541,7 +546,7 @@ namespace SVFS {
     }
 
     /**
-     * Given a file position and a length what data do I need that I don't yet have?
+     * @brief Given a file position and a length what data do I need that I don't yet have?
      *
      * @param fpos File position at the start of the attempted read.
      * @param len Length of the attempted read.
@@ -640,7 +645,7 @@ namespace SVFS {
     }
 
     /**
-     * Returns the maximal length to read.
+     * @brief Returns the maximal length to read given a greedy length.
      *
      * @param iter The current block.
      * @param greedy_length The greed length read.
@@ -651,7 +656,7 @@ namespace SVFS {
     }
 
     /**
-     * May reduce the list of file position lengths so that by coalescing them if possible up to a limit greedy_length.
+     * @brief May reduce the list of file position lengths by coalescing them if possible up to a limit @c greedy_length.
      *
      * @param seek_reads Vector of minimal seek/reads.
      * @param greedy_length Maximal length that allows coalescing.
@@ -684,7 +689,7 @@ namespace SVFS {
     }
 
     /**
-     * Returns a description of the current blocks as a vector of (file_position, length).
+     * @brief Returns a description of the current blocks as a vector of (file_position, length).
      *
      * @return The currently held blocks.
      */
@@ -702,7 +707,8 @@ namespace SVFS {
     }
 
     /**
-     * The length of the block at a specific file position.
+     * @brief The length of the block at a specific file position.
+     *
      * This will throw a \c ExceptionSparseVirtualFileRead if the file position is not in the block entries.
      *
      * @param fpos File position, this must be at the start of a block.
@@ -728,7 +734,7 @@ namespace SVFS {
     }
 
     /**
-     * Returns the total memory usage of this SVF.
+     * @brief Returns the total memory usage of this SVF.
      *
      * @return Memory used.
      */
@@ -750,12 +756,13 @@ namespace SVFS {
     }
 
     /**
-     * Clears this Sparse Virtual File.
+     * @brief Clears this Sparse Virtual File.
+     *
      * This removes all data and resets the internal counters.
      *
-     * NOTE: m_coalesce, m_file_mod_time are maintained.
+     * @note m_coalesce, m_file_mod_time are maintained.
      *
-     * NOTE: m_time_write, m_time_read are maintained.
+     * @note m_time_write, m_time_read are maintained.
      */
     void SparseVirtualFile::clear() noexcept {
         SVF_ASSERT(integrity() == ERROR_NONE);
@@ -780,7 +787,8 @@ namespace SVFS {
     }
 
     /**
-     * Remove a particular block.
+     * @brief Remove a particular block.
+     *
      * This will raise an ExceptionSparseVirtualFileErase if the file position is not exactly at the start of a block.
      *
      * @param fpos File position of the start of the block.
@@ -805,7 +813,8 @@ namespace SVFS {
     }
 
     /**
-     * Internal integrity check.
+     * @brief Internal integrity check.
+     *
      * This checks for these error conditions:
      *
      * - Empty block.
@@ -850,10 +859,11 @@ namespace SVFS {
     }
 
     /**
-     * Returns the largest possible file position known so far.
+     * @brief Returns the largest possible file position known so far.
+     *
      * Of course this is not the EOF position as we may not have been offered that yet.
      *
-     * @return The last know file position.
+     * @return The last known file position.
      */
     t_fpos
     SparseVirtualFile::last_file_position() const noexcept {
@@ -865,7 +875,8 @@ namespace SVFS {
     }
 
     /**
-     * Returns the file position immediately after the last block.
+     * @brief Returns the file position immediately after the last block.
+     *
      * Of course this is not the EOF position as we may not have been offered that yet.
      * This does not have use a lock.
      *
@@ -883,7 +894,7 @@ namespace SVFS {
     }
 
     /**
-     * Returns the file position immediately after the block.
+     * @brief Returns the file position immediately after the particular block.
      * 
      * Example file position 4, block length 2 this returns 6.
      *

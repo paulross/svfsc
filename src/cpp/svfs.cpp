@@ -36,8 +36,7 @@
 
 namespace SVFS {
 
-    /**
-     * Inserts a new SparseVirtualFile corresponding to the given ID and file modification timestamp.
+    /** @brief Inserts a new SparseVirtualFile corresponding to the given ID and file modification timestamp.
      *
      * @param id The file ID.
      * @param mod_time The file modification time.
@@ -58,8 +57,8 @@ namespace SVFS {
         }
     }
 
-    /**
-     * Remove the SparseVirtualFile corresponding to the given ID.
+    /** @brief Remove the SparseVirtualFile corresponding to the given ID.
+     *
      * This will raise an ExceptionSparseVirtualFileSystemRemove if the given ID does not exist.
      *
      * @param id The SparseVirtualFile ID.
@@ -79,8 +78,8 @@ namespace SVFS {
         }
     }
 
-    /**
-     * Return the const SparseVirtualFile at the given ID.
+    /** @brief Return the const SparseVirtualFile at the given ID.
+     *
      * Will raise a ExceptionSparseVirtualFileSystemOutOfRange is the ID does not exist.
      *
      * @param id The SparseVirtualFile ID.
@@ -94,8 +93,8 @@ namespace SVFS {
         }
     }
 
-    /**
-     * Return the non-const SparseVirtualFile at the given ID.
+    /** @brief Return the non-const SparseVirtualFile at the given ID.
+     *
      * Will raise a ExceptionSparseVirtualFileSystemOutOfRange is the ID does not exist.
      *
      * @param id The SparseVirtualFile ID.
@@ -109,8 +108,7 @@ namespace SVFS {
         }
     }
 
-    /**
-     * Returns the total in-memory size of the SparseVirtualFileSystem structure in bytes.
+    /** @brief Returns the total in-memory size of the SparseVirtualFileSystem structure in bytes.
      *
      * @return Memory size.
      */
@@ -122,8 +120,7 @@ namespace SVFS {
         return ret;
     }
 
-    /**
-     * Returns the total number of readable bytes in the SparseVirtualFileSystem.
+    /** @brief Returns the total number of readable bytes in the SparseVirtualFileSystem.
      *
      * @return Readable size.
      */
@@ -135,8 +132,7 @@ namespace SVFS {
         return ret;
     }
 
-    /**
-     * Returns the total number of blocks in the SparseVirtualFileSystem.
+    /** @brief Returns the total number of blocks in the SparseVirtualFileSystem.
      *
      * @return Total number of blocks.
      */
@@ -148,8 +144,7 @@ namespace SVFS {
         return ret;
     }
 
-    /**
-     * Return all the SVF IDs (unordered).
+    /** @brief Return all the SVF IDs (unordered).
      *
      * @return All the SVF IDs.
      */
@@ -162,9 +157,7 @@ namespace SVFS {
         return ret;
     }
 
-    /**
-     * Destructor.
-     */
+    /** @brief Destructor. */
     SparseVirtualFileSystem::~SparseVirtualFileSystem() noexcept {
         for (auto &iter: m_svfs) {
             iter.second.clear();

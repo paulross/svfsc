@@ -41,12 +41,21 @@
 
 namespace SVFS {
 
+    /**
+     * @brief Abstract base class for tests cases.
+     */
     class TestCaseABC {
     public:
+        /**
+         * Create a test with a name and a series of seek/read operations.
+         *
+         * @param m_test_name Name of the test.
+         * @param m_writes Vector of seek/read operations.
+         */
         TestCaseABC(const std::string &m_test_name, const t_seek_reads &m_writes) : m_test_name(m_test_name),
                                                                                     m_writes(m_writes) {}
         virtual TestResult run() const = 0;
-        // Load all the specified write seek/write blocks
+        /// Load all the specified write seek/write blocks from the data (assumed to be 512 bytes long).
         size_t load_writes(SparseVirtualFile &svf, const char *data) const {
             size_t bytes_written = 0;
             for (const auto &write_test: m_writes) {
@@ -71,13 +80,15 @@ namespace SVFS {
             return bytes_written;
         }
         virtual ~TestCaseABC() = default;
-        const std::string & test_name() const noexcept { return m_test_name; }
+        /// The tests name.
+        const std::string &test_name() const noexcept { return m_test_name; }
     protected:
         std::string m_test_name;
         t_seek_reads m_writes;
     };
 
 
+    /** @brief Specialisation of a test case for writing to a SVF. */
     class TestCaseWrite : public TestCaseABC {
     public:
         TestCaseWrite(const std::string &m_test_name, const t_seek_reads &m_writes,
@@ -89,6 +100,7 @@ namespace SVFS {
         t_seek_reads m_expected_blocks;
     };
 
+    /** @brief Specialisation of a test case where a write to a SVF throws an exception. */
     class TestCaseWriteThrows : public TestCaseABC {
     public:
         TestCaseWriteThrows(const std::string &m_test_name, const t_seek_reads &m_writes,
@@ -105,6 +117,7 @@ namespace SVFS {
         std::string m_message;
     };
 
+    /** @brief Specialisation of a test case for writing to a SVF. */
     class TestCaseRead : public TestCaseABC {
     public:
         TestCaseRead(const std::string &m_test_name, const t_seek_reads &m_writes,
@@ -119,6 +132,7 @@ namespace SVFS {
         size_t m_len;
     };
 
+    /** @brief Specialisation of a test case where a write to a SVF throws an exception. */
     class TestCaseReadThrows : public TestCaseRead {
     public:
         TestCaseReadThrows(const std::string &m_test_name, const t_seek_reads &m_writes,
@@ -132,6 +146,7 @@ namespace SVFS {
         std::string m_message;
     };
 
+    /** @brief Specialisation of a test case for a SVF \c has() . */
     class TestCaseHas : public TestCaseABC {
     public:
         TestCaseHas(const std::string &m_test_name, const t_seek_reads &m_writes,
@@ -147,6 +162,7 @@ namespace SVFS {
         bool m_expected;
     };
 
+    /** @brief Specialisation of a test case for a SVF \c need() . */
     class TestCaseNeed : public TestCaseABC {
     public:
         TestCaseNeed(const std::string &m_test_name, const t_seek_reads &m_writes,
@@ -162,6 +178,7 @@ namespace SVFS {
         t_seek_reads m_need;
     };
 
+    /** @brief Specialisation of a test case for a SVF \c need() with a greedy length. */
     class TestCaseNeedGreedy : public TestCaseABC {
     public:
         explicit TestCaseNeedGreedy(const std::string &m_test_name, const t_seek_reads &m_writes,
@@ -175,6 +192,7 @@ namespace SVFS {
         t_seek_reads m_need;
     };
 
+    /** @brief Specialisation of a test case for @c erase() on a SVF. */
     class TestCaseErase : public TestCaseABC {
     public:
         TestCaseErase(const std::string &m_test_name, const t_seek_reads &m_writes, t_fpos fpos);
@@ -188,6 +206,7 @@ namespace SVFS {
 //        size_t m_len;
     };
 
+    /** @brief Specialisation of a test case where @c erase() on a SVF throws an exception. */
     class TestCaseEraseThrows : public TestCaseErase {
     public:
         TestCaseEraseThrows(const std::string &m_test_name, const t_seek_reads &m_writes,

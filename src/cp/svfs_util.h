@@ -37,6 +37,9 @@
 
 #include "cp_svfs.h"
 
+/**
+ * Import the datetime capsule if necessary.
+ */
 #define IMPORT_DATETIME_IF_UNINITIALISED do {   \
     if (! PyDateTimeAPI) {                      \
         PyDateTime_IMPORT;                      \

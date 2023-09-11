@@ -43,7 +43,8 @@
 
 
 /**
- * Python wrapper around a C++ SparseVirtualFile.
+ * @brief Python wrapper around a C++ SparseVirtualFile.
+ *
  * If \c PY_THREAD_SAFE is defined then this also contains a mutex.
  */
 typedef struct {
@@ -57,7 +58,8 @@ typedef struct {
 #ifdef PY_THREAD_SAFE
 
 /**
- * A RAII wrapper around the PyThread_type_lock.
+ * @brief A RAII wrapper around the PyThread_type_lock for the CPython SVF.
+ *
  * See https://pythonextensionpatterns.readthedocs.io/en/latest/thread_safety.html
  * */
 class AcquireLockSVF {

@@ -36,13 +36,36 @@
 
 #include "test_svf.h"
 
+
+/** Check that the basic code examples compiles and runs. */
+void test_example_code(void) {
+    std::cout << __PRETTY_FUNCTION__ << std::endl;
+    SVFS::SparseVirtualFile svf("Some file ID", 0.0);
+    // Write six char at file position 14
+    svf.write(14, "ABCDEF", 6);
+    // Read from it
+    char read_buffer[2];
+    svf.read(16, 2, read_buffer);
+    // What do I have to do to read 24 bytes from file position 8?
+    // This returns a std::vector<std::pair<size_t, size_t>>
+    // as ((file_position, read_length), ...)
+    auto need = svf.need(8, 24);
+    // This prints ((8, 6), (20, 4),)
+    std::cout << "(";
+    for (auto &val: need) {
+        std::cout << "(" << val.first << ", " << val.second << "),";
+    }
+    std::cout << ")" << std::endl;
+    std::cout << __PRETTY_FUNCTION__ << " DONE" << std::endl;
+}
+
 namespace SVFS {
 
     TestCaseWrite::TestCaseWrite(const std::string &m_test_name, const t_seek_reads &m_writes,
                                  const t_seek_reads &m_expected_blocks) : TestCaseABC(m_test_name, m_writes),
                                                                           m_expected_blocks(m_expected_blocks) {}
 
-    // Create a SVF, run the write tests and report the result.
+    /// @brief Create a SVF, run the write tests and report the result.
     TestResult TestCaseWrite::run() const {
         SparseVirtualFile svf("", 0.0);
 
@@ -140,7 +163,10 @@ namespace SVFS {
         return TestResult(__PRETTY_FUNCTION__, m_test_name, result, err, time_exec.count(), svf.num_bytes());
     }
 
-    /* This will raise an uncaught ExceptionTestConfiguration if miss configured. */
+    /** @brief The actual write tests cases.
+     *
+     * This will raise an uncaught ExceptionTestConfiguration if miss configured.
+     */
     const std::vector<TestCaseWrite> write_test_cases = {
 #if  1
             /* Special case with error found in RaPiVot tiff_dump.py when using a SVF:
@@ -187,6 +213,7 @@ namespace SVFS {
             },
 #endif
 #if 1
+            /* Write no blocks. */
             {"Write no blocks", {}, {}},
 
             //        |+++|
@@ -605,20 +632,24 @@ namespace SVFS {
 
     const std::vector<TestCaseReadThrows> read_test_cases_throw = {
             {"Read empty SVF throws",      {},       8,  4, "SparseVirtualFile::read(): Sparse virtual file is empty."},
-            //        ^==|
-            //  |++|
+            /**
+             * @code
+             *          ^==|
+             *   |++|
+             * @endcode
+             */
             {"Read before block throws",   {{8, 4}}, 2,  4,
                                                             "SparseVirtualFile::read(): Requested file position 2 precedes first block at 8"},
-            //        ^==|
-            //       |++|
+            ///        ^==|
+            ///       |++|
             {"Read prior to block throws", {{8, 4}}, 7,  4,
                                                             "SparseVirtualFile::read(): Requested file position 7 precedes first block at 8"},
-            //        ^==|
-            //         |++|
+            ///        ^==|
+            ///         |++|
             {"Read beyond block throws",   {{8, 4}}, 9,  4,
                                                             "SparseVirtualFile::read(): Requested position 9 length 4 (end 13) overruns block that starts at 8 has size 4 (end 12). Offset into block is 1 overrun is 1 bytes"},
-            //        ^==|
-            //             |++|
+            ///        ^==|
+            ///             |++|
             {"Read beyond end throws",     {{8, 4}}, 12, 4,
                                                             "SparseVirtualFile::read(): Requested position 12 length 4 (end 16) overruns block that starts at 8 has size 4 (end 12). Offset into block is 4 overrun is 4 bytes"},
     };
@@ -1354,6 +1385,7 @@ namespace SVFS {
     }
 
     TestCount test_svf_all(t_test_results &results) {
+        test_example_code();
         test_debug_need_read_special_A();
         test_debug_need_read_special_B();
 

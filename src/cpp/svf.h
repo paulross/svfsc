@@ -29,6 +29,101 @@
  @endverbatim
  */
 
+/**
+ * @mainpage
+
+Somtimes you don't need the whole file.
+Sometimes you don't *want* the whole file.
+Especially if it is huge and on some remote server.
+But, you might know what parts of the file that you want and @c svfsc can help you store them locally so it looks
+*as if* you have access to the complete file but with just the pieces of interest.
+
+@c svfsc is targeted at reading very large binary files such as TIFF, RP66V1, HDF5 where the structure is well known.
+For example you might want to parse a TIFF file for its metadata or for a particular image tile or strip which is a tiny
+fraction of the file itself.
+
+@c svfsc implements a *Sparse Virtual File*, a specialised in-memory cache where a particular file might not be
+available but *parts of it can be obtained* without reading the whole file.
+A Sparse Virtual File (SVF) is represented internally as a map of blocks of data with the key being their file
+offsets.
+Any write to an SVF will coalesce those blocks where possible.
+A Sparse Virtual File System (SVFS) is an extension of this to provide a key/value store where the key is a file ID
+and the value a Sparse Virtual File.
+
+@c svfsc is written in C++ with a Python interface.
+It is thread safe in both domains.
+
+A SVFS might be used like this:
+
+- The user requests some data (for example TIFF metadata) from a remote file using a Parser that knows the TIFF structure.
+- The Parser consults the SVFS, if the SVFS has the data then the Parser parses it and gives the results to the user.
+- If the SVFS does *not* have the data then the Parser consults the SVFS for what data is needed, then issues the appropriate GET request(s) to the remote server.
+- That data is used to update the SVFS, then the parser can use it and give the results to the user.
+
+Here is a conceptual example of a @c SVF running on a local file system containing data from a single file.
+
+@code
+
+                CLIENT SIDE           |             LOCAL FILE SYSTEM
+                                      .
+    /------\      /--------\          |              /-------------\
+    | User | <--> | Parser | <-- read(fpos, len) --> | File System |
+    \------/      \--------/          |              \-------------/
+                       |              .
+                       |              |
+                   /-------\          .
+                   |  SVF  |          |
+                   \-------/          .
+
+@endcode
+
+ Here is a conceptual example of an @c SVFS running with a remote file system.
+
+@code
+
+                CLIENT SIDE           |             SERVER SIDE
+                                      .
+    /------\      /--------\          |             /--------\
+    | User | <--> | Parser | <-- GET(fpos, len) --> | Server |
+    \------/      \--------/          |             \--------/
+                       |              .                  |
+                       |              |                  |
+                   /-------\          .           /-------------\
+                   |  SVF  |          |           | File System |
+                   \-------/          .           \-------------/
+
+@endcode
+
+Example C++ Usage
+====================
+
+@c svfsc is written in C++ so can be used directly:
+
+@code
+    #include "svf.h"
+
+    // Using an arbitrary modification time of 0.0
+    SVFS::SparseVirtualFile svf("Some file ID", 0.0);
+    // Write six char at file position 14
+    svf.write(14, "ABCDEF", 6);
+    // Read from it
+    char read_buffer[2];
+    svf.read(16, 2, read_buffer);
+    // What do I have to do to read 24 bytes from file position 8?
+    // This returns a std::vector<std::pair<size_t, size_t>>
+    // as ((file_position, read_length), ...)
+    auto need = svf.need(8, 24);
+    // This prints ((8, 6), (20, 4),)
+    std::cout << "(";
+    for (auto &val: need) {
+        std::cout << "(" << val.first << ", " << val.second << "),";
+    }
+    std::cout << ")" << std::endl;
+@endcode
+ *
+ */
+
+
 #ifndef CPPSVF_SVF_H
 #define CPPSVF_SVF_H
 
@@ -103,7 +198,7 @@ namespace SVFS {
 #pragma mark - SVF configuration
 
     /**
-     * Configuration for the Sparse Virtual File.
+     * @brief Configuration for the Sparse Virtual File.
      */
     typedef struct SparseVirtualFileConfig {
         /**
@@ -124,7 +219,9 @@ namespace SVFS {
 #pragma mark - The SVF class
 
     /**
-     * Implementation of a *Sparse Virtual File*, a specialised in-memory cache where a particular
+     * @brief Implementation of a *Sparse Virtual File*.
+     *
+     * A *Sparse Virtual File*, a specialised in-memory cache where a particular
      * file might not be available but *parts of it can be obtained* without reading the whole file.
      * A Sparse Virtual File (SVF) is represented internally as a map of blocks of data with the
      * key being their file offsets. Any write to an SVF will coalesce those blocks where possible.
@@ -164,7 +261,7 @@ namespace SVFS {
         /// Create a new fragmentation list of seek/read instructions.
         [[nodiscard]] t_seek_reads need(t_fpos fpos, size_t len, size_t greedy_length = 0) const noexcept;
 
-        /// Implements the data deletion strategy.
+        /// Executes the data deletion strategy.
         void clear() noexcept;
 
         /** Remove the block at the given file position which must be the start of the block.
@@ -251,19 +348,27 @@ namespace SVFS {
         ~SparseVirtualFile() { clear(); }
 
     private:
+        /// The SVF ID
         std::string m_id;
+        /// The original file modification data a UNIX time. This is used for consistency checking.
         double m_file_mod_time;
+        /// The SVF configuration.
         tSparseVirtualFileConfig m_config;
-        // Total number of bytes in this SVF
+        /// Total number of bytes in this SVF
         size_t m_bytes_total = 0;
-        // Access statistics
+        /// Access statistics: count of write operations.
         size_t m_count_write = 0;
+        /// Access statistics: count of read operations.
         size_t m_count_read = 0;
-        // NOTE: These include any duplicate reads/writes.
+        /// Access statistics: total bytes written.
+        /// @note These include any duplicate writes.
         size_t m_bytes_write = 0;
+        /// Access statistics: total bytes read.
+        /// @note These include any duplicate reads.
         size_t m_bytes_read = 0;
-        // Last access times
+        /// Last access real-time timestamp for a write.
         std::chrono::time_point<std::chrono::system_clock> m_time_write;
+        /// Last access real-time timestamp for a read.
         std::chrono::time_point<std::chrono::system_clock> m_time_read;
         /// Typedef for the data.
         typedef std::vector<char> t_val;
@@ -272,7 +377,7 @@ namespace SVFS {
         /// The actual SVF.
         t_map m_svf;
 #ifdef SVF_THREAD_SAFE
-        // This adds about 5-10% execution time compared with a single threaded version.
+        /// Thread mutex. This adds about 5-10% execution time compared with a single threaded version.
         mutable std::mutex m_mutex;
 #endif
     private:
@@ -298,13 +403,19 @@ namespace SVFS {
 
         [[nodiscard]] static t_seek_reads _minimise_seek_reads(const t_seek_reads& seek_reads, size_t greedy_length) noexcept;
 
-        /* Check internal integrity. */
+        /** @brief Check result of internal integrity. */
         enum ERROR_CONDITION {
+            /// No error.
             ERROR_NONE = 0,
+            /// A block is empty.
             ERROR_EMPTY_BLOCK,
+            /// Blocks are adjacent and have not been coalesced.
             ERROR_ADJACENT_BLOCKS,
+            /// Blocks overlap.
             ERROR_BLOCKS_OVERLAP,
+            /// Missmatch in byte count where the count of the bytes in all the blocks does not match @c m_bytes_total.
             ERROR_BYTE_COUNT_MISMATCH,
+            /// Duplicate blocks of the same length and at the same file positions.
             ERROR_DUPLICATE_BLOCK,
         };
 

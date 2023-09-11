@@ -81,6 +81,12 @@ const char test_data_bytes_512[] = {
     -0x10, -0xf, -0xe, -0xd, -0xc, -0xb, -0xa, -0x9, -0x8, -0x7, -0x6, -0x5, -0x4, -0x3, -0x2, -0x1,
 };
 
+/**
+ * Write out all the tests results.
+ *
+ * @param results The tests results.
+ * @param os The stream to write to.
+ */
 void write_test_results(const t_test_results &results, std::ostream &os) {
     SaveStreamState state(os);
 

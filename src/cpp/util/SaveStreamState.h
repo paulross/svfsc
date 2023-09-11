@@ -35,7 +35,7 @@
 #include <iostream>
 
 /**
- * Class that saves the current iostream state and restores it on destruction.
+ * @brief Class that saves the current iostream state and restores it on destruction.
  */
 class SaveStreamState
 {

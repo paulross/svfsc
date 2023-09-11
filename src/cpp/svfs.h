@@ -48,7 +48,7 @@ namespace SVFS {
 
 #pragma mark - Exceptions
 
-    /** Exception specialisation for the SparseVirtualFileSystem. */
+    /** @brief Exception specialisation for the SparseVirtualFileSystem. */
     class ExceptionSparseVirtualFileSystem : public std::exception {
     public:
         explicit ExceptionSparseVirtualFileSystem(const std::string &in_msg) : msg(in_msg) {}
@@ -59,21 +59,21 @@ namespace SVFS {
         std::string msg;
     };
 
-    /** Exception specialisation for out of range error. */
+    /** @brief Exception specialisation for out of range error. */
     class ExceptionSparseVirtualFileSystemOutOfRange : public ExceptionSparseVirtualFileSystem {
     public:
         explicit ExceptionSparseVirtualFileSystemOutOfRange(const std::string &msg) : ExceptionSparseVirtualFileSystem(
                 msg) {}
     };
 
-    /** Exception specialisation on insert error. */
+    /** @brief Exception specialisation on insert error. */
     class ExceptionSparseVirtualFileSystemInsert : public ExceptionSparseVirtualFileSystem {
     public:
         explicit ExceptionSparseVirtualFileSystemInsert(const std::string &msg) : ExceptionSparseVirtualFileSystem(
                 msg) {}
     };
 
-    /** Exception specialisation on remove error. */
+    /** @brief Exception specialisation on remove error. */
     class ExceptionSparseVirtualFileSystemRemove : public ExceptionSparseVirtualFileSystem {
     public:
         explicit ExceptionSparseVirtualFileSystemRemove(const std::string &msg) : ExceptionSparseVirtualFileSystem(
@@ -83,12 +83,12 @@ namespace SVFS {
 #pragma mark - The SVFS class
 
     /**
-     * A SparseVirtualFileSystem is a key/value stor where the key is a file ID as a string and the value is a
+     * @brief A SparseVirtualFileSystem is a key/value store where the key is a file ID as a string and the value is a
      * SparseVirtualFile.
      */
     class SparseVirtualFileSystem {
     public:
-        /** Constructor takes a tSparseVirtualFileConfig that is passed to every new SparseVirtualFile */
+        /** @brief Constructor takes a tSparseVirtualFileConfig that is passed to every new SparseVirtualFile */
         explicit SparseVirtualFileSystem(const tSparseVirtualFileConfig &config = tSparseVirtualFileConfig()) : \
             m_config(config) {}
 
@@ -131,9 +131,13 @@ namespace SVFS {
         ~SparseVirtualFileSystem() noexcept;
 
     protected:
+        /// The key/value store of SVF values.
         std::unordered_map<std::string, SparseVirtualFile> m_svfs;
+        /// The configuration for all SVF values.
         tSparseVirtualFileConfig m_config;
 #ifdef SVFS_THREAD_SAFE
+        /// The access mutex if multi-threaded. This is used when inserting or removing an SVF.
+        /// @note Each SVF has its own mutex.
         mutable std::mutex m_mutex;
 #endif
     };

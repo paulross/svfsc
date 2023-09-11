@@ -25,6 +25,11 @@
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
     SOFTWARE.
  @endverbatim
+ *
+ * Naming convention:
+ *
+ * SVFS functions are named cp_SparseVirtualFileSystem_...
+ * SVF functions are named cp_SparseVirtualFileSystem_svf_...
  */
 
 #include "cp_svfs.h"
@@ -40,12 +45,10 @@
  * */
 
 /**
- * Naming convention:
+ * @brief Python wrapper around a C++ SparseVirtualFile.
  *
- * SVFS functions are named cp_SparseVirtualFileSystem_...
- * SVF functions are named cp_SparseVirtualFileSystem_svf_...
+ * If \c PY_THREAD_SAFE is defined then this also contains a mutex.
  */
-
 typedef struct {
     PyObject_HEAD
     SVFS::SparseVirtualFileSystem *p_svfs;
@@ -56,8 +59,8 @@ typedef struct {
 
 #ifdef PY_THREAD_SAFE
 
-/**
- * A RAII wrapper around the PyThread_type_lock.
+/** @brief A RAII wrapper around the PyThread_type_lock for the CPython SVFS.
+ *
  * See https://pythonextensionpatterns.readthedocs.io/en/latest/thread_safety.html
  * */
 class AcquireLockSVFS {

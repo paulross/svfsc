@@ -146,6 +146,7 @@ Example C++ Usage
 
     #include "svf.h"
 
+    // Using an arbitrary modification time of 0.0
     SVFS::SparseVirtualFile svf("Some file ID");
     // Write six char at file position 14
     svf.write(14, "ABCDEF", 6);
