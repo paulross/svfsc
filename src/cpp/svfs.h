@@ -48,37 +48,42 @@ namespace SVFS {
 
 #pragma mark - Exceptions
 
-    /** @brief Exception specialisation for the SparseVirtualFileSystem. */
-    class ExceptionSparseVirtualFileSystem : public std::exception {
-    public:
-        explicit ExceptionSparseVirtualFileSystem(const std::string &in_msg) : msg(in_msg) {}
+    namespace Exceptions {
 
-        [[nodiscard]] const std::string &message() const { return msg; }
+        /** @brief Exception specialisation for the SparseVirtualFileSystem. */
+        class ExceptionSparseVirtualFileSystem : public std::exception {
+        public:
+            explicit ExceptionSparseVirtualFileSystem(const std::string &in_msg) : msg(in_msg) {}
 
-    protected:
-        std::string msg;
-    };
+            [[nodiscard]] const std::string &message() const { return msg; }
 
-    /** @brief Exception specialisation for out of range error. */
-    class ExceptionSparseVirtualFileSystemOutOfRange : public ExceptionSparseVirtualFileSystem {
-    public:
-        explicit ExceptionSparseVirtualFileSystemOutOfRange(const std::string &msg) : ExceptionSparseVirtualFileSystem(
-                msg) {}
-    };
+        protected:
+            std::string msg;
+        };
 
-    /** @brief Exception specialisation on insert error. */
-    class ExceptionSparseVirtualFileSystemInsert : public ExceptionSparseVirtualFileSystem {
-    public:
-        explicit ExceptionSparseVirtualFileSystemInsert(const std::string &msg) : ExceptionSparseVirtualFileSystem(
-                msg) {}
-    };
+        /** @brief Exception specialisation for out of range error. */
+        class ExceptionSparseVirtualFileSystemOutOfRange : public ExceptionSparseVirtualFileSystem {
+        public:
+            explicit ExceptionSparseVirtualFileSystemOutOfRange(const std::string &msg)
+                    : ExceptionSparseVirtualFileSystem(
+                    msg) {}
+        };
 
-    /** @brief Exception specialisation on remove error. */
-    class ExceptionSparseVirtualFileSystemRemove : public ExceptionSparseVirtualFileSystem {
-    public:
-        explicit ExceptionSparseVirtualFileSystemRemove(const std::string &msg) : ExceptionSparseVirtualFileSystem(
-                msg) {}
-    };
+        /** @brief Exception specialisation on insert error. */
+        class ExceptionSparseVirtualFileSystemInsert : public ExceptionSparseVirtualFileSystem {
+        public:
+            explicit ExceptionSparseVirtualFileSystemInsert(const std::string &msg) : ExceptionSparseVirtualFileSystem(
+                    msg) {}
+        };
+
+        /** @brief Exception specialisation on remove error. */
+        class ExceptionSparseVirtualFileSystemRemove : public ExceptionSparseVirtualFileSystem {
+        public:
+            explicit ExceptionSparseVirtualFileSystemRemove(const std::string &msg) : ExceptionSparseVirtualFileSystem(
+                    msg) {}
+        };
+
+    } //    namespace Exceptions {
 
 #pragma mark - The SVFS class
 

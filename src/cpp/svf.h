@@ -433,7 +433,8 @@ namespace SVFS {
 
         [[nodiscard]] static size_t _amount_to_read(t_seek_read iter, size_t greedy_length) noexcept;
 
-        [[nodiscard]] static t_seek_reads _minimise_seek_reads(const t_seek_reads& seek_reads, size_t greedy_length) noexcept;
+        [[nodiscard]] static t_seek_reads
+        _minimise_seek_reads(const t_seek_reads &seek_reads, size_t greedy_length) noexcept;
 
         /** @brief Check result of internal integrity. */
         enum ERROR_CONDITION {

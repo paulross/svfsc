@@ -53,7 +53,7 @@ namespace SVFS {
             std::ostringstream os;
             os << "SparseVirtualFileSystem::insert():";
             os << " can not insert \"" << id << "\"";
-            throw ExceptionSparseVirtualFileSystemInsert(os.str());
+            throw Exceptions::ExceptionSparseVirtualFileSystemInsert(os.str());
         }
     }
 
@@ -72,7 +72,7 @@ namespace SVFS {
             std::ostringstream os;
             os << "SparseVirtualFileSystem::remove():";
             os << " id \"" << id << "\" not found.";
-            throw ExceptionSparseVirtualFileSystemRemove(os.str());
+            throw Exceptions::ExceptionSparseVirtualFileSystemRemove(os.str());
         } else {
             m_svfs.erase(iter);
         }
@@ -89,7 +89,7 @@ namespace SVFS {
         try {
             return m_svfs.at(id);
         } catch (std::out_of_range &err) {
-            throw ExceptionSparseVirtualFileSystemOutOfRange(err.what());
+            throw Exceptions::ExceptionSparseVirtualFileSystemOutOfRange(err.what());
         }
     }
 
@@ -104,7 +104,7 @@ namespace SVFS {
         try {
             return m_svfs.at(id);
         } catch (std::out_of_range &err) {
-            throw ExceptionSparseVirtualFileSystemOutOfRange(err.what());
+            throw Exceptions::ExceptionSparseVirtualFileSystemOutOfRange(err.what());
         }
     }
 

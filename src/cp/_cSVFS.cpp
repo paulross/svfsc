@@ -249,7 +249,7 @@ cp_SparseVirtualFileSystem_insert(cp_SparseVirtualFileSystem *self, PyObject *ar
     }
     try {
         self->p_svfs->insert(c_id, mod_time);
-    } catch (const SVFS::ExceptionSparseVirtualFileSystemInsert &err) {
+    } catch (const SVFS::Exceptions::ExceptionSparseVirtualFileSystemInsert &err) {
         PyErr_Format(
                 PyExc_RuntimeError, "%s: Can not insert a new Sparse Virtual File ID = \"%s\". ERROR: %s",
                 __FUNCTION__, c_id, err.message().c_str()
@@ -291,7 +291,7 @@ cp_SparseVirtualFileSystem_remove(cp_SparseVirtualFileSystem *self, PyObject *ar
     }
     try {
         self->p_svfs->remove(c_id);
-    } catch (const SVFS::ExceptionSparseVirtualFileSystemRemove &err) {
+    } catch (const SVFS::Exceptions::ExceptionSparseVirtualFileSystemRemove &err) {
         PyErr_Format(PyExc_IndexError, "%s: Can not remove a Sparse Virtual File. ERROR: %s",
                      __FUNCTION__, err.message().c_str()
         );
