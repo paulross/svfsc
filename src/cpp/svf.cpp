@@ -186,9 +186,15 @@ namespace SVFS {
                 --iter;
             }
             if (iter->first > fpos) {
-                // New comes earlier, copy existing block on to it.
                 // Insert new block, possibly coalescing existing blocks.
-                _write_new_append_old(fpos, data, len, iter);
+                // New comes earlier so either create a new block or copy existing block on to it.
+                if (iter->first <= fpos + len) {
+                    // Need to coalesce
+                    _write_new_append_old(fpos, data, len, iter);
+                } else {
+                    // The new block precedes the old one
+                    _write_new_block(fpos, data, len, iter);
+                }
             } else {
                 // Existing block.first is <= fpos
                 if (fpos > _file_position_immediatly_after_block(iter)) {
