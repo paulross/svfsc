@@ -554,9 +554,17 @@ namespace SVFS {
      * reads into a shorter series of larger reads.
      * This might well improve the read performance at the expense of cacheing extra unused data.
      *
+     * @warning The SVF has no knowledge of the the actual file size so when using a greedy length the need list
+     * might include positions beyond EOF.
+     * For example a file 1024 bytes long and a greedy length of 2042 then <tt>need(1000, 24, 256)</tt> will create
+     * a need list of [(1000, 256),].
+     * This should generate a <tt>write(1000, 24)</tt> not a <tt>write(1000, 256)</tt>.
+     * It is up to the caller to handle this, however, @c reads() in C/C++/Python will ignore read lengths past EOF
+     * so the caller does not have to do anything.
+     *
      * @param fpos File position at the start of the attempted read.
      * @param len Length of the attempted read.
-     * @param greedy_length If present this makes greedy reads, fewer but larger.
+     * @param greedy_length If greater than zero this makes greedy, fewer but larger, reads.
      * @return A vector of pairs (file_position, length) that this SVF needs.
      */
     t_seek_reads SparseVirtualFile::need(t_fpos fpos, size_t len, size_t greedy_length) const noexcept {

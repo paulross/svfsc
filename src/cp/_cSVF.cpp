@@ -146,6 +146,15 @@ cp_SparseVirtualFile_new(PyTypeObject *type, PyObject *Py_UNUSED(args), PyObject
 /**
  * Initialise the cp_SparseVirtualFile.
  *
+ * See the defaults for SVFS::SparseVirtualFileConfig for how that works.
+ *
+ * Arguments/keywords:
+ *
+ * - @c id Mandatory, str, ID.
+ * - @c mod_time Optional, float, modification time, defaults to 0.0
+ * - @c overwrite_on_exit Optional, bool, See the defaults for SVFS::SparseVirtualFileConfig
+ * - @c compare_for_diff Optional, bool, See the defaults for SVFS::SparseVirtualFileConfig
+ *
  * @param self The cp_SparseVirtualFile.
  * @param args Order: "id", "mod_time", "overwrite_on_exit", "compare_for_diff".
  * @param kwargs Can be "id", "mod_time", "overwrite_on_exit", "compare_for_diff".
