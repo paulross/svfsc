@@ -238,6 +238,10 @@ namespace SVFS {
                 //            |+++|
                 {"Coalesce two blocks", {{8, 4}, {12, 5}}, {{8, 9}},},
 
+                //      |==|      ^==|
+                {"Insert a previous block", {{16, 4}, {8, 4}}, {{8, 4}, {16, 4}},},
+                //      ^==|   |==|  ^==|
+                {"Insert a new block in the middle", {{16, 4}, {2, 4}, {8, 4}}, {{2, 4}, {8, 4}, {16, 4}},},
                 //        ^==|    |==|
                 {"Add second block", {{8, 4}, {16, 4}}, {{8, 4}, {16, 4}},},
                 //        ^==|    |==|
@@ -1352,6 +1356,41 @@ namespace SVFS {
             return TestResult(__PRETTY_FUNCTION__, test_name, result, err, time_exec.count(), svf.num_bytes());
         }
 
+        TestResult test_debug_need_read_special_C() {
+            int result = 0; // Success
+            // This is special test created to check the problem reading TUPAC-TR-004.svs
+            SparseVirtualFile svf("", 0.0);
+            std::string test_name(__FUNCTION__);
+            static char data[1 << 16]; // 65536 greedy_length
+
+            t_seek_reads needs;
+            t_seek_reads blocks;
+            std::string err;
+            // Run the test
+            auto time_start = std::chrono::high_resolution_clock::now();
+            // Go through the sequence
+            needs = svf.need(515'913'022, 6283);
+            result |= needs.size() != 1;
+            svf.write(515'913'022, data, 1 << 16);
+            blocks = svf.blocks();
+            result |= blocks.size() != 1;
+            svf.read(515'913'022, 6283, data);
+            // Second tile, already in the SVF.
+            needs = svf.need(515'919'305, 5873);
+            result |= needs.size() != 0;
+            svf.read(515'919'305, 5873, data);
+            // Third tile, not in the SVF.
+            needs = svf.need(486'156'341, 6039);
+            result |= needs.size() != 1;
+            // This is where e go wrong, the two writes should be distinct but they are being coalesced.
+            svf.write(486'156'341, data, 1 << 16);
+            blocks = svf.blocks();
+            result |= blocks.size() != 2;
+
+            std::chrono::duration<double> time_exec = std::chrono::high_resolution_clock::now() - time_start;
+            return TestResult(__PRETTY_FUNCTION__, test_name, result, err, time_exec.count(), svf.num_bytes());
+        }
+
         TestCount test_block_size(t_test_results &results) {
             std::string test_name(__FUNCTION__);
             int result = 0; // Success
@@ -1400,6 +1439,7 @@ namespace SVFS {
             test_example_code();
             test_debug_need_read_special_A();
             test_debug_need_read_special_B();
+            test_debug_need_read_special_C();
 
             TestCount count;
 #if 1
