@@ -438,7 +438,7 @@ namespace SVFS {
 #endif
     private:
         // Write data at file position without checks.
-        void _write_new_block_after_end(t_fpos fpos, const char *data, size_t len);
+        void _write_new_block(t_fpos fpos, const char *data, size_t len, t_map::const_iterator hint);
 
         void _write_new_append_old(t_fpos fpos, const char *data, size_t len, t_map::iterator iter);
 
