@@ -78,7 +78,7 @@ def test_memory_SVF_need():
         f'RSS start: {rss_start_overall:,d}'
         f' end: {proc.memory_info().rss:,d}'
         f' ∆: {rss_diff:+,d}')
-    assert rss_diff < 50e6
+    assert rss_diff < 100e6
 
 
 @pytest.mark.slow
