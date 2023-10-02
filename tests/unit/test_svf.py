@@ -114,6 +114,17 @@ INSERT_FPOS_BYTES_EXPECTED_BLOCKS = (
             (12, 1),
         ),
     ),
+    # Non-overlapping insert - reversed
+    (
+        (
+            (12, b' '),
+            (0, b' '),
+        ),
+        (
+            (0, 1),
+            (12, 1),
+        ),
+    ),
     # Insert with coalesce with previous
     (
         (
@@ -152,6 +163,7 @@ INSERT_FPOS_BYTES_EXPECTED_BLOCKS_IDS = [
     'Single insert',
     'Duplicate insert',
     'Non-overlapping insert',
+    'Non-overlapping insert - reversed',
     'Insert coalesce previous',
     'Insert coalesce next',
     'Insert coalesce both',
