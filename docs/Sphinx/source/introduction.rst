@@ -26,12 +26,12 @@ and the value a Sparse Virtual File.
 ``svfsc`` is written in C++ with a Python interface.
 It is thread safe in both domains.
 
-A SVFS might be used like this:
+A SVF might be used like this:
 
 - The user requests some data (for example TIFF metadata) from a remote file using a Parser that knows the TIFF structure.
-- The Parser consults the SVFS, if the SVFS has the data then the Parser parses it and gives the results to the user.
-- If the SVFS does *not* have the data then the Parser consults the SVFS for what data is needed, then issues the appropriate GET request(s) to the remote server.
-- That data is used to update the SVFS, then the parser can use it and give the results to the user.
+- The Parser consults the SVF, if the SVF has the data then the Parser parses it and gives the results to the user.
+- If the SVF does *not* have the data then the Parser consults the SVF for what data is needed, then issues the appropriate GET request(s) to the remote server.
+- That data is used to update the SVF, then the parser can use it and give the results to the user.
 
 Here is a conceptual example of a ``SVF`` running on a local file system containing data from a single file.
 
