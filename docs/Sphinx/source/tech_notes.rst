@@ -18,14 +18,14 @@ Pickling
 Pickling
 --------
 
-A Sparse Virtual File (``svfs.cSVF``) can be pickled:
+A Sparse Virtual File (``svfsc.cSVF``) can be pickled:
 
 .. code-block:: python
 
     import pickle
     import svfsc
 
-    svf = svfs.cSVF('id')
+    svf = svfsc.cSVF('id')
     svf.write(21, b'ABCDEF')
     pickle_result = pickle.dumps(svf)
     # Save pickle_result somewhere
@@ -40,7 +40,7 @@ And to un-pickle:
     import pickle
     import svfsc
 
-    svf = svfs.cSVF('id')
+    svf = svfsc.cSVF('id')
     svf.write(21, b'ABCDEF')
     pickle_result = pickle.dumps(s)
     new_svf = pickle.loads(pickle_result)
@@ -62,7 +62,7 @@ Using ``pickletools``
     import pickletools
     import svfsc
 
-    svf = svfs.cSVF('id')
+    svf = svfsc.cSVF('id')
     svf.write(1, b' ')
     svf.write(12, b' ')
     pickle_result = pickle.dumps(s)

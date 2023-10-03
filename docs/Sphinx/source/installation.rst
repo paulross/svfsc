@@ -95,7 +95,7 @@ If you want to include SVF into your C++ project your ``CMakeLists.txt`` should 
             # ...
     )
 
-Using SVF Into Your C++ Project
+Using SVF in your C++ Project
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 To use a SVF in your C++ code:

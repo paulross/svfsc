@@ -20,6 +20,7 @@ available but *parts of it can be obtained* without reading the whole file.
 A Sparse Virtual File (SVF) is represented internally as a map of blocks of data with the key being their file
 offsets.
 Any write to an SVF will coalesce these blocks where possible.
+There is no cache punting strategy implemented so an SVF always accumulates data.
 A Sparse Virtual File System (SVFS) is an extension of this to provide a key/value store where the key is a file ID
 and the value a Sparse Virtual File.
 
@@ -186,7 +187,7 @@ Example C++ Usage
    On PyPi there is a preexisting `SVFS project <https://pypi.org/project/SVFS/>`_
    (no relation, apparently abandoned since its release in 2012).
    This project was renamed to ``svfsc``.
-   However there are many internal references to ``SVF``, ``SVFS`` and variations thereof.
+   However there are many internal references in this project to ``SVF``, ``SVFS`` and variations thereof.
 
    - The Cmake target is ``cppSVF``.
    - The C++ code is in the namespace ``SVFS``, the important classes there are ``SVFS::SparseVirtualFile`` and ``SVFS::SparseVirtualFileSystem``.

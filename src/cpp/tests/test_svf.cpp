@@ -31,7 +31,6 @@
 
 #include <iostream>
 #include <iomanip>
-#include <sstream>
 #include <thread>
 
 #include "test_svf.h"
@@ -171,7 +170,9 @@ namespace SVFS {
          */
         const std::vector<TestCaseWrite> write_test_cases = {
 #if  1
-                /* Special case with error found in RaPiVot tiff_dump.py when using a SVF:
+                /** Special case with error found in RaPiVot tiff_dump.py when using a SVF:
+                 *
+                 * @code
                     svf.write(0, b'A' * 8)
                     svf.write(3028, b'B' * 74)
                     svf.write(3214, b'C' * 19)
@@ -181,6 +182,7 @@ namespace SVFS {
                     svf.write(3102, b'D' * 12)
                     # 3028 + 86 = 3114
                     assert svf.blocks() == ((0, 8), (3028, 86), (3214, 19))
+                 * @endcode
                 */
                 {
                         "Special (A)",
@@ -322,10 +324,11 @@ namespace SVFS {
         TestCount test_write_all(t_test_results &results) {
             TestCount count;
             for (const auto &test_case: write_test_cases) {
-
-//        for (const auto& test_case: write_test_cases_special) {
-//            std::cout << "Testing: " << test_case.test_name() << std::endl;
-
+                auto result = test_case.run();
+                count.add_result(result.result());
+                results.push_back(result);
+            }
+            for (const auto& test_case: write_test_cases_special) {
                 auto result = test_case.run();
                 count.add_result(result.result());
                 results.push_back(result);
@@ -905,7 +908,11 @@ namespace SVFS {
         TestCount test_need_all(t_test_results &results) {
             TestCount count;
             for (const auto &test_case: need_test_cases) {
-//        for (const auto& test_case: need_test_cases_special) {
+                auto result = test_case.run();
+                count.add_result(result.result());
+                results.push_back(result);
+            }
+            for (const auto& test_case: need_test_cases_special) {
                 auto result = test_case.run();
                 count.add_result(result.result());
                 results.push_back(result);
@@ -1297,16 +1304,18 @@ namespace SVFS {
 
 #endif
 
-/*
- * This bug from the simulator:
- *
-    2023-04-25 12:05:24,776 -             simulator.py#71   - INFO     - CLIENT:  blocks was: ['(0 : 1,024 : 1,024)', '(291,809,396 : 1,024 : 291,810,420)']
-    2023-04-25 12:05:24,776 -             simulator.py#72   - INFO     - CLIENT: demands fpos      291,810,392 length  2,429 (     291,812,821)
-    2023-04-25 12:05:24,776 -             simulator.py#81   - INFO     - CLIENT:   needs fpos      291,810,420 length  2,401 (     291,812,821)
-    2023-04-25 12:05:24,799 -             simulator.py#90   - INFO     - CLIENT:   wrote fpos      291,810,420 length  2,401 (     291,812,821)
-    2023-04-25 12:05:24,799 -             simulator.py#92   - ERROR    - CLIENT: demands fpos      291,810,392 length  2,429 (     291,812,821)
-    2023-04-25 12:05:24,799 -             simulator.py#96   - ERROR    - CLIENT:  blocks now: ['(0 : 1,024 : 1,024)', '(291,809,396 : 3,397 : 291,812,793)']
- */
+        /**
+         * This bug from the simulator:
+         *
+         * @code
+            2023-04-25 12:05:24,776 -             simulator.py#71   - INFO     - CLIENT:  blocks was: ['(0 : 1,024 : 1,024)', '(291,809,396 : 1,024 : 291,810,420)']
+            2023-04-25 12:05:24,776 -             simulator.py#72   - INFO     - CLIENT: demands fpos      291,810,392 length  2,429 (     291,812,821)
+            2023-04-25 12:05:24,776 -             simulator.py#81   - INFO     - CLIENT:   needs fpos      291,810,420 length  2,401 (     291,812,821)
+            2023-04-25 12:05:24,799 -             simulator.py#90   - INFO     - CLIENT:   wrote fpos      291,810,420 length  2,401 (     291,812,821)
+            2023-04-25 12:05:24,799 -             simulator.py#92   - ERROR    - CLIENT: demands fpos      291,810,392 length  2,429 (     291,812,821)
+            2023-04-25 12:05:24,799 -             simulator.py#96   - ERROR    - CLIENT:  blocks now: ['(0 : 1,024 : 1,024)', '(291,809,396 : 3,397 : 291,812,793)']
+         * @endcode
+         */
         TestResult test_debug_need_read_special_A() {
             SparseVirtualFile svf("", 0.0);
             std::string test_name(__FUNCTION__);
@@ -1356,9 +1365,9 @@ namespace SVFS {
             return TestResult(__PRETTY_FUNCTION__, test_name, result, err, time_exec.count(), svf.num_bytes());
         }
 
+        /// This is special test created to check the problem reading TUPAC-TR-004.svs
         TestResult test_debug_need_read_special_C() {
             int result = 0; // Success
-            // This is special test created to check the problem reading TUPAC-TR-004.svs
             SparseVirtualFile svf("", 0.0);
             std::string test_name(__FUNCTION__);
             static char data[1 << 16]; // 65536 greedy_length
@@ -1437,6 +1446,7 @@ namespace SVFS {
 
         TestCount test_svf_all(t_test_results &results) {
             test_example_code();
+
             test_debug_need_read_special_A();
             test_debug_need_read_special_B();
             test_debug_need_read_special_C();
