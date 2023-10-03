@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.9.1"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>Sparse Virtual File System: /Users/paulross/CLionProjects/cppSVF/src/cpp/tests/test_cpp_svfs.cpp Source File</title>
+<title>Sparse Virtual File System: /Users/engun/CLionProjects/cppSVF/src/cpp/tests/test_cpp_svfs.cpp Source File</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -22,7 +22,9 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">Sparse Virtual File System
+   &#160;<span id="projectnumber">0.1.2</span>
    </div>
+   <div id="projectbrief">A Sparse Virtual File System.</div>
   </td>
  </tr>
  </tbody>
@@ -83,7 +85,7 @@ $(function() {
 <div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160; </div>
 <div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;            <span class="keyword">auto</span> time_start = std::chrono::high_resolution_clock::now();</div>
 <div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;            std::string version = <a class="code" href="cpp__svfs_8cpp.html#af20b8d8ab9bdec1e9cb93f3cf3cb3194">SVFS_CPP_VERSION</a>;</div>
-<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;            result |= version != <span class="stringliteral">&quot;0.1.1&quot;</span>;</div>
+<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;            result |= version != <span class="stringliteral">&quot;0.1.2&quot;</span>;</div>
 <div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;            std::chrono::duration&lt;double&gt; time_exec = std::chrono::high_resolution_clock::now() - time_start;</div>
 <div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;            <a class="code" href="class_s_v_f_s_1_1_test_1_1_test_result.html">TestResult</a> test_result = <a class="code" href="class_s_v_f_s_1_1_test_1_1_test_result.html">TestResult</a>(__PRETTY_FUNCTION__, test_name, result, <span class="stringliteral">&quot;&quot;</span>, time_exec.count(), 1);</div>
 <div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;            results.push_back(test_result);</div>
@@ -125,7 +127,7 @@ $(function() {
 <div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;            <a class="code" href="class_s_v_f_s_1_1_test_1_1_test_count.html">TestCount</a> count;</div>
 <div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160; </div>
 <div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;            <span class="keyword">auto</span> time_start = std::chrono::high_resolution_clock::now();</div>
-<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;            result |= <a class="code" href="cpp__svfs_8cpp.html#a6426a25c7043fb08930807626e41d73a">SVFS_CPP_VERSION_PATCH</a> != 1;</div>
+<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;            result |= <a class="code" href="cpp__svfs_8cpp.html#a6426a25c7043fb08930807626e41d73a">SVFS_CPP_VERSION_PATCH</a> != 2;</div>
 <div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;            std::chrono::duration&lt;double&gt; time_exec = std::chrono::high_resolution_clock::now() - time_start;</div>
 <div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;            <a class="code" href="class_s_v_f_s_1_1_test_1_1_test_result.html">TestResult</a> test_result = <a class="code" href="class_s_v_f_s_1_1_test_1_1_test_result.html">TestResult</a>(__PRETTY_FUNCTION__, test_name, result, <span class="stringliteral">&quot;&quot;</span>, time_exec.count(), 1);</div>
 <div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;            results.push_back(test_result);</div>

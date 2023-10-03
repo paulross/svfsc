@@ -20,5 +20,5 @@ var searchData=
   ['_5fwrite_5fmultithreaded_5fcoalesced_17',['_write_multithreaded_coalesced',['../namespace_s_v_f_s_1_1_test.html#ad83cac6a550ae561ef8ec0509d207119',1,'SVFS::Test']]],
   ['_5fwrite_5fmultithreaded_5fun_5fcoalesced_18',['_write_multithreaded_un_coalesced',['../namespace_s_v_f_s_1_1_test.html#a6d040ae5c8606c743d95c9887d3befb9',1,'SVFS::Test']]],
   ['_5fwrite_5fnew_5fappend_5fold_19',['_write_new_append_old',['../class_s_v_f_s_1_1_sparse_virtual_file.html#a70a09a84eddb026dae7240856da5a1d0',1,'SVFS::SparseVirtualFile']]],
-  ['_5fwrite_5fnew_5fblock_5fafter_5fend_20',['_write_new_block_after_end',['../class_s_v_f_s_1_1_sparse_virtual_file.html#a19bc08fbeb1a12bf4cc6122d53dee429',1,'SVFS::SparseVirtualFile']]]
+  ['_5fwrite_5fnew_5fblock_20',['_write_new_block',['../class_s_v_f_s_1_1_sparse_virtual_file.html#abf5003648da5b9d0ff40baf6c4d4a747',1,'SVFS::SparseVirtualFile']]]
 ];
