@@ -106,7 +106,7 @@ namespace SVFS {
             return count;
         }
 
-        TestCount test_cp_svfs_all(t_test_results &results) {
+        TestCount test_cpp_svfs_all(t_test_results &results) {
             TestCount count;
             count += test_cpp_version(results);
             count += test_cpp_version_major(results);

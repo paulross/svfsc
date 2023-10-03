@@ -57,7 +57,7 @@ int main() {
 
     std::cout << "Testing SVF all..." << std::endl;
     pass_fail += SVFS::Test::test_svf_all(results);
-    pass_fail += SVFS::Test::test_cp_svfs_all(results);
+    pass_fail += SVFS::Test::test_cpp_svfs_all(results);
 #if 1
     std::cout << "Testing SVFS all..." << std::endl;
     pass_fail += SVFS::Test::test_svfs_all(results);
