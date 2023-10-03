@@ -92,10 +92,13 @@ This shows the basic functionality: ``write()``, ``read()`` and ``need()``:
 
     # Construct a Sparse Virtual File
     svf = svfsc.cSVF('Some file ID')
+
     # Write six bytes at file position 14
     svf.write(14, b'ABCDEF')
+
     # Read from it
     svf.read(16, 2) # Returns b'CD'
+
     # What do I have to do to read 24 bytes from file position 8?
     # This returns a tuple of pairs ((file_position, read_length), ...)
     svf.need(8, 24) # Returns ((8, 6), (20, 4))
@@ -107,14 +110,14 @@ Then read directly:
 
 .. code-block:: python
 
-        if not svf.has_data(file_position, length):
-            for read_position, read_length in svf.need(file_position, length):
-                # Somehow get the data as a bytes object at (read_position, read_length)...
-                # This could be a GET request to a remote file.
-                # Then...
-                svf.write(read_position, data)
-        # Now read directly
-        svf.read(file_position, length)
+    if not svf.has_data(file_position, length):
+        for read_position, read_length in svf.need(file_position, length):
+            # Somehow get the data as a bytes object at (read_position, read_length)...
+            # This could be a GET request to a remote file.
+            # Then...
+            svf.write(read_position, data)
+    # Now read directly
+    svf.read(file_position, length)
 
 A Sparse Virtual File System
 -------------------------------------
@@ -124,18 +127,23 @@ This is a key/value store where the key is some string and the value a ``SVF``:
 
 .. code-block:: python
 
+    import svfsc
+
     svfs = svfsc.cSVFS()
+
     # Insert an empty SVF with a corresponding ID
     ID = 'abc'
     svfs.insert(ID)
+
     # Write six bytes to that SVF at file position 14
     svfs.write(ID, 14, b'ABCDEF')
+
     # Read from the SVF
     svfs.read(ID, 16, 2) # Returns b'CD'
+
     # What do I have to do to read 24 bytes from file position 8
     # from that SVF?
     svfs.need(ID, 8, 24) # Returns ((8, 6), (20, 4))
-
 
 Example C++ Usage
 ====================
@@ -146,18 +154,23 @@ Example C++ Usage
 
     #include "svf.h"
 
-    // Using an arbitrary modification time of 0.0
-    SVFS::SparseVirtualFile svf("Some file ID");
+    // File modification time of 1672574430.0 (2023-01-01 12:00:30)
+    SVFS::SparseVirtualFile svf("Some file ID", 1672574430.0);
+
     // Write six char at file position 14
     svf.write(14, "ABCDEF", 6);
+
     // Read from it
     char read_buffer[2];
     svf.read(16, 2, read_buffer);
+    // read_buffer now contains "CD"
+
     // What do I have to do to read 24 bytes from file position 8?
     // This returns a std::vector<std::pair<size_t, size_t>>
     // as ((file_position, read_length), ...)
     auto need = svf.need(8, 24);
-    // This prints ((8, 6), (20, 4),)
+
+    // The following prints ((8, 6), (20, 4),)
     std::cout << "(";
     for (auto &val: need) {
         std::cout << "(" << val.first << ", " << val.second << "),";

@@ -516,9 +516,18 @@ cp_SparseVirtualFile_erase(cp_SparseVirtualFile *self, PyObject *args, PyObject 
 
 static const char *cp_SparseVirtualFile_need_docstring = (
         "Given a file_position and length this returns a ordered list ``[(file_position, length), ...]`` of seek/read"
-        " instructions of data that is required to be written to the Sparse Virtual File so that a subsequent read will succeed."
+        " instructions of data that is required to be written to the Sparse Virtual File so that a subsequent read will"
+        " succeed."
         " If greedy_length is > 0 then, if possible, blocks will be coalesced to reduce the size of the return value."
-        "\nUsage::\n\n"
+        "\n\n.. warning::\n"
+        "    The SVF has no knowledge of the the actual file size so when using a greedy length the need list might"
+        " include positions beyond EOF.\n\n"
+        "    For example a file 1024 bytes long and a greedy length of 256 then ``need(1000, 24, 256)`` will create"
+        " a need list of ``[(1000, 256),]``."
+        " This should generate a ``write(1000, 24)`` not a ``write(1000, 256)``.\n\n"
+        "    It is up to the caller to handle this, however, ``reads()`` in C/C++/Python will ignore read lengths past"
+        " EOF so the caller does not have to do anything.\n\n"
+        "\n\nUsage::\n\n"
         "    if not svf.has_data(position, length):\n"
         "        for read_fpos, read_length in svf.need(position, length):\n"
         "            # Somehow get data as a bytes object at read_fpos, read_length...\n"
@@ -527,6 +536,14 @@ static const char *cp_SparseVirtualFile_need_docstring = (
         "\n\nSignature:\n\n``need(file_position: int, length: int, greedy_length: int = 0) -> typing.Tuple[typing.Tuple[int, int], ...]:``"
 );
 
+/**
+ * See cp_SparseVirtualFile_need_docstring
+ *
+ * @param self The cp_SparseVirtualFile
+ * @param args The file_position and length. Optionally a greedy_length.
+ * @param kwargs "file_position", "length", "greedy_length".
+ * @return List of tuples (file_position, length).
+ */
 static PyObject *
 cp_SparseVirtualFile_need(cp_SparseVirtualFile *self, PyObject *args, PyObject *kwargs) {
     ASSERT_FUNCTION_ENTRY_SVF(pSvf);

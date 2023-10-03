@@ -562,7 +562,7 @@ namespace SVFS {
      *
      * @warning The SVF has no knowledge of the the actual file size so when using a greedy length the need list
      * might include positions beyond EOF.
-     * For example a file 1024 bytes long and a greedy length of 2042 then <tt>need(1000, 24, 256)</tt> will create
+     * For example a file 1024 bytes long and a greedy length of 256 then <tt>need(1000, 24, 256)</tt> will create
      * a need list of [(1000, 256),].
      * This should generate a <tt>write(1000, 24)</tt> not a <tt>write(1000, 256)</tt>.
      * It is up to the caller to handle this, however, @c reads() in C/C++/Python will ignore read lengths past EOF
