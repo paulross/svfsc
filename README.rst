@@ -2,6 +2,9 @@
 Sparse Virtual File
 #################################################
 
+Introduction
+======================
+
 Somtimes you don't need the whole file.
 Sometimes you don't *want* the whole file.
 Especially if it is huge and on some remote server.
@@ -9,29 +12,29 @@ But, you might know what parts of the file that you want and ``svfsc`` can help 
 *as if* you have access to the complete file but with just the pieces of interest.
 
 ``svfsc`` is targeted at reading very large binary files such as TIFF, RP66V1, HDF5 where the structure is well known.
-For example you might want to parse a TIFF file for its metadata or a particular image tile which is usually a tiny
+For example you might want to parse a TIFF file for its metadata or for a particular image tile or strip which is a tiny
 fraction of the file itself.
 
 ``svfsc`` implements a *Sparse Virtual File*, a specialised in-memory cache where a particular file might not be
 available but *parts of it can be obtained* without reading the whole file.
-A Sparse Virtual File (``SVF`` ) is represented internally as a map of blocks of data with their file offsets.
-Any write to an ``SVF`` will coalesce those blocks where possible.
-A Sparse Virtual File System (``SVFS``) is an extension of this to provide a key/value store where the key is a file ID
+A Sparse Virtual File (SVF) is represented internally as a map of blocks of data with the key being their file
+offsets.
+Any write to an SVF will coalesce these blocks where possible.
+There is no cache punting strategy implemented so an SVF always accumulates data.
+A Sparse Virtual File System (SVFS) is an extension of this to provide a key/value store where the key is a file ID
 and the value a Sparse Virtual File.
 
 ``svfsc`` is written in C++ with a Python interface.
 It is thread safe in both domains.
 
-Conceptually a SVFS might be used like this; the user requests some data (for example TIFF metadata) from a local or
-remote file from a Parser that, in this example, knows the TIFF structure.
-The Parser consults the SVFS, if the SVFS has the data the Parser parses it and returns the results to
-the user.
-If the SVFS does *not* have the data then the Parser consults the SVFS for what data is needed, issues the
-appropriate ``seek()/read()`` operations to the local file system or equivalent GET request(s) to the remote
-server.
-Once that data is loaded into the SVFS the parser parses it as before and returns the results to the user.
+A SVF might be used like this:
 
-Here is a conceptual example of an ``SVFS`` running on a local file system.
+- The user requests some data (for example TIFF metadata) from a remote file using a Parser that knows the TIFF structure.
+- The Parser consults the SVF, if the SVF has the data then the Parser parses it and gives the results to the user.
+- If the SVF does *not* have the data then the Parser consults the SVF for what data is needed, then issues the appropriate GET request(s) to the remote server.
+- That data is used to update the SVF, then the parser can use it and give the results to the user.
+
+Here is a conceptual example of a ``SVF`` running on a local file system containing data from a single file.
 
 .. code-block:: console
 
@@ -42,9 +45,13 @@ Here is a conceptual example of an ``SVFS`` running on a local file system.
     \------/      \--------/          |              \-------------/
                        |              .
                        |              |
-                  /--------\          .
-                  |  SVFS  |          |
-                  \--------/          .
+                   /-------\          .
+                   |  SVF  |          |
+                   \-------/          .
+
+.. raw:: latex
+
+    \newpage
 
 Here is a conceptual example of an ``SVFS`` running with a remote file system.
 
@@ -57,9 +64,9 @@ Here is a conceptual example of an ``SVFS`` running with a remote file system.
     \------/      \--------/          |             \--------/
                        |              .                  |
                        |              |                  |
-                  /--------\          .           /-------------\
-                  |  SVFS  |          |           | File System |
-                  \--------/          .           \-------------/
+                   /-------\          .           /-------------\
+                   |  SVF  |          |           | File System |
+                   \-------/          .           \-------------/
 
 Example Python Usage
 ======================
@@ -71,9 +78,9 @@ Install from pypi:
 
 .. code-block:: console
 
-    $ pip install svfs
+    $ pip install svfsc
 
-Complete installation instructions are in the documentation.
+Complete installation instructions are :ref:`here <installation>`.
 
 Using a Single SVF
 ------------------
@@ -82,12 +89,17 @@ This shows the basic functionality: ``write()``, ``read()`` and ``need()``:
 
 .. code-block:: python
 
+    import svfsc
+
     # Construct a Sparse Virtual File
-    svf = svfs.cSVF('Some file ID')
+    svf = svfsc.cSVF('Some file ID')
+
     # Write six bytes at file position 14
     svf.write(14, b'ABCDEF')
+
     # Read from it
     svf.read(16, 2) # Returns b'CD'
+
     # What do I have to do to read 24 bytes from file position 8?
     # This returns a tuple of pairs ((file_position, read_length), ...)
     svf.need(8, 24) # Returns ((8, 6), (20, 4))
@@ -95,17 +107,18 @@ This shows the basic functionality: ``write()``, ``read()`` and ``need()``:
     # the SVF then you can read directly from the SVF.
 
 The basic operation is to check if the ``SVF`` has data, if not then get it and write that data to the SVF.
-Then you can read directly.
-For example:
+Then read directly:
 
 .. code-block:: python
 
-        if not svf.has_data(file_position, length):
-            for read_position, read_length in svf.need(file_position, length):
-                # Somehow get data as a bytes object at (read_position, read_length)...
-                svf.write(read_position, data)
-        # Now read directly
-        svf.read(file_position, length)
+    if not svf.has_data(file_position, length):
+        for read_position, read_length in svf.need(file_position, length):
+            # Somehow get the data as a bytes object at (read_position, read_length)...
+            # This could be a GET request to a remote file.
+            # Then...
+            svf.write(read_position, data)
+    # Now read directly
+    svf.read(file_position, length)
 
 A Sparse Virtual File System
 -------------------------------------
@@ -115,41 +128,69 @@ This is a key/value store where the key is some string and the value a ``SVF``:
 
 .. code-block:: python
 
-    svfs = svfs.cSVFS()
+    import svfsc
+
+    svfs = svfsc.cSVFS()
+
     # Insert an empty SVF with a corresponding ID
     ID = 'abc'
     svfs.insert(ID)
+
     # Write six bytes to that SVF at file position 14
     svfs.write(ID, 14, b'ABCDEF')
+
     # Read from the SVF
     svfs.read(ID, 16, 2) # Returns b'CD'
+
     # What do I have to do to read 24 bytes from file position 8
     # from that SVF?
     svfs.need(ID, 8, 24) # Returns ((8, 6), (20, 4))
 
-
 Example C++ Usage
 ====================
 
+``svfsc`` is written in C++ so can be used directly:
 
 .. code-block:: c++
 
     #include "svf.h"
 
-    SVFS::SparseVirtualFile svf("Some file ID");
-    // Write six bytes at file position 14
+    // File modification time of 1672574430.0 (2023-01-01 12:00:30)
+    SVFS::SparseVirtualFile svf("Some file ID", 1672574430.0);
+
+    // Write six char at file position 14
     svf.write(14, "ABCDEF", 6);
+
     // Read from it
     char read_buffer[2];
     svf.read(16, 2, read_buffer);
+    // read_buffer now contains "CD"
+
     // What do I have to do to read 24 bytes from file position 8?
     // This returns a std::vector<std::pair<size_t, size_t>>
     // as ((file_position, read_length), ...)
     auto need = svf.need(8, 24);
-    // This prints ((8, 6), (20, 4),)
+
+    // The following prints ((8, 6), (20, 4),)
     std::cout << "(";
     for (auto &val: need) {
         std::cout << "(" << val.first << ", " << val.second << "),";
     }
     std::cout << ")" << std::endl;
 
+.. raw:: latex
+
+    \newpage
+
+.. note:: Naming conventions
+
+   On PyPi there is a preexisting `SVFS project <https://pypi.org/project/SVFS/>`_
+   (no relation, apparently abandoned since its release in 2012).
+   This project was renamed to ``svfsc``.
+   However there are many internal references in this project to ``SVF``, ``SVFS`` and variations thereof.
+
+   - The Cmake target is ``cppSVF``.
+   - The C++ code is in the namespace ``SVFS``, the important classes there are ``SVFS::SparseVirtualFile`` and ``SVFS::SparseVirtualFileSystem``.
+   - This `Python project on PyPi <https://pypi.org/project/svfsc/>`_ is named ``svfsc``. This can be installed by: ``pip install svfsc``.
+   - Access to the Python interface is done with: ``import svfsc``. The two important Python classes, equivalents of the C++ ones,  are ``svfsc.cSVF`` and ``svfsc.cSVFS``
+   - Filenames often use ``svf`` and ``svfs`` in various ways.
