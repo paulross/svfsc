@@ -312,6 +312,31 @@ def test_SVFS_erase_raises():
     )
 
 
+@pytest.mark.parametrize(
+    'args, kwargs, expected',
+    (
+            ([], {}, {'compare_for_diff': True, 'overwrite_on_exit': False},),
+            ([True, ], {}, {'compare_for_diff': True, 'overwrite_on_exit': True},),
+            ([False, ], {}, {'compare_for_diff': True, 'overwrite_on_exit': False},),
+            ([False, False, ], {}, {'compare_for_diff': False, 'overwrite_on_exit': False},),
+            ([True, False, ], {}, {'compare_for_diff': False, 'overwrite_on_exit': True},),
+            ([False, True, ], {}, {'compare_for_diff': True, 'overwrite_on_exit': False},),
+            ([True, True, ], {}, {'compare_for_diff': True, 'overwrite_on_exit': True},),
+            ([], {'compare_for_diff': False, 'overwrite_on_exit': True},
+             {'compare_for_diff': False, 'overwrite_on_exit': True},),
+    )
+)
+def test_SVFS_ctor_config(args, kwargs, expected):
+    # print()
+    # print(args)
+    # print(kwargs)
+    svf = svfsc.cSVFS(*args, **kwargs)
+    config = svf.config()
+    # print(config)
+    assert config == expected
+    # assert 0
+
+
 def main():
     # test_simulate_write_coalesced(1)
     # test_simulate_write_coalesced(2)

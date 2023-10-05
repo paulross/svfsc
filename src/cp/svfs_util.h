@@ -47,6 +47,20 @@
     assert(PyDateTimeAPI);                      \
 } while(0)
 
+/** If you are interested this is a way that you can trace the input. */
+#define TRACE_SELF_ARGS_KWARGS do {                         \
+    fprintf(stdout, "self, args, kwargs:\n");               \
+    fprintf(stdout, "  self: ");                            \
+    PyObject_Print((PyObject *)self, stdout, Py_PRINT_RAW); \
+    fprintf(stdout, "\n");                                  \
+    fprintf(stdout, "  args: ");                            \
+    PyObject_Print(args, stdout, Py_PRINT_RAW);             \
+    fprintf(stdout, "\n");                                  \
+    fprintf(stdout, "kwargs: ");                            \
+    PyObject_Print(kwargs, stdout, Py_PRINT_RAW);           \
+    fprintf(stdout, "\n");                                  \
+} while(0)
+
 PyObject *
 datetime_from_struct_tm(const std::tm *bdt, int usecond);
 

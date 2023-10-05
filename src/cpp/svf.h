@@ -357,6 +357,9 @@ namespace SVFS {
         /// The file modification time as a double representing UNIX seconds.
         [[nodiscard]] double file_mod_time() const noexcept { return m_file_mod_time; }
 
+        /// The configuration.
+        [[nodiscard]] const tSparseVirtualFileConfig &config() const noexcept { return m_config; }
+
         /// Count of \c write() operations.
         [[nodiscard]] size_t count_write() const noexcept { return m_count_write; }
 

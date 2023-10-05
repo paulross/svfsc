@@ -127,6 +127,9 @@ namespace SVFS {
         // All the SVF IDs.
         [[nodiscard]] std::vector<std::string> keys() const noexcept;
 
+        /// The configuration.
+        [[nodiscard]] const tSparseVirtualFileConfig &config() const noexcept { return m_config; }
+
         /// Eliminate copying.
         SparseVirtualFileSystem(const SparseVirtualFileSystem &rhs) = delete;
 

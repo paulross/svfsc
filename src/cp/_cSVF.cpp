@@ -169,11 +169,25 @@ cp_SparseVirtualFile_init(cp_SparseVirtualFile *self, PyObject *args, PyObject *
     static const char *kwlist[] = {"id", "mod_time", "overwrite_on_exit", "compare_for_diff", NULL};
     SVFS::tSparseVirtualFileConfig config;
 
+//    TRACE_SELF_ARGS_KWARGS;
+//    fprintf(stdout, "Config was compare_for_diff=%d overwrite_on_exit=%d\n", config.compare_for_diff,
+//            config.overwrite_on_exit);
+
+    // NOTE: With format unit 'p' we need to pass in an int.
+    int overwrite_on_exit = config.overwrite_on_exit ? 1 : 0;
+    int compare_for_diff = config.compare_for_diff ? 1 : 0;
+
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "s|dpp", (char **) kwlist, &c_id, &mod_time,
-                                     &config.overwrite_on_exit, &config.compare_for_diff)) {
+                                     &overwrite_on_exit, &compare_for_diff)) {
         assert(PyErr_Occurred());
         return -1;
     }
+    config.overwrite_on_exit = overwrite_on_exit != 0;
+    config.compare_for_diff = compare_for_diff != 0;
+
+//    fprintf(stdout, "Config now compare_for_diff=%d overwrite_on_exit=%d\n", config.compare_for_diff,
+//            config.overwrite_on_exit);
+
     try {
         self->pSvf = new SVFS::SparseVirtualFile(c_id, mod_time, config);
     } catch (const std::exception &err) {
@@ -211,15 +225,6 @@ cp_SparseVirtualFile_dealloc(cp_SparseVirtualFile *self) {
 
 // END: Construction and destruction
 #pragma mark END: Construction and destruction
-
-/** If you are interested this is a way that you can trace the input. */
-#define TRACE_SELF_ARGS_KWARGS \
-    PyObject_Print(self, stdout, Py_PRINT_RAW); \
-    fprintf(stdout, "\n"); \
-    PyObject_Print(args, stdout, Py_PRINT_RAW); \
-    fprintf(stdout, "\n"); \
-    PyObject_Print(kwargs, stdout, Py_PRINT_RAW); \
-    fprintf(stdout, "\n");
 
 // SVFS functions
 #pragma mark SVF functions
@@ -884,6 +889,26 @@ cp_SparseVirtualFile_time_read(cp_SparseVirtualFile *self) {
     return ret;
 }
 
+static const char *cp_SparseVirtualFile_config_docstring = (
+        "Returns the SVF configuration as a dict."
+        "\n\nSignature: ``config() -> typing.Dict[str, bool]:``"
+);
+
+static PyObject *
+cp_SparseVirtualFile_config(cp_SparseVirtualFile *self) {
+    ASSERT_FUNCTION_ENTRY_SVF(pSvf);
+
+    PyObject * ret = Py_BuildValue(
+            "{"
+            "s:N"   /* compare_for_diff */
+            ",s:N"  /* overwrite_on_exit */
+            "}",
+            "compare_for_diff", PyBool_FromLong(self->pSvf->config().compare_for_diff ? 1 : 0),
+            "overwrite_on_exit", PyBool_FromLong(self->pSvf->config().overwrite_on_exit ? 1 : 0)
+    );
+    return ret;
+}
+
 /* Pickle the object */
 #pragma mark Pickling
 
@@ -1157,6 +1182,10 @@ static PyMethodDef cp_SparseVirtualFile_methods[] = {
         {
                 "time_write",            (PyCFunction) cp_SparseVirtualFile_time_write,         METH_NOARGS,
                 cp_SparseVirtualFile_time_write_docstring
+        },
+        {
+                "config",                (PyCFunction) cp_SparseVirtualFile_config,             METH_NOARGS,
+                cp_SparseVirtualFile_config_docstring
         },
         {
                 "time_read",             (PyCFunction) cp_SparseVirtualFile_time_read,          METH_NOARGS,

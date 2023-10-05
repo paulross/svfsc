@@ -125,19 +125,30 @@ cp_SparseVirtualFileSystem_new(PyTypeObject *type, PyObject *Py_UNUSED(args), Py
 }
 
 static int
-cp_SparseVirtualFileSystem_init(cp_SparseVirtualFileSystem *self, PyObject *args, PyObject *kwds) {
+cp_SparseVirtualFileSystem_init(cp_SparseVirtualFileSystem *self, PyObject *args, PyObject *kwargs) {
     assert(!PyErr_Occurred());
-    static const char *kwlist[] = {"overwrite", NULL};
-//    int coalesce = -1; // Not implemented.
-    int overwrite = 0;
+    static const char *kwlist[] = {"overwrite_on_exit", "compare_for_diff", NULL};
+    SVFS::tSparseVirtualFileConfig config;
 
-//    fprintf(stdout, "cp_SparseVirtualFileSystem_init() self %p\n", (void *)self);
-    // Parse args/kwargs for coalesce (int), overwrite(bool)
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "|p", const_cast<char **>(kwlist), &overwrite)) {
+//    TRACE_SELF_ARGS_KWARGS;
+//    fprintf(stdout, "Config was compare_for_diff=%d overwrite_on_exit=%d\n", config.compare_for_diff,
+//            config.overwrite_on_exit);
+
+    // NOTE: With format unit 'p' we need to pass in an int.
+    int overwrite_on_exit = config.overwrite_on_exit ? 1 : 0;
+    int compare_for_diff = config.compare_for_diff ? 1 : 0;
+
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|pp", (char **) kwlist, &overwrite_on_exit, &compare_for_diff)) {
         assert(PyErr_Occurred());
         return -1;
     }
-    self->p_svfs = new SVFS::SparseVirtualFileSystem();
+    config.overwrite_on_exit = overwrite_on_exit != 0;
+    config.compare_for_diff = compare_for_diff != 0;
+
+//    fprintf(stdout, "Config now compare_for_diff=%d overwrite_on_exit=%d\n", config.compare_for_diff,
+//            config.overwrite_on_exit);
+
+    self->p_svfs = new SVFS::SparseVirtualFileSystem(config);
 #ifdef PY_THREAD_SAFE
     self->lock = PyThread_allocate_lock();
     if (self->lock == NULL) {
@@ -165,15 +176,6 @@ cp_SparseVirtualFileSystem_dealloc(cp_SparseVirtualFileSystem *self) {
 
 // END: Construction and destruction
 #pragma mark END: Construction and destruction
-
-/* If you are interested this is a way that you can trace the input. */
-#define TRACE_SELF_ARGS_KWARGS \
-    PyObject_Print(self, stdout, Py_PRINT_RAW); \
-    fprintf(stdout, "\n"); \
-    PyObject_Print(args, stdout, Py_PRINT_RAW); \
-    fprintf(stdout, "\n"); \
-    PyObject_Print(kwargs, stdout, Py_PRINT_RAW); \
-    fprintf(stdout, "\n");
 
 // SVFS functions
 #pragma mark SVFS functions
@@ -1146,6 +1148,25 @@ cp_SparseVirtualFileSystem_svf_time_read(cp_SparseVirtualFileSystem *self, PyObj
     return ret;
 }
 
+static const char *cp_SparseVirtualFileSystem_config_docstring = (
+        "Returns the SVFS configuration as a dict."
+        "\n\nSignature: ``config() -> typing.Dict[str, bool]:``"
+);
+
+static PyObject *
+cp_SparseVirtualFileSystem_config(cp_SparseVirtualFileSystem *self) {
+    PyObject * ret = Py_BuildValue(
+            "{"
+            "s:N"   /* compare_for_diff */
+            ",s:N"  /* overwrite_on_exit */
+            "}",
+            "compare_for_diff", PyBool_FromLong(self->p_svfs->config().compare_for_diff ? 1 : 0),
+            "overwrite_on_exit", PyBool_FromLong(self->p_svfs->config().overwrite_on_exit ? 1 : 0)
+    );
+    return ret;
+}
+
+
 // END: SVF functions
 #pragma mark END: SVFS functions
 
@@ -1287,6 +1308,10 @@ static PyMethodDef cp_SparseVirtualFileSystem_methods[] = {
                                                                                                    METH_KEYWORDS,
                         cp_SparseVirtualFileSystem_svf_time_read_docstring
         },
+        {
+                "config",                (PyCFunction) cp_SparseVirtualFileSystem_config,          METH_NOARGS,
+                cp_SparseVirtualFileSystem_config_docstring
+        },
         {NULL, NULL, 0, NULL}  /* Sentinel */
 };
 
@@ -1299,10 +1324,10 @@ PyMappingMethods svfs_mapping_methods = {
 // clang-format off
 // @formatter:off
 static const char *svfs_cSVFS_doc = PyDoc_STR(
-    "This class implements a Sparse Virtual File System where Sparse Virtual Files are mapped to a key (a string)."
-    " This can be constructed with an optional boolean overwrite flag that ensures in-memory data is overwritten"
-    " on destruction of any SVF."
-);
+                                            "This class implements a Sparse Virtual File System where Sparse Virtual Files are mapped to a key (a string)."
+                                            " This can be constructed with an optional boolean overwrite flag that ensures in-memory data is overwritten"
+                                            " on destruction of any SVF."
+                                    );
 // clang-format on
 // @formatter.on
 

@@ -661,7 +661,8 @@ def test_SVF_size_of_overhead(block_size, num_blocks):
     block = b' ' * block_size
     fpos = 0
     print()
-    print(f'#{"block_size":<12} {"num_blocks":12} {"num_bytes()":<12} {"size_of()":>12} {"Overhead":>12} {"Per block":>12}')
+    print(
+        f'#{"block_size":<12} {"num_blocks":12} {"num_bytes()":<12} {"size_of()":>12} {"Overhead":>12} {"Per block":>12}')
     num_blocks = 1
     while num_blocks < 2048 * 8:
         for i in range(num_blocks):
@@ -681,3 +682,26 @@ def test_SVF_size_of_overhead(block_size, num_blocks):
     # assert 0
 
 
+@pytest.mark.parametrize(
+    'args, kwargs, expected',
+    (
+            ([], {}, {'compare_for_diff': True, 'overwrite_on_exit': False},),
+            ([True, ], {}, {'compare_for_diff': True, 'overwrite_on_exit': True},),
+            ([False, ], {}, {'compare_for_diff': True, 'overwrite_on_exit': False},),
+            ([False, False, ], {}, {'compare_for_diff': False, 'overwrite_on_exit': False},),
+            ([True, False, ], {}, {'compare_for_diff': False, 'overwrite_on_exit': True},),
+            ([False, True, ], {}, {'compare_for_diff': True, 'overwrite_on_exit': False},),
+            ([True, True, ], {}, {'compare_for_diff': True, 'overwrite_on_exit': True},),
+            ([], {'compare_for_diff': False, 'overwrite_on_exit': True},
+             {'compare_for_diff': False, 'overwrite_on_exit': True},),
+    )
+)
+def test_SVF_ctor_config(args, kwargs, expected):
+    # print()
+    # print(args)
+    # print(kwargs)
+    svf = svfsc.cSVF('id', 1.0, *args, **kwargs)
+    config = svf.config()
+    # print(config)
+    assert config == expected
+    # assert 0
