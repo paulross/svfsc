@@ -1,0 +1,13 @@
+# Header files needed for building from a sdist
+# CPython
+include src/cp/_cSVF.cpp
+include src/cp/_cSVFS.cpp
+include src/cp/cp_svfs.h
+include src/cp/svfs_util.h
+# C++
+include src/cpp/cpp_svfs.h
+include src/cpp/svf.h
+include src/cpp/svfs.h
+
+# Other
+include HISTORY.rst

@@ -68,7 +68,6 @@ setup_requirements = [
 test_requirements = [
     'pytest',
     'pytest-benchmark',
-    'hypothesis',
 ]
 
 setup(
