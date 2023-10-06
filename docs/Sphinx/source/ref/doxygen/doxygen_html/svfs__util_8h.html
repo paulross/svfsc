@@ -84,6 +84,8 @@ $(function() {
 Macros</h2></td></tr>
 <tr class="memitem:a210f1dce8aac68605a5192245ecf58de"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="svfs__util_8h.html#a210f1dce8aac68605a5192245ecf58de">IMPORT_DATETIME_IF_UNINITIALISED</a></td></tr>
 <tr class="separator:a210f1dce8aac68605a5192245ecf58de"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a354726cd2c09574ef68fa363b1bee4f4"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="svfs__util_8h.html#a354726cd2c09574ef68fa363b1bee4f4">TRACE_SELF_ARGS_KWARGS</a></td></tr>
+<tr class="separator:a354726cd2c09574ef68fa363b1bee4f4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
@@ -137,6 +139,35 @@ Functions</h2></td></tr>
 </div><!-- fragment --><p>Import the datetime capsule if necessary. </p>
 
 <p class="definition">Definition at line <a class="el" href="svfs__util_8h_source.html#l00043">43</a> of file <a class="el" href="svfs__util_8h_source.html">svfs_util.h</a>.</p>
+
+</div>
+</div>
+<a id="a354726cd2c09574ef68fa363b1bee4f4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a354726cd2c09574ef68fa363b1bee4f4">&#9670;&nbsp;</a></span>TRACE_SELF_ARGS_KWARGS</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define TRACE_SELF_ARGS_KWARGS</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<b>Value:</b><div class="fragment"><div class="line">    <span class="keywordflow">do</span> {                         \</div>
+<div class="line">    fprintf(stdout, <span class="stringliteral">&quot;self, args, kwargs:\n&quot;</span>);               \</div>
+<div class="line">    fprintf(stdout, <span class="stringliteral">&quot;  self: &quot;</span>);                            \</div>
+<div class="line">    PyObject_Print((PyObject *)<span class="keyword">self</span>, stdout, Py_PRINT_RAW); \</div>
+<div class="line">    fprintf(stdout, <span class="stringliteral">&quot;\n&quot;</span>);                                  \</div>
+<div class="line">    fprintf(stdout, <span class="stringliteral">&quot;  args: &quot;</span>);                            \</div>
+<div class="line">    PyObject_Print(args, stdout, Py_PRINT_RAW);             \</div>
+<div class="line">    fprintf(stdout, <span class="stringliteral">&quot;\n&quot;</span>);                                  \</div>
+<div class="line">    fprintf(stdout, <span class="stringliteral">&quot;kwargs: &quot;</span>);                            \</div>
+<div class="line">    PyObject_Print(kwargs, stdout, Py_PRINT_RAW);           \</div>
+<div class="line">    fprintf(stdout, <span class="stringliteral">&quot;\n&quot;</span>);                                  \</div>
+<div class="line">} <span class="keywordflow">while</span>(0)</div>
+</div><!-- fragment --><p>If you are interested this is a way that you can trace the input. </p>
+
+<p class="definition">Definition at line <a class="el" href="svfs__util_8h_source.html#l00051">51</a> of file <a class="el" href="svfs__util_8h_source.html">svfs_util.h</a>.</p>
 
 </div>
 </div>

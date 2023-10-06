@@ -86,7 +86,7 @@ $(function() {
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a5238b80ed9e7ed3421e74b3d492dba94"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_s_v_f_s_1_1_sparse_virtual_file.html#a5238b80ed9e7ed3421e74b3d492dba94">SparseVirtualFile</a> (const std::string &amp;<a class="el" href="class_s_v_f_s_1_1_sparse_virtual_file.html#a47dba399c3b8d0b5c56c2053455132d7">id</a>, double mod_time, const <a class="el" href="namespace_s_v_f_s.html#a1eab55d2643d9e51c4f4595b78afe9af">tSparseVirtualFileConfig</a> &amp;config=<a class="el" href="namespace_s_v_f_s.html#a1eab55d2643d9e51c4f4595b78afe9af">tSparseVirtualFileConfig</a>())</td></tr>
+<tr class="memitem:a5238b80ed9e7ed3421e74b3d492dba94"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_s_v_f_s_1_1_sparse_virtual_file.html#a5238b80ed9e7ed3421e74b3d492dba94">SparseVirtualFile</a> (const std::string &amp;<a class="el" href="class_s_v_f_s_1_1_sparse_virtual_file.html#a47dba399c3b8d0b5c56c2053455132d7">id</a>, double mod_time, const <a class="el" href="namespace_s_v_f_s.html#a1eab55d2643d9e51c4f4595b78afe9af">tSparseVirtualFileConfig</a> &amp;<a class="el" href="class_s_v_f_s_1_1_sparse_virtual_file.html#a5f7d0ea05d7a27e94ffbb3a74cb8d150">config</a>=<a class="el" href="namespace_s_v_f_s.html#a1eab55d2643d9e51c4f4595b78afe9af">tSparseVirtualFileConfig</a>())</td></tr>
 <tr class="memdesc:a5238b80ed9e7ed3421e74b3d492dba94"><td class="mdescLeft">&#160;</td><td class="mdescRight">Create a Sparse Virtual File.  <a href="class_s_v_f_s_1_1_sparse_virtual_file.html#a5238b80ed9e7ed3421e74b3d492dba94">More...</a><br /></td></tr>
 <tr class="separator:a5238b80ed9e7ed3421e74b3d492dba94"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa88502c3064a53388db887e176c9ba07"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_s_v_f_s_1_1_sparse_virtual_file.html#aa88502c3064a53388db887e176c9ba07">has</a> (<a class="el" href="namespace_s_v_f_s.html#ac5f0e5533875bd97b8497f6cfbbb0c31">t_fpos</a> fpos, size_t len) const noexcept</td></tr>
@@ -133,6 +133,9 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a4466ba8fbac9b8112aa525efe913cb2d"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_s_v_f_s_1_1_sparse_virtual_file.html#a4466ba8fbac9b8112aa525efe913cb2d">file_mod_time</a> () const noexcept</td></tr>
 <tr class="memdesc:a4466ba8fbac9b8112aa525efe913cb2d"><td class="mdescLeft">&#160;</td><td class="mdescRight">The file modification time as a double representing UNIX seconds.  <a href="class_s_v_f_s_1_1_sparse_virtual_file.html#a4466ba8fbac9b8112aa525efe913cb2d">More...</a><br /></td></tr>
 <tr class="separator:a4466ba8fbac9b8112aa525efe913cb2d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5f7d0ea05d7a27e94ffbb3a74cb8d150"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="namespace_s_v_f_s.html#a1eab55d2643d9e51c4f4595b78afe9af">tSparseVirtualFileConfig</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_s_v_f_s_1_1_sparse_virtual_file.html#a5f7d0ea05d7a27e94ffbb3a74cb8d150">config</a> () const noexcept</td></tr>
+<tr class="memdesc:a5f7d0ea05d7a27e94ffbb3a74cb8d150"><td class="mdescLeft">&#160;</td><td class="mdescRight">The configuration.  <a href="class_s_v_f_s_1_1_sparse_virtual_file.html#a5f7d0ea05d7a27e94ffbb3a74cb8d150">More...</a><br /></td></tr>
+<tr class="separator:a5f7d0ea05d7a27e94ffbb3a74cb8d150"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad2678dc53b5e2ab15f3a82a4a699622a"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_s_v_f_s_1_1_sparse_virtual_file.html#ad2678dc53b5e2ab15f3a82a4a699622a">count_write</a> () const noexcept</td></tr>
 <tr class="memdesc:ad2678dc53b5e2ab15f3a82a4a699622a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Count of <code><a class="el" href="class_s_v_f_s_1_1_sparse_virtual_file.html#a5ae9a0a31892a3b41581ab888dd1323c" title="Write the data a the given file position.">write()</a></code> operations.  <a href="class_s_v_f_s_1_1_sparse_virtual_file.html#ad2678dc53b5e2ab15f3a82a4a699622a">More...</a><br /></td></tr>
 <tr class="separator:ad2678dc53b5e2ab15f3a82a4a699622a"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -286,7 +289,7 @@ Private Attributes</h2></td></tr>
 
 <p>Typedef for the map of file blocks &lt;file_position, data&gt;. </p>
 
-<p class="definition">Definition at line <a class="el" href="svf_8h_source.html#l00432">432</a> of file <a class="el" href="svf_8h_source.html">svf.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="svf_8h_source.html#l00435">435</a> of file <a class="el" href="svf_8h_source.html">svf.h</a>.</p>
 
 </div>
 </div>
@@ -312,7 +315,7 @@ Private Attributes</h2></td></tr>
 
 <p>Typedef for the data. </p>
 
-<p class="definition">Definition at line <a class="el" href="svf_8h_source.html#l00430">430</a> of file <a class="el" href="svf_8h_source.html">svf.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="svf_8h_source.html#l00433">433</a> of file <a class="el" href="svf_8h_source.html">svf.h</a>.</p>
 
 </div>
 </div>
@@ -353,7 +356,7 @@ Private Attributes</h2></td></tr>
 </td></tr>
 </table>
 
-<p class="definition">Definition at line <a class="el" href="svf_8h_source.html#l00464">464</a> of file <a class="el" href="svf_8h_source.html">svf.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="svf_8h_source.html#l00467">467</a> of file <a class="el" href="svf_8h_source.html">svf.h</a>.</p>
 
 </div>
 </div>
@@ -493,7 +496,7 @@ Private Attributes</h2></td></tr>
 
 <p>Destruction just clears the internal map. </p>
 
-<p class="definition">Definition at line <a class="el" href="svf_8h_source.html#l00404">404</a> of file <a class="el" href="svf_8h_source.html">svf.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="svf_8h_source.html#l00407">407</a> of file <a class="el" href="svf_8h_source.html">svf.h</a>.</p>
 
 </div>
 </div>
@@ -1107,7 +1110,7 @@ Private Attributes</h2></td></tr>
 
 <p>Count of total bytes read with <code><a class="el" href="class_s_v_f_s_1_1_sparse_virtual_file.html#ad92b513994c68322312358db4197ac94" title="Read data and write to the buffer provided by the caller. This also updated the non-const members.">read()</a></code> operations. </p>
 
-<p class="definition">Definition at line <a class="el" href="svf_8h_source.html#l00370">370</a> of file <a class="el" href="svf_8h_source.html">svf.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="svf_8h_source.html#l00373">373</a> of file <a class="el" href="svf_8h_source.html">svf.h</a>.</p>
 
 </div>
 </div>
@@ -1136,7 +1139,7 @@ Private Attributes</h2></td></tr>
 
 <p>Count of total bytes written with <code><a class="el" href="class_s_v_f_s_1_1_sparse_virtual_file.html#a5ae9a0a31892a3b41581ab888dd1323c" title="Write the data a the given file position.">write()</a></code> operations. </p>
 
-<p class="definition">Definition at line <a class="el" href="svf_8h_source.html#l00367">367</a> of file <a class="el" href="svf_8h_source.html">svf.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="svf_8h_source.html#l00370">370</a> of file <a class="el" href="svf_8h_source.html">svf.h</a>.</p>
 
 </div>
 </div>
@@ -1174,6 +1177,35 @@ m_time_write, m_time_read are maintained. </dd></dl>
 
 </div>
 </div>
+<a id="a5f7d0ea05d7a27e94ffbb3a74cb8d150"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5f7d0ea05d7a27e94ffbb3a74cb8d150">&#9670;&nbsp;</a></span>config()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="namespace_s_v_f_s.html#a1eab55d2643d9e51c4f4595b78afe9af">tSparseVirtualFileConfig</a>&amp; SVFS::SparseVirtualFile::config </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>The configuration. </p>
+
+<p class="definition">Definition at line <a class="el" href="svf_8h_source.html#l00361">361</a> of file <a class="el" href="svf_8h_source.html">svf.h</a>.</p>
+
+</div>
+</div>
 <a id="aa2e68937e422d8935e08fa8498e2d449"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#aa2e68937e422d8935e08fa8498e2d449">&#9670;&nbsp;</a></span>count_read()</h2>
 
@@ -1199,7 +1231,7 @@ m_time_write, m_time_read are maintained. </dd></dl>
 
 <p>Count of <code><a class="el" href="class_s_v_f_s_1_1_sparse_virtual_file.html#ad92b513994c68322312358db4197ac94" title="Read data and write to the buffer provided by the caller. This also updated the non-const members.">read()</a></code> operations. </p>
 
-<p class="definition">Definition at line <a class="el" href="svf_8h_source.html#l00364">364</a> of file <a class="el" href="svf_8h_source.html">svf.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="svf_8h_source.html#l00367">367</a> of file <a class="el" href="svf_8h_source.html">svf.h</a>.</p>
 
 </div>
 </div>
@@ -1228,7 +1260,7 @@ m_time_write, m_time_read are maintained. </dd></dl>
 
 <p>Count of <code><a class="el" href="class_s_v_f_s_1_1_sparse_virtual_file.html#a5ae9a0a31892a3b41581ab888dd1323c" title="Write the data a the given file position.">write()</a></code> operations. </p>
 
-<p class="definition">Definition at line <a class="el" href="svf_8h_source.html#l00361">361</a> of file <a class="el" href="svf_8h_source.html">svf.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="svf_8h_source.html#l00364">364</a> of file <a class="el" href="svf_8h_source.html">svf.h</a>.</p>
 
 </div>
 </div>
@@ -1742,7 +1774,7 @@ m_time_write, m_time_read are maintained. </dd></dl>
 </div><div class="memdoc">
 <p>Time of the last <code><a class="el" href="class_s_v_f_s_1_1_sparse_virtual_file.html#ad92b513994c68322312358db4197ac94" title="Read data and write to the buffer provided by the caller. This also updated the non-const members.">read()</a></code> operation. This can be cast to <code>std::chrono::time_point&lt;double&gt;</code> </p>
 
-<p class="definition">Definition at line <a class="el" href="svf_8h_source.html#l00380">380</a> of file <a class="el" href="svf_8h_source.html">svf.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="svf_8h_source.html#l00383">383</a> of file <a class="el" href="svf_8h_source.html">svf.h</a>.</p>
 
 </div>
 </div>
@@ -1770,7 +1802,7 @@ m_time_write, m_time_read are maintained. </dd></dl>
 </div><div class="memdoc">
 <p>Time of the last <code><a class="el" href="class_s_v_f_s_1_1_sparse_virtual_file.html#a5ae9a0a31892a3b41581ab888dd1323c" title="Write the data a the given file position.">write()</a></code> operation. This can be cast to <code>std::chrono::time_point&lt;double&gt;</code> </p>
 
-<p class="definition">Definition at line <a class="el" href="svf_8h_source.html#l00374">374</a> of file <a class="el" href="svf_8h_source.html">svf.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="svf_8h_source.html#l00377">377</a> of file <a class="el" href="svf_8h_source.html">svf.h</a>.</p>
 
 </div>
 </div>
@@ -1872,7 +1904,7 @@ m_time_write, m_time_read are maintained. </dd></dl>
 </div><div class="memdoc">
 <p>Access statistics: total bytes read. </p><dl class="section note"><dt>Note</dt><dd>These include any duplicate reads. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="svf_8h_source.html#l00424">424</a> of file <a class="el" href="svf_8h_source.html">svf.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="svf_8h_source.html#l00427">427</a> of file <a class="el" href="svf_8h_source.html">svf.h</a>.</p>
 
 </div>
 </div>
@@ -1898,7 +1930,7 @@ m_time_write, m_time_read are maintained. </dd></dl>
 
 <p>Total number of bytes in this SVF. </p>
 
-<p class="definition">Definition at line <a class="el" href="svf_8h_source.html#l00414">414</a> of file <a class="el" href="svf_8h_source.html">svf.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="svf_8h_source.html#l00417">417</a> of file <a class="el" href="svf_8h_source.html">svf.h</a>.</p>
 
 </div>
 </div>
@@ -1923,7 +1955,7 @@ m_time_write, m_time_read are maintained. </dd></dl>
 </div><div class="memdoc">
 <p>Access statistics: total bytes written. </p><dl class="section note"><dt>Note</dt><dd>These include any duplicate writes. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="svf_8h_source.html#l00421">421</a> of file <a class="el" href="svf_8h_source.html">svf.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="svf_8h_source.html#l00424">424</a> of file <a class="el" href="svf_8h_source.html">svf.h</a>.</p>
 
 </div>
 </div>
@@ -1949,7 +1981,7 @@ m_time_write, m_time_read are maintained. </dd></dl>
 
 <p>The SVF configuration. </p>
 
-<p class="definition">Definition at line <a class="el" href="svf_8h_source.html#l00412">412</a> of file <a class="el" href="svf_8h_source.html">svf.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="svf_8h_source.html#l00415">415</a> of file <a class="el" href="svf_8h_source.html">svf.h</a>.</p>
 
 </div>
 </div>
@@ -1975,7 +2007,7 @@ m_time_write, m_time_read are maintained. </dd></dl>
 
 <p>Access statistics: count of read operations. </p>
 
-<p class="definition">Definition at line <a class="el" href="svf_8h_source.html#l00418">418</a> of file <a class="el" href="svf_8h_source.html">svf.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="svf_8h_source.html#l00421">421</a> of file <a class="el" href="svf_8h_source.html">svf.h</a>.</p>
 
 </div>
 </div>
@@ -2001,7 +2033,7 @@ m_time_write, m_time_read are maintained. </dd></dl>
 
 <p>Access statistics: count of write operations. </p>
 
-<p class="definition">Definition at line <a class="el" href="svf_8h_source.html#l00416">416</a> of file <a class="el" href="svf_8h_source.html">svf.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="svf_8h_source.html#l00419">419</a> of file <a class="el" href="svf_8h_source.html">svf.h</a>.</p>
 
 </div>
 </div>
@@ -2027,7 +2059,7 @@ m_time_write, m_time_read are maintained. </dd></dl>
 
 <p>The original file modification data a UNIX time. This is used for consistency checking. </p>
 
-<p class="definition">Definition at line <a class="el" href="svf_8h_source.html#l00410">410</a> of file <a class="el" href="svf_8h_source.html">svf.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="svf_8h_source.html#l00413">413</a> of file <a class="el" href="svf_8h_source.html">svf.h</a>.</p>
 
 </div>
 </div>
@@ -2053,7 +2085,7 @@ m_time_write, m_time_read are maintained. </dd></dl>
 
 <p>The SVF ID. </p>
 
-<p class="definition">Definition at line <a class="el" href="svf_8h_source.html#l00408">408</a> of file <a class="el" href="svf_8h_source.html">svf.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="svf_8h_source.html#l00411">411</a> of file <a class="el" href="svf_8h_source.html">svf.h</a>.</p>
 
 </div>
 </div>
@@ -2079,7 +2111,7 @@ m_time_write, m_time_read are maintained. </dd></dl>
 
 <p>Thread mutex. This adds about 5-10% execution time compared with a single threaded version. </p>
 
-<p class="definition">Definition at line <a class="el" href="svf_8h_source.html#l00437">437</a> of file <a class="el" href="svf_8h_source.html">svf.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="svf_8h_source.html#l00440">440</a> of file <a class="el" href="svf_8h_source.html">svf.h</a>.</p>
 
 </div>
 </div>
@@ -2105,7 +2137,7 @@ m_time_write, m_time_read are maintained. </dd></dl>
 
 <p>The actual SVF. </p>
 
-<p class="definition">Definition at line <a class="el" href="svf_8h_source.html#l00434">434</a> of file <a class="el" href="svf_8h_source.html">svf.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="svf_8h_source.html#l00437">437</a> of file <a class="el" href="svf_8h_source.html">svf.h</a>.</p>
 
 </div>
 </div>
@@ -2131,7 +2163,7 @@ m_time_write, m_time_read are maintained. </dd></dl>
 
 <p>Last access real-time timestamp for a read. </p>
 
-<p class="definition">Definition at line <a class="el" href="svf_8h_source.html#l00428">428</a> of file <a class="el" href="svf_8h_source.html">svf.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="svf_8h_source.html#l00431">431</a> of file <a class="el" href="svf_8h_source.html">svf.h</a>.</p>
 
 </div>
 </div>
@@ -2157,7 +2189,7 @@ m_time_write, m_time_read are maintained. </dd></dl>
 
 <p>Last access real-time timestamp for a write. </p>
 
-<p class="definition">Definition at line <a class="el" href="svf_8h_source.html#l00426">426</a> of file <a class="el" href="svf_8h_source.html">svf.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="svf_8h_source.html#l00429">429</a> of file <a class="el" href="svf_8h_source.html">svf.h</a>.</p>
 
 </div>
 </div>

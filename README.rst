@@ -49,10 +49,6 @@ Here is a conceptual example of a ``SVF`` running on a local file system contain
                    |  SVF  |          |
                    \-------/          .
 
-.. raw:: latex
-
-    \newpage
-
 Here is a conceptual example of an ``SVFS`` running with a remote file system.
 
 .. code-block:: console
@@ -79,8 +75,6 @@ Install from pypi:
 .. code-block:: console
 
     $ pip install svfsc
-
-Complete installation instructions are :ref:`here <installation>`.
 
 Using a Single SVF
 ------------------
@@ -177,10 +171,6 @@ Example C++ Usage
         std::cout << "(" << val.first << ", " << val.second << "),";
     }
     std::cout << ")" << std::endl;
-
-.. raw:: latex
-
-    \newpage
 
 .. note:: Naming conventions
 
