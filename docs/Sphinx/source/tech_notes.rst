@@ -99,6 +99,41 @@ The result will be something like:
       116: .    STOP
     highest protocol among opcodes = 4
 
+
+Pickling Overhead
+-----------------
+
+The following table shows the overhead, in bytes, when pickling.
+The overhead is the length of the result of ``.dumps()`` minus the sum of the length of all blocks.
+The table shows the overhead for different block counts and sizes.
+
+.. list-table:: Pickling Overhead (bytes)
+    :widths: 25 25 25 25
+    :header-rows: 1
+    :class: with-border
+
+    * - Block Count
+      - Block Size 1
+      - Block Size 256
+      - Block Size 4096
+    * - 1
+      - 109
+      - 112
+      - 112
+    * - 16
+      - 215
+      - 278
+      - 287
+    * - 256
+      - 2023
+      - 2927
+      - 3542
+    * - 4096
+      - 32743
+      - 52982
+      - 55622
+
+
 Detecting File Changes
 ========================
 

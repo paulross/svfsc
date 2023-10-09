@@ -1192,10 +1192,10 @@ static PyMethodDef cp_SparseVirtualFile_methods[] = {
                 cp_SparseVirtualFile_time_read_docstring
         },
         {       "__getstate__",          (PyCFunction) cp_SparseVirtualFile___getstate__,       METH_NOARGS,
-                "Return the state for pickling"
+                "Return the state for pickling."
         },
         {       "__setstate__",          (PyCFunction) cp_SparseVirtualFile___setstate__,       METH_O,
-                "Set the state from a pickle"
+                "Set the state from a pickled object."
         },
         {NULL, NULL, 0, NULL}  /* Sentinel */
 };

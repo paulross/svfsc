@@ -532,6 +532,36 @@ def test_SVF_pickle_loads(blocks, expected_blocks):
     assert new_s.blocks() == expected_blocks
 
 
+@pytest.mark.parametrize(
+    'block_count, block_size, expected_overhead',
+    (
+            (1, 1, 109),
+            (1, 256, 112),
+            (1, 4 * 1024, 112),
+            (16, 1, 215),
+            (16, 256, 278),
+            (16, 4 * 1024, 287),
+            (256, 1, 2023),
+            (256, 256, 2927),
+            (256, 4 * 1024, 3542),
+            (4096, 1, 32743),
+            (4096, 256, 52982),
+            (4096, 4 * 1024, 55622),
+    ),
+)
+def test_SVF_pickle_dumps_size(block_count, block_size, expected_overhead):
+    s = svfsc.cSVF('id', 1.0)
+    fpos = 0
+    data_count = 0
+    for i in range(block_count):
+        data = b' ' * block_size
+        s.write(fpos, data)
+        fpos += 1 + block_size
+        data_count += block_size
+    pickle_result = pickle.dumps(s)
+    assert len(pickle_result) - data_count == expected_overhead
+
+
 def write_to_svf(svf: svfsc.cSVF, values: typing.Tuple[typing.Tuple[int, int], ...], offset: int):
     for fpos, length in values:
         svf.write(fpos + offset, b' ' * length)
@@ -550,7 +580,7 @@ def write_to_svf(svf: svfsc.cSVF, values: typing.Tuple[typing.Tuple[int, int], .
             (64, 1024 ** 2),
     ),
 )
-def test_multit_hreaded_write_coalesced_overwrite(number_of_threads, expected_bytes):
+def test_multi_threaded_write_coalesced_overwrite(number_of_threads, expected_bytes):
     """Tests multi-threaded write() with overwriting a single coalesced 1MB block writing 8 bytes at a time."""
     svf = svfsc.cSVF("Some ID")
     # Blocks are adjacent
