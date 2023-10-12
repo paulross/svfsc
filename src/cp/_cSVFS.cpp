@@ -65,7 +65,7 @@ typedef struct {
  * */
 class AcquireLockSVFS {
 public:
-    AcquireLockSVFS(cp_SparseVirtualFileSystem *pSVFS) : _pSVFS(pSVFS) {
+    explicit AcquireLockSVFS(cp_SparseVirtualFileSystem *pSVFS) : _pSVFS(pSVFS) {
         assert(_pSVFS);
         assert(_pSVFS->lock);
         if (!PyThread_acquire_lock(_pSVFS->lock, NOWAIT_LOCK)) {

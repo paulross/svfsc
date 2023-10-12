@@ -69,7 +69,7 @@ public:
      *
      * @param pSVF The Python cp_SparseVirtualFile.
      */
-    AcquireLockSVF(cp_SparseVirtualFile *pSVF) : _pSVF(pSVF) {
+    explicit AcquireLockSVF(cp_SparseVirtualFile *pSVF) : _pSVF(pSVF) {
         assert(_pSVF);
         assert(_pSVF->lock);
         if (!PyThread_acquire_lock(_pSVF->lock, NOWAIT_LOCK)) {

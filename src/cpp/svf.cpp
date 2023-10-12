@@ -71,38 +71,6 @@ namespace SVFS {
     }
 
     /**
-     * @brief Write a brand new block into either an empty SVF or beyond the current blocks.
-     *
-     * Will raise an ExceptionSparseVirtualFileWrite if the write fails.
-     * This also updates \c m_bytes_total
-     *
-     * @param fpos The file position.
-     * @param data The data.
-     * @param len The length of the data.
-     */
-    void SparseVirtualFile::_write_new_block(t_fpos fpos, const char *data, size_t len, t_map::const_iterator hint) {
-        assert(m_svf.empty() || fpos > _file_position_immediatly_after_end());
-
-        t_val new_vector;
-        new_vector.reserve(len);
-        while (len) {
-            new_vector.push_back(*data);
-            --len;
-            ++data;
-            ++m_bytes_total;
-        }
-        auto size_before_insert = m_svf.size();
-        m_svf.insert(hint, {fpos, std::move(new_vector)});
-        // Sanity check that we really have added a new block (rather than replacing one).
-        if (m_svf.size() != 1 + size_before_insert) {
-            std::ostringstream os;
-            os << "SparseVirtualFile::_write_new_block():";
-            os << " Unable to insert new block at " << fpos;
-            throw Exceptions::ExceptionSparseVirtualFileWrite(os.str());
-        }
-    }
-
-    /**
      * @brief Throws a ExceptionSparseVirtualFileDiff with an explanation of the data difference.
      *
      * @param fpos File position.
@@ -130,87 +98,35 @@ namespace SVFS {
     }
 
     /**
-     * @brief Write the data a the given file position.
+     * @brief Write a brand new block into either an empty SVF or beyond the current blocks.
      *
-     * This will either:
+     * Will raise an ExceptionSparseVirtualFileWrite if the write fails.
+     * This also updates \c m_bytes_total
      *
-     * - Write a brand new block independent of all the others.
-     * - Write a new block and coalesce other blocks onto its end.
-     * - Coalesce the new block onto an existing block and possibly others.
-     *
-     * Comments are structures like this where:
-     *
-     * - \c ==== are existing blocks.
-     * - \c ++++ is the new block. File position is the beginning of the \c ++++ block.
-     * - \c ^==== shows where the iterator is pointing to.
-     *
-     * Notation:
-     *
-     *  -# Means original blocks.
-     *  -# Is new data to be added
-     *  -# Is the result.
-     *
-     *  And the characters mean:
-     *
-     * - \c = Means original data.
-     * - \c + Means new data.
-     * - \c c Means data checked equal (if required).
-     * - \c A Means new data appended or added.
-     *
-     * @code
-     *      1:       ^===========|    |=====|
-     *      2: |+++++++++++++++++++++++++++++++++|
-     *      3: |AAAAAAcccccccccccAAAAAAcccccAAAAA|
-     * @endcode
-     *
-     * This also updates the write count, the number of bytes written and the last write time.
-     *
-     * If ``SVF_THREAD_SAFE`` is defined then this will acquire a lock on this ``SparseVirtualFile``.
-     *
-     * @param fpos The file position to write to.
-     * @param data The data, assumed to be of the given length.
-     * @param len The length to the data to write.
+     * @param fpos The file position.
+     * @param data The data.
+     * @param len The length of the data.
      */
-    void SparseVirtualFile::write(t_fpos fpos, const char *data, size_t len) {
-        SVF_ASSERT(integrity() == ERROR_NONE);
-#ifdef SVF_THREAD_SAFE
-        std::lock_guard<std::mutex> mutex(m_mutex);
-#endif
-        // TODO: throw if !data, len == 0
-        if (m_svf.empty() || fpos > _file_position_immediatly_after_end()) {
-            // Simple insert of new data into empty map or a node beyond the end (common case).
-            _write_new_block(fpos, data, len, m_svf.begin());
-        } else {
-            t_map::iterator iter = m_svf.upper_bound(fpos);
-            if (iter != m_svf.begin()) {
-                --iter;
-            }
-            if (iter->first > fpos) {
-                // Insert new block, possibly coalescing existing blocks.
-                // New comes earlier so either create a new block or copy existing block on to it.
-                if (iter->first <= fpos + len) {
-                    // Need to coalesce
-                    _write_new_append_old(fpos, data, len, iter);
-                } else {
-                    // The new block precedes the old one
-                    _write_new_block(fpos, data, len, iter);
-                }
-            } else {
-                // Existing block.first is <= fpos
-                if (fpos > _file_position_immediatly_after_block(iter)) {
-                    // No overlap so just write new block
-                    _write_new_block(fpos, data, len, m_svf.end());
-                } else {
-                    // Append new to existing block, possibly coalescing existing blocks.
-                    _write_append_new_to_old(fpos, data, len, iter);
-                }
-            }
+    void SparseVirtualFile::_write_new_block(t_fpos fpos, const char *data, size_t len, t_map::const_iterator hint) {
+        assert(m_svf.count(fpos) == 0);
+
+        t_val new_vector;
+        new_vector.reserve(len);
+        while (len) {
+            new_vector.push_back(*data);
+            --len;
+            ++data;
+            ++m_bytes_total;
         }
-        // Update internals.
-        m_count_write += 1;
-        m_bytes_write += len;
-        m_time_write = std::chrono::system_clock::now();
-        SVF_ASSERT(integrity() == ERROR_NONE);
+        auto size_before_insert = m_svf.size();
+        m_svf.insert(hint, {fpos, std::move(new_vector)});
+        // Sanity check that we really have added a new block (rather than replacing one).
+        if (m_svf.size() != 1 + size_before_insert) {
+            std::ostringstream os;
+            os << "SparseVirtualFile::_write_new_block():";
+            os << " Unable to insert new block at " << fpos;
+            throw Exceptions::ExceptionSparseVirtualFileWrite(os.str());
+        }
     }
 
     /**
@@ -483,6 +399,90 @@ namespace SVFS {
 #ifdef DEBUG
         assert(fpos == fpos_end);
 #endif
+        SVF_ASSERT(integrity() == ERROR_NONE);
+    }
+
+    /**
+     * @brief Write the data a the given file position.
+     *
+     * This will either:
+     *
+     * - Write a brand new block independent of all the others.
+     * - Write a new block and coalesce other blocks onto its end.
+     * - Coalesce the new block onto an existing block and possibly others.
+     *
+     * Comments are structures like this where:
+     *
+     * - \c ==== are existing blocks.
+     * - \c ++++ is the new block. File position is the beginning of the \c ++++ block.
+     * - \c ^==== shows where the iterator is pointing to.
+     *
+     * Notation:
+     *
+     *  -# Means original blocks.
+     *  -# Is new data to be added
+     *  -# Is the result.
+     *
+     *  And the characters mean:
+     *
+     * - \c = Means original data.
+     * - \c + Means new data.
+     * - \c c Means data checked equal (if required).
+     * - \c A Means new data appended or added.
+     *
+     * @code
+     *      1:       ^===========|    |=====|
+     *      2: |+++++++++++++++++++++++++++++++++|
+     *      3: |AAAAAAcccccccccccAAAAAAcccccAAAAA|
+     * @endcode
+     *
+     * This also updates the write count, the number of bytes written and the last write time.
+     *
+     * If ``SVF_THREAD_SAFE`` is defined then this will acquire a lock on this ``SparseVirtualFile``.
+     *
+     * @param fpos The file position to write to.
+     * @param data The data, assumed to be of the given length.
+     * @param len The length to the data to write.
+     */
+    void SparseVirtualFile::write(t_fpos fpos, const char *data, size_t len) {
+        SVF_ASSERT(integrity() == ERROR_NONE);
+#ifdef SVF_THREAD_SAFE
+        std::lock_guard<std::mutex> mutex(m_mutex);
+#endif
+        // TODO: throw if !data, len == 0
+        if (m_svf.empty() || fpos > _file_position_immediatly_after_end()) {
+            // Simple insert of new data into empty map or a node beyond the end (common case).
+            _write_new_block(fpos, data, len, m_svf.begin());
+        } else {
+            t_map::iterator iter = m_svf.upper_bound(fpos);
+            if (iter != m_svf.begin()) {
+                --iter;
+            }
+            if (iter->first > fpos) {
+                // Insert new block, possibly coalescing existing blocks.
+                // New comes earlier so either create a new block or copy existing block on to it.
+                if (iter->first <= fpos + len) {
+                    // Need to coalesce
+                    _write_new_append_old(fpos, data, len, iter);
+                } else {
+                    // The new block precedes the old one
+                    _write_new_block(fpos, data, len, iter);
+                }
+            } else {
+                // Existing block.first is <= fpos
+                if (fpos > _file_position_immediatly_after_block(iter)) {
+                    // No overlap so just write new block
+                    _write_new_block(fpos, data, len, m_svf.end());
+                } else {
+                    // Append new to existing block, possibly coalescing existing blocks.
+                    _write_append_new_to_old(fpos, data, len, iter);
+                }
+            }
+        }
+        // Update internals.
+        m_count_write += 1;
+        m_bytes_write += len;
+        m_time_write = std::chrono::system_clock::now();
         SVF_ASSERT(integrity() == ERROR_NONE);
     }
 

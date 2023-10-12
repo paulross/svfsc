@@ -440,6 +440,8 @@ namespace SVFS {
         mutable std::mutex m_mutex;
 #endif
     private:
+        void _throw_diff(t_fpos fpos, const char *data, t_map::const_iterator iter, size_t index_iter) const;
+
         // Write data at file position without checks.
         void _write_new_block(t_fpos fpos, const char *data, size_t len, t_map::const_iterator hint);
 
@@ -450,8 +452,6 @@ namespace SVFS {
 
         // NOTE: This is const but read() is not as it updates metadata.
         void _read(t_fpos fpos, size_t len, char *p) const;
-
-        void _throw_diff(t_fpos fpos, const char *data, t_map::const_iterator iter, size_t index_iter) const;
 
         // Does not use mutex or checks integrity
         [[nodiscard]] t_fpos _file_position_immediatly_after_end() const noexcept;
