@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.9.1"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>Sparse Virtual File System: /Users/engun/CLionProjects/cppSVF/src/cp/_cSVF.cpp Source File</title>
+<title>Sparse Virtual File System: /Users/paulross/CLionProjects/cppSVF/src/cp/_cSVF.cpp Source File</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -96,7 +96,7 @@ $(function() {
 <div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160; </div>
 <div class="line"><a name="l00065"></a><span class="lineno"><a class="line" href="class_acquire_lock_s_v_f.html">   65</a></span>&#160;<span class="keyword">class </span><a class="code" href="class_acquire_lock_s_v_f.html">AcquireLockSVF</a> {</div>
 <div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;<span class="keyword">public</span>:</div>
-<div class="line"><a name="l00072"></a><span class="lineno"><a class="line" href="class_acquire_lock_s_v_f.html#a0310749d4ccb39274c7864e77e291b62">   72</a></span>&#160;    <a class="code" href="class_acquire_lock_s_v_f.html#a0310749d4ccb39274c7864e77e291b62">AcquireLockSVF</a>(<a class="code" href="structcp___sparse_virtual_file.html">cp_SparseVirtualFile</a> *pSVF) : <a class="code" href="class_acquire_lock_s_v_f.html#a8d3165d7f5e32056d86b8eb025b3e1ea">_pSVF</a>(pSVF) {</div>
+<div class="line"><a name="l00072"></a><span class="lineno"><a class="line" href="class_acquire_lock_s_v_f.html#a0310749d4ccb39274c7864e77e291b62">   72</a></span>&#160;    <span class="keyword">explicit</span> <a class="code" href="class_acquire_lock_s_v_f.html#a0310749d4ccb39274c7864e77e291b62">AcquireLockSVF</a>(<a class="code" href="structcp___sparse_virtual_file.html">cp_SparseVirtualFile</a> *pSVF) : <a class="code" href="class_acquire_lock_s_v_f.html#a8d3165d7f5e32056d86b8eb025b3e1ea">_pSVF</a>(pSVF) {</div>
 <div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;        assert(<a class="code" href="class_acquire_lock_s_v_f.html#a8d3165d7f5e32056d86b8eb025b3e1ea">_pSVF</a>);</div>
 <div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;        assert(<a class="code" href="class_acquire_lock_s_v_f.html#a8d3165d7f5e32056d86b8eb025b3e1ea">_pSVF</a>-&gt;<a class="code" href="structcp___sparse_virtual_file.html#a596483be36e701bff5f99d15902e580b">lock</a>);</div>
 <div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;        <span class="keywordflow">if</span> (!PyThread_acquire_lock(<a class="code" href="class_acquire_lock_s_v_f.html#a8d3165d7f5e32056d86b8eb025b3e1ea">_pSVF</a>-&gt;<a class="code" href="structcp___sparse_virtual_file.html#a596483be36e701bff5f99d15902e580b">lock</a>, NOWAIT_LOCK)) {</div>
@@ -1125,10 +1125,10 @@ $(function() {
 <div class="line"><a name="l01192"></a><span class="lineno"> 1192</span>&#160;                <a class="code" href="__c_s_v_f_8cpp.html#a31c51efa656c3c3a690990bd24e63938">cp_SparseVirtualFile_time_read_docstring</a></div>
 <div class="line"><a name="l01193"></a><span class="lineno"> 1193</span>&#160;        },</div>
 <div class="line"><a name="l01194"></a><span class="lineno"> 1194</span>&#160;        {       <span class="stringliteral">&quot;__getstate__&quot;</span>,          (PyCFunction) <a class="code" href="__c_s_v_f_8cpp.html#ad4d061a25422de9096ef1cc358ea3e99">cp_SparseVirtualFile___getstate__</a>,       METH_NOARGS,</div>
-<div class="line"><a name="l01195"></a><span class="lineno"> 1195</span>&#160;                <span class="stringliteral">&quot;Return the state for pickling&quot;</span></div>
+<div class="line"><a name="l01195"></a><span class="lineno"> 1195</span>&#160;                <span class="stringliteral">&quot;Return the state for pickling.&quot;</span></div>
 <div class="line"><a name="l01196"></a><span class="lineno"> 1196</span>&#160;        },</div>
 <div class="line"><a name="l01197"></a><span class="lineno"> 1197</span>&#160;        {       <span class="stringliteral">&quot;__setstate__&quot;</span>,          (PyCFunction) <a class="code" href="__c_s_v_f_8cpp.html#a771f948455bc480256a97f498f75ec8f">cp_SparseVirtualFile___setstate__</a>,       METH_O,</div>
-<div class="line"><a name="l01198"></a><span class="lineno"> 1198</span>&#160;                <span class="stringliteral">&quot;Set the state from a pickle&quot;</span></div>
+<div class="line"><a name="l01198"></a><span class="lineno"> 1198</span>&#160;                <span class="stringliteral">&quot;Set the state from a pickled object.&quot;</span></div>
 <div class="line"><a name="l01199"></a><span class="lineno"> 1199</span>&#160;        },</div>
 <div class="line"><a name="l01200"></a><span class="lineno"> 1200</span>&#160;        {NULL, NULL, 0, NULL}  <span class="comment">/* Sentinel */</span></div>
 <div class="line"><a name="l01201"></a><span class="lineno"> 1201</span>&#160;};</div>

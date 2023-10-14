@@ -190,6 +190,9 @@ Private Types</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pri-methods"></a>
 Private Member Functions</h2></td></tr>
+<tr class="memitem:a439cb211ebbf8b187b1da0e20747ad91"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_s_v_f_s_1_1_sparse_virtual_file.html#a439cb211ebbf8b187b1da0e20747ad91">_throw_diff</a> (<a class="el" href="namespace_s_v_f_s.html#ac5f0e5533875bd97b8497f6cfbbb0c31">t_fpos</a> fpos, const char *data, t_map::const_iterator iter, size_t index_iter) const</td></tr>
+<tr class="memdesc:a439cb211ebbf8b187b1da0e20747ad91"><td class="mdescLeft">&#160;</td><td class="mdescRight">Throws a ExceptionSparseVirtualFileDiff with an explanation of the data difference.  <a href="class_s_v_f_s_1_1_sparse_virtual_file.html#a439cb211ebbf8b187b1da0e20747ad91">More...</a><br /></td></tr>
+<tr class="separator:a439cb211ebbf8b187b1da0e20747ad91"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:abf5003648da5b9d0ff40baf6c4d4a747"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_s_v_f_s_1_1_sparse_virtual_file.html#abf5003648da5b9d0ff40baf6c4d4a747">_write_new_block</a> (<a class="el" href="namespace_s_v_f_s.html#ac5f0e5533875bd97b8497f6cfbbb0c31">t_fpos</a> fpos, const char *data, size_t len, t_map::const_iterator hint)</td></tr>
 <tr class="memdesc:abf5003648da5b9d0ff40baf6c4d4a747"><td class="mdescLeft">&#160;</td><td class="mdescRight">Write a brand new block into either an empty SVF or beyond the current blocks.  <a href="class_s_v_f_s_1_1_sparse_virtual_file.html#abf5003648da5b9d0ff40baf6c4d4a747">More...</a><br /></td></tr>
 <tr class="separator:abf5003648da5b9d0ff40baf6c4d4a747"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -202,9 +205,6 @@ Private Member Functions</h2></td></tr>
 <tr class="memitem:a691ab312388a88885ce4cfe8b66668fa"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_s_v_f_s_1_1_sparse_virtual_file.html#a691ab312388a88885ce4cfe8b66668fa">_read</a> (<a class="el" href="namespace_s_v_f_s.html#ac5f0e5533875bd97b8497f6cfbbb0c31">t_fpos</a> fpos, size_t len, char *p) const</td></tr>
 <tr class="memdesc:a691ab312388a88885ce4cfe8b66668fa"><td class="mdescLeft">&#160;</td><td class="mdescRight">Read data and write to the buffer provided by the caller. This is the const method as it does not update the internals.  <a href="class_s_v_f_s_1_1_sparse_virtual_file.html#a691ab312388a88885ce4cfe8b66668fa">More...</a><br /></td></tr>
 <tr class="separator:a691ab312388a88885ce4cfe8b66668fa"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a439cb211ebbf8b187b1da0e20747ad91"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_s_v_f_s_1_1_sparse_virtual_file.html#a439cb211ebbf8b187b1da0e20747ad91">_throw_diff</a> (<a class="el" href="namespace_s_v_f_s.html#ac5f0e5533875bd97b8497f6cfbbb0c31">t_fpos</a> fpos, const char *data, t_map::const_iterator iter, size_t index_iter) const</td></tr>
-<tr class="memdesc:a439cb211ebbf8b187b1da0e20747ad91"><td class="mdescLeft">&#160;</td><td class="mdescRight">Throws a ExceptionSparseVirtualFileDiff with an explanation of the data difference.  <a href="class_s_v_f_s_1_1_sparse_virtual_file.html#a439cb211ebbf8b187b1da0e20747ad91">More...</a><br /></td></tr>
-<tr class="separator:a439cb211ebbf8b187b1da0e20747ad91"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0d8b96eec1f97766176ea6fc5802c689"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespace_s_v_f_s.html#ac5f0e5533875bd97b8497f6cfbbb0c31">t_fpos</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_s_v_f_s_1_1_sparse_virtual_file.html#a0d8b96eec1f97766176ea6fc5802c689">_file_position_immediatly_after_end</a> () const noexcept</td></tr>
 <tr class="memdesc:a0d8b96eec1f97766176ea6fc5802c689"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the file position immediately after the last block.  <a href="class_s_v_f_s_1_1_sparse_virtual_file.html#a0d8b96eec1f97766176ea6fc5802c689">More...</a><br /></td></tr>
 <tr class="separator:a0d8b96eec1f97766176ea6fc5802c689"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -777,7 +777,7 @@ Private Attributes</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="svf_8cpp_source.html#l00114">114</a> of file <a class="el" href="svf_8cpp_source.html">svf.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="svf_8cpp_source.html#l00082">82</a> of file <a class="el" href="svf_8cpp_source.html">svf.cpp</a>.</p>
 
 </div>
 </div>
@@ -873,7 +873,7 @@ Private Attributes</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="svf_8cpp_source.html#l00392">392</a> of file <a class="el" href="svf_8cpp_source.html">svf.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="svf_8cpp_source.html#l00308">308</a> of file <a class="el" href="svf_8cpp_source.html">svf.cpp</a>.</p>
 
 </div>
 </div>
@@ -959,7 +959,7 @@ Private Attributes</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="svf_8cpp_source.html#l00259">259</a> of file <a class="el" href="svf_8cpp_source.html">svf.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="svf_8cpp_source.html#l00175">175</a> of file <a class="el" href="svf_8cpp_source.html">svf.cpp</a>.</p>
 
 </div>
 </div>
@@ -1020,7 +1020,7 @@ Private Attributes</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="svf_8cpp_source.html#l00083">83</a> of file <a class="el" href="svf_8cpp_source.html">svf.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="svf_8cpp_source.html#l00110">110</a> of file <a class="el" href="svf_8cpp_source.html">svf.cpp</a>.</p>
 
 </div>
 </div>
@@ -1878,7 +1878,7 @@ m_time_write, m_time_read are maintained. </dd></dl>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="svf_8cpp_source.html#l00174">174</a> of file <a class="el" href="svf_8cpp_source.html">svf.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="svf_8cpp_source.html#l00447">447</a> of file <a class="el" href="svf_8cpp_source.html">svf.cpp</a>.</p>
 
 </div>
 </div>
@@ -2194,8 +2194,8 @@ m_time_write, m_time_read are maintained. </dd></dl>
 </div>
 </div>
 <hr/>The documentation for this class was generated from the following files:<ul>
-<li>/Users/engun/CLionProjects/cppSVF/src/cpp/<a class="el" href="svf_8h_source.html">svf.h</a></li>
-<li>/Users/engun/CLionProjects/cppSVF/src/cpp/<a class="el" href="svf_8cpp_source.html">svf.cpp</a></li>
+<li>/Users/paulross/CLionProjects/cppSVF/src/cpp/<a class="el" href="svf_8h_source.html">svf.h</a></li>
+<li>/Users/paulross/CLionProjects/cppSVF/src/cpp/<a class="el" href="svf_8cpp_source.html">svf.cpp</a></li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->

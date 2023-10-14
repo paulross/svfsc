@@ -184,3 +184,8 @@ Example C++ Usage
    - This `Python project on PyPi <https://pypi.org/project/svfsc/>`_ is named ``svfsc``. This can be installed by: ``pip install svfsc``.
    - Access to the Python interface is done with: ``import svfsc``. The two important Python classes, equivalents of the C++ ones,  are ``svfsc.cSVF`` and ``svfsc.cSVFS``
    - Filenames often use ``svf`` and ``svfs`` in various ways.
+
+Documentation
+===============
+
+Build the documentation from the ``docs`` directory or find it on readthedocs: https://svfsc.readthedocs.io/
