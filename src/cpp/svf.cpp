@@ -84,12 +84,12 @@ namespace SVFS {
         assert(iter != m_svf.end());
         assert(m_config.compare_for_diff);
 
-        if (*data != iter->second[index_iter]) {
+        if (*data != iter->second.data[index_iter]) {
             std::ostringstream os;
             os << "SparseVirtualFile::write():";
             os << " Difference at position " << fpos;
-            os << " '" << *(data) << "' != '" << iter->second[index_iter] << "'";
-            os << " Ordinal " << static_cast<int>(*data) << " != " << static_cast<int>(iter->second[index_iter]);
+            os << " '" << *(data) << "' != '" << iter->second.data[index_iter] << "'";
+            os << " Ordinal " << static_cast<int>(*data) << " != " << static_cast<int>(iter->second.data[index_iter]);
             std::string str = os.str();
             throw Exceptions::ExceptionSparseVirtualFileDiff(str);
         }
@@ -110,16 +110,16 @@ namespace SVFS {
     void SparseVirtualFile::_write_new_block(t_fpos fpos, const char *data, size_t len, t_map::const_iterator hint) {
         assert(m_svf.count(fpos) == 0);
 
-        t_val new_vector;
-        new_vector.reserve(len);
+        t_val new_value;
+        new_value.data.reserve(len);
         while (len) {
-            new_vector.push_back(*data);
+            new_value.data.push_back(*data);
             --len;
             ++data;
             ++m_bytes_total;
         }
         auto size_before_insert = m_svf.size();
-        m_svf.insert(hint, {fpos, std::move(new_vector)});
+        m_svf.insert(hint, {fpos, std::move(new_value)});
         // Sanity check that we really have added a new block (rather than replacing one).
         if (m_svf.size() != 1 + size_before_insert) {
             std::ostringstream os;
@@ -181,31 +181,31 @@ namespace SVFS {
 
         size_t fpos_start = fpos;
         size_t fpos_end = fpos + len;
-        t_val new_vector;
+        t_val new_value;
 
         while (true) {
             while (len && fpos < iter->first) {
                 // Copy new data 'X' up to start of iter.
                 //       ^===========|  |=====|
                 //  %XXXX+++++++++++++XX++|
-                new_vector.push_back(*data);
+                new_value.data.push_back(*data);
                 ++data;
                 ++fpos;
                 --len;
                 ++m_bytes_total;
             }
             size_t index_iter = 0;
-            size_t delta = std::min(len, iter->second.size());
+            size_t delta = std::min(len, iter->second.data.size());
             // Check overlapped data matches 'Y'
             //       ^===========|  |=====|
             //  %++++YYYYYYYYYYYYY++++|
             if (m_config.compare_for_diff) {
-                if (std::memcmp(iter->second.data(), data, delta) != 0) {
+                if (std::memcmp(iter->second.data.data(), data, delta) != 0) {
                     _throw_diff(fpos, data, iter, 0);
                 }
             }
             for (size_t i = 0; i < delta; ++i) {
-                new_vector.push_back(*data);
+                new_value.data.push_back(*data);
                 ++data;
             }
             fpos += delta;
@@ -217,25 +217,25 @@ namespace SVFS {
                 //       ^=========ZZZ
                 //  %+++++++++++++|
                 // So append up to the end of iter and (maybe) go round again.
-                while (index_iter < iter->second.size()) {
-                    new_vector.push_back(iter->second[index_iter]);
+                while (index_iter < iter->second.data.size()) {
+                    new_value.data.push_back(iter->second.data[index_iter]);
                     ++index_iter;
                 }
                 if (m_config.overwrite_on_exit) {
-                    iter->second.assign(iter->second.size(), OVERWRITE_CHAR);
+                    iter->second.data.assign(iter->second.data.size(), OVERWRITE_CHAR);
                 }
                 m_svf.erase(iter);
                 break;
             }
             // Remove copied and checked old block and move on.
             if (m_config.overwrite_on_exit) {
-                iter->second.assign(iter->second.size(), OVERWRITE_CHAR);
+                iter->second.data.assign(iter->second.data.size(), OVERWRITE_CHAR);
             }
             iter = m_svf.erase(iter);
             if (iter == m_svf.end() || iter->first > fpos + len) {
                 // Copy rest of new and break
                 while (len) {
-                    new_vector.push_back(*data);
+                    new_value.data.push_back(*data);
                     ++data;
                     ++fpos;
                     --len;
@@ -245,7 +245,7 @@ namespace SVFS {
             }
         }
         auto size_before_insert = m_svf.size();
-        m_svf.insert({fpos_start, std::move(new_vector)});
+        m_svf.insert({fpos_start, std::move(new_value)});
         if (m_svf.size() != 1 + size_before_insert) {
             std::ostringstream os;
             os << "SparseVirtualFile::write():";
@@ -324,9 +324,9 @@ namespace SVFS {
         size_t write_index_from_block_start = fpos - base_block_iter->first;
         // Do the check to end of new_data_len or end of base_block_iter which ever comes first.
         size_t len_check_or_copy = std::min(new_data_len,
-                                            base_block_iter->second.size() - write_index_from_block_start);
+                                            base_block_iter->second.data.size() - write_index_from_block_start);
         if (m_config.compare_for_diff) {
-            if (std::memcmp(base_block_iter->second.data() + write_index_from_block_start, new_data,
+            if (std::memcmp(base_block_iter->second.data.data() + write_index_from_block_start, new_data,
                             len_check_or_copy) != 0) {
                 _throw_diff(fpos, new_data, base_block_iter, write_index_from_block_start);
             }
@@ -339,7 +339,7 @@ namespace SVFS {
             if (next_block_iter == m_svf.end()) {
                 // Termination case, copy remainder
                 while (new_data_len) {
-                    base_block_iter->second.push_back(*new_data);
+                    base_block_iter->second.data.push_back(*new_data);
                     ++new_data;
                     ++fpos;
                     --new_data_len;
@@ -349,7 +349,7 @@ namespace SVFS {
             } else {
                 // Copy the new_data up to start of next_block_iter or, we have exhausted the new_data.
                 while (new_data_len && fpos < next_block_iter->first) {
-                    base_block_iter->second.push_back(*new_data);
+                    base_block_iter->second.data.push_back(*new_data);
                     ++new_data;
                     ++fpos;
                     --new_data_len;
@@ -367,13 +367,13 @@ namespace SVFS {
             len_check_or_copy = std::min(new_data_len, _file_position_immediatly_after_block(next_block_iter) - fpos);
             if (len_check_or_copy) {
                 if (m_config.compare_for_diff) {
-                    if (std::memcmp(next_block_iter->second.data(), new_data, len_check_or_copy) != 0) {
+                    if (std::memcmp(next_block_iter->second.data.data(), new_data, len_check_or_copy) != 0) {
                         _throw_diff(fpos, new_data, base_block_iter, 0);
                     }
                 }
                 // We could push_back either the new_data or the existing next block data. We choose the former.
                 for (size_t i = 0; i < len_check_or_copy; ++i) {
-                    base_block_iter->second.push_back(*new_data);
+                    base_block_iter->second.data.push_back(*new_data);
                     ++new_data;
                     ++fpos;
                     --new_data_len;
@@ -384,14 +384,14 @@ namespace SVFS {
             // If new_data is exhausted then copy remaining from next_block_iter to base_block_iter.
             // Do not increment m_bytes_total as this is existing new_data.
             if (new_data_len == 0) {
-                while (write_index_from_block_start < next_block_iter->second.size()) {
-                    base_block_iter->second.push_back(next_block_iter->second[write_index_from_block_start]);
+                while (write_index_from_block_start < next_block_iter->second.data.size()) {
+                    base_block_iter->second.data.push_back(next_block_iter->second.data[write_index_from_block_start]);
                     ++write_index_from_block_start;
                 }
             }
             // New data is not exhausted so erase next_block_iter as we have copied it and move on to the next block.
             if (m_config.overwrite_on_exit) {
-                next_block_iter->second.assign(next_block_iter->second.size(), OVERWRITE_CHAR);
+                next_block_iter->second.data.assign(next_block_iter->second.data.size(), OVERWRITE_CHAR);
             }
             next_block_iter = m_svf.erase(next_block_iter);
         }
@@ -515,18 +515,18 @@ namespace SVFS {
             --iter;
             offset_into_block = fpos - iter->first;
         }
-        if (offset_into_block + len > iter->second.size()) {
+        if (offset_into_block + len > iter->second.data.size()) {
             std::ostringstream os;
             os << "SparseVirtualFile::read():";
             os << " Requested position " << fpos << " length " << len;
             os << " (end " << fpos + len << ")";
-            os << " overruns block that starts at " << iter->first << " has size " << iter->second.size();
-            os << " (end " << iter->first + iter->second.size() << ").";
+            os << " overruns block that starts at " << iter->first << " has size " << iter->second.data.size();
+            os << " (end " << iter->first + iter->second.data.size() << ").";
             os << " Offset into block is " << offset_into_block;
-            os << " overrun is " << offset_into_block + len - iter->second.size() << " bytes";
+            os << " overrun is " << offset_into_block + len - iter->second.data.size() << " bytes";
             throw Exceptions::ExceptionSparseVirtualFileRead(os.str());
         }
-        if (memcpy(p, iter->second.data() + offset_into_block, len) != p) {
+        if (memcpy(p, iter->second.data.data() + offset_into_block, len) != p) {
             std::ostringstream os;
             os << "SparseVirtualFile::read():";
             os << " memcpy failed " << fpos << " length " << len;
@@ -651,8 +651,8 @@ namespace SVFS {
             } else {
                 //          ^======|
                 //          |+++++++++|
-                fpos += iter->second.size();
-                len -= iter->second.size();
+                fpos += iter->second.data.size();
+                len -= iter->second.data.size();
             }
             ++iter;
         }
@@ -721,7 +721,7 @@ namespace SVFS {
 
         t_seek_reads ret;
         for (const auto &iter: m_svf) {
-            ret.emplace_back(iter.first, iter.second.size());
+            ret.emplace_back(iter.first, iter.second.data.size());
         }
         return ret;
     }
@@ -750,7 +750,7 @@ namespace SVFS {
             os << " Requested file position " << fpos << " is not at the start of a block";
             throw Exceptions::ExceptionSparseVirtualFileRead(os.str());
         }
-        return iter->second.size();
+        return iter->second.data.size();
     }
 
     /**
@@ -770,7 +770,7 @@ namespace SVFS {
         for (const auto &iter: m_svf) {
             ret += sizeof(iter.first);
             ret += sizeof(iter.second);
-            ret += iter.second.size();
+            ret += iter.second.data.size();
         }
         return ret;
     }
@@ -794,7 +794,7 @@ namespace SVFS {
 //        m_time_read = std::chrono::time_point<std::chrono::system_clock>::min();
         if (m_config.overwrite_on_exit) {
             for (auto &iter: m_svf) {
-                iter.second.assign(iter.second.size(), OVERWRITE_CHAR);
+                iter.second.data.assign(iter.second.data.size(), OVERWRITE_CHAR);
             }
         }
         m_svf.clear();
@@ -826,7 +826,7 @@ namespace SVFS {
             os << " Non-existent file position " << fpos << " at start of block.";
             throw Exceptions::ExceptionSparseVirtualFileErase(os.str());
         }
-        size_t ret = iter->second.size();
+        size_t ret = iter->second.data.size();
         m_bytes_total -= ret;
         m_svf.erase(iter);
         return ret;
@@ -854,8 +854,8 @@ namespace SVFS {
 
         while (iter != m_svf.end()) {
             t_fpos fpos = iter->first;
-            size_t size = iter->second.size();
-            if (iter->second.empty()) {
+            size_t size = iter->second.data.size();
+            if (iter->second.data.empty()) {
                 return ERROR_EMPTY_BLOCK;
             }
             if (iter != m_svf.begin() && fpos == prev_fpos && size == prev_size) {
@@ -868,7 +868,7 @@ namespace SVFS {
                 return ERROR_BLOCKS_OVERLAP;
             }
             prev_fpos = iter->first;
-            prev_size = iter->second.size();
+            prev_size = iter->second.data.size();
             byte_count += prev_size;
             ++iter;
         }
@@ -926,7 +926,7 @@ namespace SVFS {
         // NOTE: do not SVF_ASSERT(integrity() == ERROR_NONE); as integrity() calls this so infinite recursion.
         assert(iter != m_svf.end());
 
-        auto ret = iter->first + iter->second.size();
+        auto ret = iter->first + iter->second.data.size();
         return ret;
     }
 

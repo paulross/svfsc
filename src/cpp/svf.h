@@ -429,8 +429,11 @@ namespace SVFS {
         std::chrono::time_point<std::chrono::system_clock> m_time_write;
         /// Last access real-time timestamp for a read.
         std::chrono::time_point<std::chrono::system_clock> m_time_read;
-        /// Typedef for the data.
-        typedef std::vector<char> t_val;
+        /// Typedef for the data. This allows for extra per-block fields in the future.
+        typedef struct {
+            std::vector<char> data;
+            // Potentially more fields here such as time of access.
+        } t_val;
         /// Typedef for the map of file blocks <file_position, data>.
         typedef std::map<t_fpos, t_val> t_map;
         /// The actual SVF.
