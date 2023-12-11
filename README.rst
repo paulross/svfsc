@@ -189,3 +189,8 @@ Documentation
 ===============
 
 Build the documentation from the ``docs`` directory or find it on readthedocs: https://svfsc.readthedocs.io/
+
+Acknowledgments
+===============
+
+Many thanks to my employer `Paige.ai <https://paige.ai>`_ for allowing me to release this as FOSS software.

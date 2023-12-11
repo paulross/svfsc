@@ -79,7 +79,7 @@ setup(
     long_description_content_type='text/x-rst',
     author="Paul Ross",
     author_email='apaulross@gmail.com',
-    url='https://github.com/paulross',
+    url='https://github.com/paulross/svsfc',
     #     packages=find_packages('src'),
     license="MIT License",
     keywords=['svf', 'svfs','svfsc',],
