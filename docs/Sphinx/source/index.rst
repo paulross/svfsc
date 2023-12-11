@@ -15,6 +15,7 @@ Documentation for ``svfsc``
    performance
    tech_notes
    testing
+   future_work
    ref/index.rst
    license
 

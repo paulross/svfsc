@@ -1,8 +1,10 @@
 var searchData=
 [
-  ['read_5frate_5fbyte_5fper_5fs_803',['read_rate_byte_per_s',['../classsrc_1_1cpy_1_1simulator_1_1_server.html#ab10d960cae8f969e8a9368f0e06569a9',1,'src::cpy::simulator::Server']]],
-  ['read_5ftest_5fcases_804',['read_test_cases',['../namespace_s_v_f_s_1_1_test.html#ac277cf0012878b755e27d4eb41c57c84',1,'SVFS::Test']]],
-  ['read_5ftest_5fcases_5fspecial_805',['read_test_cases_special',['../namespace_s_v_f_s_1_1_test.html#a0d7e3c88516cb2ce61e229612a42e1d0',1,'SVFS::Test']]],
-  ['read_5ftest_5fcases_5fthrow_806',['read_test_cases_throw',['../namespace_s_v_f_s_1_1_test.html#a5f7218a8e6f339b09cf8b4a08b2b2a9b',1,'SVFS::Test']]],
-  ['realtime_807',['realtime',['../classsrc_1_1cpy_1_1simulator_1_1_communications.html#a80720a7f14f7e667314b983aba9d41b2',1,'src.cpy.simulator.Communications.realtime()'],['../classsrc_1_1cpy_1_1simulator_1_1_server.html#a938d3dd66ed93531f30f09880e7cd6eb',1,'src.cpy.simulator.Server.realtime()']]]
+  ['p_5fsvfs_799',['p_svfs',['../structcp___sparse_virtual_file_system.html#a646b1c36bc7aa67e5ac559c560da4089',1,'cp_SparseVirtualFileSystem']]],
+  ['pickle_5fblocks_5fkey_800',['PICKLE_BLOCKS_KEY',['../__c_s_v_f_8cpp.html#ab9c4c32ac95208071c60f2766f21efc3',1,'_cSVF.cpp']]],
+  ['pickle_5ffile_5fmod_5ftime_5fkey_801',['PICKLE_FILE_MOD_TIME_KEY',['../__c_s_v_f_8cpp.html#afc6e64de0dfa28991ea7baef8880aadd',1,'_cSVF.cpp']]],
+  ['pickle_5fid_5fkey_802',['PICKLE_ID_KEY',['../__c_s_v_f_8cpp.html#a6612e7e0a7d567d45c414c79a6c0e977',1,'_cSVF.cpp']]],
+  ['pickle_5fversion_803',['PICKLE_VERSION',['../__c_s_v_f_8cpp.html#a893952899e85919ed3bf199aaaea47ad',1,'_cSVF.cpp']]],
+  ['pickle_5fversion_5fkey_804',['PICKLE_VERSION_KEY',['../__c_s_v_f_8cpp.html#a16a2f98187c6096ce42a41d579f1ad35',1,'_cSVF.cpp']]],
+  ['psvf_805',['pSvf',['../structcp___sparse_virtual_file.html#a5b715aa9514b9674a0f5bf663f843dd0',1,'cp_SparseVirtualFile']]]
 ];

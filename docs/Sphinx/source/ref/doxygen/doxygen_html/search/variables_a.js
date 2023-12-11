@@ -1,5 +1,6 @@
 var searchData=
 [
-  ['overwrite_5fchar_794',['OVERWRITE_CHAR',['../namespace_s_v_f_s.html#a1b76300f53102fd75930d04ced854b5d',1,'SVFS']]],
-  ['overwrite_5fon_5fexit_795',['overwrite_on_exit',['../struct_s_v_f_s_1_1_sparse_virtual_file_config.html#ab66d1eed66f3bb7d967790f75ab10bd8',1,'SVFS::SparseVirtualFileConfig']]]
+  ['need_5fgreedy_5ftest_5fcases_794',['need_greedy_test_cases',['../namespace_s_v_f_s_1_1_test.html#a43c4f32148d48d7f24e732fb09734855',1,'SVFS::Test']]],
+  ['need_5ftest_5fcases_795',['need_test_cases',['../namespace_s_v_f_s_1_1_test.html#a29980df427dd0d2350a2b20568e9c004',1,'SVFS::Test']]],
+  ['need_5ftest_5fcases_5fspecial_796',['need_test_cases_special',['../namespace_s_v_f_s_1_1_test.html#a035a39fb62688601460893937e33521a',1,'SVFS::Test']]]
 ];
