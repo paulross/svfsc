@@ -159,6 +159,7 @@ Summary
 
 The engineering problems are large and, without clear requirements, this will not be attempted right now.
 
-Users can always call ``SparseVirtualFile::clear()`` if they are concerned about memory usage.
-Then they need to know that might cause exceptions in another thread that is anticipating a
+Users can always call ``SparseVirtualFile::clear()`` or ``SparseVirtualFile::erase()`` if they are concerned about
+memory usage.
+Then they need to know that might cause exceptions in their own thread or another thread that is anticipating a
 ``SparseVirtualFile::read()`` to succeed.
