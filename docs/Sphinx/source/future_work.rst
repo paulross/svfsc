@@ -163,3 +163,13 @@ Users can always call ``SparseVirtualFile::clear()`` or ``SparseVirtualFile::era
 memory usage.
 Then they need to know that might cause exceptions in their own thread or another thread that is anticipating a
 ``SparseVirtualFile::read()`` to succeed.
+
+Here is a way that a caller could manage an SVF, bearing in mind the effect on other threads, if any:
+
+.. code-block:: python
+
+    def reduce_svf(svf: svfsc.cSVF, limit: int):
+        for fpos, block_size in svf.blocks():
+            if svf.size_of() < limit:
+                break
+            svf.erase(fpos)
