@@ -735,3 +735,78 @@ def test_SVF_ctor_config(args, kwargs, expected):
     # print(config)
     assert config == expected
     # assert 0
+
+
+@pytest.mark.parametrize(
+    'actions, expected',
+    (
+            (tuple(), tuple()),
+            (
+                    (
+                            ('write', (0, b' '),),
+                    ),
+                    ((0, 0),),
+            ),
+            (
+                    (
+                            ('write', (0, b' '),),
+                            ('write', (128, b' '),),
+                    ),
+                    ((0, 0), (128, 1),),
+            ),
+            # Overwrite same, no change
+            (
+                    (
+                            ('write', (0, b' '),),
+                            ('write', (0, b' '),),
+                    ),
+                    ((0, 2),),
+            ),
+            # Overwrite new with extended block
+            (
+                    (
+                            ('write', (0, b' '),),
+                            ('write', (0, b'  '),),
+                    ),
+                    ((0, 2),),
+            ),
+            # Coalesce two blocks
+            (
+                    (
+                            ('write', (0, b' '),),
+                            ('write', (1, b' '),),
+                    ),
+                    ((0, 2),),
+            ),
+            # Three separate blocks
+            (
+                    (
+                            ('write', (0, b' '),),
+                            ('write', (4, b' '),),
+                            ('write', (8, b' '),),
+                    ),
+                    ((0, 0), (4, 1), (8, 2)),
+            ),
+    ),
+    ids=[
+        'NoBlocks',
+        'OneBlock',
+        'TwoSeparateBlocks',
+        'OverwriteSame',
+        'OverwriteExtend',
+        'CoalesceTwoBlocks',
+        'ThreeSeparateBlocks',
+    ],
+)
+def test_SVF_block_touches(actions, expected):
+    svf = svfsc.cSVF('id', 1.0)
+    for action, (fpos, data) in actions:
+        if action == 'write':
+            svf.write(fpos, data)
+        elif action == 'read':
+            by = svf.read(fpos, len(data))
+            assert by == data
+        else:
+            assert 0
+    result = svf.block_touches()
+    assert result == expected

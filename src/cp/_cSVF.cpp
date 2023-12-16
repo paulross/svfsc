@@ -669,6 +669,59 @@ cp_SparseVirtualFile_blocks(cp_SparseVirtualFile *self) {
     return ret;
 }
 
+static const char *cp_SparseVirtualFile_block_touches_docstring = (
+        "This returns a ordered tuple ``((file_position, touch_int), ...)``"
+        " of the touch integer of each block."
+        " This could be inverted into a dict of {touch_value: file_position,} to decide what"
+        " older blocks can be used the erase(file_position)."
+        "\n\nSignature: ``block_touches() -> typing.Tuple[typing.Tuple[int, int], ...]:``"
+);
+
+static PyObject *
+cp_SparseVirtualFile_block_touches(cp_SparseVirtualFile *self) {
+    ASSERT_FUNCTION_ENTRY_SVF(pSvf);
+
+    PyObject * ret = NULL; // PyTupleObject
+    PyObject * insert_item = NULL; // PyTupleObject
+    AcquireLockSVF _lock(self);
+
+    try {
+        SVFS::t_block_touches svf_block_touches = self->pSvf->block_touches();
+        ret = PyTuple_New(svf_block_touches.size());
+        if (!ret) {
+            PyErr_Format(PyExc_MemoryError, "%s: Can not create tuple for return", __FUNCTION__);
+            goto except;
+        }
+        int index = 0;
+        for (const auto &iter: svf_block_touches) {
+            insert_item = Py_BuildValue("KK", iter.first, iter.second);
+            if (!insert_item) {
+                PyErr_Format(PyExc_MemoryError, "%s: Can not create tuple", __FUNCTION__);
+                goto except;
+            }
+            PyTuple_SET_ITEM(ret, index++, insert_item);
+            insert_item = NULL;
+        }
+    } catch (const std::exception &err) {
+        PyErr_Format(PyExc_RuntimeError, "%s: FATAL caught std::exception %s", __FUNCTION__, err.what());
+        goto except;
+    }
+    assert(!PyErr_Occurred());
+    assert(ret);
+    goto finally;
+    except:
+    assert(PyErr_Occurred());
+    if (ret) {
+        for (Py_ssize_t i = 0; i < PyList_Size(ret); ++i) {
+            Py_XDECREF(PyList_GET_ITEM(ret, i));
+        }
+    }
+    Py_XDECREF(ret);
+    ret = NULL;
+    finally:
+    return ret;
+}
+
 // This macro is for functions that return a size_t type such as count_write, count_read, bytes_write, bytes_read.
 #define SVFS_SVF_METHOD_SIZE_T_WRAPPER(method_name) static PyObject * \
 cp_SparseVirtualFile_##method_name(cp_SparseVirtualFile *self) { \
@@ -1147,6 +1200,10 @@ static PyMethodDef cp_SparseVirtualFile_methods[] = {
         {
                 "blocks",                (PyCFunction) cp_SparseVirtualFile_blocks,             METH_NOARGS,
                 cp_SparseVirtualFile_blocks_docstring
+        },
+        {
+                "block_touches",         (PyCFunction) cp_SparseVirtualFile_block_touches,      METH_NOARGS,
+                cp_SparseVirtualFile_block_touches_docstring
         },
         {
                 "file_mod_time_matches", (PyCFunction) cp_SparseVirtualFile_file_mod_time_matches,

@@ -249,6 +249,9 @@ namespace SVFS {
     typedef std::pair<t_fpos, size_t> t_seek_read;
     /** Typedef for a vector of (\c seek() followed by a \c read() ) lengths. */
     typedef std::vector<t_seek_read> t_seek_reads;
+    /** Counter type that increments on every data 'touch' */
+    typedef uint32_t t_block_touch;
+    typedef std::map<t_fpos, t_block_touch> t_block_touches;
 
 #pragma mark - SVF configuration
 
@@ -301,7 +304,8 @@ namespace SVFS {
                 m_bytes_write(0),
                 m_bytes_read(0),
                 m_time_write(std::chrono::time_point<std::chrono::system_clock>::min()),
-                m_time_read(std::chrono::time_point<std::chrono::system_clock>::min()) {
+                m_time_read(std::chrono::time_point<std::chrono::system_clock>::min()),
+                m_block_touch(0) {
         }
 
         // ---- Read and write etc. ----
@@ -384,6 +388,12 @@ namespace SVFS {
             return m_time_read;
         }
 
+        /// Return the latest value of the monotonically increasing block_touch value.
+        [[nodiscard]] t_block_touch block_touch() const noexcept {
+            return m_block_touch;
+        }
+        [[nodiscard]] t_block_touches block_touches() const noexcept;
+
         /// Eliminate copying.
         SparseVirtualFile(const SparseVirtualFile &rhs) = delete;
 
@@ -433,11 +443,14 @@ namespace SVFS {
         typedef struct {
             std::vector<char> data;
             // Potentially more fields here such as time of access.
+            t_block_touch block_touch;
         } t_val;
         /// Typedef for the map of file blocks <file_position, data>.
         typedef std::map<t_fpos, t_val> t_map;
         /// The actual SVF.
         t_map m_svf;
+        /// A monotonically increasing integer that indicates the age of a block, smaller is older.
+        t_block_touch m_block_touch;
 #ifdef SVF_THREAD_SAFE
         /// Thread mutex. This adds about 5-10% execution time compared with a single threaded version.
         mutable std::mutex m_mutex;

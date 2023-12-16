@@ -173,3 +173,11 @@ Here is a way that a caller could manage an SVF, bearing in mind the effect on o
             if svf.size_of() < limit:
                 break
             svf.erase(fpos)
+
+A compromise is to add these members to ``SparseVirtualFile``:
+
+- ``unit32_t m_block_touch;`` Initialised to zero this is incremented at the start of every non-const method call.
+- Add a ``unit32_t`` to ``t_val``. This is updated with ``m_block_touch`` at the end of any non-const call.
+
+Then give a caller access to a ``std::map<t_fpos, unit32_t>`` that gives the access succession number of every block.
+The caller could then decide which blocks to remove, presumably the lower accession numbers.

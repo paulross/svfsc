@@ -112,6 +112,7 @@ namespace SVFS {
 
         t_val new_value;
         new_value.data.reserve(len);
+        new_value.block_touch = m_block_touch++;
         while (len) {
             new_value.data.push_back(*data);
             --len;
@@ -182,6 +183,7 @@ namespace SVFS {
         size_t fpos_start = fpos;
         size_t fpos_end = fpos + len;
         t_val new_value;
+        new_value.block_touch = m_block_touch++;
 
         while (true) {
             while (len && fpos < iter->first) {
@@ -317,6 +319,7 @@ namespace SVFS {
 #ifdef DEBUG
         size_t fpos_end = fpos + new_data_len;
 #endif
+        ++m_block_touch;
         // Diff check against base_block_iter
         // Do the check to end of new_data_len or end of base_block_iter which ever comes first.
         // Do not increment m_bytes_total as this is existing new_data.
@@ -395,6 +398,7 @@ namespace SVFS {
             }
             next_block_iter = m_svf.erase(next_block_iter);
         }
+        base_block_iter->second.block_touch = m_block_touch;
         assert(new_data_len == 0);
 #ifdef DEBUG
         assert(fpos == fpos_end);
@@ -892,6 +896,21 @@ namespace SVFS {
         std::lock_guard<std::mutex> mutex(m_mutex);
 #endif
         return _file_position_immediatly_after_end();
+    }
+
+    /**
+     * @brief Returns a map of file positions to latest touch value.
+     *
+     * Callers can use this to make informed decisions about punting older blocks.
+     *
+     * @return A map std::map<t_fpos, t_block_touch>.
+     */
+    [[nodiscard]] t_block_touches SparseVirtualFile::block_touches() const noexcept {
+        std::map<t_fpos, t_block_touch> ret;
+        for (const auto &iter: m_svf) {
+            ret[iter.first] = iter.second.block_touch;
+        }
+        return ret;
     }
 
     /**
