@@ -905,20 +905,21 @@ namespace SVFS {
     }
 
     /**
-     * @brief Returns a map of file positions to latest touch value.
+     * @brief Returns a map of latest touch value to file position.
      *
      * Callers can use this to make informed decisions about punting older blocks.
      *
-     * @return A map std::map<t_fpos, t_block_touch>.
+     * @return A map std::map<t_block_touch, t_fpos>.
      */
     [[nodiscard]] t_block_touches SparseVirtualFile::block_touches() const noexcept {
         SVF_ASSERT(integrity() == ERROR_NONE);
 #ifdef SVF_THREAD_SAFE
         std::lock_guard<std::mutex> mutex(m_mutex);
 #endif
-        std::map<t_fpos, t_block_touch> ret;
+        t_block_touches ret;
         for (const auto &iter: m_svf) {
-            ret[iter.first] = iter.second.block_touch;
+            assert(ret[iter.second.block_touch] == ret.end());
+            ret[iter.second.block_touch] = iter.first;
         }
         return ret;
     }

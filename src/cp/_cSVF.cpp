@@ -670,10 +670,9 @@ cp_SparseVirtualFile_blocks(cp_SparseVirtualFile *self) {
 }
 
 static const char *cp_SparseVirtualFile_block_touches_docstring = (
-        "This returns a ordered tuple ``((file_position, touch_int), ...)``"
-        " of the touch integer of each block."
-        " This could be inverted into a dict of {touch_value: file_position,} to decide what"
-        " older blocks can be used the erase(file_position)."
+        "This returns a dict ``{touch_int: file_position, ...}``"
+        " of the touch integer of each block mapped to the file position."
+        " The caller can decide what older blocks can be used the erase(file_position)."
         "\n\nSignature: ``block_touches() -> typing.Tuple[typing.Tuple[int, int], ...]:``"
 );
 
@@ -681,26 +680,30 @@ static PyObject *
 cp_SparseVirtualFile_block_touches(cp_SparseVirtualFile *self) {
     ASSERT_FUNCTION_ENTRY_SVF(pSvf);
 
-    PyObject * ret = NULL; // PyTupleObject
-    PyObject * insert_item = NULL; // PyTupleObject
+    PyObject * ret = NULL; // PyDictObject
     AcquireLockSVF _lock(self);
 
     try {
         SVFS::t_block_touches svf_block_touches = self->pSvf->block_touches();
-        ret = PyTuple_New(svf_block_touches.size());
+        ret = PyDict_New();
         if (!ret) {
-            PyErr_Format(PyExc_MemoryError, "%s: Can not create tuple for return", __FUNCTION__);
+            PyErr_Format(PyExc_MemoryError, "%s: Can not create dict for return", __FUNCTION__);
             goto except;
         }
-        int index = 0;
         for (const auto &iter: svf_block_touches) {
-            insert_item = Py_BuildValue("KK", iter.first, iter.second);
-            if (!insert_item) {
-                PyErr_Format(PyExc_MemoryError, "%s: Can not create tuple", __FUNCTION__);
+            PyObject *key = PyLong_FromLong(iter.first);
+            if (!key) {
+                PyErr_Format(PyExc_MemoryError, "%s: Can not create key", __FUNCTION__);
                 goto except;
             }
-            PyTuple_SET_ITEM(ret, index++, insert_item);
-            insert_item = NULL;
+            PyObject *val = PyLong_FromLong(iter.second);
+            if (!val) {
+                PyErr_Format(PyExc_MemoryError, "%s: Can not create value", __FUNCTION__);
+                goto except;
+            }
+            PyDict_SetItem(ret, key, val);
+            Py_DECREF(key);
+            Py_DECREF(val);
         }
     } catch (const std::exception &err) {
         PyErr_Format(PyExc_RuntimeError, "%s: FATAL caught std::exception %s", __FUNCTION__, err.what());

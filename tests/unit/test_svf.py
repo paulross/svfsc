@@ -740,19 +740,19 @@ def test_SVF_ctor_config(args, kwargs, expected):
 @pytest.mark.parametrize(
     'actions, expected',
     (
-            (tuple(), tuple()),
+            (tuple(), dict()),
             (
                     (
                             ('write', (0, b' '),),
                     ),
-                    ((0, 0),),
+                    {0: 0,},
             ),
             (
                     (
                             ('write', (0, b' '),),
                             ('write', (128, b' '),),
                     ),
-                    ((0, 0), (128, 1),),
+                    {0: 0, 1: 128},
             ),
             # Overwrite same, no change
             (
@@ -760,7 +760,7 @@ def test_SVF_ctor_config(args, kwargs, expected):
                             ('write', (0, b' '),),
                             ('write', (0, b' '),),
                     ),
-                    ((0, 2),),
+                    {2: 0},
             ),
             # Overwrite new with extended block
             (
@@ -768,7 +768,7 @@ def test_SVF_ctor_config(args, kwargs, expected):
                             ('write', (0, b' '),),
                             ('write', (0, b'  '),),
                     ),
-                    ((0, 2),),
+                    {2: 0},
             ),
             # Coalesce two blocks
             (
@@ -776,7 +776,7 @@ def test_SVF_ctor_config(args, kwargs, expected):
                             ('write', (0, b' '),),
                             ('write', (1, b' '),),
                     ),
-                    ((0, 2),),
+                    {2: 0},
             ),
             # Three separate blocks
             (
@@ -785,7 +785,7 @@ def test_SVF_ctor_config(args, kwargs, expected):
                             ('write', (4, b' '),),
                             ('write', (8, b' '),),
                     ),
-                    ((0, 0), (4, 1), (8, 2)),
+                    {0: 0, 1: 4, 2: 8},
             ),
     ),
     ids=[

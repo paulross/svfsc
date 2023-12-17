@@ -251,7 +251,8 @@ namespace SVFS {
     typedef std::vector<t_seek_read> t_seek_reads;
     /** Counter type that increments on every data 'touch' */
     typedef uint32_t t_block_touch;
-    typedef std::map<t_fpos, t_block_touch> t_block_touches;
+    /** Map of block touch (smallest is younger) to file position block. */
+    typedef std::map<t_block_touch, t_fpos> t_block_touches;
 
 #pragma mark - SVF configuration
 
