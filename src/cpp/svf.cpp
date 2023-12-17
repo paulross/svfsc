@@ -32,6 +32,7 @@
 #include <iostream>
 #include <iterator>
 #include <sstream>
+#include <set>
 
 #include "svf.h"
 
@@ -855,6 +856,7 @@ namespace SVFS {
         size_t prev_size;
         t_map::const_iterator iter = m_svf.begin();
         size_t byte_count = 0;
+        std::set<t_block_touch> block_touches;
 
         while (iter != m_svf.end()) {
             t_fpos fpos = iter->first;
@@ -870,6 +872,10 @@ namespace SVFS {
             }
             if (iter != m_svf.begin() && prev_fpos + prev_size > iter->first) {
                 return ERROR_BLOCKS_OVERLAP;
+            }
+            if (block_touches.find(iter->second.block_touch) != block_touches.end()) {
+                // Duplicate block_touches value
+                return ERROR_DUPLICATE_BLOCK_TOUCH;
             }
             prev_fpos = iter->first;
             prev_size = iter->second.data.size();
@@ -906,6 +912,10 @@ namespace SVFS {
      * @return A map std::map<t_fpos, t_block_touch>.
      */
     [[nodiscard]] t_block_touches SparseVirtualFile::block_touches() const noexcept {
+        SVF_ASSERT(integrity() == ERROR_NONE);
+#ifdef SVF_THREAD_SAFE
+        std::lock_guard<std::mutex> mutex(m_mutex);
+#endif
         std::map<t_fpos, t_block_touch> ret;
         for (const auto &iter: m_svf) {
             ret[iter.first] = iter.second.block_touch;

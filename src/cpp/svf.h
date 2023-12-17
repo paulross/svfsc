@@ -493,6 +493,8 @@ namespace SVFS {
             ERROR_BYTE_COUNT_MISMATCH,
             /// Duplicate blocks of the same length and at the same file positions.
             ERROR_DUPLICATE_BLOCK,
+            /// Two or more blocks have the same block touch value.
+            ERROR_DUPLICATE_BLOCK_TOUCH,
         };
 
         [[nodiscard]] ERROR_CONDITION integrity() const noexcept;
