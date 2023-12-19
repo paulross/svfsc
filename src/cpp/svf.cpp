@@ -905,7 +905,7 @@ namespace SVFS {
     }
 
     /**
-     * @brief Returns a map of latest touch value to file position.
+     * @brief Returns a \c std::map of latest touch value key and file position value.
      *
      * Callers can use this to make informed decisions about punting older blocks.
      *
@@ -918,10 +918,33 @@ namespace SVFS {
 #endif
         t_block_touches ret;
         for (const auto &iter: m_svf) {
-            assert(ret[iter.second.block_touch] == ret.end());
+            // The block_touch should not be in the return value, yet.
+            assert(ret.find(iter.second.block_touch) == ret.end());
             ret[iter.second.block_touch] = iter.first;
         }
         return ret;
+    }
+
+    /**
+     * Implements a simple punting strategy based a Last Recently Used blocks.
+     * This brings the cache size to < cache_size_upper_bound
+     * @param cache_size_upper_bound The upper bound of the final cache size.
+     */
+    void SparseVirtualFile::lru_punt(size_t cache_size_upper_bound) {
+        SVF_ASSERT(integrity() == ERROR_NONE);
+#ifdef SVF_THREAD_SAFE
+        std::lock_guard<std::mutex> mutex(m_mutex);
+#endif
+        if (num_blocks() > 1 and num_bytes() >= cache_size_upper_bound) {
+            auto touch_fpos_map = block_touches();
+            for (const auto &iter: touch_fpos_map) {
+                if (num_blocks() > 1 and num_bytes() >= cache_size_upper_bound) {
+                    erase(iter.second);
+                } else {
+                    break;
+                }
+            }
+        }
     }
 
     /**

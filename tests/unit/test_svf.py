@@ -810,3 +810,27 @@ def test_SVF_block_touches(actions, expected):
             assert 0
     result = svf.block_touches()
     assert result == expected
+
+
+def test_SVF_lru_punt_strategy():
+    """Example of a LRU cache punting strategy implemented by a caller"""
+    svf = svfsc.cSVF('id', 1.0)
+    fpos = 0
+    block_size = 128
+    block_count = 256
+    for i in range(block_count):
+        svf.write(fpos, b' ' * block_size)
+        fpos += block_size
+        fpos += 1
+    assert svf.block_touch() == block_count
+    cache_upper_bound = 1024
+    assert svf.num_bytes() >= cache_upper_bound
+    # Now the LRU punting strategy
+    if svf.num_blocks() > 1 and svf.num_bytes() >= cache_upper_bound:
+        touch_fpos_dict = svf.block_touches()
+        for touch in sorted(touch_fpos_dict.keys()):
+            if svf.num_blocks() > 1 and svf.num_bytes() >= cache_upper_bound:
+                svf.erase(touch_fpos_dict[touch])
+            else:
+                break
+    assert svf.num_bytes() < cache_upper_bound

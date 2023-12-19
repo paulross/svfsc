@@ -158,8 +158,10 @@ Greedy Gets
 ==================
 
 With a high latency connection it will be expensive to make a lot of small requests so it makes sense to make a smaller
-number of larger GETs.
-This is done by passing a ``greedy_length`` value to ``need()`` and that will coalesce the result of ``need()`` where possible.
+number of larger GETs, a form of *cache prefetching*.
+This is done by passing a ``greedy_length`` value to ``need()`` and that will coalesce the result of ``need()`` where
+possible.
+
 
 For example an ``SVF`` with these ``need(file_position, length)`` blocks:
 

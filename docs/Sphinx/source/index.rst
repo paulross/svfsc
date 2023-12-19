@@ -14,6 +14,7 @@ Documentation for ``svfsc``
    installation
    performance
    tech_notes
+   cache_punting
    testing
    future_work
    ref/index.rst

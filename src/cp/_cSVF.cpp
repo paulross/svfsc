@@ -669,11 +669,27 @@ cp_SparseVirtualFile_blocks(cp_SparseVirtualFile *self) {
     return ret;
 }
 
+static const char *cp_SparseVirtualFile_block_touch_docstring = (
+        "Return the latest value of the monotonically increasing block_touch value."
+        "\n\nSignature: ``block_touche() -> int:``"
+);
+
+static PyObject *
+cp_SparseVirtualFile_block_touch(cp_SparseVirtualFile *self) {
+    ASSERT_FUNCTION_ENTRY_SVF(pSvf);
+    try {
+        return PyLong_FromLong(self->pSvf->block_touch());
+    } catch (const std::exception &err) {
+        PyErr_Format(PyExc_RuntimeError, "%s: FATAL caught std::exception %s", __FUNCTION__, err.what());
+        return NULL;
+    }
+}
+
 static const char *cp_SparseVirtualFile_block_touches_docstring = (
         "This returns a dict ``{touch_int: file_position, ...}``"
         " of the touch integer of each block mapped to the file position."
         " The caller can decide what older blocks can be used the erase(file_position)."
-        "\n\nSignature: ``block_touches() -> typing.Tuple[typing.Tuple[int, int], ...]:``"
+        "\n\nSignature: ``block_touches() -> typing.Dict[int, int]:``"
 );
 
 static PyObject *
@@ -1203,6 +1219,10 @@ static PyMethodDef cp_SparseVirtualFile_methods[] = {
         {
                 "blocks",                (PyCFunction) cp_SparseVirtualFile_blocks,             METH_NOARGS,
                 cp_SparseVirtualFile_blocks_docstring
+        },
+        {
+                "block_touch",         (PyCFunction) cp_SparseVirtualFile_block_touch,      METH_NOARGS,
+                cp_SparseVirtualFile_block_touch_docstring
         },
         {
                 "block_touches",         (PyCFunction) cp_SparseVirtualFile_block_touches,      METH_NOARGS,

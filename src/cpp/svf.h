@@ -343,7 +343,7 @@ namespace SVFS {
         /// Gives exact number of data bytes held.
         [[nodiscard]] size_t num_bytes() const noexcept { return m_bytes_total; };
 
-        /// Gives exact number of blocks used.
+        /// Number of blocks used.
         [[nodiscard]] size_t num_blocks() const noexcept { return m_svf.size(); }
 
         /// The position of the last byte.
@@ -390,10 +390,9 @@ namespace SVFS {
         }
 
         /// Return the latest value of the monotonically increasing block_touch value.
-        [[nodiscard]] t_block_touch block_touch() const noexcept {
-            return m_block_touch;
-        }
+        [[nodiscard]] t_block_touch block_touch() const noexcept { return m_block_touch; }
         [[nodiscard]] t_block_touches block_touches() const noexcept;
+        void lru_punt(size_t cache_size_upper_bound);
 
         /// Eliminate copying.
         SparseVirtualFile(const SparseVirtualFile &rhs) = delete;
