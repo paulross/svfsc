@@ -105,6 +105,10 @@ Typedefs</h2></td></tr>
 <tr class="separator:a9d4fc55cfa691e58121c7a99bba2a29c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5674f69324a17c418f065ce57c90538e"><td class="memItemLeft" align="right" valign="top">typedef std::vector&lt; <a class="el" href="namespace_s_v_f_s.html#a9d4fc55cfa691e58121c7a99bba2a29c">t_seek_read</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespace_s_v_f_s.html#a5674f69324a17c418f065ce57c90538e">t_seek_reads</a></td></tr>
 <tr class="separator:a5674f69324a17c418f065ce57c90538e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae056c270d122162bdbdc2bce297e693c"><td class="memItemLeft" align="right" valign="top">typedef uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespace_s_v_f_s.html#ae056c270d122162bdbdc2bce297e693c">t_block_touch</a></td></tr>
+<tr class="separator:ae056c270d122162bdbdc2bce297e693c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a769b7b98acc703bfb660d56dd964fdce"><td class="memItemLeft" align="right" valign="top">typedef std::map&lt; <a class="el" href="namespace_s_v_f_s.html#ae056c270d122162bdbdc2bce297e693c">t_block_touch</a>, <a class="el" href="namespace_s_v_f_s.html#ac5f0e5533875bd97b8497f6cfbbb0c31">t_fpos</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespace_s_v_f_s.html#a769b7b98acc703bfb660d56dd964fdce">t_block_touches</a></td></tr>
+<tr class="separator:a769b7b98acc703bfb660d56dd964fdce"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1eab55d2643d9e51c4f4595b78afe9af"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="struct_s_v_f_s_1_1_sparse_virtual_file_config.html">SVFS::SparseVirtualFileConfig</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespace_s_v_f_s.html#a1eab55d2643d9e51c4f4595b78afe9af">tSparseVirtualFileConfig</a></td></tr>
 <tr class="memdesc:a1eab55d2643d9e51c4f4595b78afe9af"><td class="mdescLeft">&#160;</td><td class="mdescRight">Configuration for the Sparse Virtual File.  <a href="namespace_s_v_f_s.html#a1eab55d2643d9e51c4f4595b78afe9af">More...</a><br /></td></tr>
 <tr class="separator:a1eab55d2643d9e51c4f4595b78afe9af"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -118,6 +122,40 @@ Variables</h2></td></tr>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>The namespace for all <code>svfsc</code> code. </p>
 </div><h2 class="groupheader">Typedef Documentation</h2>
+<a id="ae056c270d122162bdbdc2bce297e693c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae056c270d122162bdbdc2bce297e693c">&#9670;&nbsp;</a></span>t_block_touch</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef uint32_t <a class="el" href="namespace_s_v_f_s.html#ae056c270d122162bdbdc2bce297e693c">SVFS::t_block_touch</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Counter type that increments on every data 'touch' </p>
+
+<p class="definition">Definition at line <a class="el" href="svf_8h_source.html#l00253">253</a> of file <a class="el" href="svf_8h_source.html">svf.h</a>.</p>
+
+</div>
+</div>
+<a id="a769b7b98acc703bfb660d56dd964fdce"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a769b7b98acc703bfb660d56dd964fdce">&#9670;&nbsp;</a></span>t_block_touches</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef std::map&lt;<a class="el" href="namespace_s_v_f_s.html#ae056c270d122162bdbdc2bce297e693c">t_block_touch</a>, <a class="el" href="namespace_s_v_f_s.html#ac5f0e5533875bd97b8497f6cfbbb0c31">t_fpos</a>&gt; <a class="el" href="namespace_s_v_f_s.html#a769b7b98acc703bfb660d56dd964fdce">SVFS::t_block_touches</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Map of block touch (smallest is younger) to file position block. </p>
+
+<p class="definition">Definition at line <a class="el" href="svf_8h_source.html#l00255">255</a> of file <a class="el" href="svf_8h_source.html">svf.h</a>.</p>
+
+</div>
+</div>
 <a id="ac5f0e5533875bd97b8497f6cfbbb0c31"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ac5f0e5533875bd97b8497f6cfbbb0c31">&#9670;&nbsp;</a></span>t_fpos</h2>
 
@@ -208,7 +246,7 @@ Variables</h2></td></tr>
 
 <p>Used to overwrite the memory before discarding it (if required). </p>
 
-<p class="definition">Definition at line <a class="el" href="svf_8cpp_source.html#l00042">42</a> of file <a class="el" href="svf_8cpp_source.html">svf.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="svf_8cpp_source.html#l00043">43</a> of file <a class="el" href="svf_8cpp_source.html">svf.cpp</a>.</p>
 
 </div>
 </div>
