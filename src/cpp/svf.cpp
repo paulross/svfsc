@@ -819,11 +819,9 @@ namespace SVFS {
      * @param fpos File position of the start of the block.
      * @return Size of the block that was removed.
      */
-    size_t SparseVirtualFile::erase(t_fpos fpos) {
+    size_t SparseVirtualFile::_erase_no_lock(t_fpos fpos) {
         SVF_ASSERT(integrity() == ERROR_NONE);
-#ifdef SVF_THREAD_SAFE
-        std::lock_guard<std::mutex> mutex(m_mutex);
-#endif
+
         auto iter = m_svf.find(fpos);
         if (iter == m_svf.end()) {
             std::ostringstream os;
@@ -835,6 +833,22 @@ namespace SVFS {
         m_bytes_total -= ret;
         m_svf.erase(iter);
         return ret;
+    }
+
+    /**
+     * @brief Remove a particular block.
+     *
+     * This will raise an ExceptionSparseVirtualFileErase if the file position is not exactly at the start of a block.
+     *
+     * @param fpos File position of the start of the block.
+     * @return Size of the block that was removed.
+     */
+    size_t SparseVirtualFile::erase(t_fpos fpos) {
+        SVF_ASSERT(integrity() == ERROR_NONE);
+#ifdef SVF_THREAD_SAFE
+        std::lock_guard<std::mutex> mutex(m_mutex);
+#endif
+        return _erase_no_lock(fpos);
     }
 
     /**
@@ -911,11 +925,8 @@ namespace SVFS {
      *
      * @return A map std::map<t_block_touch, t_fpos>.
      */
-    [[nodiscard]] t_block_touches SparseVirtualFile::block_touches() const noexcept {
+    [[nodiscard]] t_block_touches SparseVirtualFile::_block_touches_no_lock() const noexcept {
         SVF_ASSERT(integrity() == ERROR_NONE);
-#ifdef SVF_THREAD_SAFE
-        std::lock_guard<std::mutex> mutex(m_mutex);
-#endif
         t_block_touches ret;
         for (const auto &iter: m_svf) {
             // The block_touch should not be in the return value, yet.
@@ -926,25 +937,42 @@ namespace SVFS {
     }
 
     /**
-     * Implements a simple punting strategy based a Last Recently Used blocks.
-     * This brings the cache size to < cache_size_upper_bound
-     * @param cache_size_upper_bound The upper bound of the final cache size.
+     * @brief Returns a \c std::map of latest touch value key and file position value.
+     *
+     * Callers can use this to make informed decisions about punting older blocks.
+     *
+     * @return A map std::map<t_block_touch, t_fpos>.
      */
-    void SparseVirtualFile::lru_punt(size_t cache_size_upper_bound) {
+    [[nodiscard]] t_block_touches SparseVirtualFile::block_touches() const noexcept {
         SVF_ASSERT(integrity() == ERROR_NONE);
 #ifdef SVF_THREAD_SAFE
         std::lock_guard<std::mutex> mutex(m_mutex);
 #endif
-        if (num_blocks() > 1 and num_bytes() >= cache_size_upper_bound) {
-            auto touch_fpos_map = block_touches();
+        return _block_touches_no_lock();
+    }
+
+    /**
+     * Implements a simple punting strategy based a Last Recently Used blocks.
+     * This brings the cache size to < cache_size_upper_bound
+     * @param cache_size_upper_bound The upper bound of the final cache size.
+     */
+    size_t SparseVirtualFile::lru_punt(size_t cache_size_upper_bound) {
+        SVF_ASSERT(integrity() == ERROR_NONE);
+#ifdef SVF_THREAD_SAFE
+        std::lock_guard<std::mutex> mutex(m_mutex);
+#endif
+        size_t ret = 0;
+        if (m_svf.size() > 1 and m_bytes_total >= cache_size_upper_bound) {
+            auto touch_fpos_map = _block_touches_no_lock();
             for (const auto &iter: touch_fpos_map) {
-                if (num_blocks() > 1 and num_bytes() >= cache_size_upper_bound) {
-                    erase(iter.second);
+                if (m_svf.size() > 1 and m_bytes_total >= cache_size_upper_bound) {
+                    ret += _erase_no_lock(iter.second);
                 } else {
                     break;
                 }
             }
         }
+        return ret;
     }
 
     /**

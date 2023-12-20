@@ -392,7 +392,7 @@ namespace SVFS {
         /// Return the latest value of the monotonically increasing block_touch value.
         [[nodiscard]] t_block_touch block_touch() const noexcept { return m_block_touch; }
         [[nodiscard]] t_block_touches block_touches() const noexcept;
-        void lru_punt(size_t cache_size_upper_bound);
+        size_t lru_punt(size_t cache_size_upper_bound);
 
         /// Eliminate copying.
         SparseVirtualFile(const SparseVirtualFile &rhs) = delete;
@@ -478,6 +478,9 @@ namespace SVFS {
 
         [[nodiscard]] static t_seek_reads
         _minimise_seek_reads(const t_seek_reads &seek_reads, size_t greedy_length) noexcept;
+
+        [[nodiscard]] size_t _erase_no_lock(t_fpos fpos);
+        [[nodiscard]] t_block_touches _block_touches_no_lock() const noexcept;
 
         /** @brief Check result of internal integrity. */
         enum ERROR_CONDITION {

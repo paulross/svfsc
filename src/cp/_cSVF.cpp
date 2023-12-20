@@ -707,12 +707,12 @@ cp_SparseVirtualFile_block_touches(cp_SparseVirtualFile *self) {
             goto except;
         }
         for (const auto &iter: svf_block_touches) {
-            PyObject *key = PyLong_FromLong(iter.first);
+            PyObject * key = PyLong_FromLong(iter.first);
             if (!key) {
                 PyErr_Format(PyExc_MemoryError, "%s: Can not create key", __FUNCTION__);
                 goto except;
             }
-            PyObject *val = PyLong_FromLong(iter.second);
+            PyObject * val = PyLong_FromLong(iter.second);
             if (!val) {
                 PyErr_Format(PyExc_MemoryError, "%s: Can not create value", __FUNCTION__);
                 goto except;
@@ -741,7 +741,55 @@ cp_SparseVirtualFile_block_touches(cp_SparseVirtualFile *self) {
     return ret;
 }
 
+static const char *cp_SparseVirtualFile_lru_punt_docstring = (
+        "Reduces the size of the cache to < the given size by removing older blocks, at least one block will be left."
+        " There are limitations to this tactic, see the documentation in Technical Notes -> Cache Punting."
+        "\n\nSignature: ``lru_punt(int) -> int:``"
+);
+
+/**
+ * See cp_SparseVirtualFile_lru_punt_docstring
+ *
+ * @param self The cp_SparseVirtualFile
+ * @param args The upper bound of the number of bytes held by the cache.
+ * @param kwargs "cache_size_upper_bound".
+ * @return Number of bytes removed.
+ */
+static PyObject *
+cp_SparseVirtualFile_lru_punt(cp_SparseVirtualFile *self, PyObject *args, PyObject *kwargs) {
+    ASSERT_FUNCTION_ENTRY_SVF(pSvf);
+
+    PyObject * ret = NULL; // Long
+    size_t cache_size_upper_bound;
+    static const char *kwlist[] = {"cache_size_upper_bound", NULL};
+    AcquireLockSVF _lock(self);
+
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "K", (char **) kwlist, &cache_size_upper_bound)) {
+        goto except;
+    }
+    try {
+        ret = Py_BuildValue("K", self->pSvf->lru_punt(cache_size_upper_bound));
+        if (!ret) {
+            PyErr_Format(PyExc_MemoryError, "%s: Can not create long", __FUNCTION__);
+            goto except;
+        }
+    } catch (const std::exception &err) {
+        PyErr_Format(PyExc_RuntimeError, "%s: FATAL caught std::exception %s", __FUNCTION__, err.what());
+        goto except;
+    }
+    assert(!PyErr_Occurred());
+    assert(ret);
+    goto finally;
+    except:
+    assert(PyErr_Occurred());
+    Py_XDECREF(ret);
+    ret = NULL;
+    finally:
+    return ret;
+}
+
 // This macro is for functions that return a size_t type such as count_write, count_read, bytes_write, bytes_read.
+// Perhaps ret = Py_BuildValue("K", self->pSvf->method_name());
 #define SVFS_SVF_METHOD_SIZE_T_WRAPPER(method_name) static PyObject * \
 cp_SparseVirtualFile_##method_name(cp_SparseVirtualFile *self) { \
     ASSERT_FUNCTION_ENTRY_SVF(pSvf); \
@@ -1221,12 +1269,18 @@ static PyMethodDef cp_SparseVirtualFile_methods[] = {
                 cp_SparseVirtualFile_blocks_docstring
         },
         {
-                "block_touch",         (PyCFunction) cp_SparseVirtualFile_block_touch,      METH_NOARGS,
+                "block_touch",           (PyCFunction) cp_SparseVirtualFile_block_touch,        METH_NOARGS,
                 cp_SparseVirtualFile_block_touch_docstring
         },
         {
                 "block_touches",         (PyCFunction) cp_SparseVirtualFile_block_touches,      METH_NOARGS,
                 cp_SparseVirtualFile_block_touches_docstring
+        },
+        {
+                "lru_punt",              (PyCFunction) cp_SparseVirtualFile_lru_punt,
+                                                                                                METH_VARARGS |
+                                                                                                METH_KEYWORDS,
+                        cp_SparseVirtualFile_lru_punt_docstring
         },
         {
                 "file_mod_time_matches", (PyCFunction) cp_SparseVirtualFile_file_mod_time_matches,

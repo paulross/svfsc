@@ -1519,7 +1519,6 @@ namespace SVFS {
             return count;
         }
 
-        // Write two blocks then coalesce them with another and check the block_touch
         TestCount test_lru_block_punting_a(t_test_results &results) {
             std::string test_name(__FUNCTION__);
             int result = 0; // Success
@@ -1548,7 +1547,7 @@ namespace SVFS {
             result |= svf.num_bytes() < cache_upper_bound;
             // Is this clearer?
             result |= svf.num_bytes() >= cache_upper_bound ? 0 : 1 << 2;
-
+            // Punt blocks.
             if (svf.num_blocks() > 1 && svf.num_bytes() >= cache_upper_bound) {
                 auto touch_fpos_map = svf.block_touches();
                 for (const auto &iter: touch_fpos_map) {
@@ -1562,6 +1561,48 @@ namespace SVFS {
             result |= svf.num_bytes() >= cache_upper_bound;
             // Is this clearer?
             result |= svf.num_bytes() < cache_upper_bound ? 0 : 1 << 3;;
+
+            std::chrono::duration<double> time_exec = std::chrono::high_resolution_clock::now() - time_start;
+            TestResult test_result = TestResult(__PRETTY_FUNCTION__, test_name, result, "", time_exec.count(),
+                                                svf.num_bytes());
+            results.push_back(test_result);
+            count.add_result(test_result.result());
+            return count;
+        }
+
+        TestCount test_lru_block_punting_b(t_test_results &results) {
+            std::string test_name(__FUNCTION__);
+            int result = 0; // Success
+            TestCount count;
+            SparseVirtualFile svf("", 0.0);
+            // Populate the SVF.
+            size_t block_size = 128;
+            size_t block_count = 256;
+            t_fpos file_positon = 0;
+            for (size_t i = 0; i < block_count; ++i) {
+                svf.write(file_positon, test_data_bytes_512, block_size);
+                file_positon += block_size;
+                // + 1 so not coalesced.
+                file_positon += 1;
+            }
+            // Sanity check
+            // Is this clearer?
+            int error_bit = 0;
+            result |= svf.num_blocks() == block_count ? 0 : 1 << error_bit++;
+            result |= svf.num_bytes() == (block_count * block_size) ? 0 : 1 << error_bit++;
+
+            auto time_start = std::chrono::high_resolution_clock::now();
+
+            size_t cache_upper_bound = 1024;
+            // Is this clearer?
+            result |= svf.num_bytes() >= cache_upper_bound ? 0 : 1 << error_bit++;
+            // Punt blocks.
+            size_t punted = svf.lru_punt(cache_upper_bound);
+//            fprintf(stdout, "XXX punted %zu\n", punted); // 31872
+            result |= punted == (block_size * block_count - 896) ? 0 : 1 << error_bit++;
+
+            // Is this clearer?
+            result |= svf.num_bytes() < cache_upper_bound ? 0 : 1 << error_bit++;
 
             std::chrono::duration<double> time_exec = std::chrono::high_resolution_clock::now() - time_start;
             TestResult test_result = TestResult(__PRETTY_FUNCTION__, test_name, result, "", time_exec.count(),
@@ -1625,6 +1666,7 @@ namespace SVFS {
 #if 1
             // Block punting example
             count += test_lru_block_punting_a(results);
+            count += test_lru_block_punting_b(results);
 #endif
             return count;
         }

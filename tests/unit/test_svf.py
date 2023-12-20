@@ -745,7 +745,7 @@ def test_SVF_ctor_config(args, kwargs, expected):
                     (
                             ('write', (0, b' '),),
                     ),
-                    {0: 0,},
+                    {0: 0, },
             ),
             (
                     (
@@ -813,7 +813,7 @@ def test_SVF_block_touches(actions, expected):
 
 
 def test_SVF_lru_punt_strategy():
-    """Example of a LRU cache punting strategy implemented by a caller"""
+    """Example of a LRU cache punting strategy implemented by a caller."""
     svf = svfsc.cSVF('id', 1.0)
     fpos = 0
     block_size = 128
@@ -834,3 +834,25 @@ def test_SVF_lru_punt_strategy():
             else:
                 break
     assert svf.num_bytes() < cache_upper_bound
+
+
+def test_SVF_lru_punt_strategy_builtin():
+    """Example of a LRU cache punting strategy as given."""
+    svf = svfsc.cSVF('id', 1.0)
+    fpos = 0
+    block_size = 128
+    block_count = 256
+    for i in range(block_count):
+        svf.write(fpos, b' ' * block_size)
+        fpos += block_size
+        fpos += 1
+    assert svf.num_bytes() == block_count * block_size
+    assert svf.num_blocks() == block_count
+    assert svf.block_touch() == block_count
+    cache_upper_bound = 1024
+    assert svf.num_bytes() >= cache_upper_bound
+    removed = svf.lru_punt(cache_upper_bound)
+    assert removed == (block_size * block_count - 896)
+    assert svf.num_bytes() < cache_upper_bound
+    assert svf.num_bytes() == 896
+    assert svf.num_blocks() == 896 // block_size
