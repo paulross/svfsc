@@ -72,7 +72,7 @@ test_requirements = [
 
 setup(
     name='svfsc',
-    version='0.1.2',
+    version='0.2.0',
     ext_modules=[svfs_extension, ],
     description="Sparse Virtual File System Cache implemented in C++.",
     long_description=readme + '\n\n' + history,
@@ -85,7 +85,7 @@ setup(
     keywords=['svf', 'svfs','svfsc',],
     # https://pypi.org/classifiers/
     classifiers=[
-        'Development Status :: 3 - Alpha',
+        'Development Status :: 4 - Beta',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: MIT License',
         'Natural Language :: English',

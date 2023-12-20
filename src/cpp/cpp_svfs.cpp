@@ -32,13 +32,13 @@
 #include "cpp_svfs.h"
 
 /** @brief The version as a string. */
-const char *SVFS_CPP_VERSION = "0.1.2";
+const char *SVFS_CPP_VERSION = "0.2.0";
 
 /** @brief Major version number. */
 int SVFS_CPP_VERSION_MAJOR = 0;
 /** @brief Minor version number. */
-int SVFS_CPP_VERSION_MINOR = 1;
+int SVFS_CPP_VERSION_MINOR = 2;
 /** @brief Patch version number. */
-int SVFS_CPP_VERSION_PATCH = 2;
+int SVFS_CPP_VERSION_PATCH = 0;
 /** @brief Version suffix string, could be "rc2" for example. */
 const char *SVFS_CPP_VERSION_SUFFIX = "";
