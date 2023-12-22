@@ -31,15 +31,26 @@ if DEBUG:
 else:
     extra_compile_args.extend(['-O2', '-UDEBUG', '-DNDEBUG'])
 
+SOURCES = [
+    'src/cp/cSVFS.cpp',
+    'src/cp/svfs_util.cpp',
+
+    'src/cpp/cpp_svfs.cpp',
+    'src/cpp/svf.cpp',
+    'src/cpp/svfs.cpp',
+]
+HEADERS = [
+    'src/cp/cSVFS.h',
+    'src/cp/svfs_util.h',
+
+    'src/cpp/cpp_svfs.h',
+    'src/cpp/svf.h',
+    'src/cpp/svfs.h',
+]
+
 svfs_extension = Extension(
     "svfsc",
-    sources=[
-        'src/cp/cSVFS.cpp',
-        'src/cp/svfs_util.cpp',
-        'src/cpp/cpp_svfs.cpp',
-        'src/cpp/svf.cpp',
-        'src/cpp/svfs.cpp',
-    ],
+    sources=SOURCES,
     include_dirs=[
         'src/cp',
         'src/cpp',
@@ -50,6 +61,10 @@ svfs_extension = Extension(
     extra_compile_args=extra_compile_args,
     extra_link_args=['-lstdc++'],
     language='c++11',
+    depends=SOURCES + HEADERS + [
+        'src/cp/_cSVF.cpp',
+        'src/cp/_cSVFS.cpp',
+    ],
 )
 
 with open('README.rst') as readme_file:
@@ -92,11 +107,11 @@ setup(
         'Operating System :: OS Independent',
         'Programming Language :: C++',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
         'Programming Language :: Python :: 3.9',
         'Programming Language :: Python :: 3.10',
         'Programming Language :: Python :: 3.11',
+        'Programming Language :: Python :: 3.12',
         'Topic :: Software Development :: Libraries',
     ],
     test_suite='tests',
