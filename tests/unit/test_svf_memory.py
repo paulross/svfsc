@@ -167,3 +167,34 @@ def test_memory_SVF_pickle_loads():
         f' ∆: {rss_diff:+,d}')
     # assert rss_diff < 300e6
     # assert 0
+
+
+# @pytest.mark.slow
+def test_memory_SVF_write_and_punt():
+    proc = psutil.Process()
+    # print()
+    ID = 'id'
+    rss_start_overall = proc.memory_info().rss
+    for repeat in range(SLOW_REPEAT):
+        # rss_start = proc.memory_info().rss
+        # print(f'RSS start: {proc.memory_info().rss:,d}', end='')
+        s = svfsc.cSVF(ID, 1.0)
+        for block_index in range(SLOW_BLOCKS):
+            # Not coalesced
+            s.write(block_index * 2 * SLOW_BLOCK_SIZE, b' ' * SLOW_BLOCK_SIZE)
+        # print(
+        #     f' SVF: size_of(): {s.size_of():,d}'
+        #     f' blocks {s.num_blocks()}'
+        #     f' ∆: {proc.memory_info().rss - rss_start:,d}'
+        # )
+        # Now punt
+        s.lru_punt(1024)
+    rss_diff = proc.memory_info().rss - rss_start_overall
+    print(
+        f'RSS start: {rss_start_overall:,d}'
+        f' end: {proc.memory_info().rss:,d}'
+        f' ∆: {rss_diff:+,d}')
+    assert rss_diff < 40e6
+    assert 0
+
+
