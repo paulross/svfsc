@@ -38,9 +38,49 @@
 #include "svf.h"
 #include "svfs_util.h"
 
-/* TODO: Implement the Buffer Protocol rather than returning a copy of the bytes? Look for PyBytes_FromStringAndSize().
+/** TODO: Implement the Buffer Protocol rather than returning a copy of the bytes? Look for PyBytes_FromStringAndSize().
  * */
 
+/**
+ *
+ * This macro is for functions that return a size_t type such as count_write, count_read, bytes_write, bytes_read.
+ *
+ * Usage:
+ *
+ * PyDoc_STRVAR(
+ * cp_SparseVirtualFile_count_write_docstring,
+        "count_write(self) -> int\n\n"
+        "Returns the count of write operations on the Sparse Virtual File."
+ * );
+ *
+ * Perhaps ret = Py_BuildValue("K", self->pSvf->method_name());
+ */
+#define SVFS_SVF_METHOD_SIZE_T_WRAPPER(method_name, docstring) \
+PyDoc_STRVAR(                                                  \
+    cp_SparseVirtualFile_##method_name##_docstring,            \
+    #method_name"(self) -> int\n\n"                                \
+    docstring                                                  \
+);\
+static PyObject * \
+cp_SparseVirtualFile_##method_name(cp_SparseVirtualFile *self) { \
+    ASSERT_FUNCTION_ENTRY_SVF(pSvf); \
+    PyObject *ret = NULL; \
+    try { \
+        ret = PyLong_FromLong(self->pSvf->method_name()); \
+    } catch (const std::exception &err) { \
+        PyErr_Format(PyExc_RuntimeError, "%s: FATAL caught std::exception %s", __FUNCTION__, err.what()); \
+        goto except; \
+    } \
+    assert(! PyErr_Occurred()); \
+    assert(ret); \
+    goto finally; \
+except: \
+    assert(PyErr_Occurred()); \
+    Py_XDECREF(ret); \
+    ret = NULL; \
+finally: \
+    return ret; \
+}
 
 /**
  * @brief Python wrapper around a C++ SparseVirtualFile.
@@ -229,9 +269,10 @@ cp_SparseVirtualFile_dealloc(cp_SparseVirtualFile *self) {
 // SVFS functions
 #pragma mark SVF functions
 
-static const char *cp_SparseVirtualFile_id_docstring = (
+PyDoc_STRVAR(
+        cp_SparseVirtualFile_id_docstring,
+        "id(self) -> str\n\n"
         "Returns the ID of the Sparse Virtual File."
-        "\n\nSignature: ``id() -> str:``"
 );
 
 static PyObject *
@@ -255,74 +296,41 @@ cp_SparseVirtualFile_id(cp_SparseVirtualFile *self) {
     return ret;
 }
 
-static const char *cp_SparseVirtualFile_size_of_docstring = (
+
+SVFS_SVF_METHOD_SIZE_T_WRAPPER(
+        size_of,
         "Returns the estimate of total memory usage of the Sparse Virtual File."
-        "\n\nSignature: ``size_of() -> int:``"
 );
 
-static PyObject *
-cp_SparseVirtualFile_size_of(cp_SparseVirtualFile *self) {
-    ASSERT_FUNCTION_ENTRY_SVF(pSvf);
-    try {
-        return PyLong_FromLong(self->pSvf->size_of());
-    } catch (const std::exception &err) {
-        PyErr_Format(PyExc_RuntimeError, "%s: FATAL caught std::exception %s", __FUNCTION__, err.what());
-        return NULL;
-    }
-}
 
-static const char *cp_SparseVirtualFile_num_bytes_docstring = (
+SVFS_SVF_METHOD_SIZE_T_WRAPPER(
+        num_bytes,
         "Returns the total number of file bytes held by the Sparse Virtual File."
-        "\n\nSignature: ``num_bytes() -> int:``"
 );
 
-static PyObject *
-cp_SparseVirtualFile_num_bytes(cp_SparseVirtualFile *self) {
-    ASSERT_FUNCTION_ENTRY_SVF(pSvf);
-    try {
-        return PyLong_FromLong(self->pSvf->num_bytes());
-    } catch (const std::exception &err) {
-        PyErr_Format(PyExc_RuntimeError, "%s: FATAL caught std::exception %s", __FUNCTION__, err.what());
-        return NULL;
-    }
-}
 
-static const char *cp_SparseVirtualFile_num_blocks_docstring = (
+SVFS_SVF_METHOD_SIZE_T_WRAPPER(
+        num_blocks,
         "Returns the total number of blocks of data held by the Sparse Virtual File System."
-        "\n\nSignature: ``num_blocks() -> int:``"
 );
 
-static PyObject *
-cp_SparseVirtualFile_num_blocks(cp_SparseVirtualFile *self) {
-    ASSERT_FUNCTION_ENTRY_SVF(pSvf);
-    try {
-        return PyLong_FromLong(self->pSvf->num_blocks());
-    } catch (const std::exception &err) {
-        PyErr_Format(PyExc_RuntimeError, "%s: FATAL caught std::exception %s", __FUNCTION__, err.what());
-        return NULL;
-    }
-}
 
-static const char *cp_SparseVirtualFile_last_file_position_docstring = (
-        "Returns the total number of blocks of data held by the Sparse Virtual File System."
-        "\n\nSignature: ``num_blocks() -> int:``"
+SVFS_SVF_METHOD_SIZE_T_WRAPPER(
+        last_file_position,
+        "Returns the file position immediately past the last block."
 );
 
-static PyObject *
-cp_SparseVirtualFile_last_file_position(cp_SparseVirtualFile *self) {
-    ASSERT_FUNCTION_ENTRY_SVF(pSvf);
-    try {
-        return PyLong_FromLong(self->pSvf->last_file_position());
-    } catch (const std::exception &err) {
-        PyErr_Format(PyExc_RuntimeError, "%s: FATAL caught std::exception %s", __FUNCTION__, err.what());
-        return NULL;
-    }
-}
-
-static const char *cp_SparseVirtualFile_has_data_docstring = (
-        "Checks if the Sparse Virtual File of the ID has data at the given ``file_position`` and ``length``."
-        " This returns ``True`` if the Sparse Virtual File has the data, ``False`` otherwise."
-        "\n\nSignature: ``has_data(file_position: int, length: int) -> bool:``"
+PyDoc_STRVAR(
+        cp_SparseVirtualFile_has_data_docstring,
+        "has_data(self, file_position: int, length: int) -> bool\n\n"
+        "Checks if the Sparse Virtual File of the ID has data at the given ``file_position`` and ``length``.\n\n"
+        "Parameters\n\n"
+        "file_position: int\n"
+        "    The absolute file position of the start of the data.\n\n"
+        "length: int\n"
+        "    The length of the required data in bytes.\n\n"
+        "Returns\n\n"
+        "bool: True if the SVF contains the data, False otherwise."
 );
 
 static PyObject *
@@ -360,13 +368,14 @@ cp_SparseVirtualFile_has_data(cp_SparseVirtualFile *self, PyObject *args, PyObje
     return ret;
 }
 
-static const char *cp_SparseVirtualFile_write_docstring = (
+PyDoc_STRVAR(
+        cp_SparseVirtualFile_write_docstring,
+        "write(self, file_position: int, data: bytes) -> None\n\n"
         "Writes the data to the Sparse Virtual File of the given ID at ``file_position`` and ``data`` as a ``bytes`` object."
         " This will raise an ``IOError`` if ``self.compare_for_diff`` is True and given data is different than"
         " that seen before and only new data up to this point will be written."
         " If the ``byte`` data is empty nothing will be done."
         " This will raise a RuntimeError if the data can not be written for any other reason"
-        "\n\nSignature: ``write(file_position: int, data: bytes) -> None:``"
 );
 
 static PyObject *
@@ -413,12 +422,13 @@ cp_SparseVirtualFile_write(cp_SparseVirtualFile *self, PyObject *args, PyObject 
     return ret;
 }
 
-static const char *cp_SparseVirtualFile_read_docstring = (
+PyDoc_STRVAR(
+        cp_SparseVirtualFile_read_docstring,
+        "read(self, file_position: int, length: int) -> bytes\n\n"
         "Read the data from the Sparse Virtual File at ``file_position`` and ``length`` returning a ``bytes`` object."
         " This takes a file position and a length."
         " This will raise an ``IOError`` if any data is not present"
         " This will raise a ``RuntimeError`` if the data can not be read for any other reason"
-        "\n\nSignature: ``read(file_position: int, length: int) -> bytes:``"
 );
 
 static PyObject *
@@ -481,10 +491,12 @@ cp_SparseVirtualFile_read(cp_SparseVirtualFile *self, PyObject *args, PyObject *
 }
 
 
-static const char *cp_SparseVirtualFile_erase_docstring = (
-        "Erase the data from the Sparse Virtual File at the given ``file_position`` which must be the beginning of a block."
-        " This will raise an ``IOError`` if a block is not present at that file position."
-        "\n\nSignature: ``erase(file_position: int) -> None:``"
+PyDoc_STRVAR(
+        cp_SparseVirtualFile_erase_docstring,
+        "erase(self, file_position: int) -> None\n\n"
+        "Erase the data from the Sparse Virtual File at the given ``file_position``"
+        " which must be the beginning of a block.\n"
+        "This will raise an ``IOError`` if a block is not present at that file position."
 );
 
 static PyObject *
@@ -519,12 +531,15 @@ cp_SparseVirtualFile_erase(cp_SparseVirtualFile *self, PyObject *args, PyObject 
     Py_RETURN_NONE;
 }
 
-static const char *cp_SparseVirtualFile_need_docstring = (
+PyDoc_STRVAR(
+        cp_SparseVirtualFile_need_docstring,
+        "need(self, file_position: int, length: int, greedy_length: int = 0) -> typing.Tuple[typing.Tuple[int, int], ...]\n\n"
         "Given a file_position and length this returns a ordered list ``[(file_position, length), ...]`` of seek/read"
         " instructions of data that is required to be written to the Sparse Virtual File so that a subsequent read will"
-        " succeed."
+        " succeed.\n"
         " If greedy_length is > 0 then, if possible, blocks will be coalesced to reduce the size of the return value."
-        "\n\n.. warning::\n"
+        "\n\n"
+        ".. warning::\n"
         "    The SVF has no knowledge of the the actual file size so when using a greedy length the need list might"
         " include positions beyond EOF.\n\n"
         "    For example a file 1024 bytes long and a greedy length of 256 then ``need(1000, 24, 256)`` will create"
@@ -538,7 +553,6 @@ static const char *cp_SparseVirtualFile_need_docstring = (
         "            # Somehow get data as a bytes object at read_fpos, read_length...\n"
         "            svf.write(read_fpos, data)\n"
         "    return svf.read(position, length):\n"
-        "\n\nSignature:\n\n``need(file_position: int, length: int, greedy_length: int = 0) -> typing.Tuple[typing.Tuple[int, int], ...]:``"
 );
 
 /**
@@ -619,10 +633,11 @@ bool file_mod_time_matches(const double &file_mod_time) const noexcept {
 }
 */
 
-static const char *cp_SparseVirtualFile_blocks_docstring = (
+PyDoc_STRVAR(
+        cp_SparseVirtualFile_blocks_docstring,
+        "blocks(self) -> typing.Tuple[typing.Tuple[int, int], ...]\n\n"
         "This returns a ordered tuple ``((file_position, length), ...)``"
         " of the shape of the blocks held by the SVF in file position order."
-        "\n\nSignature: ``blocks() -> typing.Tuple[typing.Tuple[int, int], ...]:``"
 );
 
 static PyObject *
@@ -669,27 +684,17 @@ cp_SparseVirtualFile_blocks(cp_SparseVirtualFile *self) {
     return ret;
 }
 
-static const char *cp_SparseVirtualFile_block_touch_docstring = (
+SVFS_SVF_METHOD_SIZE_T_WRAPPER(
+        block_touch,
         "Return the latest value of the monotonically increasing block_touch value."
-        "\n\nSignature: ``block_touche() -> int:``"
 );
 
-static PyObject *
-cp_SparseVirtualFile_block_touch(cp_SparseVirtualFile *self) {
-    ASSERT_FUNCTION_ENTRY_SVF(pSvf);
-    try {
-        return PyLong_FromLong(self->pSvf->block_touch());
-    } catch (const std::exception &err) {
-        PyErr_Format(PyExc_RuntimeError, "%s: FATAL caught std::exception %s", __FUNCTION__, err.what());
-        return NULL;
-    }
-}
-
-static const char *cp_SparseVirtualFile_block_touches_docstring = (
+PyDoc_STRVAR(
+        cp_SparseVirtualFile_block_touches_docstring,
+        "block_touches(self) -> typing.Dict[int, int]\n\n"
         "This returns a dict ``{touch_int: file_position, ...}``"
-        " of the touch integer of each block mapped to the file position."
-        " The caller can decide what older blocks can be used the erase(file_position)."
-        "\n\nSignature: ``block_touches() -> typing.Dict[int, int]:``"
+        " of the touch integer of each block mapped to the file position.\n"
+        "The caller can decide what older blocks can be used the erase(file_position)."
 );
 
 static PyObject *
@@ -741,10 +746,11 @@ cp_SparseVirtualFile_block_touches(cp_SparseVirtualFile *self) {
     return ret;
 }
 
-static const char *cp_SparseVirtualFile_lru_punt_docstring = (
-        "Reduces the size of the cache to < the given size by removing older blocks, at least one block will be left."
-        " There are limitations to this tactic, see the documentation in Technical Notes -> Cache Punting."
-        "\n\nSignature: ``lru_punt(int) -> int:``"
+PyDoc_STRVAR(
+        cp_SparseVirtualFile_lru_punt_docstring,
+        "lru_punt(self, cache_size_upper_bound: int) -> int\n\n"
+        "Reduces the size of the cache to < the given size by removing older blocks, at least one block will be left.\n"
+        "There are limitations to this tactic, see the documentation in Technical Notes -> Cache Punting."
 );
 
 /**
@@ -788,32 +794,10 @@ cp_SparseVirtualFile_lru_punt(cp_SparseVirtualFile *self, PyObject *args, PyObje
     return ret;
 }
 
-// This macro is for functions that return a size_t type such as count_write, count_read, bytes_write, bytes_read.
-// Perhaps ret = Py_BuildValue("K", self->pSvf->method_name());
-#define SVFS_SVF_METHOD_SIZE_T_WRAPPER(method_name) static PyObject * \
-cp_SparseVirtualFile_##method_name(cp_SparseVirtualFile *self) { \
-    ASSERT_FUNCTION_ENTRY_SVF(pSvf); \
-    PyObject *ret = NULL; \
-    try { \
-        ret = PyLong_FromLong(self->pSvf->method_name()); \
-    } catch (const std::exception &err) { \
-        PyErr_Format(PyExc_RuntimeError, "%s: FATAL caught std::exception %s", __FUNCTION__, err.what()); \
-        goto except; \
-    } \
-    assert(! PyErr_Occurred()); \
-    assert(ret); \
-    goto finally; \
-except: \
-    assert(PyErr_Occurred()); \
-    Py_XDECREF(ret); \
-    ret = NULL; \
-finally: \
-    return ret; \
-}
-
-static const char *cp_SparseVirtualFile_file_mod_time_matches_docstring = (
+PyDoc_STRVAR(
+        cp_SparseVirtualFile_file_mod_time_matches_docstring,
+        "file_mod_time_matches(self, file_mod_time: float) -> bool\n\n"
         "Returns True if the file modification time of the Sparse Virtual File matches the given time as a float."
-        "\n\nSignature: ``file_mod_time_matches(file_mod_time: float) -> bool:``"
 );
 
 static PyObject *
@@ -864,9 +848,10 @@ std::chrono::time_point<std::chrono::system_clock> time_write() const noexcept {
 std::chrono::time_point<std::chrono::system_clock> time_read() const noexcept { return m_time_read; }
 */
 
-static const char *cp_SparseVirtualFile_file_mod_time_docstring = (
+PyDoc_STRVAR(
+        cp_SparseVirtualFile_file_mod_time_docstring,
+        "file_mod_time(self) -> float\n\n"
         "Returns the file modification time as a float in UNIX time of the Sparse Virtual File."
-        "\n\nSignature: ``file_mod_time() -> float:``"
 );
 
 static PyObject *
@@ -891,40 +876,33 @@ cp_SparseVirtualFile_file_mod_time(cp_SparseVirtualFile *self) {
     return ret;
 }
 
-static const char *cp_SparseVirtualFile_count_write_docstring = (
+SVFS_SVF_METHOD_SIZE_T_WRAPPER(
+        count_write,
         "Returns the count of write operations on the Sparse Virtual File."
-        "\n\nSignature: ``count_write() -> int:``"
 );
 
-SVFS_SVF_METHOD_SIZE_T_WRAPPER(count_write);
-
-static const char *cp_SparseVirtualFile_count_read_docstring = (
+SVFS_SVF_METHOD_SIZE_T_WRAPPER(
+        count_read,
         "Returns the count of read operations on the Sparse Virtual File."
-        "\n\nSignature: ``count_read() -> int:``"
 );
 
-SVFS_SVF_METHOD_SIZE_T_WRAPPER(count_read);
-
-static const char *cp_SparseVirtualFile_bytes_write_docstring = (
+SVFS_SVF_METHOD_SIZE_T_WRAPPER(
+        bytes_write,
         "Returns the count of the number of bytes writen to the Sparse Virtual File."
-        "\n\nSignature: ``bytes_write() -> int:``"
 );
 
-SVFS_SVF_METHOD_SIZE_T_WRAPPER(bytes_write);
-
-static const char *cp_SparseVirtualFile_bytes_read_docstring = (
+SVFS_SVF_METHOD_SIZE_T_WRAPPER(
+        bytes_read,
         "Returns the count of the number of bytes read from the Sparse Virtual File."
-        "\n\nSignature: ``bytes_read() -> int:``"
 );
-
-SVFS_SVF_METHOD_SIZE_T_WRAPPER(bytes_read);
 
 // NOTE: time_read and time_write functions are very similar.
 
-static const char *cp_SparseVirtualFile_time_write_docstring = (
+PyDoc_STRVAR(
+        cp_SparseVirtualFile_time_write_docstring,
+        "time_write(self) -> typing.Optional[datetime.datetime]\n\n"
         "Returns the timestamp of the last write to the Sparse Virtual File as a ``datetime.datetime``"
         " or ``None`` if no write has taken place."
-        "\n\nSignature: ``time_write() -> typing.Optional[datetime.datetime]:``"
 );
 //SVFS_SVF_METHOD_DATETIME_WRAPPER(time_write)
 
@@ -965,10 +943,11 @@ cp_SparseVirtualFile_time_write(cp_SparseVirtualFile *self) {
 }
 
 
-static const char *cp_SparseVirtualFile_time_read_docstring = (
+PyDoc_STRVAR(
+        cp_SparseVirtualFile_time_read_docstring,
+        "time_read(self) -> typing.Optional[datetime.datetime]\n\n"
         "Returns the timestamp of the last read from the Sparse Virtual File as a ``datetime.datetime``"
         " or ``None`` if no read has taken place."
-        "\n\nSignature: ``time_read() -> typing.Optional[datetime.datetime]:``"
 );
 //SVFS_SVF_METHOD_DATETIME_WRAPPER(time_read)
 
@@ -1009,9 +988,10 @@ cp_SparseVirtualFile_time_read(cp_SparseVirtualFile *self) {
     return ret;
 }
 
-static const char *cp_SparseVirtualFile_config_docstring = (
+PyDoc_STRVAR(
+        cp_SparseVirtualFile_config_docstring,
+        "config(self) -> typing.Dict[str, bool]\n\n"
         "Returns the SVF configuration as a dict."
-        "\n\nSignature: ``config() -> typing.Dict[str, bool]:``"
 );
 
 static PyObject *
@@ -1336,32 +1316,33 @@ static PyMethodDef cp_SparseVirtualFile_methods[] = {
 
 // clang-format off
 // @formatter:off
-static const char *svfs_cSVF_doc = PyDoc_STR(
-                                           "This class implements a Sparse Virtual File (SVF)."
-                                           " This is an in-memory file that has fragments of a real file."
-                                           " It has read/write operations and can describe what file fragments are needed, if any, before any read operation."
-                                           "\n\n"
-                                           "The constructor takes a string as an ID and optionally:\n"
-                                           " - A file modification time as a float (default 0.0)."
-                                           " This can be used for checking if the actual file might been changed which might invalidate the SVF.\n"
-                                           " - ``overwrite_on_exit``, a boolean that will overwrite the memory on destruction (default ``False``)."
-                                           " If ``True`` then ``clear()`` on a 1Mb SVF typically takes 35 µs, if ``False`` 1.5 µs.\n"
-                                           " - ``compare_for_diff``, a boolean that will check that overlapping writes match (default ``True``)."
-                                           " If ``True`` this adds about 25% time to an overlapping write but gives better chance of catching changes to the"
-                                           " original file.\n"
-                                           "\n\n"
-                                           "For example::"
-                                           "\n\n"
-                                           "       import svfsc\n"
-                                           "       \n"
-                                           "       svf = svfsc.cSVF('some ID')\n"
-                                           "       svf.write(12, b'ABCD')\n"
-                                           "       svf.read(13, 2)  # Returns b'BC'\n"
-                                           "       svf.need(10, 12)  # Returns ((10, 2), 16, 6)), the file positions and lengths the the SVF needs\n"
-                                           "       svf.read(1024, 18)  # SVF raises an error as it has no data here.\n"
-                                           "\n"
-                                           "Signature:\n\n``svfsc.cSVF(id: str, mod_time: float = 0.0, overwrite_on_exit: bool = False, compare_for_diff: bool = True)``"
-                                   );
+PyDoc_STRVAR(
+        svfs_cSVF_doc,
+        "This class implements a Sparse Virtual File (SVF)."
+        " This is an in-memory file that has fragments of a real file."
+        " It has read/write operations and can describe what file fragments are needed, if any, before any read operation."
+        "\n\n"
+        "The constructor takes a string as an ID and optionally:\n"
+        " - A file modification time as a float (default 0.0)."
+        " This can be used for checking if the actual file might been changed which might invalidate the SVF.\n"
+        " - ``overwrite_on_exit``, a boolean that will overwrite the memory on destruction (default ``False``)."
+        " If ``True`` then ``clear()`` on a 1Mb SVF typically takes 35 µs, if ``False`` 1.5 µs.\n"
+        " - ``compare_for_diff``, a boolean that will check that overlapping writes match (default ``True``)."
+        " If ``True`` this adds about 25% time to an overlapping write but gives better chance of catching changes to the"
+        " original file.\n"
+        "\n\n"
+        "For example::"
+        "\n\n"
+        "       import svfsc\n"
+        "       \n"
+        "       svf = svfsc.cSVF('some ID')\n"
+        "       svf.write(12, b'ABCD')\n"
+        "       svf.read(13, 2)  # Returns b'BC'\n"
+        "       svf.need(10, 12)  # Returns ((10, 2), 16, 6)), the file positions and lengths the the SVF needs\n"
+        "       svf.read(1024, 18)  # SVF raises an error as it has no data here.\n"
+        "\n"
+        "Signature:\n\n``svfsc.cSVF(id: str, mod_time: float = 0.0, overwrite_on_exit: bool = False, compare_for_diff: bool = True)``"
+);
 // @formatter:on
 // clang-format on
 

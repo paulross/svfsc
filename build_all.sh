@@ -117,6 +117,8 @@ create_documentation() {
   cd docs
   ./build_docs.sh
   cd ..
+  echo "---> Generating stub file:"
+  python stubgen_simple.py
 }
 
 report_all_versions_and_setups() {

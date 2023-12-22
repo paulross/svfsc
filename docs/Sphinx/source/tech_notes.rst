@@ -486,6 +486,94 @@ using the technique `described here <https://pythonextensionpatterns.readthedocs
     For example thread A could call ``need()`` on a SVF and then thread B calls, for example,
     ``write()``, ``erase()`` or ``clear()`` which might or would invalidate the ``need()`` information held by thread A.
 
+Thread Safety In C++
+--------------------
+
+If compiled with ``SVF_THREAD_SAFE`` then ``SVFS::SparseVirtualFile`` will have a mutex:
+
+.. code-block:: cpp
+
+    #ifdef SVF_THREAD_SAFE
+            /// Thread mutex. This adds about 5-10% execution time compared with a single threaded version.
+            mutable std::mutex m_mutex;
+    #endif
+
+The mutex is used at any relevant method with invoking this mutex in a RAII form:
+
+.. code-block:: cpp
+
+    #ifdef SVF_THREAD_SAFE
+            std::lock_guard<std::mutex> mutex(m_mutex);
+    #endif
+
+This only protects the internal data structures from modification for a *single* API call.
+It does not protect those structures from multiple, possibly interleaving, API calls.
+
+Thread Safety In Python
+-----------------------
+
+This lock is implemented in C++:
+
+.. code-block:: cpp
+
+    #ifdef PY_THREAD_SAFE
+
+    /**
+     * @brief A RAII wrapper around the PyThread_type_lock for the CPython SVF.
+     *
+     * See https://pythonextensionpatterns.readthedocs.io/en/latest/thread_safety.html
+     * */
+    class AcquireLockSVF {
+    public:
+        /**
+         * Acquire the lock on the Python cp_SparseVirtualFile
+         *
+         * @param pSVF The Python cp_SparseVirtualFile.
+         */
+        explicit AcquireLockSVF(cp_SparseVirtualFile *pSVF) : _pSVF(pSVF) {
+            assert(_pSVF);
+            assert(_pSVF->lock);
+            if (!PyThread_acquire_lock(_pSVF->lock, NOWAIT_LOCK)) {
+                Py_BEGIN_ALLOW_THREADS
+                    PyThread_acquire_lock(_pSVF->lock, WAIT_LOCK);
+                Py_END_ALLOW_THREADS
+            }
+        }
+
+        /**
+         * Release the lock on the Python cp_SparseVirtualFile
+         *
+         * @param pSVF The Python cp_SparseVirtualFile.
+         */
+        ~AcquireLockSVF() {
+            assert(_pSVF);
+            assert(_pSVF->lock);
+            PyThread_release_lock(_pSVF->lock);
+        }
+
+    private:
+        cp_SparseVirtualFile *_pSVF;
+    };
+
+    #else
+    /** Make the class a NOP which should get optimised out. */
+    class AcquireLockSVF {
+    public:
+        AcquireLockSVF(cp_SparseVirtualFile *) {}
+    };
+    #endif
+
+And is used thus:
+
+.. code-block:: cpp
+
+    PyObject *some_function(cp_SparseVirtualFile *self) {
+        AcquireLockSVF _lock(self);
+
+        // Do stuff...
+
+    } // Lock is released.
+
 .. _cache_punting:
 
 Cache Punting

@@ -337,6 +337,31 @@ def test_SVFS_ctor_config(args, kwargs, expected):
     # assert 0
 
 
+def test_SVFS_lru_punt_strategy_builtin():
+    """Example of a LRU cache punting strategy as given."""
+    # svf = svfsc.cSVF('id', 1.0)
+    svfs = svfsc.cSVFS()
+    ID = 'abc'
+    svfs.insert(ID, 1.0)
+    fpos = 0
+    block_size = 128
+    block_count = 256
+    for i in range(block_count):
+        svfs.write(ID, fpos, b' ' * block_size)
+        fpos += block_size
+        fpos += 1
+    assert svfs.num_bytes(ID) == block_count * block_size
+    assert svfs.num_blocks(ID) == block_count
+    assert len(svfs.block_touches(ID)) == block_count
+    cache_upper_bound = 1024
+    assert svfs.num_bytes(ID) >= cache_upper_bound
+    removed = svfs.lru_punt(ID, cache_upper_bound)
+    assert removed == (block_size * block_count - 896)
+    assert svfs.num_bytes(ID) < cache_upper_bound
+    assert svfs.num_bytes(ID) == 896
+    assert svfs.num_blocks(ID) == 896 // block_size
+
+
 def main():
     # test_simulate_write_coalesced(1)
     # test_simulate_write_coalesced(2)
