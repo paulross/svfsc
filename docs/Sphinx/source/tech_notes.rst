@@ -1,3 +1,4 @@
+.. _tech_notes:
 
 Technical Notes
 ################
@@ -471,6 +472,8 @@ For example, exploring the simulator with a ``greedy_length`` of 64 KB:
              65536     3196.0  1051080       73  99.993%      4208118      4784128     113.688%    4784570     +442       100.009%
     Execution time:      6.636 (s)
 
+.. _tech_notes-thread_safety:
+
 Thread Safety
 =============
 
@@ -622,7 +625,7 @@ And is used thus:
 
 A similar lock is used for the ``SVFS`` data structure, the lock class is ``AcquireLockSVFS``.
 
-.. _cache_punting:
+.. _tech_notes-cache_punting:
 
 Cache Punting
 =============

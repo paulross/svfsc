@@ -50,6 +50,15 @@ Or for development, change the last line to:
 
     $ python setup.py develop
 
+Dependencies
+^^^^^^^^^^^^
+
+- ``psutil`` for memory monitoring.
+- ``pytest`` and ancillary libraries for testing.
+- ``sphinx`` for documentation.
+
+See ``requirements.txt`` for the specific dependencies.
+
 Building for C++
 ----------------
 
@@ -66,6 +75,12 @@ Typically a release build is done with:
 
 The executable is in ``cmake-build-release/cppSVF``.
 Executing that will run all the C++ tests, the exit code will be zero on success, non-zero if any test fails.
+
+Dependencies
+^^^^^^^^^^^^
+
+- stdlib
+- Python
 
 Incorporating SVF Into Your C++ Project
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

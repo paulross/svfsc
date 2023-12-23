@@ -25,15 +25,18 @@ since there are then very thorough internal integrity checks being run):
 
     8<---- snip ---->8
 
-    TestCount SVFS::_test_perf_write_sim_index_svfs(size_t, size_t, t_test_results &)pass           44000        2.594098          61.821            16.2 Sim SVFS: vr=1000 lr=10
-    TestCount SVFS::_test_perf_write_sim_index_svfs(size_t, size_t, t_test_results &)pass          440000       31.918755          76.066            13.1 Sim SVFS: vr=10000 lr=10
-    TestCount SVFS::_test_perf_write_sim_index_svfs(size_t, size_t, t_test_results &)pass         1048564       76.019625          76.020            13.2 Sim SVFS: vr=23831 lr=10
-    TestCount SVFS::_test_perf_write_sim_index_svfs(size_t, size_t, t_test_results &)pass         4400000      354.623306          84.511            11.8 Sim SVFS: vr=100000 lr=10
-    Test results [143] Pass: 143 Fail: 0 - PASSED
-    main() execution time: 40.9194 (s)
+    TestCount SVFS::Test::_test_perf_write_sim_index_svfs(size_t, size_t, t_test_results &)pass           44000        7.146891         170.320             5.9 Sim SVFS: vr=1000 lr=10
+    TestCount SVFS::Test::_test_perf_write_sim_index_svfs(size_t, size_t, t_test_results &)pass          440000       27.612491          65.804            15.2 Sim SVFS: vr=10000 lr=10
+    TestCount SVFS::Test::_test_perf_write_sim_index_svfs(size_t, size_t, t_test_results &)pass         1048564       69.971528          69.972            14.3 Sim SVFS: vr=23831 lr=10
+    TestCount SVFS::Test::_test_perf_write_sim_index_svfs(size_t, size_t, t_test_results &)pass         4400000      322.433045          76.840            13.0 Sim SVFS: vr=100000 lr=10
+    int main()                                                                 pass               0    57168.005216           0.000             0.0 Hard coded test count to make sure some tests haven't been omitted. All tests
+    Test results [162] Pass: 162 Fail: 0 - PASSED
+    main() execution time: 57.168 (s)
     Bye bye!
 
     Process finished with exit code 0
+
+This takes around a minute or so.
 
 Python
 --------------
@@ -70,11 +73,15 @@ Running the Python tests:
       OPS: Operations Per Second, computed as 1 / Mean
     ================================================================================= 148 passed, 64 skipped in 7.23s ==================================================================================
 
+This takes around eight seconds.
+
 To run the full test suite including memory tests and benchmarks:
 
 .. code-block:: console
 
     $ pytest tests/ --runslow --benchmark-sort=name
+
+This takes six minutes or so.
 
 Building and Testing Everything
 ----------------------------------
@@ -83,8 +90,9 @@ There is a shell script ``build_all.sh`` at the project root that:
 
 - Builds the C++ code from clean and runs all the C++ tests.
 - Creates a Python virtual environment for each Python version of interest.
-- For each Python version of interest builds the Extension and runs the Python tests, including with ``--runslow``.
+- For each Python version of interest builds the C/C++ Extension and runs the Python tests, including with ``--runslow``.
 - Builds the documentation using ``docs/build_docs.sh`` that creates both Doxygen and Sphinx (HTML, PDF) documentation.
+- Runs ``stubgen_simple.py`` that loads the ``svfs`` package and produces a stubs file in ``stubs/svfsc.pyi``.
 - Creates and checks the Python binary and source distributions.
 
-It takes about five minutes per Python version.
+It takes around ten minutes per Python version.

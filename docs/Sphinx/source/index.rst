@@ -17,6 +17,7 @@ Documentation for ``svfsc``
    testing
    future_work
    ref/index.rst
+   HISTORY
    license
 
 Indices and tables

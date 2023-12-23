@@ -21,7 +21,13 @@ CPP_EXECUTABLE="cppSVF"
 #printf "%-8s %8s %10s %10s %12s\n" "Ext" "Files" "Lines" "Words" "Bytes"
 
 build_cpp() {
+  echo "---> C++ clean debug"
+  cmake --build cmake-build-debug --target clean -- -j 6
+  echo "---> C++ build debug"
+  cmake --build cmake-build-debug --target ${CPP_EXECUTABLE} -- -j 6
+  echo "---> C++ clean release"
   cmake --build cmake-build-release --target clean -- -j 6
+  echo "---> C++ build release"
   cmake --build cmake-build-release --target ${CPP_EXECUTABLE} -- -j 6
 }
 

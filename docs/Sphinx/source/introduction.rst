@@ -20,12 +20,12 @@ available but *parts of it can be obtained* without reading the whole file.
 A Sparse Virtual File (SVF) is represented internally as a map of blocks of data with the key being their file
 offsets.
 Any write to an SVF will coalesce these blocks where possible.
-There is no cache punting strategy implemented so an SVF always accumulates data.
+A SVF has a simple, manual, cache punting strategy.
 A Sparse Virtual File System (SVFS) is an extension of this to provide a key/value store where the key is a file ID
 and the value a Sparse Virtual File.
 
 ``svfsc`` is written in C++ with a Python interface.
-It is thread safe in both domains.
+It is thread safe in both domains :ref:`with restrictions <tech_notes-thread_safety>`.
 
 A SVF might be used like this:
 

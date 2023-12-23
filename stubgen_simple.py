@@ -50,7 +50,7 @@ def write_members_recursively(obj, prefix: str, inc_docs: bool, file: typing.Tex
             file.write(f'{prefix}{name}: {type(member).__name__}\n')
 
 
-def main():
+def main() -> int:
     out_path = os.path.join(os.path.dirname(__file__), 'stubs', 'svfsc.pyi')
     print(f'Writing to {out_path}')
     with open(out_path, 'w') as file:
@@ -64,6 +64,7 @@ def main():
         file.write('\n')
         write_members_recursively(svfsc, '', False, file)
     print(f'DONE')
+    return 0
 
 
 if __name__ == '__main__':
