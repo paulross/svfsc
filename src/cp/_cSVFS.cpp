@@ -1002,6 +1002,61 @@ cp_SparseVirtualFileSystem_svf_lru_punt(cp_SparseVirtualFileSystem *self, PyObje
 }
 
 PyDoc_STRVAR(
+        cp_SparseVirtualFileSystem_svf_lru_punt_all_docstring,
+        "lru_punt_all(self, cache_size_upper_bound: int) -> int\n\n"
+        "Reduces the size of all IDs in the cache to < the given size by removing older blocks."
+        " At least one block will be left for each ID.\n"
+        "There are limitations to this tactic, see the documentation in Technical Notes -> Cache Punting."
+);
+
+/**
+ * See cp_SparseVirtualFile_lru_punt_docstring
+ *
+ * @param self The cp_SparseVirtualFile
+ * @param args The upper bound of the number of bytes held by the cache.
+ * @param kwargs "cache_size_upper_bound".
+ * @return Number of bytes removed.
+ */
+static PyObject *
+cp_SparseVirtualFileSystem_svf_lru_punt_all(cp_SparseVirtualFileSystem *self, PyObject *args, PyObject *kwargs) {
+    ASSERT_FUNCTION_ENTRY_SVFS(p_svfs);
+
+    PyObject * ret = NULL; // Long
+    size_t cache_size_upper_bound;
+    size_t total_removed = 0;
+    static const char *kwlist[] = {"cache_size_upper_bound", NULL};
+
+    AcquireLockSVFS _lock(self);
+
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "K", (char **) kwlist, &cache_size_upper_bound)) {
+        goto except;
+    }
+    try {
+        for (const auto &iter: self->p_svfs->keys()) {
+            SVFS::SparseVirtualFile &svf = self->p_svfs->at(iter);
+            total_removed += svf.lru_punt(cache_size_upper_bound);
+        }
+    } catch (const std::exception &err) {
+        PyErr_Format(PyExc_RuntimeError, "%s: FATAL caught std::exception %s", __FUNCTION__, err.what());
+        goto except;
+    }
+    ret = Py_BuildValue("K", total_removed);
+    if (!ret) {
+        PyErr_Format(PyExc_MemoryError, "%s: Can not create long", __FUNCTION__);
+        goto except;
+    }
+    assert(!PyErr_Occurred());
+    assert(ret);
+    goto finally;
+    except:
+    assert(PyErr_Occurred());
+    Py_XDECREF(ret);
+    ret = NULL;
+    finally:
+    return ret;
+}
+
+PyDoc_STRVAR(
         cp_SparseVirtualFileSystem_svf_file_mod_time_matches_docstring,
         "file_mod_time_matches(self, id: str) -> bool\n\n"
         "Returns True if the file modification time of the Sparse Virtual File identified by the given id the matches"
@@ -1468,6 +1523,11 @@ static PyMethodDef cp_SparseVirtualFileSystem_methods[] = {
                 "lru_punt",              (PyCFunction) cp_SparseVirtualFileSystem_svf_lru_punt,      METH_VARARGS |
                                                                                                      METH_KEYWORDS,
                         cp_SparseVirtualFileSystem_svf_lru_punt_docstring
+        },
+        {
+                "lru_punt_all",              (PyCFunction) cp_SparseVirtualFileSystem_svf_lru_punt_all,      METH_VARARGS |
+                                                                                                     METH_KEYWORDS,
+                        cp_SparseVirtualFileSystem_svf_lru_punt_all_docstring
         },
         {NULL, NULL, 0, NULL}  /* Sentinel */
 };

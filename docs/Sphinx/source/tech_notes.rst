@@ -494,8 +494,8 @@ If compiled with ``SVF_THREAD_SAFE`` then ``SVFS::SparseVirtualFile`` will have 
 .. code-block:: cpp
 
     #ifdef SVF_THREAD_SAFE
-            /// Thread mutex. This adds about 5-10% execution time compared with a single threaded version.
-            mutable std::mutex m_mutex;
+        /// Thread mutex. This adds about 5-10% execution time compared with a single threaded version.
+        mutable std::mutex m_mutex;
     #endif
 
 The mutex is used at any relevant method with invoking this mutex in a RAII form:
@@ -503,7 +503,7 @@ The mutex is used at any relevant method with invoking this mutex in a RAII form
 .. code-block:: cpp
 
     #ifdef SVF_THREAD_SAFE
-            std::lock_guard<std::mutex> mutex(m_mutex);
+        std::lock_guard<std::mutex> mutex(m_mutex);
     #endif
 
 This only protects the internal data structures from modification for a *single* API call.
@@ -512,7 +512,53 @@ It does not protect those structures from multiple, possibly interleaving, API c
 Thread Safety In Python
 -----------------------
 
-This lock is implemented in C++:
+The Python build is usually configured *without* ``SVF_THREAD_SAFE`` defined, instead it has its own locking mechanism.
+There are several steps to this and the example here is ``svfsc.cSVF``.
+
+Adding a Lock to the Python Object
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+A Python threadlock ``PyThread_type_lock`` is added to the type, conditional on Python being thread safe:
+
+.. code-block:: c
+
+    typedef struct {
+        PyObject_HEAD
+        SVFS::SparseVirtualFile *pSvf;
+    #ifdef PY_THREAD_SAFE
+        PyThread_type_lock lock;
+    #endif
+    } cp_SparseVirtualFile;
+
+This needs to be intialised in the ``__init__`` equivalent, with error checking:
+
+.. code-block:: c
+
+    #ifdef PY_THREAD_SAFE
+        self->lock = PyThread_allocate_lock();
+        if (self->lock == NULL) {
+            delete self->pSvf;
+            PyErr_SetString(PyExc_MemoryError, "Unable to allocate thread lock.");
+            return -2;
+        }
+    #endif
+
+This needs to be free'd on de-allocation, with error checking:
+
+.. code-block:: c
+
+    #ifdef PY_THREAD_SAFE
+        if (self->lock) {
+            PyThread_free_lock(self->lock);
+            self->lock = NULL;
+        }
+    #endif
+
+Using the Lock in a Function
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The use this lock a C++ class is used that takes a pointer to the SVF, this gains the lock on construction and frees the
+lock when it goes out of scope:
 
 .. code-block:: cpp
 
@@ -573,6 +619,8 @@ And is used thus:
         // Do stuff...
 
     } // Lock is released.
+
+A similar lock is used for the ``SVFS`` data structure, the lock class is ``AcquireLockSVFS``.
 
 .. _cache_punting:
 
