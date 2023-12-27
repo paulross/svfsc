@@ -11,3 +11,5 @@ include src/cpp/svfs.h
 
 # Other
 include HISTORY.rst
+include LICENSE
+include stubs/svfsc.pyi

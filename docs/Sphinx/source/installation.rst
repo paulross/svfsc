@@ -209,3 +209,40 @@ The PDF documentation, which does *not* include the Doxygen documentation, is he
 
 .. _Github repo: https://github.com/paulross/svfsc
 .. _tarball: https://github.com/paulross/svfsc/tarball/master
+
+
+Release Checklist
+-----------------
+
+On Your Development/Version Branch
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Update the version in these places:
+
+- *src/cpp/cpp_svfs.cpp*
+- *setup.cfg*
+- *setup.py*
+- *docs/SVFS.dox*
+- *docs/Sphinx/source/conf.py*
+- *HISTORY.rst* and include description of the release.
+
+And the version tests:
+
+- *src/cpp/tests/test_cpp_svfs.cpp*
+- *tests/unit/test_svf.py*
+
+Run all builds, tests and documentation:
+
+.. code-block:: console
+
+    $ ./build_all.sh
+
+Merge, Tag, Branch, Upload
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+- Merge with master.
+- Merge master to your development branch if the work is done on a release branch.
+- Tag with version number.
+- Create new branch "major.minor" if a major or minor release.
+- Push all of that.
+- Upload to PyPi.

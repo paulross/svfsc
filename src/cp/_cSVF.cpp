@@ -705,13 +705,12 @@ cp_SparseVirtualFile_block_touches(cp_SparseVirtualFile *self) {
     AcquireLockSVF _lock(self);
 
     try {
-        SVFS::t_block_touches svf_block_touches = self->pSvf->block_touches();
         ret = PyDict_New();
         if (!ret) {
             PyErr_Format(PyExc_MemoryError, "%s: Can not create dict for return", __FUNCTION__);
             goto except;
         }
-        for (const auto &iter: svf_block_touches) {
+        for (const auto &iter: self->pSvf->block_touches()) {
             PyObject * key = PyLong_FromLong(iter.first);
             if (!key) {
                 PyErr_Format(PyExc_MemoryError, "%s: Can not create key", __FUNCTION__);

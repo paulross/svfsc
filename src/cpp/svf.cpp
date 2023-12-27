@@ -953,7 +953,10 @@ namespace SVFS {
 
     /**
      * Implements a simple punting strategy based a Last Recently Used blocks.
-     * This brings the cache size to < cache_size_upper_bound
+     * This brings the cache size to < cache_size_upper_bound but leaving at least one block in place.
+     *
+     * This will block in a multi-threaded environment.
+     *
      * @param cache_size_upper_bound The upper bound of the final cache size.
      */
     size_t SparseVirtualFile::lru_punt(size_t cache_size_upper_bound) {
