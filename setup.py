@@ -87,7 +87,7 @@ test_requirements = [
 
 setup(
     name='svfsc',
-    version='0.2.1',
+    version='0.2.2',
     ext_modules=[svfs_extension, ],
     description="Sparse Virtual File System Cache implemented in C++.",
     long_description=readme + '\n\n' + history,

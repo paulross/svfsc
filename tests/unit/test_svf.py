@@ -53,7 +53,7 @@ def test_has_versions(attribute):
             ('SVFS_CPP_VERSION', '0.2.1'),
             ('SVFS_CPP_VERSION_MAJOR', 0),
             ('SVFS_CPP_VERSION_MINOR', 2),
-            ('SVFS_CPP_VERSION_PATCH', 1),
+            ('SVFS_CPP_VERSION_PATCH', 2),
             ('SVFS_CPP_VERSION_SUFFIX', ''),
     )
 )

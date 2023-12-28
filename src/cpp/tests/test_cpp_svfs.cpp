@@ -84,7 +84,7 @@ namespace SVFS {
             TestCount count;
 
             auto time_start = std::chrono::high_resolution_clock::now();
-            result |= SVFS_CPP_VERSION_PATCH != 1;
+            result |= SVFS_CPP_VERSION_PATCH != 2;
             std::chrono::duration<double> time_exec = std::chrono::high_resolution_clock::now() - time_start;
             TestResult test_result = TestResult(__PRETTY_FUNCTION__, test_name, result, "", time_exec.count(), 1);
             results.push_back(test_result);
