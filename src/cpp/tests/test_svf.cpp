@@ -1578,33 +1578,193 @@ namespace SVFS {
             // Populate the SVF.
             size_t block_size = 128;
             size_t block_count = 256;
-            t_fpos file_positon = 0;
+            t_fpos file_position = 0;
             for (size_t i = 0; i < block_count; ++i) {
-                svf.write(file_positon, test_data_bytes_512, block_size);
-                file_positon += block_size;
+                svf.write(file_position, test_data_bytes_512, block_size);
+                file_position += block_size;
                 // + 1 so not coalesced.
-                file_positon += 1;
+                file_position += 1;
             }
             // Sanity check
             // Is this clearer?
             int error_bit = 0;
-            result |= svf.num_blocks() == block_count ? 0 : 1 << error_bit++;
-            result |= svf.num_bytes() == (block_count * block_size) ? 0 : 1 << error_bit++;
+            result |= svf.num_blocks() == block_count ? 0 : 1 << error_bit;
+            ++error_bit;
+            result |= svf.num_bytes() == (block_count * block_size) ? 0 : 1 << error_bit;
+            ++error_bit;
 
             auto time_start = std::chrono::high_resolution_clock::now();
 
             size_t cache_upper_bound = 1024;
             // Is this clearer?
-            result |= svf.num_bytes() >= cache_upper_bound ? 0 : 1 << error_bit++;
+            result |= svf.num_bytes() >= cache_upper_bound ? 0 : 1 << error_bit;
+            ++error_bit;
             // Punt blocks.
             size_t punted = svf.lru_punt(cache_upper_bound);
 //            fprintf(stdout, "XXX punted %zu\n", punted); // 31872
-            result |= punted == (block_size * block_count - 896) ? 0 : 1 << error_bit++;
+            result |= punted == (block_size * block_count - 896) ? 0 : 1 << error_bit;
+            ++error_bit;
 
             // Is this clearer?
-            result |= svf.num_bytes() < cache_upper_bound ? 0 : 1 << error_bit++;
+            result |= svf.num_bytes() < cache_upper_bound ? 0 : 1 << error_bit;
+            ++error_bit;
 
             std::chrono::duration<double> time_exec = std::chrono::high_resolution_clock::now() - time_start;
+            TestResult test_result = TestResult(__PRETTY_FUNCTION__, test_name, result, "", time_exec.count(),
+                                                svf.num_bytes());
+            results.push_back(test_result);
+            count.add_result(test_result.result());
+            return count;
+        }
+
+        // Test the basic operation of needs_many()
+        TestCount test_needs_many_empty(t_test_results &results) {
+            std::string test_name(__FUNCTION__);
+            int result = 0; // Success
+            int error_bit = 0;
+            TestCount count;
+
+            // Empty SVF
+            SparseVirtualFile svf("", 0.0);
+            t_seek_reads seek_reads = {
+                    {0, 128},
+                    {256, 512},
+            };
+
+            auto time_start = std::chrono::high_resolution_clock::now();
+            t_seek_reads seek_reads_result = svf.need_many(seek_reads, 0);
+            result |= seek_reads_result.size() == 2 ? 0 : 1 << error_bit;
+            ++error_bit;
+            result |= seek_reads_result[0].first == 0 ? 0 : 1 << error_bit;
+            ++error_bit;
+            result |= seek_reads_result[0].second == 128 ? 0 : 1 << error_bit;
+            ++error_bit;
+            result |= seek_reads_result[1].first == 256 ? 0 : 1 << error_bit;
+            ++error_bit;
+            result |= seek_reads_result[1].second == 512 ? 0 : 1 << error_bit;
+            ++error_bit;
+            std::chrono::duration<double> time_exec = std::chrono::high_resolution_clock::now() - time_start;
+
+            TestResult test_result = TestResult(__PRETTY_FUNCTION__, test_name, result, "", time_exec.count(),
+                                                svf.num_bytes());
+            results.push_back(test_result);
+            count.add_result(test_result.result());
+            return count;
+        }
+
+        TestCount test_needs_many_empty_overlap(t_test_results &results) {
+            std::string test_name(__FUNCTION__);
+            int result = 0; // Success
+            int error_bit = 0;
+            TestCount count;
+
+            // Empty SVF
+            SparseVirtualFile svf("", 0.0);
+            t_seek_reads seek_reads = {
+                    {0, 128},
+                    {64, 512},
+            };
+
+            auto time_start = std::chrono::high_resolution_clock::now();
+            t_seek_reads seek_reads_result = svf.need_many(seek_reads, 0);
+            result |= seek_reads_result.size() == 1 ? 0 : 1 << error_bit++;
+            result |= seek_reads_result[0].first == 0 ? 0 : 1 << error_bit++;
+            result |= seek_reads_result[0].second == 64 + 512 ? 0 : 1 << error_bit++;
+            std::chrono::duration<double> time_exec = std::chrono::high_resolution_clock::now() - time_start;
+
+            TestResult test_result = TestResult(__PRETTY_FUNCTION__, test_name, result, "", time_exec.count(),
+                                                svf.num_bytes());
+            results.push_back(test_result);
+            count.add_result(test_result.result());
+            return count;
+        }
+
+        TestCount test_needs_many_empty_greedy_length(t_test_results &results) {
+            std::string test_name(__FUNCTION__);
+            int result = 0; // Success
+            int error_bit = 0;
+            TestCount count;
+
+            // Empty SVF
+            SparseVirtualFile svf("", 0.0);
+            t_seek_reads seek_reads = {
+                    {0, 128},
+                    {256, 512},
+            };
+
+            auto time_start = std::chrono::high_resolution_clock::now();
+            t_seek_reads seek_reads_result = svf.need_many(seek_reads, 256);
+            result |= seek_reads_result.size() == 1 ? 0 : 1 << error_bit++;
+            result |= seek_reads_result[0].first == 0 ? 0 : 1 << error_bit++;
+            result |= seek_reads_result[0].second == 256 + 512 ? 0 : 1 << error_bit++;
+            std::chrono::duration<double> time_exec = std::chrono::high_resolution_clock::now() - time_start;
+
+            TestResult test_result = TestResult(__PRETTY_FUNCTION__, test_name, result, "", time_exec.count(),
+                                                svf.num_bytes());
+            results.push_back(test_result);
+            count.add_result(test_result.result());
+            return count;
+        }
+
+        // Test need_many() when there is one existing block.
+        TestCount test_needs_many_one_block(t_test_results &results) {
+            std::string test_name(__FUNCTION__);
+            int result = 0; // Success
+            int error_bit = 0;
+            TestCount count;
+
+            SparseVirtualFile svf("", 0.0);
+            svf.write(64, test_data_bytes_512, 128);
+            t_seek_reads seek_reads = {
+                    {0, 128},
+                    {64, 256},
+            };
+
+            auto time_start = std::chrono::high_resolution_clock::now();
+            t_seek_reads seek_reads_result = svf.need_many(seek_reads, 0);
+            result |= seek_reads_result.size() == 2 ? 0 : 1 << error_bit;
+            ++error_bit;
+            result |= seek_reads_result[0].first == 0 ? 0 : 1 << error_bit;
+            ++error_bit;
+            result |= seek_reads_result[0].second == 64 ? 0 : 1 << error_bit;
+            ++error_bit;
+            result |= seek_reads_result[1].first == 64 + 128 ? 0 : 1 << error_bit;
+            ++error_bit;
+            result |= seek_reads_result[1].second == (64 + 256) - (64 + 128) ? 0 : 1 << error_bit;
+            ++error_bit;
+            std::chrono::duration<double> time_exec = std::chrono::high_resolution_clock::now() - time_start;
+
+            TestResult test_result = TestResult(__PRETTY_FUNCTION__, test_name, result, "", time_exec.count(),
+                                                svf.num_bytes());
+            results.push_back(test_result);
+            count.add_result(test_result.result());
+            return count;
+        }
+
+        // Test need_many() when there is one existing block and a greedy length.
+        TestCount test_needs_many_one_block_greedy(t_test_results &results) {
+            std::string test_name(__FUNCTION__);
+            int result = 0; // Success
+            int error_bit = 0;
+            TestCount count;
+
+            SparseVirtualFile svf("", 0.0);
+            svf.write(64, test_data_bytes_512, 128);
+            t_seek_reads seek_reads = {
+                    {0, 128},
+                    {64, 256},
+            };
+
+            auto time_start = std::chrono::high_resolution_clock::now();
+            t_seek_reads seek_reads_result = svf.need_many(seek_reads, 512);
+            result |= seek_reads_result.size() == 1 ? 0 : 1 << error_bit;
+            ++error_bit;
+            result |= seek_reads_result[0].first == 0 ? 0 : 1 << error_bit;
+            ++error_bit;
+            result |= seek_reads_result[0].second == 512 ? 0 : 1 << error_bit;
+            ++error_bit;
+            std::chrono::duration<double> time_exec = std::chrono::high_resolution_clock::now() - time_start;
+
             TestResult test_result = TestResult(__PRETTY_FUNCTION__, test_name, result, "", time_exec.count(),
                                                 svf.num_bytes());
             results.push_back(test_result);
@@ -1667,6 +1827,13 @@ namespace SVFS {
             // Block punting example
             count += test_lru_block_punting_a(results);
             count += test_lru_block_punting_b(results);
+#endif
+#if 1
+            count += test_needs_many_empty(results);
+            count += test_needs_many_empty_overlap(results);
+            count += test_needs_many_empty_greedy_length(results);
+            count += test_needs_many_one_block(results);
+            count += test_needs_many_one_block_greedy(results);
 #endif
             return count;
         }

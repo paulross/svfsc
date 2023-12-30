@@ -506,7 +506,8 @@ namespace SVFS {
         SVF_ASSERT(integrity() == ERROR_NONE);
 
         if (m_svf.empty()) {
-            throw Exceptions::ExceptionSparseVirtualFileRead("SparseVirtualFile::read(): Sparse virtual file is empty.");
+            throw Exceptions::ExceptionSparseVirtualFileRead(
+                    "SparseVirtualFile::read(): Sparse virtual file is empty.");
         }
         t_map::const_iterator iter = m_svf.lower_bound(fpos);
         if (iter == m_svf.begin() && iter->first != fpos) {
@@ -583,7 +584,11 @@ namespace SVFS {
 #ifdef SVF_THREAD_SAFE
         std::lock_guard<std::mutex> mutex(m_mutex);
 #endif
+        return _need_no_lock(fpos, len, greedy_length);
+    }
 
+    t_seek_reads SparseVirtualFile::_need_no_lock(t_fpos fpos, size_t len, size_t greedy_length) const noexcept {
+        SVF_ASSERT(integrity() == ERROR_NONE);
         if (m_svf.empty()) {
             return {{fpos, greedy_length > len ? greedy_length : len}};
         }
@@ -669,6 +674,25 @@ namespace SVFS {
         return ret;
     }
 
+    t_seek_reads SparseVirtualFile::need_many(t_seek_reads &seek_reads, size_t greedy_length) const noexcept {
+        SVF_ASSERT(integrity() == ERROR_NONE);
+#ifdef SVF_THREAD_SAFE
+        std::lock_guard<std::mutex> mutex(m_mutex);
+#endif
+
+        std::sort(seek_reads.begin(), seek_reads.end());
+        if (m_svf.empty()) {
+            return _minimise_seek_reads(seek_reads, greedy_length);
+        }
+        t_seek_reads ret;
+        for (const auto &iter_seek_read: seek_reads) {
+            for (const auto &iter_need: _need_no_lock(iter_seek_read.first, iter_seek_read.second, 0)) {
+                ret.emplace_back(iter_need);
+            }
+        }
+        return _minimise_seek_reads(ret, greedy_length);
+    }
+
     /**
      * @brief Returns the maximal length to read given a greedy length.
      *
@@ -683,13 +707,14 @@ namespace SVFS {
     /**
      * @brief May reduce the list of file position/lengths by coalescing them if possible up to a limit @c greedy_length.
      *
+     * NOTE: greedy_length of 0 is allowed, in that case this will coalesce overlapping blocks (if any).
+     *
      * @param seek_reads Vector of minimal seek/reads.
      * @param greedy_length Maximal length that allows coalescing.
      * @return New vector of maximal seek/reads.
      */
     t_seek_reads
     SparseVirtualFile::_minimise_seek_reads(const t_seek_reads &seek_reads, size_t greedy_length) noexcept {
-        assert (greedy_length != 0);
 
         t_seek_reads new_seek_reads;
         for (const t_seek_read &seek_read: seek_reads) {
@@ -746,7 +771,8 @@ namespace SVFS {
 #endif
 
         if (m_svf.empty()) {
-            throw Exceptions::ExceptionSparseVirtualFileRead("SparseVirtualFile::block_size(): Sparse virtual file is empty.");
+            throw Exceptions::ExceptionSparseVirtualFileRead(
+                    "SparseVirtualFile::block_size(): Sparse virtual file is empty.");
         }
         t_map::const_iterator iter = m_svf.find(fpos);
         if (iter == m_svf.end()) {

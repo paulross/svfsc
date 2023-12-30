@@ -321,6 +321,8 @@ namespace SVFS {
 
         /// Create a new fragmentation list of seek/read instructions.
         [[nodiscard]] t_seek_reads need(t_fpos fpos, size_t len, size_t greedy_length = 0) const noexcept;
+        /// Create a new fragmentation list of seek/read instructions from a list of seek read instructions.
+        [[nodiscard]] t_seek_reads need_many(t_seek_reads &seek_reads, size_t greedy_length = 0) const noexcept;
 
         /// Executes the data deletion strategy.
         void clear() noexcept;
@@ -479,6 +481,7 @@ namespace SVFS {
         [[nodiscard]] static t_seek_reads
         _minimise_seek_reads(const t_seek_reads &seek_reads, size_t greedy_length) noexcept;
 
+        [[nodiscard]] t_seek_reads _need_no_lock(t_fpos fpos, size_t len, size_t greedy_length = 0) const noexcept;
         [[nodiscard]] size_t _erase_no_lock(t_fpos fpos);
         [[nodiscard]] t_block_touches _block_touches_no_lock() const noexcept;
 
