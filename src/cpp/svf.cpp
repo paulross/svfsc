@@ -562,9 +562,12 @@ namespace SVFS {
      *
      * This takes an optional argument @c greedy_length that can be useful when dealing with remote files on high
      * latency networks.
-     * The @c greedy_length will determine the then minimum read length and this may well change a series of small
+     * The @c greedy_length will determine the minimum read length and this may well change a series of small
      * reads into a shorter series of larger reads.
      * This might well improve the read performance at the expense of cacheing extra unused data.
+     *
+     * @note The @c greedy_length might create read values that already exist in the SVF.
+     * If @c SFVS::tSparseVirtualFileConfig @c compare_for_diff is true then this will trigger a data comparison.
      *
      * @warning The SVF has no knowledge of the the actual file size so when using a greedy length the need list
      * might include positions beyond EOF.
@@ -674,6 +677,30 @@ namespace SVFS {
         return ret;
     }
 
+    /**
+     * @brief Given many [(file position, lengths), ...] what data do I need that I don't yet have?
+     *
+     * This takes an optional argument @c greedy_length that can be useful when dealing with remote files on high
+     * latency networks.
+     * The @c greedy_length will determine the minimum read length and this may well change a series of small
+     * reads into a shorter series of larger reads.
+     * This might well improve the read performance at the expense of cacheing extra unused data.
+     *
+     * @note The @c greedy_length might create read values that already exist in the SVF.
+     * If @c SFVS::tSparseVirtualFileConfig @c compare_for_diff is true then this will trigger a data comparison.
+     *
+     * @warning The SVF has no knowledge of the the actual file size so when using a greedy length the need list
+     * might include positions beyond EOF.
+     * For example a file 1024 bytes long and a greedy length of 256 then <tt>need(1000, 24, 256)</tt> will create
+     * a need list of [(1000, 256),].
+     * This should generate a <tt>write(1000, 24)</tt> not a <tt>write(1000, 256)</tt>.
+     * It is up to the caller to handle this, however, @c reads() in C/C++/Python will ignore read lengths past EOF
+     * so the caller does not have to do anything.
+     *
+     * @param seek_reads The vector of (file_position, length) objects. This will be sorted primarily by file position.
+     * @param greedy_length If greater than zero this makes greedy, fewer but larger, reads.
+     * @return A vector of pairs (file_position, length) that this SVF needs.
+     */
     t_seek_reads SparseVirtualFile::need_many(t_seek_reads &seek_reads, size_t greedy_length) const noexcept {
         SVF_ASSERT(integrity() == ERROR_NONE);
 #ifdef SVF_THREAD_SAFE
