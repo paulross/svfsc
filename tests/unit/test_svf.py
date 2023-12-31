@@ -438,6 +438,89 @@ def test_SVF_need_greedy(blocks, need_fpos, need_length, greedy_length, expected
     assert result == expected_need
 
 
+@pytest.mark.parametrize(
+    'blocks, seek_reads, expected_need',
+    (
+            (
+                    (),
+                    [(0, 6,), ],
+                    [(0, 6,), ],
+            ),
+            (
+                    ((4, 8,),),
+                    [(0, 16,), ],
+                    [(0, 4,), (12, 4), ],
+            ),
+    ),
+    ids=[
+        'Empty',
+        'One block',
+    ],
+)
+def test_SVF_need_many(blocks, seek_reads, expected_need):
+    s = svfsc.cSVF('id', 1.0)
+    for fpos, length in blocks:
+        s.write(fpos, b' ' * length)
+    result = s.need_many(seek_reads)
+    assert result == expected_need
+
+
+@pytest.mark.parametrize(
+    'blocks, seek_reads, greedy_length, expected_need',
+    (
+            (
+                    ((4, 8,),),
+                    [(0, 16,), ],
+                    256,
+                    [(0, 256,), ],
+            ),
+    ),
+    ids=[
+        'One block greedy=256',
+    ],
+)
+def test_SVF_need_many_greedy(blocks, seek_reads, greedy_length, expected_need):
+    s = svfsc.cSVF('id', 1.0)
+    for fpos, length in blocks:
+        s.write(fpos, b' ' * length)
+    result = s.need_many(seek_reads, greedy_length=greedy_length)
+    assert result == expected_need
+
+
+@pytest.mark.parametrize(
+    'blocks_need, expected_error',
+    (
+            (
+                    (),
+                    'cp_SparseVirtualFile_need_many#649: seek_reads is not a list.',
+            ),
+            (
+                    [1, ],
+                    'cp_SparseVirtualFile_need_many#654: seek_reads[0] is not a tuple.',
+            ),
+            (
+                    [(1, 2), 1, ],
+                    'cp_SparseVirtualFile_need_many#654: seek_reads[1] is not a tuple.',
+            ),
+            (
+                    [(1, 2, 3), ],
+                    'cp_SparseVirtualFile_need_many#661: seek_reads[0] length 3 is not a tuple of length 2.',
+            ),
+    ),
+    ids=[
+        'Not a list',
+        'list element[0] not a tuple',
+        'list element[1] not a tuple',
+        'list element[0] tuple length wrong',
+    ],
+)
+def test_SVF_need_many_raises(blocks_need, expected_error):
+    svf = svfsc.cSVF('id', 1.0)
+    with pytest.raises(TypeError) as err:
+        svf.need_many(blocks_need)
+    assert err.value.args[0] == expected_error
+
+
 def test_SVF_need_write_special():
     """Special case with error found in RaPiVot tiff_dump.py when using a SVF:
 
