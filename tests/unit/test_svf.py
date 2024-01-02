@@ -50,10 +50,10 @@ def test_has_versions(attribute):
 @pytest.mark.parametrize(
     'attribute, value',
     (
-            ('SVFS_CPP_VERSION', '0.2.1'),
+            ('SVFS_CPP_VERSION', '0.3.0'),
             ('SVFS_CPP_VERSION_MAJOR', 0),
-            ('SVFS_CPP_VERSION_MINOR', 2),
-            ('SVFS_CPP_VERSION_PATCH', 2),
+            ('SVFS_CPP_VERSION_MINOR', 3),
+            ('SVFS_CPP_VERSION_PATCH', 0),
             ('SVFS_CPP_VERSION_SUFFIX', ''),
     )
 )
