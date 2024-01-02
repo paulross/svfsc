@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.9.1"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>Sparse Virtual File System: /Users/paulross/CLionProjects/cppSVF/src/cp/_cSVFS.cpp File Reference</title>
+<title>Sparse Virtual File System: /Users/engun/CLionProjects/cppSVF/src/cp/_cSVFS.cpp File Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -158,6 +158,10 @@ Functions</h2></td></tr>
 <tr class="separator:afea5503a6850544fb8a3f276f5243a56"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a73af8558875acd41b71d68a8aadbe627"><td class="memItemLeft" align="right" valign="top">static PyObject *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="__c_s_v_f_s_8cpp.html#a73af8558875acd41b71d68a8aadbe627">cp_SparseVirtualFileSystem_svf_need</a> (<a class="el" href="structcp___sparse_virtual_file_system.html">cp_SparseVirtualFileSystem</a> *self, PyObject *args, PyObject *kwargs)</td></tr>
 <tr class="separator:a73af8558875acd41b71d68a8aadbe627"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa30742a7b888881833d015229f00097c"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="__c_s_v_f_s_8cpp.html#aa30742a7b888881833d015229f00097c">PyDoc_STRVAR</a> (cp_SparseVirtualFileSystem_svf_need_many_docstring, &quot;need_many(self, id: str, seek_reads: typing.List[typing.Tuple[int, int]], greedy_length: int = 0) -&gt; typing.Tuple[typing.Tuple[int, int], ...]\n\n&quot; &quot;Given a list of (file_position, length) this returns a ordered list ``[(file_position, length), ...]`` of seek/read&quot; &quot; instructions of data that is required to be written to the Sparse Virtual File so that a subsequent read will&quot; &quot; succeed.\n\n&quot; &quot;If greedy_length is &gt; 0 then, if possible, blocks will be coalesced to reduce the size of the return value.&quot; &quot;\n\n&quot; &quot;See also :py:meth:`svfsc.cSVFS.need`&quot;)</td></tr>
+<tr class="separator:aa30742a7b888881833d015229f00097c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af73e4cd10cb875539d4062778efafc76"><td class="memItemLeft" align="right" valign="top">static PyObject *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="__c_s_v_f_s_8cpp.html#af73e4cd10cb875539d4062778efafc76">cp_SparseVirtualFileSystem_svf_need_many</a> (<a class="el" href="structcp___sparse_virtual_file_system.html">cp_SparseVirtualFileSystem</a> *self, PyObject *args, PyObject *kwargs)</td></tr>
+<tr class="separator:af73e4cd10cb875539d4062778efafc76"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af4c02d1101c8e6bdf208d584e228f538"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="__c_s_v_f_s_8cpp.html#af4c02d1101c8e6bdf208d584e228f538">PyDoc_STRVAR</a> (cp_SparseVirtualFileSystem_svf_blocks_docstring, &quot;blocks(self, id: str) -&gt; typing.Tuple[typing.Tuple[int, int], ...]\n\n&quot; &quot;This returns a ordered tuple ((file_position, length), ...) of all the blocks held by the SVF identified&quot; &quot;by the given id.\n&quot; &quot;This will raise an ``IndexError`` if the Sparse Virtual File of that id does not exist.&quot;)</td></tr>
 <tr class="separator:af4c02d1101c8e6bdf208d584e228f538"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6f6071a1c35b829f3ad9d6949de86b58"><td class="memItemLeft" align="right" valign="top">static PyObject *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="__c_s_v_f_s_8cpp.html#a6f6071a1c35b829f3ad9d6949de86b58">cp_SparseVirtualFileSystem_svf_blocks</a> (<a class="el" href="structcp___sparse_virtual_file_system.html">cp_SparseVirtualFileSystem</a> *self, PyObject *args, PyObject *kwargs)</td></tr>
@@ -294,7 +298,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="__c_s_v_f_s_8cpp_source.html#l01196">1196</a> of file <a class="el" href="__c_s_v_f_s_8cpp_source.html">_cSVFS.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="__c_s_v_f_s_8cpp_source.html#l01237">1237</a> of file <a class="el" href="__c_s_v_f_s_8cpp_source.html">_cSVFS.cpp</a>.</p>
 
 </div>
 </div>
@@ -354,7 +358,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="__c_s_v_f_s_8cpp_source.html#l01359">1359</a> of file <a class="el" href="__c_s_v_f_s_8cpp_source.html">_cSVFS.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="__c_s_v_f_s_8cpp_source.html#l01400">1400</a> of file <a class="el" href="__c_s_v_f_s_8cpp_source.html">_cSVFS.cpp</a>.</p>
 
 </div>
 </div>
@@ -426,7 +430,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="__c_s_v_f_s_8cpp_source.html#l01135">1135</a> of file <a class="el" href="__c_s_v_f_s_8cpp_source.html">_cSVFS.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="__c_s_v_f_s_8cpp_source.html#l01176">1176</a> of file <a class="el" href="__c_s_v_f_s_8cpp_source.html">_cSVFS.cpp</a>.</p>
 
 </div>
 </div>
@@ -614,7 +618,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="__c_s_v_f_s_8cpp_source.html#l01377">1377</a> of file <a class="el" href="__c_s_v_f_s_8cpp_source.html">_cSVFS.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="__c_s_v_f_s_8cpp_source.html#l01418">1418</a> of file <a class="el" href="__c_s_v_f_s_8cpp_source.html">_cSVFS.cpp</a>.</p>
 
 </div>
 </div>
@@ -756,7 +760,7 @@ Variables</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Number of bytes removed. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="__c_s_v_f_s_8cpp_source.html#l00889">889</a> of file <a class="el" href="__c_s_v_f_s_8cpp_source.html">_cSVFS.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="__c_s_v_f_s_8cpp_source.html#l00930">930</a> of file <a class="el" href="__c_s_v_f_s_8cpp_source.html">_cSVFS.cpp</a>.</p>
 
 </div>
 </div>
@@ -800,7 +804,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="__c_s_v_f_s_8cpp_source.html#l00797">797</a> of file <a class="el" href="__c_s_v_f_s_8cpp_source.html">_cSVFS.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="__c_s_v_f_s_8cpp_source.html#l00838">838</a> of file <a class="el" href="__c_s_v_f_s_8cpp_source.html">_cSVFS.cpp</a>.</p>
 
 </div>
 </div>
@@ -888,7 +892,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="__c_s_v_f_s_8cpp_source.html#l01068">1068</a> of file <a class="el" href="__c_s_v_f_s_8cpp_source.html">_cSVFS.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="__c_s_v_f_s_8cpp_source.html#l01109">1109</a> of file <a class="el" href="__c_s_v_f_s_8cpp_source.html">_cSVFS.cpp</a>.</p>
 
 </div>
 </div>
@@ -986,7 +990,7 @@ Variables</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Number of bytes removed. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="__c_s_v_f_s_8cpp_source.html#l00962">962</a> of file <a class="el" href="__c_s_v_f_s_8cpp_source.html">_cSVFS.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="__c_s_v_f_s_8cpp_source.html#l01003">1003</a> of file <a class="el" href="__c_s_v_f_s_8cpp_source.html">_cSVFS.cpp</a>.</p>
 
 </div>
 </div>
@@ -1040,7 +1044,7 @@ Variables</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Number of bytes removed. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="__c_s_v_f_s_8cpp_source.html#l01021">1021</a> of file <a class="el" href="__c_s_v_f_s_8cpp_source.html">_cSVFS.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="__c_s_v_f_s_8cpp_source.html#l01062">1062</a> of file <a class="el" href="__c_s_v_f_s_8cpp_source.html">_cSVFS.cpp</a>.</p>
 
 </div>
 </div>
@@ -1085,6 +1089,50 @@ Variables</h2></td></tr>
 </div><div class="memdoc">
 
 <p class="definition">Definition at line <a class="el" href="__c_s_v_f_s_8cpp_source.html#l00710">710</a> of file <a class="el" href="__c_s_v_f_s_8cpp_source.html">_cSVFS.cpp</a>.</p>
+
+</div>
+</div>
+<a id="af73e4cd10cb875539d4062778efafc76"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af73e4cd10cb875539d4062778efafc76">&#9670;&nbsp;</a></span>cp_SparseVirtualFileSystem_svf_need_many()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static PyObject* cp_SparseVirtualFileSystem_svf_need_many </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structcp___sparse_virtual_file_system.html">cp_SparseVirtualFileSystem</a> *&#160;</td>
+          <td class="paramname"><em>self</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">PyObject *&#160;</td>
+          <td class="paramname"><em>args</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">PyObject *&#160;</td>
+          <td class="paramname"><em>kwargs</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="__c_s_v_f_s_8cpp_source.html#l00764">764</a> of file <a class="el" href="__c_s_v_f_s_8cpp_source.html">_cSVFS.cpp</a>.</p>
 
 </div>
 </div>
@@ -1172,7 +1220,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="__c_s_v_f_s_8cpp_source.html#l01302">1302</a> of file <a class="el" href="__c_s_v_f_s_8cpp_source.html">_cSVFS.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="__c_s_v_f_s_8cpp_source.html#l01343">1343</a> of file <a class="el" href="__c_s_v_f_s_8cpp_source.html">_cSVFS.cpp</a>.</p>
 
 </div>
 </div>
@@ -1216,7 +1264,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="__c_s_v_f_s_8cpp_source.html#l01241">1241</a> of file <a class="el" href="__c_s_v_f_s_8cpp_source.html">_cSVFS.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="__c_s_v_f_s_8cpp_source.html#l01282">1282</a> of file <a class="el" href="__c_s_v_f_s_8cpp_source.html">_cSVFS.cpp</a>.</p>
 
 </div>
 </div>
@@ -1349,7 +1397,7 @@ Variables</h2></td></tr>
 </div>
 </div>
 <a id="a6227bfb1e19d35f90f9f0a817694918f"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a6227bfb1e19d35f90f9f0a817694918f">&#9670;&nbsp;</a></span>PyDoc_STRVAR() <span class="overload">[1/22]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a6227bfb1e19d35f90f9f0a817694918f">&#9670;&nbsp;</a></span>PyDoc_STRVAR() <span class="overload">[1/23]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -1377,7 +1425,7 @@ Variables</h2></td></tr>
 </div>
 </div>
 <a id="ae15a5e629a531b3c7537fc4053ec4bd3"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ae15a5e629a531b3c7537fc4053ec4bd3">&#9670;&nbsp;</a></span>PyDoc_STRVAR() <span class="overload">[2/22]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#ae15a5e629a531b3c7537fc4053ec4bd3">&#9670;&nbsp;</a></span>PyDoc_STRVAR() <span class="overload">[2/23]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -1408,7 +1456,7 @@ Variables</h2></td></tr>
 </div>
 </div>
 <a id="afb4b348b2d23b680cc1376de10051665"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#afb4b348b2d23b680cc1376de10051665">&#9670;&nbsp;</a></span>PyDoc_STRVAR() <span class="overload">[3/22]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#afb4b348b2d23b680cc1376de10051665">&#9670;&nbsp;</a></span>PyDoc_STRVAR() <span class="overload">[3/23]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -1436,7 +1484,7 @@ Variables</h2></td></tr>
 </div>
 </div>
 <a id="a370da683d567130329b4796a51023e04"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a370da683d567130329b4796a51023e04">&#9670;&nbsp;</a></span>PyDoc_STRVAR() <span class="overload">[4/22]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a370da683d567130329b4796a51023e04">&#9670;&nbsp;</a></span>PyDoc_STRVAR() <span class="overload">[4/23]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -1464,7 +1512,7 @@ Variables</h2></td></tr>
 </div>
 </div>
 <a id="af25c00e43cba1c954994dc780d323720"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#af25c00e43cba1c954994dc780d323720">&#9670;&nbsp;</a></span>PyDoc_STRVAR() <span class="overload">[5/22]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#af25c00e43cba1c954994dc780d323720">&#9670;&nbsp;</a></span>PyDoc_STRVAR() <span class="overload">[5/23]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -1492,7 +1540,7 @@ Variables</h2></td></tr>
 </div>
 </div>
 <a id="a4e771053c9e5495b21e9b1156716bf4e"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a4e771053c9e5495b21e9b1156716bf4e">&#9670;&nbsp;</a></span>PyDoc_STRVAR() <span class="overload">[6/22]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a4e771053c9e5495b21e9b1156716bf4e">&#9670;&nbsp;</a></span>PyDoc_STRVAR() <span class="overload">[6/23]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -1520,7 +1568,7 @@ Variables</h2></td></tr>
 </div>
 </div>
 <a id="a6a0f5f963b4adce221e5550f86c74091"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a6a0f5f963b4adce221e5550f86c74091">&#9670;&nbsp;</a></span>PyDoc_STRVAR() <span class="overload">[7/22]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a6a0f5f963b4adce221e5550f86c74091">&#9670;&nbsp;</a></span>PyDoc_STRVAR() <span class="overload">[7/23]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -1548,7 +1596,7 @@ Variables</h2></td></tr>
 </div>
 </div>
 <a id="af4c02d1101c8e6bdf208d584e228f538"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#af4c02d1101c8e6bdf208d584e228f538">&#9670;&nbsp;</a></span>PyDoc_STRVAR() <span class="overload">[8/22]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#af4c02d1101c8e6bdf208d584e228f538">&#9670;&nbsp;</a></span>PyDoc_STRVAR() <span class="overload">[8/23]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -1587,7 +1635,7 @@ Variables</h2></td></tr>
 </div>
 </div>
 <a id="a6884218aa541be3f8c405d32b0737a39"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a6884218aa541be3f8c405d32b0737a39">&#9670;&nbsp;</a></span>PyDoc_STRVAR() <span class="overload">[9/22]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a6884218aa541be3f8c405d32b0737a39">&#9670;&nbsp;</a></span>PyDoc_STRVAR() <span class="overload">[9/23]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -1615,7 +1663,7 @@ Variables</h2></td></tr>
 </div>
 </div>
 <a id="acf95b8273df72893d204ce8ec7328672"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#acf95b8273df72893d204ce8ec7328672">&#9670;&nbsp;</a></span>PyDoc_STRVAR() <span class="overload">[10/22]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#acf95b8273df72893d204ce8ec7328672">&#9670;&nbsp;</a></span>PyDoc_STRVAR() <span class="overload">[10/23]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -1643,7 +1691,7 @@ Variables</h2></td></tr>
 </div>
 </div>
 <a id="abde88766688ae4ea1ce2470bccbef5fd"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#abde88766688ae4ea1ce2470bccbef5fd">&#9670;&nbsp;</a></span>PyDoc_STRVAR() <span class="overload">[11/22]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#abde88766688ae4ea1ce2470bccbef5fd">&#9670;&nbsp;</a></span>PyDoc_STRVAR() <span class="overload">[11/23]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -1683,7 +1731,7 @@ Variables</h2></td></tr>
 </div>
 </div>
 <a id="aa66c13f6f0e8ed4e099a0ec7432920c3"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aa66c13f6f0e8ed4e099a0ec7432920c3">&#9670;&nbsp;</a></span>PyDoc_STRVAR() <span class="overload">[12/22]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#aa66c13f6f0e8ed4e099a0ec7432920c3">&#9670;&nbsp;</a></span>PyDoc_STRVAR() <span class="overload">[12/23]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -1711,7 +1759,7 @@ Variables</h2></td></tr>
 </div>
 </div>
 <a id="ad767c904227c542b882fb195aaa196e0"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ad767c904227c542b882fb195aaa196e0">&#9670;&nbsp;</a></span>PyDoc_STRVAR() <span class="overload">[13/22]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#ad767c904227c542b882fb195aaa196e0">&#9670;&nbsp;</a></span>PyDoc_STRVAR() <span class="overload">[13/23]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -1739,7 +1787,7 @@ Variables</h2></td></tr>
 </div>
 </div>
 <a id="afea5503a6850544fb8a3f276f5243a56"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#afea5503a6850544fb8a3f276f5243a56">&#9670;&nbsp;</a></span>PyDoc_STRVAR() <span class="overload">[14/22]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#afea5503a6850544fb8a3f276f5243a56">&#9670;&nbsp;</a></span>PyDoc_STRVAR() <span class="overload">[14/23]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -1796,8 +1844,60 @@ Variables</h2></td></tr>
 
 </div>
 </div>
+<a id="aa30742a7b888881833d015229f00097c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa30742a7b888881833d015229f00097c">&#9670;&nbsp;</a></span>PyDoc_STRVAR() <span class="overload">[15/23]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">PyDoc_STRVAR </td>
+          <td>(</td>
+          <td class="paramtype">cp_SparseVirtualFileSystem_svf_need_many_docstring&#160;</td>
+          <td class="paramname">, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&quot;need_many(self, id: str, seek_reads: typing.List[typing.Tuple[int, int]], greedy_length: int = 0) -&gt; typing.&#160;</td>
+          <td class="paramname"><em>Tuple</em>[typing.Tuple[int, int], </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">...]\n\n&quot; &quot;Given a list of(file_position, length) this returns a ordered list ```` of seek/read&quot; &quot; instructions of data that is required to be written to the Sparse Virtual File so that a subsequent read will&quot; &quot; succeed.\n\n&quot; &quot;If greedy_length&#160;</td>
+          <td class="paramname"><em>is</em>[(file_position, length),...], </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">0&#160;</td>
+          <td class="paramname"><em>then</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">if&#160;</td>
+          <td class="paramname"><em>possible</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">blocks will be coalesced to reduce the size of the return value.&quot; &quot;\n\n&quot; &quot;See also :py:meth:`svfsc.cSVFS.need`&quot;&#160;</td>
+          <td class="paramname">&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
 <a id="a76c7fa4cf0614cc8eab8a70945848c98"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a76c7fa4cf0614cc8eab8a70945848c98">&#9670;&nbsp;</a></span>PyDoc_STRVAR() <span class="overload">[15/22]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a76c7fa4cf0614cc8eab8a70945848c98">&#9670;&nbsp;</a></span>PyDoc_STRVAR() <span class="overload">[16/23]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -1831,7 +1931,7 @@ Variables</h2></td></tr>
 </div>
 </div>
 <a id="a84c9c1ba9140038283d340cbfebbcb14"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a84c9c1ba9140038283d340cbfebbcb14">&#9670;&nbsp;</a></span>PyDoc_STRVAR() <span class="overload">[16/22]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a84c9c1ba9140038283d340cbfebbcb14">&#9670;&nbsp;</a></span>PyDoc_STRVAR() <span class="overload">[17/23]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -1859,7 +1959,7 @@ Variables</h2></td></tr>
 </div>
 </div>
 <a id="ae5936fd8051e3abca94ab41a75d7d961"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ae5936fd8051e3abca94ab41a75d7d961">&#9670;&nbsp;</a></span>PyDoc_STRVAR() <span class="overload">[17/22]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#ae5936fd8051e3abca94ab41a75d7d961">&#9670;&nbsp;</a></span>PyDoc_STRVAR() <span class="overload">[18/23]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -1887,7 +1987,7 @@ Variables</h2></td></tr>
 </div>
 </div>
 <a id="a7331052188dfc741f9f65ab456e043cb"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a7331052188dfc741f9f65ab456e043cb">&#9670;&nbsp;</a></span>PyDoc_STRVAR() <span class="overload">[18/22]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a7331052188dfc741f9f65ab456e043cb">&#9670;&nbsp;</a></span>PyDoc_STRVAR() <span class="overload">[19/23]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -1921,7 +2021,7 @@ Variables</h2></td></tr>
 </div>
 </div>
 <a id="a658309cef05bd88c45b3525c19a35d36"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a658309cef05bd88c45b3525c19a35d36">&#9670;&nbsp;</a></span>PyDoc_STRVAR() <span class="overload">[19/22]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a658309cef05bd88c45b3525c19a35d36">&#9670;&nbsp;</a></span>PyDoc_STRVAR() <span class="overload">[20/23]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -1949,7 +2049,7 @@ Variables</h2></td></tr>
 </div>
 </div>
 <a id="a00929548a191c7c01e04ca42738566b5"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a00929548a191c7c01e04ca42738566b5">&#9670;&nbsp;</a></span>PyDoc_STRVAR() <span class="overload">[20/22]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a00929548a191c7c01e04ca42738566b5">&#9670;&nbsp;</a></span>PyDoc_STRVAR() <span class="overload">[21/23]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -1977,7 +2077,7 @@ Variables</h2></td></tr>
 </div>
 </div>
 <a id="ab52dab7939b48980f45d4fbc9b567566"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ab52dab7939b48980f45d4fbc9b567566">&#9670;&nbsp;</a></span>PyDoc_STRVAR() <span class="overload">[21/22]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#ab52dab7939b48980f45d4fbc9b567566">&#9670;&nbsp;</a></span>PyDoc_STRVAR() <span class="overload">[22/23]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -2005,7 +2105,7 @@ Variables</h2></td></tr>
 </div>
 </div>
 <a id="af38b313c878701bbfc0ac5b208b6c9f0"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#af38b313c878701bbfc0ac5b208b6c9f0">&#9670;&nbsp;</a></span>PyDoc_STRVAR() <span class="overload">[22/22]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#af38b313c878701bbfc0ac5b208b6c9f0">&#9670;&nbsp;</a></span>PyDoc_STRVAR() <span class="overload">[23/23]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -2254,7 +2354,7 @@ Variables</h2></td></tr>
 <div class="line">        {NULL, 0, 0, 0, NULL}  </div>
 <div class="line">}</div>
 </div><!-- fragment -->
-<p class="definition">Definition at line <a class="el" href="__c_s_v_f_s_8cpp_source.html#l01387">1387</a> of file <a class="el" href="__c_s_v_f_s_8cpp_source.html">_cSVFS.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="__c_s_v_f_s_8cpp_source.html#l01428">1428</a> of file <a class="el" href="__c_s_v_f_s_8cpp_source.html">_cSVFS.cpp</a>.</p>
 
 </div>
 </div>
@@ -2278,7 +2378,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="__c_s_v_f_s_8cpp_source.html#l01393">1393</a> of file <a class="el" href="__c_s_v_f_s_8cpp_source.html">_cSVFS.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="__c_s_v_f_s_8cpp_source.html#l01434">1434</a> of file <a class="el" href="__c_s_v_f_s_8cpp_source.html">_cSVFS.cpp</a>.</p>
 
 </div>
 </div>
@@ -2298,9 +2398,9 @@ Variables</h2></td></tr>
 <div class="line">        </div>
 <div class="line">        .mp_length = &amp;<a class="code" href="__c_s_v_f_s_8cpp.html#a0733feb2dedcb3d2bd9f83513e7d3624">cp_SparseVirtualFileSystem_mapping_length</a>,</div>
 <div class="line">}</div>
-<div class="ttc" id="a__c_s_v_f_s_8cpp_html_a0733feb2dedcb3d2bd9f83513e7d3624"><div class="ttname"><a href="__c_s_v_f_s_8cpp.html#a0733feb2dedcb3d2bd9f83513e7d3624">cp_SparseVirtualFileSystem_mapping_length</a></div><div class="ttdeci">static Py_ssize_t cp_SparseVirtualFileSystem_mapping_length(PyObject *self)</div><div class="ttdef"><b>Definition:</b> <a href="__c_s_v_f_s_8cpp_source.html#l01377">_cSVFS.cpp:1377</a></div></div>
+<div class="ttc" id="a__c_s_v_f_s_8cpp_html_a0733feb2dedcb3d2bd9f83513e7d3624"><div class="ttname"><a href="__c_s_v_f_s_8cpp.html#a0733feb2dedcb3d2bd9f83513e7d3624">cp_SparseVirtualFileSystem_mapping_length</a></div><div class="ttdeci">static Py_ssize_t cp_SparseVirtualFileSystem_mapping_length(PyObject *self)</div><div class="ttdef"><b>Definition:</b> <a href="__c_s_v_f_s_8cpp_source.html#l01418">_cSVFS.cpp:1418</a></div></div>
 </div><!-- fragment -->
-<p class="definition">Definition at line <a class="el" href="__c_s_v_f_s_8cpp_source.html#l01535">1535</a> of file <a class="el" href="__c_s_v_f_s_8cpp_source.html">_cSVFS.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="__c_s_v_f_s_8cpp_source.html#l01581">1581</a> of file <a class="el" href="__c_s_v_f_s_8cpp_source.html">_cSVFS.cpp</a>.</p>
 
 </div>
 </div>
@@ -2338,14 +2438,14 @@ Variables</h2></td></tr>
 <div class="line">        .tp_init = (initproc) <a class="code" href="__c_s_v_f_s_8cpp.html#a9f56fce856d22b54226c921ee48a7f51">cp_SparseVirtualFileSystem_init</a>,</div>
 <div class="line">        .tp_new = <a class="code" href="__c_s_v_f_s_8cpp.html#afcb5ee6f178e22ced7e8dd1b549b6171">cp_SparseVirtualFileSystem_new</a>,</div>
 <div class="line">}</div>
-<div class="ttc" id="a__c_s_v_f_s_8cpp_html_a5ba65f8353563d9b674b68176c7606d7"><div class="ttname"><a href="__c_s_v_f_s_8cpp.html#a5ba65f8353563d9b674b68176c7606d7">svfs_mapping_methods</a></div><div class="ttdeci">PyMappingMethods svfs_mapping_methods</div><div class="ttdef"><b>Definition:</b> <a href="__c_s_v_f_s_8cpp_source.html#l01535">_cSVFS.cpp:1535</a></div></div>
+<div class="ttc" id="a__c_s_v_f_s_8cpp_html_a5ba65f8353563d9b674b68176c7606d7"><div class="ttname"><a href="__c_s_v_f_s_8cpp.html#a5ba65f8353563d9b674b68176c7606d7">svfs_mapping_methods</a></div><div class="ttdeci">PyMappingMethods svfs_mapping_methods</div><div class="ttdef"><b>Definition:</b> <a href="__c_s_v_f_s_8cpp_source.html#l01581">_cSVFS.cpp:1581</a></div></div>
 <div class="ttc" id="a__c_s_v_f_s_8cpp_html_a995fae67db39635a7c17a5a302defbf5"><div class="ttname"><a href="__c_s_v_f_s_8cpp.html#a995fae67db39635a7c17a5a302defbf5">cp_SparseVirtualFileSystem_dealloc</a></div><div class="ttdeci">static void cp_SparseVirtualFileSystem_dealloc(cp_SparseVirtualFileSystem *self)</div><div class="ttdef"><b>Definition:</b> <a href="__c_s_v_f_s_8cpp_source.html#l00211">_cSVFS.cpp:211</a></div></div>
 <div class="ttc" id="a__c_s_v_f_s_8cpp_html_a9f56fce856d22b54226c921ee48a7f51"><div class="ttname"><a href="__c_s_v_f_s_8cpp.html#a9f56fce856d22b54226c921ee48a7f51">cp_SparseVirtualFileSystem_init</a></div><div class="ttdeci">static int cp_SparseVirtualFileSystem_init(cp_SparseVirtualFileSystem *self, PyObject *args, PyObject *kwargs)</div><div class="ttdef"><b>Definition:</b> <a href="__c_s_v_f_s_8cpp_source.html#l00173">_cSVFS.cpp:173</a></div></div>
-<div class="ttc" id="a__c_s_v_f_s_8cpp_html_ac60ef837f73bbafad4a4c734d28c2ef3"><div class="ttname"><a href="__c_s_v_f_s_8cpp.html#ac60ef837f73bbafad4a4c734d28c2ef3">cp_SparseVirtualFileSystem_methods</a></div><div class="ttdeci">static PyMethodDef cp_SparseVirtualFileSystem_methods[]</div><div class="ttdef"><b>Definition:</b> <a href="__c_s_v_f_s_8cpp_source.html#l01393">_cSVFS.cpp:1393</a></div></div>
+<div class="ttc" id="a__c_s_v_f_s_8cpp_html_ac60ef837f73bbafad4a4c734d28c2ef3"><div class="ttname"><a href="__c_s_v_f_s_8cpp.html#ac60ef837f73bbafad4a4c734d28c2ef3">cp_SparseVirtualFileSystem_methods</a></div><div class="ttdeci">static PyMethodDef cp_SparseVirtualFileSystem_methods[]</div><div class="ttdef"><b>Definition:</b> <a href="__c_s_v_f_s_8cpp_source.html#l01434">_cSVFS.cpp:1434</a></div></div>
 <div class="ttc" id="a__c_s_v_f_s_8cpp_html_afcb5ee6f178e22ced7e8dd1b549b6171"><div class="ttname"><a href="__c_s_v_f_s_8cpp.html#afcb5ee6f178e22ced7e8dd1b549b6171">cp_SparseVirtualFileSystem_new</a></div><div class="ttdeci">static PyObject * cp_SparseVirtualFileSystem_new(PyTypeObject *type, PyObject *Py_UNUSED(args), PyObject *Py_UNUSED(kwds))</div><div class="ttdef"><b>Definition:</b> <a href="__c_s_v_f_s_8cpp_source.html#l00156">_cSVFS.cpp:156</a></div></div>
-<div class="ttc" id="a__c_s_v_f_s_8cpp_html_afdc5cd238a9b863db6ae28769382005f"><div class="ttname"><a href="__c_s_v_f_s_8cpp.html#afdc5cd238a9b863db6ae28769382005f">cp_SparseVirtualFileSystem_members</a></div><div class="ttdeci">static PyMemberDef cp_SparseVirtualFileSystem_members[]</div><div class="ttdef"><b>Definition:</b> <a href="__c_s_v_f_s_8cpp_source.html#l01387">_cSVFS.cpp:1387</a></div></div>
+<div class="ttc" id="a__c_s_v_f_s_8cpp_html_afdc5cd238a9b863db6ae28769382005f"><div class="ttname"><a href="__c_s_v_f_s_8cpp.html#afdc5cd238a9b863db6ae28769382005f">cp_SparseVirtualFileSystem_members</a></div><div class="ttdeci">static PyMemberDef cp_SparseVirtualFileSystem_members[]</div><div class="ttdef"><b>Definition:</b> <a href="__c_s_v_f_s_8cpp_source.html#l01428">_cSVFS.cpp:1428</a></div></div>
 </div><!-- fragment -->
-<p class="definition">Definition at line <a class="el" href="__c_s_v_f_s_8cpp_source.html#l01552">1552</a> of file <a class="el" href="__c_s_v_f_s_8cpp_source.html">_cSVFS.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="__c_s_v_f_s_8cpp_source.html#l01598">1598</a> of file <a class="el" href="__c_s_v_f_s_8cpp_source.html">_cSVFS.cpp</a>.</p>
 
 </div>
 </div>
