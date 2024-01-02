@@ -145,7 +145,7 @@ namespace SVFS {
         tSparseVirtualFileConfig m_config;
 #ifdef SVFS_THREAD_SAFE
         /// The access mutex if multi-threaded. This is used when inserting or removing an SVF.
-        /// @note Each SVF has its own mutex.
+        /// @note Each SVFS has its own mutex.
         mutable std::mutex m_mutex;
 #endif
     };

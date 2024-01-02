@@ -370,12 +370,16 @@ def test_SVF_need_all(blocks, expected_blocks):
                     4, 15,
                     [(4, 4), (12, 7), ],
             ),
+            (
+                    ((8, 3,),), 0, 20, [(0, 8,), (8 + 3, 20 - (8 + 3),), ],
+            ),
     ),
     ids=[
         'Empty',
         'One block, all up to it',
         'Two blocks, all and beyond',
         "Before, all of one block and after",
+        "Example for SVFS",
     ],
 )
 def test_SVF_need(blocks, need_fpos, need_length, expected_need):
@@ -492,19 +496,23 @@ def test_SVF_need_many_greedy(blocks, seek_reads, greedy_length, expected_need):
     (
             (
                     (),
-                    'cp_SparseVirtualFile_need_many#649: seek_reads is not a list.',
+                    'cp_SparseVirtualFile_need_many_internal: seek_reads is not a list.',
             ),
             (
                     [1, ],
-                    'cp_SparseVirtualFile_need_many#654: seek_reads[0] is not a tuple.',
+                    'cp_SparseVirtualFile_need_many_internal: seek_reads[0] is not a tuple.',
             ),
             (
                     [(1, 2), 1, ],
-                    'cp_SparseVirtualFile_need_many#654: seek_reads[1] is not a tuple.',
+                    'cp_SparseVirtualFile_need_many_internal: seek_reads[1] is not a tuple.',
             ),
             (
                     [(1, 2, 3), ],
-                    'cp_SparseVirtualFile_need_many#661: seek_reads[0] length 3 is not a tuple of length 2.',
+                    'cp_SparseVirtualFile_need_many_internal: seek_reads[0] length 3 is not a tuple of length 2.',
+            ),
+            (
+                    [('1', 2,), ],
+                    'cp_SparseVirtualFile_need_many_internal: can not parse list element[0].',
             ),
     ),
     ids=[
@@ -512,6 +520,7 @@ def test_SVF_need_many_greedy(blocks, seek_reads, greedy_length, expected_need):
         'list element[0] not a tuple',
         'list element[1] not a tuple',
         'list element[0] tuple length wrong',
+        'list element[0] tuple values not int',
     ],
 )
 def test_SVF_need_many_raises(blocks_need, expected_error):

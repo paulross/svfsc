@@ -539,6 +539,12 @@ PyDoc_STRVAR(
         " succeed.\n"
         " If greedy_length is > 0 then, if possible, blocks will be coalesced to reduce the size of the return value."
         "\n\n"
+        ".. note::\n"
+        "    If a greedy_length is given this will be the *minimum* size of the length of the required block."
+        "    If the length of the required block is so large (because of existing blocks likely to be coalesced)"
+        "    then the user might want to split the length, for example, into multiple (smaller) GET requests which"
+        "    will then be coalesced on ``write()``"
+        "\n\n"
         ".. warning::\n"
         "    The SVF has no knowledge of the the actual file size so when using a greedy length the need list might"
         " include positions beyond EOF.\n\n"
@@ -555,44 +561,29 @@ PyDoc_STRVAR(
         "    return svf.read(position, length):\n"
 );
 
-/**
- * See cp_SparseVirtualFile_need_docstring
- *
- * @param self The cp_SparseVirtualFile
- * @param args The file_position and length. Optionally a greedy_length.
- * @param kwargs "file_position", "length", "greedy_length".
- * @return List of tuples (file_position, length).
- */
-static PyObject *
-cp_SparseVirtualFile_need(cp_SparseVirtualFile *self, PyObject *args, PyObject *kwargs) {
-    ASSERT_FUNCTION_ENTRY_SVF(pSvf);
 
+static PyObject *
+cp_SparseVirtualFile_need_internal(const SVFS::SparseVirtualFile *pSvf,
+                                   unsigned long long fpos,
+                                   unsigned long long len,
+                                   unsigned long long greedy_len) {
     PyObject * ret = NULL; // PyListObject
     PyObject * list_item = NULL; // PyTupleObject
-    unsigned long long fpos = 0;
-    unsigned long long len = 0;
-    unsigned long long greedy_len = 0;
-    static const char *kwlist[] = {"file_position", "length", "greedy_length", NULL};
-    AcquireLockSVF _lock(self);
 
-    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "KK|K", (char **) kwlist, &fpos, &len, &greedy_len)) {
+    SVFS::t_seek_reads seek_read = pSvf->need(fpos, len, greedy_len);
+    ret = PyList_New(seek_read.size());
+    if (!ret) {
+        PyErr_Format(PyExc_MemoryError, "%s: Can not create list.", __FUNCTION__);
         goto except;
     }
-    try {
-        SVFS::t_seek_reads seek_read = self->pSvf->need(fpos, len, greedy_len);
-        ret = PyList_New(seek_read.size());
-        for (size_t i = 0; i < seek_read.size(); ++i) {
-            list_item = Py_BuildValue("KK", seek_read[i].first, seek_read[i].second);
-            if (!list_item) {
-                PyErr_Format(PyExc_MemoryError, "%s: Can not create tuple", __FUNCTION__);
-                goto except;
-            }
-            PyList_SET_ITEM(ret, i, list_item);
-            list_item = NULL;
+    for (size_t i = 0; i < seek_read.size(); ++i) {
+        list_item = Py_BuildValue("KK", seek_read[i].first, seek_read[i].second);
+        if (!list_item) {
+            PyErr_Format(PyExc_MemoryError, "%s: Can not create tuple as list element.", __FUNCTION__);
+            goto except;
         }
-    } catch (const std::exception &err) {
-        PyErr_Format(PyExc_RuntimeError, "%s: FATAL caught std::exception %s", __FUNCTION__, err.what());
-        goto except;
+        PyList_SET_ITEM(ret, i, list_item);
+        list_item = NULL;
     }
     assert(!PyErr_Occurred());
     assert(ret);
@@ -610,16 +601,133 @@ cp_SparseVirtualFile_need(cp_SparseVirtualFile *self, PyObject *args, PyObject *
     return ret;
 }
 
+/**
+ * See cp_SparseVirtualFile_need_docstring
+ *
+ * @param self The cp_SparseVirtualFile
+ * @param args The file_position and length. Optionally a greedy_length.
+ * @param kwargs "file_position", "length", "greedy_length".
+ * @return List of tuples (file_position, length).
+ */
+static PyObject *
+cp_SparseVirtualFile_need(cp_SparseVirtualFile *self, PyObject *args, PyObject *kwargs) {
+    ASSERT_FUNCTION_ENTRY_SVF(pSvf);
+
+    PyObject * ret = NULL; // PyListObject
+    unsigned long long fpos = 0;
+    unsigned long long len = 0;
+    unsigned long long greedy_len = 0;
+    static const char *kwlist[] = {"file_position", "length", "greedy_length", NULL};
+    AcquireLockSVF _lock(self);
+
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "KK|K", (char **) kwlist, &fpos, &len, &greedy_len)) {
+        goto except;
+    }
+    try {
+        ret = cp_SparseVirtualFile_need_internal(self->pSvf, fpos, len, greedy_len);
+        if (!ret) {
+            goto except;
+        }
+    } catch (const std::exception &err) {
+        PyErr_Format(PyExc_RuntimeError, "%s: FATAL caught std::exception %s", __FUNCTION__, err.what());
+        goto except;
+    }
+    assert(!PyErr_Occurred());
+    assert(ret);
+    goto finally;
+    except:
+    assert(PyErr_Occurred());
+    Py_XDECREF(ret);
+    ret = NULL;
+    finally:
+    return ret;
+}
+
 PyDoc_STRVAR(
         cp_SparseVirtualFile_need_many_docstring,
         "need_many(self, seek_reads: typing.List[typing.Tuple[int, int]], greedy_length: int = 0) -> typing.Tuple[typing.Tuple[int, int], ...]\n\n"
         "Given a list of (file_position, length) this returns a ordered list ``[(file_position, length), ...]`` of seek/read"
         " instructions of data that is required to be written to the Sparse Virtual File so that a subsequent read will"
-        " succeed.\n"
-        " If greedy_length is > 0 then, if possible, blocks will be coalesced to reduce the size of the return value."
+        " succeed.\n\n"
+        "If greedy_length is > 0 then, if possible, blocks will be coalesced to reduce the size of the return value."
         "\n\n"
-        "See also need()."
+        "See also :py:meth:`svfsc.cSVF.need`"
 );
+
+
+/**
+ * Shared by SVF and SVFS.
+ */
+static PyObject *
+cp_SparseVirtualFile_need_many_internal(PyObject *py_seek_reads,
+                                        const SVFS::SparseVirtualFile *pSvf,
+                                        unsigned long long greedy_len) {
+    PyObject * ret = NULL; // PyListObject
+    Py_ssize_t i = 0;
+    SVFS::t_seek_reads cpp_seek_reads;
+    /* Check that we have a list of tuples of the right size.*/
+    if (!PyList_Check(py_seek_reads)) {
+        PyErr_Format(PyExc_TypeError, "%s: seek_reads is not a list.", __FUNCTION__);
+        goto except;
+    }
+    for (i = 0; i < PyList_Size(py_seek_reads); ++i) {
+        if (!PyTuple_Check(PyList_GetItem(py_seek_reads, i))) {
+            PyErr_Format(PyExc_TypeError, "%s: seek_reads[%ld] is not a tuple.", __FUNCTION__, i);
+            goto except;
+        }
+        if (PyTuple_Size(PyList_GetItem(py_seek_reads, i)) != 2) {
+            PyErr_Format(
+                    PyExc_TypeError,
+                    "%s: seek_reads[%ld] length %ld is not a tuple of length 2.",
+                    __FUNCTION__, i, PyTuple_Size(PyList_GetItem(py_seek_reads, i))
+            );
+            goto except;
+        }
+    }
+    /* Create a std::vector<std::pair<fpos, length>> */
+    for (i = 0; i < PyList_Size(py_seek_reads); ++i) {
+        PyObject * py_fpos_len = PyList_GetItem(py_seek_reads, i);
+        SVFS::t_fpos fpos;
+        size_t length;
+        if (!PyArg_ParseTuple(py_fpos_len, "KK", &fpos, &length)) {
+            PyErr_Format(PyExc_TypeError, "%s: can not parse list element[%ld].", __FUNCTION__, i);
+            goto except;
+        }
+        cpp_seek_reads.push_back({fpos, length});
+    }
+    /* Create the new seek-reads vector. */
+    cpp_seek_reads = pSvf->need_many(cpp_seek_reads, greedy_len);
+    /* Create the Python list */
+    ret = PyList_New(cpp_seek_reads.size());
+    if (!ret) {
+        PyErr_Format(PyExc_MemoryError, "%s: Can not create list", __FUNCTION__);
+        goto except;
+    }
+    i = 0;
+    for (const auto &iter: cpp_seek_reads) {
+        PyObject * list_item = Py_BuildValue("KK", iter.first, iter.second);
+        if (!list_item) {
+            PyErr_Format(PyExc_MemoryError, "%s: Can not create tuple as a list element", __FUNCTION__);
+            goto except;
+        }
+        PyList_SET_ITEM(ret, i, list_item);
+        i++;
+    }
+    assert(!PyErr_Occurred());
+    assert(ret);
+    goto finally;
+    except:
+    assert(PyErr_Occurred());
+    if (ret) {
+        for (Py_ssize_t i = 0; i < PyList_Size(ret); ++i) {
+            Py_XDECREF(PyList_GET_ITEM(ret, i));
+        }
+    }
+    Py_XDECREF(ret);
+    ret = NULL;
+    finally:
+    return ret;
+}
 
 /**
  * See cp_SparseVirtualFile_need_many_docstring
@@ -634,7 +742,6 @@ cp_SparseVirtualFile_need_many(cp_SparseVirtualFile *self, PyObject *args, PyObj
     ASSERT_FUNCTION_ENTRY_SVF(pSvf);
 
     PyObject * ret = NULL; // PyListObject
-//    PyObject * list_item = NULL; // PyTupleObject
     PyObject * py_seek_reads = NULL;
     unsigned long long greedy_len = 0;
     static const char *kwlist[] = {"seek_reads", "greedy_length", NULL};
@@ -644,54 +751,9 @@ cp_SparseVirtualFile_need_many(cp_SparseVirtualFile *self, PyObject *args, PyObj
         goto except;
     }
     try {
-        /* Check that we have a list of tuples of the right size.*/
-        if (!PyList_Check(py_seek_reads)) {
-            PyErr_Format(PyExc_TypeError, "%s#%d: seek_reads is not a list.", __FUNCTION__, __LINE__);
-            goto except;
-        }
-        for (Py_ssize_t i = 0; i < PyList_Size(py_seek_reads); ++i) {
-            if (!PyTuple_Check(PyList_GetItem(py_seek_reads, i))) {
-                PyErr_Format(PyExc_TypeError, "%s#%d: seek_reads[%ld] is not a tuple.", __FUNCTION__, __LINE__, i);
-                goto except;
-            }
-            if (PyTuple_Size(PyList_GetItem(py_seek_reads, i)) != 2) {
-                PyErr_Format(
-                        PyExc_TypeError,
-                        "%s#%d: seek_reads[%ld] length %ld is not a tuple of length 2.",
-                        __FUNCTION__, __LINE__, i, PyTuple_Size(PyList_GetItem(py_seek_reads, i))
-                );
-                goto except;
-            }
-        }
-        /* Create a std::vector<std::pair<fpos, length>> */
-        SVFS::t_seek_reads cpp_seek_reads;
-        for (Py_ssize_t i = 0; i < PyList_Size(py_seek_reads); ++i) {
-            PyObject * py_fpos_len = PyList_GetItem(py_seek_reads, i);
-            SVFS::t_fpos fpos;
-            size_t length;
-            if (!PyArg_ParseTuple(py_fpos_len, "KK", &fpos, &length)) {
-                PyErr_Format(PyExc_TypeError, "%s#%d: can  not parse element %ld.", __FUNCTION__, __LINE__, i);
-                goto except;
-            }
-            cpp_seek_reads.push_back({fpos, length});
-        }
-        /* Create the new seek-reads vector. */
-        cpp_seek_reads = self->pSvf->need_many(cpp_seek_reads, greedy_len);
-        /* Create the Python list */
-        ret = PyList_New(cpp_seek_reads.size());
+        ret = cp_SparseVirtualFile_need_many_internal(py_seek_reads, self->pSvf, greedy_len);
         if (!ret) {
-            PyErr_Format(PyExc_MemoryError, "%s#%d: Can not create list", __FUNCTION__, __LINE__);
             goto except;
-        }
-        Py_ssize_t i = 0;
-        for (const auto &iter: cpp_seek_reads) {
-            PyObject * list_item = Py_BuildValue("KK", iter.first, iter.second);
-            if (!list_item) {
-                PyErr_Format(PyExc_MemoryError, "%s#%d: Can not create tuple", __FUNCTION__, __LINE__);
-                goto except;
-            }
-            PyList_SET_ITEM(ret, i, list_item);
-            i++;
         }
     } catch (const std::exception &err) {
         PyErr_Format(PyExc_RuntimeError, "%s#%d: FATAL caught std::exception %s", __FUNCTION__, __LINE__, err.what());
@@ -702,11 +764,6 @@ cp_SparseVirtualFile_need_many(cp_SparseVirtualFile *self, PyObject *args, PyObj
     goto finally;
     except:
     assert(PyErr_Occurred());
-    if (ret) {
-        for (Py_ssize_t i = 0; i < PyList_Size(ret); ++i) {
-            Py_XDECREF(PyList_GET_ITEM(ret, i));
-        }
-    }
     Py_XDECREF(ret);
     ret = NULL;
     finally:

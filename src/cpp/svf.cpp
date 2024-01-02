@@ -566,8 +566,15 @@ namespace SVFS {
      * reads into a shorter series of larger reads.
      * This might well improve the read performance at the expense of cacheing extra unused data.
      *
+     * @sa need_many()
+     *
      * @note The @c greedy_length might create read values that already exist in the SVF.
      * If @c SFVS::tSparseVirtualFileConfig @c compare_for_diff is true then this will trigger a data comparison.
+     *
+     * @note If a @c greedy_length is given this will be the *minimum* size of the length of the required block.
+     * If the length of the required block is so large (because of existing blocks likely to be coalesced)
+     * then the user might want to split the length, for example, into multiple (smaller) GET requests which
+     * will then be coalesced on @c write()
      *
      * @warning The SVF has no knowledge of the the actual file size so when using a greedy length the need list
      * might include positions beyond EOF.
@@ -686,8 +693,15 @@ namespace SVFS {
      * reads into a shorter series of larger reads.
      * This might well improve the read performance at the expense of cacheing extra unused data.
      *
+     * @sa need()
+     *
      * @note The @c greedy_length might create read values that already exist in the SVF.
      * If @c SFVS::tSparseVirtualFileConfig @c compare_for_diff is true then this will trigger a data comparison.
+     *
+     * @note If a @c greedy_length is given this will be the *minimum* size of the length of the required block.
+     * If the length of the required block is so large (because of existing blocks likely to be coalesced)
+     * then the user might want to split the length, for example, into multiple (smaller) GET requests which
+     * will then be coalesced on @c write()
      *
      * @warning The SVF has no knowledge of the the actual file size so when using a greedy length the need list
      * might include positions beyond EOF.

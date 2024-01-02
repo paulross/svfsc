@@ -29,8 +29,8 @@
 
 #include "cpp_svfs.h"
 
-#include "_cSVFS.cpp"
 #include "_cSVF.cpp"
+#include "_cSVFS.cpp"
 
 // Module initialisation
 #pragma mark Module initialisation

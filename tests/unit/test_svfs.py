@@ -143,22 +143,25 @@ def test_SVFS_write(blocks, expected_blocks):
     assert s.blocks(ID) == expected_blocks
 
 
-#         for (size_t block_size = 1; block_size <= 256; block_size *= 2) {
-#             SparseVirtualFile svf("", 0.0);
-#
-#             auto time_start = std::chrono::high_resolution_clock::now();
-#             for (t_fpos i = 0; i < (1024 * 1024 * 1) / block_size; ++i) {
-#                 t_fpos fpos = i * block_size + i;
-#                 svf.write(fpos, data, block_size);
-#             }
-#             std::chrono::duration<double> time_exec = std::chrono::high_resolution_clock::now() - time_start;
-#
-#             std::ostringstream os;
-#             os << "1Mb, " << std::setw(3) << block_size << " sized blocks, uncoalesced";
-#             auto result =TestResult(__FUNCTION__, std::string(os.str()), 0, "", time_exec.count(), svf.num_bytes());
-#             count.add_result(result.result());
-#             results.push_back(result);
-#         }
+@pytest.mark.parametrize(
+    'blocks, need_fpos, need_length, expected_need',
+    (
+            # No inserts
+            (
+                    tuple(), 0, 20, [(0, 20,), ],
+            ),
+            (
+                    ((8, b'   ',),), 0, 20, [(0, 8,), (8 + 3, 20 - (8 + 3),), ],
+            ),
+    )
+)
+def test_SVFS_need(blocks, need_fpos, need_length, expected_need):
+    s = svfsc.cSVFS()
+    ID = 'abc'
+    s.insert(ID, 1.0)
+    for fpos, data in blocks:
+        s.write(ID, fpos, data)
+    assert s.need(ID, need_fpos, need_length) == expected_need
 
 
 @pytest.mark.parametrize(

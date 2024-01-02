@@ -713,7 +713,6 @@ cp_SparseVirtualFileSystem_svf_need(cp_SparseVirtualFileSystem *self, PyObject *
     PyObject * ret = NULL; // PyListObject
     char *c_id = NULL; // PyUnicodeObject
     std::string cpp_id;
-    PyObject * list_item = NULL; // PyTupleObject
     unsigned long long fpos = 0;
     unsigned long long len = 0;
     unsigned long long greedy_length = 0;
@@ -727,16 +726,9 @@ cp_SparseVirtualFileSystem_svf_need(cp_SparseVirtualFileSystem *self, PyObject *
     try {
         if (self->p_svfs->has(cpp_id)) {
             const SVFS::SparseVirtualFile &svf = self->p_svfs->at(cpp_id);
-            SVFS::t_seek_reads seek_read = svf.need(fpos, len, greedy_length);
-            ret = PyList_New(seek_read.size());
-            for (size_t i = 0; i < seek_read.size(); ++i) {
-                list_item = Py_BuildValue("KK", seek_read[i].first, seek_read[i].second);
-                if (!list_item) {
-                    PyErr_Format(PyExc_MemoryError, "%s: Can not create tuple", __FUNCTION__);
-                    goto except;
-                }
-                PyList_SET_ITEM(ret, i, list_item);
-                list_item = NULL;
+            ret = cp_SparseVirtualFile_need_internal(&svf, fpos, len, greedy_length);
+            if (!ret) {
+                goto except;
             }
         } else {
             PyErr_Format(PyExc_IndexError, "%s: No SVF ID \"%s\"", __FUNCTION__, c_id);
@@ -751,11 +743,60 @@ cp_SparseVirtualFileSystem_svf_need(cp_SparseVirtualFileSystem *self, PyObject *
     goto finally;
     except:
     assert(PyErr_Occurred());
-    if (ret) {
-        for (Py_ssize_t i = 0; i < PyList_Size(ret); ++i) {
-            Py_XDECREF(PyList_GET_ITEM(ret, i));
-        }
+    Py_XDECREF(ret);
+    ret = NULL;
+    finally:
+    return ret;
+}
+
+PyDoc_STRVAR(
+        cp_SparseVirtualFileSystem_svf_need_many_docstring,
+        "need_many(self, id: str, seek_reads: typing.List[typing.Tuple[int, int]], greedy_length: int = 0) -> typing.Tuple[typing.Tuple[int, int], ...]\n\n"
+        "Given a list of (file_position, length) this returns a ordered list ``[(file_position, length), ...]`` of seek/read"
+        " instructions of data that is required to be written to the Sparse Virtual File so that a subsequent read will"
+        " succeed.\n\n"
+        "If greedy_length is > 0 then, if possible, blocks will be coalesced to reduce the size of the return value."
+        "\n\n"
+        "See also :py:meth:`svfsc.cSVFS.need`"
+);
+
+static PyObject *
+cp_SparseVirtualFileSystem_svf_need_many(cp_SparseVirtualFileSystem *self, PyObject *args, PyObject *kwargs) {
+    ASSERT_FUNCTION_ENTRY_SVFS(p_svfs);
+
+    PyObject * ret = NULL; // PyListObject
+    char *c_id = NULL; // PyUnicodeObject
+    std::string cpp_id;
+
+    PyObject * py_seek_reads = NULL;
+    unsigned long long greedy_len = 0;
+    static const char *kwlist[] = {"id", "seek_reads", "greedy_length", NULL};
+    AcquireLockSVFS _lock(self);
+
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "sO|K", (char **) kwlist, &c_id, &py_seek_reads, &greedy_len)) {
+        goto except;
     }
+    cpp_id = std::string(c_id);
+    try {
+        if (self->p_svfs->has(cpp_id)) {
+            const SVFS::SparseVirtualFile &svf = self->p_svfs->at(cpp_id);
+            ret = cp_SparseVirtualFile_need_many_internal(py_seek_reads, &svf, greedy_len);
+            if (!ret) {
+                goto except;
+            }
+        } else {
+            PyErr_Format(PyExc_IndexError, "%s: No SVF ID \"%s\"", __FUNCTION__, c_id);
+            goto except;
+        }
+    } catch (const std::exception &err) {
+        PyErr_Format(PyExc_RuntimeError, "%s: FATAL caught std::exception %s", __FUNCTION__, err.what());
+        goto except;
+    }
+    assert(!PyErr_Occurred());
+    assert(ret);
+    goto finally;
+    except:
+    assert(PyErr_Occurred());
     Py_XDECREF(ret);
     ret = NULL;
     finally:
@@ -1447,6 +1488,11 @@ static PyMethodDef cp_SparseVirtualFileSystem_methods[] = {
                                                                                                      METH_KEYWORDS,
                         cp_SparseVirtualFileSystem_svf_need_docstring
         },
+        {
+                "need_many",             (PyCFunction) cp_SparseVirtualFileSystem_svf_need_many,     METH_VARARGS |
+                                                                                                     METH_KEYWORDS,
+                        cp_SparseVirtualFileSystem_svf_need_many_docstring
+        },
         // ---- Meta information about the specific SVF ----
         {
                 "blocks",                (PyCFunction) cp_SparseVirtualFileSystem_svf_blocks,        METH_VARARGS |
@@ -1525,7 +1571,7 @@ static PyMethodDef cp_SparseVirtualFileSystem_methods[] = {
                         cp_SparseVirtualFileSystem_svf_lru_punt_docstring
         },
         {
-                "lru_punt_all",              (PyCFunction) cp_SparseVirtualFileSystem_svf_lru_punt_all,      METH_VARARGS |
+                "lru_punt_all",          (PyCFunction) cp_SparseVirtualFileSystem_svf_lru_punt_all,  METH_VARARGS |
                                                                                                      METH_KEYWORDS,
                         cp_SparseVirtualFileSystem_svf_lru_punt_all_docstring
         },
