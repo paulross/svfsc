@@ -1,4 +1,4 @@
-# Auto-generated from svfsc version 0.2.1 at 2024-01-02 14:29:00.852203 UTC
+# Auto-generated from svfsc version 0.3.0 at 2024-01-02 17:36:23.532365 UTC
 import typing
 import datetime
 
