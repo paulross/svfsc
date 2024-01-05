@@ -58,12 +58,12 @@ int main() {
     std::cout << "Testing SVF all..." << std::endl;
     pass_fail += SVFS::Test::test_svf_all(results);
     pass_fail += SVFS::Test::test_cpp_svfs_all(results);
-#if 0
+#if 1
     std::cout << "Testing SVFS all..." << std::endl;
     pass_fail += SVFS::Test::test_svfs_all(results);
 #endif
     std::chrono::duration<double> time_exec = std::chrono::high_resolution_clock::now() - time_start;
-    auto result = SVFS::Test::TestResult(__PRETTY_FUNCTION__, "All tests", results.size() != 166,
+    auto result = SVFS::Test::TestResult(__PRETTY_FUNCTION__, "All tests", results.size() != 167,
                                          "Hard coded test count to make sure some tests haven't been omitted.",
                                          time_exec.count(), 0);
     pass_fail.add_result(result.result());

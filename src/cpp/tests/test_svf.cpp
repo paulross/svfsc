@@ -1812,7 +1812,7 @@ namespace SVFS {
             return count;
         }
 
-#define INCLUDE_TESTS 0
+#define INCLUDE_TESTS 1
 
         TestCount test_svf_all(t_test_results &results) {
 #if INCLUDE_TESTS
@@ -1865,7 +1865,7 @@ namespace SVFS {
             count += test_block_touch_coalesced(results);
 
 #endif
-#if 1//INCLUDE_TESTS
+#if INCLUDE_TESTS
             // Block punting example
             count += test_lru_block_punting_a(results);
             count += test_lru_block_punting_b(results);
