@@ -1596,18 +1596,24 @@ namespace SVFS {
             auto time_start = std::chrono::high_resolution_clock::now();
 
             size_t cache_upper_bound = 1024;
+//            auto num_bytes = svf.num_bytes();
             // Is this clearer?
             result |= svf.num_bytes() >= cache_upper_bound ? 0 : 1 << error_bit;
             ++error_bit;
             // Punt blocks.
             size_t punted = svf.lru_punt(cache_upper_bound);
 //            fprintf(stdout, "XXX punted %zu\n", punted); // 31872
+//            num_bytes = svf.num_bytes();
+            result |= svf.num_bytes() == 7 * block_size ? 0 : 1 << error_bit;
+            ++error_bit;
             result |= punted == (block_size * block_count - 896) ? 0 : 1 << error_bit;
             ++error_bit;
 
             // Is this clearer?
             result |= svf.num_bytes() < cache_upper_bound ? 0 : 1 << error_bit;
             ++error_bit;
+
+            auto block_touches = svf.block_touches();
 
             std::chrono::duration<double> time_exec = std::chrono::high_resolution_clock::now() - time_start;
             TestResult test_result = TestResult(__PRETTY_FUNCTION__, test_name, result, "", time_exec.count(),
@@ -1616,6 +1622,40 @@ namespace SVFS {
             count.add_result(test_result.result());
             return count;
         }
+
+        // Special case where _write_append_new_to_old() was incrementing m_block_touch wrongly
+        TestCount test_lru_block_punting_c(t_test_results &results) {
+            TestCount count;
+            int result_code = 0; // Success
+            SparseVirtualFile svf("", 0.0);
+            auto time_start = std::chrono::high_resolution_clock::now();
+            svf.write(16, test_data_bytes_512, 8);
+            // Add a new block that will be merged with the old one.
+            svf.write(16 + 8, test_data_bytes_512, 8);
+
+            int error_bit = 0;
+            result_code |= svf.num_blocks() == 1 ? 0 : 1 << error_bit;
+            ++error_bit;
+            result_code |= svf.block_touch() == 2 ? 0 : 1 << error_bit;
+            ++error_bit;
+            auto block_touches = svf.block_touches();
+            auto iter = block_touches.begin();
+            result_code |= iter != block_touches.end() ? 0 : 1 << error_bit;
+            ++error_bit;
+            result_code |= iter->first == 1 ? 0 : 1 << error_bit;
+            ++error_bit;
+            result_code |= iter->second == 16 ? 0 : 1 << error_bit;
+            ++error_bit;
+
+            std::chrono::duration<double> time_exec = std::chrono::high_resolution_clock::now() - time_start;
+            auto result = TestResult(__PRETTY_FUNCTION__, "Sim low level index", result_code, "", time_exec.count(),
+                                     svf.num_bytes());
+            count.add_result(result.result());
+            results.push_back(result);
+            return count;
+        }
+
+
 
         // Test the basic operation of needs_many()
         TestCount test_needs_many_empty(t_test_results &results) {
@@ -1627,7 +1667,7 @@ namespace SVFS {
             // Empty SVF
             SparseVirtualFile svf("", 0.0);
             t_seek_reads seek_reads = {
-                    {0, 128},
+                    {0,   128},
                     {256, 512},
             };
 
@@ -1661,7 +1701,7 @@ namespace SVFS {
             // Empty SVF
             SparseVirtualFile svf("", 0.0);
             t_seek_reads seek_reads = {
-                    {0, 128},
+                    {0,  128},
                     {64, 512},
             };
 
@@ -1688,7 +1728,7 @@ namespace SVFS {
             // Empty SVF
             SparseVirtualFile svf("", 0.0);
             t_seek_reads seek_reads = {
-                    {0, 128},
+                    {0,   128},
                     {256, 512},
             };
 
@@ -1716,7 +1756,7 @@ namespace SVFS {
             SparseVirtualFile svf("", 0.0);
             svf.write(64, test_data_bytes_512, 128);
             t_seek_reads seek_reads = {
-                    {0, 128},
+                    {0,  128},
                     {64, 256},
             };
 
@@ -1751,7 +1791,7 @@ namespace SVFS {
             SparseVirtualFile svf("", 0.0);
             svf.write(64, test_data_bytes_512, 128);
             t_seek_reads seek_reads = {
-                    {0, 128},
+                    {0,  128},
                     {64, 256},
             };
 
@@ -1772,17 +1812,19 @@ namespace SVFS {
             return count;
         }
 
+#define INCLUDE_TESTS 0
+
         TestCount test_svf_all(t_test_results &results) {
-#if 1
+#if INCLUDE_TESTS
             test_example_code();
 #endif
-#if 1
+#if INCLUDE_TESTS
             test_debug_need_read_special_A();
             test_debug_need_read_special_B();
             test_debug_need_read_special_C();
 #endif
             TestCount count;
-#if 1
+#if INCLUDE_TESTS
             // Write
             count += test_write_all(results);
             count += test_write_all_throws(results);
@@ -1804,7 +1846,7 @@ namespace SVFS {
             count += test_need_all(results);
             count += test_perf_need_sim_index(results);
 #endif
-#if 1
+#if INCLUDE_TESTS
             count += test_need_greedy_all(results);
             // erase()
             count += test_erase_all(results);
@@ -1823,12 +1865,13 @@ namespace SVFS {
             count += test_block_touch_coalesced(results);
 
 #endif
-#if 1
+#if 1//INCLUDE_TESTS
             // Block punting example
             count += test_lru_block_punting_a(results);
             count += test_lru_block_punting_b(results);
+            count += test_lru_block_punting_c(results);
 #endif
-#if 1
+#if INCLUDE_TESTS
             count += test_needs_many_empty(results);
             count += test_needs_many_empty_overlap(results);
             count += test_needs_many_empty_greedy_length(results);

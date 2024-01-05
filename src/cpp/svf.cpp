@@ -320,6 +320,7 @@ namespace SVFS {
 #ifdef DEBUG
         size_t fpos_end = fpos + new_data_len;
 #endif
+        ++m_block_touch;
         // Diff check against base_block_iter
         // Do the check to end of new_data_len or end of base_block_iter which ever comes first.
         // Do not increment m_bytes_total as this is existing new_data.
@@ -398,7 +399,7 @@ namespace SVFS {
             }
             next_block_iter = m_svf.erase(next_block_iter);
         }
-        base_block_iter->second.block_touch = m_block_touch++;
+        base_block_iter->second.block_touch = m_block_touch;
         assert(new_data_len == 0);
 #ifdef DEBUG
         assert(fpos == fpos_end);
