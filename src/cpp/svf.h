@@ -36,7 +36,7 @@
 Introduction
 =============
 
-Somtimes you don't need the whole file.
+Sometimes you don't need the whole file.
 Sometimes you don't *want* the whole file.
 Especially if it is huge and on some remote server.
 But, you might know what parts of the file that you want and @c svfsc can help you store them locally so it looks

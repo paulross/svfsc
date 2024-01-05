@@ -1,10 +1,11 @@
 History
 ##################
 
-0.3.0 (2024-01-02)
+0.3.0 (2024-01-06)
 =====================
 
 - Add need_many().
+- Fix bug in lru_punt().
 - Development Status :: 4 - Beta
 
 0.2.2 (2023-12-28)
