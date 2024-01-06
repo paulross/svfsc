@@ -56,7 +56,7 @@ def main() -> int:
     with open(out_path, 'w') as file:
         file.write(
             f'# Auto-generated from svfsc version {svfsc.SVFS_CPP_VERSION}'
-            f' at {datetime.datetime.utcnow()} UTC'
+            f' at {datetime.datetime.now(datetime.UTC)} UTC'
             f'\n'
         )
         file.write('import typing\n')
