@@ -22,7 +22,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">Sparse Virtual File System
-   &#160;<span id="projectnumber">0.2.2</span>
+   &#160;<span id="projectnumber">0.3.0</span>
    </div>
    <div id="projectbrief">A Sparse Virtual File System.</div>
   </td>
@@ -69,7 +69,7 @@ $(function() {
 <div class="contents">
 <div class="textblock"><h1><a class="anchor" id="autotoc_md0"></a>
 Introduction</h1>
-<p>Somtimes you don't need the whole file. Sometimes you don't <em>want</em> the whole file. Especially if it is huge and on some remote server. But, you might know what parts of the file that you want and <code>svfsc</code> can help you store them locally so it looks <em>as if</em> you have access to the complete file but with just the pieces of interest.</p>
+<p>Sometimes you don't need the whole file. Sometimes you don't <em>want</em> the whole file. Especially if it is huge and on some remote server. But, you might know what parts of the file that you want and <code>svfsc</code> can help you store them locally so it looks <em>as if</em> you have access to the complete file but with just the pieces of interest.</p>
 <p><code>svfsc</code> is targeted at reading very large binary files such as TIFF, RP66V1, HDF5 where the structure is well known. For example you might want to parse a TIFF file for its metadata or for a particular image tile or strip which is a tiny fraction of the file itself.</p>
 <p><code>svfsc</code> implements a <em>Sparse Virtual File</em>, a specialised in-memory cache where a particular file might not be available but <em>parts of it can be obtained</em> without reading the whole file. A Sparse Virtual File (<a class="el" href="class_s_v_f_s_1_1_sparse_virtual_file.html" title="Implementation of a Sparse Virtual File.">SVFS::SparseVirtualFile</a>) is represented internally as a map of blocks of data with the key being their file offsets. Any write to an <a class="el" href="class_s_v_f_s_1_1_sparse_virtual_file.html" title="Implementation of a Sparse Virtual File.">SVFS::SparseVirtualFile</a> will coalesce these blocks where possible.</p>
 <p>A Sparse Virtual File System (<a class="el" href="class_s_v_f_s_1_1_sparse_virtual_file_system.html" title="A SparseVirtualFileSystem is a key/value store where the key is a file ID as a string and the value i...">SVFS::SparseVirtualFileSystem</a>) is an extension of this to provide a key/value store where the key is a file ID and the value a <a class="el" href="class_s_v_f_s_1_1_sparse_virtual_file.html" title="Implementation of a Sparse Virtual File.">SVFS::SparseVirtualFile</a>.</p>
