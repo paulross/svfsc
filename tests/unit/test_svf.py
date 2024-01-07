@@ -830,20 +830,25 @@ def test_SVF_ctor_config(args, kwargs, expected):
 
 
 @pytest.mark.parametrize(
-    'actions, expected',
+    'actions, expected_block_touch, expected_block_touches',
     (
-            (tuple(), dict()),
+            # Empty
+            (tuple(), 0, dict()),
+            # Write one block.
             (
                     (
                             ('write', (0, b' '),),
                     ),
+                    1,
                     {0: 0, },
             ),
+            # Write two blocks.
             (
                     (
                             ('write', (0, b' '),),
                             ('write', (128, b' '),),
                     ),
+                    2,
                     {0: 0, 1: 128},
             ),
             # Overwrite same, no change
@@ -852,6 +857,7 @@ def test_SVF_ctor_config(args, kwargs, expected):
                             ('write', (0, b' '),),
                             ('write', (0, b' '),),
                     ),
+                    2,
                     {1: 0},
             ),
             # Overwrite new with extended block
@@ -860,6 +866,7 @@ def test_SVF_ctor_config(args, kwargs, expected):
                             ('write', (0, b' '),),
                             ('write', (0, b'  '),),
                     ),
+                    2,
                     {1: 0},
             ),
             # Coalesce two blocks
@@ -868,6 +875,7 @@ def test_SVF_ctor_config(args, kwargs, expected):
                             ('write', (0, b' '),),
                             ('write', (1, b' '),),
                     ),
+                    2,
                     {1: 0},
             ),
             # Three separate blocks
@@ -877,7 +885,38 @@ def test_SVF_ctor_config(args, kwargs, expected):
                             ('write', (4, b' '),),
                             ('write', (8, b' '),),
                     ),
+                    3,
                     {0: 0, 1: 4, 2: 8},
+            ),
+            # Write one block then read it once.
+            (
+                    (
+                            ('write', (0, b' '),),
+                            ('read', (0, b' '),),
+                    ),
+                    2,
+                    {1: 0, },
+            ),
+            # Write one block then read it twice.
+            (
+                    (
+                            ('write', (0, b' '),),
+                            ('read', (0, b' '),),
+                            ('read', (0, b' '),),
+                    ),
+                    3,
+                    {2: 0, },
+            ),
+            # Write one block then read it thrice.
+            (
+                    (
+                            ('write', (0, b' '),),
+                            ('read', (0, b' '),),
+                            ('read', (0, b' '),),
+                            ('read', (0, b' '),),
+                    ),
+                    4,
+                    {3: 0, },
             ),
     ),
     ids=[
@@ -888,9 +927,12 @@ def test_SVF_ctor_config(args, kwargs, expected):
         'OverwriteExtend',
         'CoalesceTwoBlocks',
         'ThreeSeparateBlocks',
+        'WriteOneBlockThenReadIt',
+        'WriteOneBlockThenReadItTwice',
+        'WriteOneBlockThenReadItThrice',
     ],
 )
-def test_SVF_block_touches(actions, expected):
+def test_SVF_block_touches(actions, expected_block_touch, expected_block_touches):
     svf = svfsc.cSVF('id', 1.0)
     for action, (fpos, data) in actions:
         if action == 'write':
@@ -900,8 +942,10 @@ def test_SVF_block_touches(actions, expected):
             assert by == data
         else:
             assert 0
-    result = svf.block_touches()
-    assert result == expected
+    block_touch = svf.block_touch()
+    assert block_touch == expected_block_touch
+    block_touches = svf.block_touches()
+    assert block_touches == expected_block_touches
 
 
 def test_SVF_lru_punt_strategy():

@@ -468,9 +468,6 @@ namespace SVFS {
         void _write_append_new_to_old(t_fpos fpos, const char *new_data, size_t new_data_len,
                                       t_map::iterator base_block_iter);
 
-        // NOTE: This is const but read() is not as it updates metadata.
-        void _read(t_fpos fpos, size_t len, char *p) const;
-
         // Does not use mutex or checks integrity
         [[nodiscard]] t_fpos _file_position_immediatly_after_end() const noexcept;
 

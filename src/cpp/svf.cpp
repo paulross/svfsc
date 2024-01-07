@@ -492,13 +492,13 @@ namespace SVFS {
 
     /**
      * @brief Read data and write to the buffer provided by the caller.
-     * This is the const method as it does not update the internals.
+     * This also updated the non-const members.
      *
      * @param fpos File position to start the read.
      * @param len Length of the read.
      * @param p Buffer to copy the data into. It is up to the caller to make sure that p can contain len chars.
      */
-    void SparseVirtualFile::_read(t_fpos fpos, size_t len, char *p) const {
+    void SparseVirtualFile::read(t_fpos fpos, size_t len, char *p) {
 #ifdef SVF_THREAD_SAFE
         std::lock_guard<std::mutex> mutex(m_mutex);
 #endif
@@ -508,7 +508,7 @@ namespace SVFS {
             throw Exceptions::ExceptionSparseVirtualFileRead(
                     "SparseVirtualFile::read(): Sparse virtual file is empty.");
         }
-        t_map::const_iterator iter = m_svf.lower_bound(fpos);
+        t_map::iterator iter = m_svf.lower_bound(fpos);
         if (iter == m_svf.begin() && iter->first != fpos) {
             std::ostringstream os;
             os << "SparseVirtualFile::read():";
@@ -536,21 +536,9 @@ namespace SVFS {
             os << "SparseVirtualFile::read():";
             os << " memcpy failed " << fpos << " length " << len;
             throw Exceptions::ExceptionSparseVirtualFileRead(os.str());
-
         }
-    }
-
-    /**
-     * @brief Read data and write to the buffer provided by the caller.
-     * This also updated the non-const members.
-     *
-     * @param fpos File position to start the read.
-     * @param len Length of the read.
-     * @param p Buffer to copy the data into. It is up to the caller to make sure that p can contain len chars.
-     */
-    void SparseVirtualFile::read(t_fpos fpos, size_t len, char *p) {
-        _read(fpos, len, p);
         // Adjust non-const members
+        iter->second.block_touch = m_block_touch++;
         m_bytes_read += len;
         m_count_read += 1;
         m_time_read = std::chrono::system_clock::now();

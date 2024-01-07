@@ -1466,6 +1466,40 @@ namespace SVFS {
             return count;
         }
 
+        TestCount test_block_touch_single_block_read_updates(t_test_results &results) {
+            std::string test_name(__FUNCTION__);
+            int result = 0; // Success
+            TestCount count;
+            static char data[1 << 16]; // 65536 greedy_length
+
+            SparseVirtualFile svf("", 0.0);
+            auto time_start = std::chrono::high_resolution_clock::now();
+            result |= svf.block_touch() != 0;
+            // Write a block
+            svf.write(894, test_data_bytes_512, 22);
+            result |= svf.block_touch() != 1;
+
+            t_block_touches block_touches = svf.block_touches();
+            result |= block_touches.size() != 1;
+            result |= block_touches.begin()->first != 0;
+            result |= block_touches.begin()->second != 894;
+
+            // Read from the block, touch should be incremented.
+            svf.read(900, 4, data);
+            result |= svf.block_touch() != 2;
+            block_touches = svf.block_touches();
+            result |= block_touches.size() != 1;
+            result |= block_touches.begin()->first != 1;
+            result |= block_touches.begin()->second != 894;
+
+            std::chrono::duration<double> time_exec = std::chrono::high_resolution_clock::now() - time_start;
+            TestResult test_result = TestResult(__PRETTY_FUNCTION__, test_name, result, "", time_exec.count(),
+                                                svf.num_bytes());
+            results.push_back(test_result);
+            count.add_result(test_result.result());
+            return count;
+        }
+
         TestCount test_block_touch_two_blocks(t_test_results &results) {
             std::string test_name(__FUNCTION__);
             int result = 0; // Success
@@ -1861,6 +1895,7 @@ namespace SVFS {
             count += test_block_size_throws(results);
 
             count += test_block_touch_single_block(results);
+            count += test_block_touch_single_block_read_updates(results);
             count += test_block_touch_two_blocks(results);
             count += test_block_touch_coalesced(results);
 
