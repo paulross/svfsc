@@ -484,6 +484,7 @@ namespace SVFS {
             }
         }
         // Update internals.
+        // NOTE: m_block_touch is incremented in one of the three actual write methods.
         m_count_write += 1;
         m_bytes_write += len;
         m_time_write = std::chrono::system_clock::now();
@@ -492,7 +493,7 @@ namespace SVFS {
 
     /**
      * @brief Read data and write to the buffer provided by the caller.
-     * This also updated the non-const members.
+     * This is non-const as it updates the non-const members such as @c m_block_touch etc.
      *
      * @param fpos File position to start the read.
      * @param len Length of the read.

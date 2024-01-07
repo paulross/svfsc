@@ -975,7 +975,7 @@ def test_SVF_lru_punt_strategy():
 @pytest.mark.parametrize(
     'block_size, block_count, cache_upper_bound, exp_removed, exp_block_count, exp_num_bytes',
     (
-            # (128, 256, 1024, (128 * 256 - (7 * 128)), 7, 896),
+            (128, 256, 1024, (128 * 256 - (7 * 128)), 7, 896),
             (1024 ** 2, 8, 4 * 1024 ** 2, (8 - 3) * 1024 ** 2, 3, 3 * 1024 ** 2),
     )
 )
