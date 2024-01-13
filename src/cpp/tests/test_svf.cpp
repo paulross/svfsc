@@ -1690,7 +1690,6 @@ namespace SVFS {
         }
 
 
-
         // Test the basic operation of needs_many()
         TestCount test_needs_many_empty(t_test_results &results) {
             std::string test_name(__FUNCTION__);
@@ -1846,6 +1845,23 @@ namespace SVFS {
             return count;
         }
 
+
+        TestCount test_erase_updates_counters(t_test_results &results) {
+            TestCount count;
+            std::string test_name(__FUNCTION__);
+            int result = 0; // Success
+            SparseVirtualFile svf("", 0.0);
+            svf.write(64, test_data_bytes_512, 128);
+            auto time_start = std::chrono::high_resolution_clock::now();
+            std::chrono::duration<double> time_exec = std::chrono::high_resolution_clock::now() - time_start;
+            TestResult test_result = TestResult(__PRETTY_FUNCTION__, test_name, result, "", time_exec.count(),
+                                                svf.num_bytes());
+            results.push_back(test_result);
+            count.add_result(test_result.result());
+            return count;
+        }
+
+
 #define INCLUDE_TESTS 1
 
         TestCount test_svf_all(t_test_results &results) {
@@ -1912,6 +1928,10 @@ namespace SVFS {
             count += test_needs_many_empty_greedy_length(results);
             count += test_needs_many_one_block(results);
             count += test_needs_many_one_block_greedy(results);
+#endif
+#if INCLUDE_TESTS
+            // erase() causes m_blocks_erased and m_bytes_erased to be updated.
+            count += test_erase_updates_counters(results);
 #endif
             return count;
         }
