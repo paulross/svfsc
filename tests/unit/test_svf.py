@@ -294,6 +294,59 @@ def test_SVF_erase(blocks, erase_fpos):
 
 
 @pytest.mark.parametrize(
+    'blocks, erase_fpos',
+    (
+            (
+                    ((12, b'  '),),
+                    12,
+            ),
+
+    ),
+    ids=[
+        'Single erase',
+    ],
+)
+def test_SVF_erase_counters(blocks, erase_fpos):
+    s = svfsc.cSVF('id', 1.0)
+    for fpos, data in blocks:
+        s.write(fpos, data)
+    assert s.has_data(erase_fpos, 1)
+    s.erase(erase_fpos)
+    assert not s.has_data(erase_fpos, 1)
+    assert s.blocks_erased() == 1
+    assert s.bytes_erased() == 2
+    assert s.blocks_punted() == 0
+    assert s.bytes_punted() == 0
+
+
+@pytest.mark.parametrize(
+    'blocks, punt_level',
+    (
+            (
+                    (
+                            (12, b'  '),
+                            (512, b'  '),
+                    ),
+                    2,
+            ),
+
+    ),
+    ids=[
+        'Single erase',
+    ],
+)
+def test_SVF_punt_counters(blocks, punt_level):
+    s = svfsc.cSVF('id', 1.0)
+    for fpos, data in blocks:
+        s.write(fpos, data)
+    s.lru_punt(punt_level)
+    assert s.blocks_erased() == 1
+    assert s.bytes_erased() == 2
+    assert s.blocks_punted() == 1
+    assert s.bytes_punted() == 2
+
+
+@pytest.mark.parametrize(
     'blocks, erase_fpos, expected_message',
     (
             (
