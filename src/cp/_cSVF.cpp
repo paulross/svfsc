@@ -42,7 +42,6 @@
  * */
 
 /**
- *
  * This macro is for functions that return a size_t type such as count_write, count_read, bytes_write, bytes_read.
  *
  * Usage:
@@ -67,6 +66,10 @@ cp_SparseVirtualFile_##method_name(cp_SparseVirtualFile *self) { \
     PyObject *ret = NULL; \
     try { \
         ret = PyLong_FromLong(self->pSvf->method_name()); \
+    if (!ret) { \
+        PyErr_Format(PyExc_RuntimeError, "%s: Can not create integer from size_t.", __FUNCTION__); \
+        goto except; \
+    } \
     } catch (const std::exception &err) { \
         PyErr_Format(PyExc_RuntimeError, "%s: FATAL caught std::exception %s", __FUNCTION__, err.what()); \
         goto except; \
@@ -81,6 +84,18 @@ except: \
 finally: \
     return ret; \
 }
+
+/**
+ * Complimentary to SVFS_SVF_METHOD_SIZE_T_WRAPPER this is for adding methods into the methods table
+ * @c cp_SparseVirtualFile_methods
+ */
+#define SVFS_SVF_METHOD_SIZE_T_REGISTER(method_name) \
+    {                                                \
+        #method_name, \
+        (PyCFunction) cp_SparseVirtualFile_##method_name, \
+        METH_NOARGS, \
+        cp_SparseVirtualFile_##method_name##_docstring \
+    }
 
 /**
  * @brief Python wrapper around a C++ SparseVirtualFile.
@@ -1055,6 +1070,26 @@ SVFS_SVF_METHOD_SIZE_T_WRAPPER(
         "Returns the count of the number of bytes read from the Sparse Virtual File."
 );
 
+SVFS_SVF_METHOD_SIZE_T_WRAPPER(
+        blocks_erased,
+        "Returns the The total count of blocks that have been erased either directly or by punting."
+);
+
+SVFS_SVF_METHOD_SIZE_T_WRAPPER(
+        bytes_erased,
+        "Returns the The total count of bytes that have been erased either directly or by punting."
+);
+
+SVFS_SVF_METHOD_SIZE_T_WRAPPER(
+        blocks_punted,
+        "Returns the The total count of blocks that have been erased by punting."
+);
+
+SVFS_SVF_METHOD_SIZE_T_WRAPPER(
+        bytes_punted,
+        "Returns the The total count of bytes that have been erased by punting."
+);
+
 // NOTE: time_read and time_write functions are very similar.
 
 PyDoc_STRVAR(
@@ -1361,22 +1396,10 @@ static PyMethodDef cp_SparseVirtualFile_methods[] = {
                 "id",                    (PyCFunction) cp_SparseVirtualFile_id,                 METH_NOARGS,
                 cp_SparseVirtualFile_id_docstring
         },
-        {
-                "size_of",               (PyCFunction) cp_SparseVirtualFile_size_of,            METH_NOARGS,
-                cp_SparseVirtualFile_size_of_docstring
-        },
-        {
-                "num_bytes",             (PyCFunction) cp_SparseVirtualFile_num_bytes,          METH_NOARGS,
-                cp_SparseVirtualFile_num_bytes_docstring
-        },
-        {
-                "num_blocks",            (PyCFunction) cp_SparseVirtualFile_num_blocks,         METH_NOARGS,
-                cp_SparseVirtualFile_num_blocks_docstring
-        },
-        {
-                "last_file_position",    (PyCFunction) cp_SparseVirtualFile_last_file_position, METH_NOARGS,
-                cp_SparseVirtualFile_last_file_position_docstring
-        },
+        SVFS_SVF_METHOD_SIZE_T_REGISTER(size_of),
+        SVFS_SVF_METHOD_SIZE_T_REGISTER(num_bytes),
+        SVFS_SVF_METHOD_SIZE_T_REGISTER(num_blocks),
+        SVFS_SVF_METHOD_SIZE_T_REGISTER(last_file_position),
         {
                 "has_data",              (PyCFunction) cp_SparseVirtualFile_has_data,           METH_VARARGS |
                                                                                                 METH_KEYWORDS,
@@ -1412,10 +1435,7 @@ static PyMethodDef cp_SparseVirtualFile_methods[] = {
                 "blocks",                (PyCFunction) cp_SparseVirtualFile_blocks,             METH_NOARGS,
                 cp_SparseVirtualFile_blocks_docstring
         },
-        {
-                "block_touch",           (PyCFunction) cp_SparseVirtualFile_block_touch,        METH_NOARGS,
-                cp_SparseVirtualFile_block_touch_docstring
-        },
+        SVFS_SVF_METHOD_SIZE_T_REGISTER(block_touch),
         {
                 "block_touches",         (PyCFunction) cp_SparseVirtualFile_block_touches,      METH_NOARGS,
                 cp_SparseVirtualFile_block_touches_docstring
@@ -1437,26 +1457,14 @@ static PyMethodDef cp_SparseVirtualFile_methods[] = {
                 "file_mod_time",         (PyCFunction) cp_SparseVirtualFile_file_mod_time,      METH_NOARGS,
                 cp_SparseVirtualFile_file_mod_time_docstring
         },
-        {
-                "count_write",           (PyCFunction) cp_SparseVirtualFile_count_write,        METH_VARARGS |
-                                                                                                METH_KEYWORDS,
-                        cp_SparseVirtualFile_count_write_docstring
-        },
-        {
-                "count_read",            (PyCFunction) cp_SparseVirtualFile_count_read,         METH_VARARGS |
-                                                                                                METH_KEYWORDS,
-                        cp_SparseVirtualFile_count_read_docstring
-        },
-        {
-                "bytes_write",           (PyCFunction) cp_SparseVirtualFile_bytes_write,        METH_VARARGS |
-                                                                                                METH_KEYWORDS,
-                        cp_SparseVirtualFile_bytes_write_docstring
-        },
-        {
-                "bytes_read",            (PyCFunction) cp_SparseVirtualFile_bytes_read,         METH_VARARGS |
-                                                                                                METH_KEYWORDS,
-                        cp_SparseVirtualFile_bytes_read_docstring
-        },
+        SVFS_SVF_METHOD_SIZE_T_REGISTER(count_write),
+        SVFS_SVF_METHOD_SIZE_T_REGISTER(count_read),
+        SVFS_SVF_METHOD_SIZE_T_REGISTER(bytes_write),
+        SVFS_SVF_METHOD_SIZE_T_REGISTER(bytes_read),
+        SVFS_SVF_METHOD_SIZE_T_REGISTER(blocks_erased),
+        SVFS_SVF_METHOD_SIZE_T_REGISTER(bytes_erased),
+        SVFS_SVF_METHOD_SIZE_T_REGISTER(blocks_punted),
+        SVFS_SVF_METHOD_SIZE_T_REGISTER(bytes_punted),
         {
                 "time_write",            (PyCFunction) cp_SparseVirtualFile_time_write,         METH_NOARGS,
                 cp_SparseVirtualFile_time_write_docstring

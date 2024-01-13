@@ -306,7 +306,11 @@ namespace SVFS {
                 m_bytes_read(0),
                 m_time_write(std::chrono::time_point<std::chrono::system_clock>::min()),
                 m_time_read(std::chrono::time_point<std::chrono::system_clock>::min()),
-                m_block_touch(0) {
+                m_block_touch(0),
+                m_blocks_erased(0),
+                m_bytes_erased(0),
+                m_blocks_punted(0),
+                m_bytes_punted(0) {
         }
 
         // ---- Read and write etc. ----
@@ -378,6 +382,15 @@ namespace SVFS {
 
         /// Count of total bytes read with \c read() operations.
         [[nodiscard]] size_t bytes_read() const noexcept { return m_bytes_read; }
+
+        /// Returns the The total count of blocks that have been erased either directly or by punting.
+        [[nodiscard]] size_t blocks_erased() const noexcept { return m_blocks_erased; }
+        /// Returns the The total count of bytes that have been erased either directly or by punting.
+        [[nodiscard]] size_t bytes_erased() const noexcept { return m_bytes_erased; }
+        /// Returns the The total count of blocks that have been erased by punting.
+        [[nodiscard]] size_t blocks_punted() const noexcept { return m_blocks_punted; }
+        /// Returns the The total count of bytes that have been erased by punting.
+        [[nodiscard]] size_t bytes_punted() const noexcept { return m_bytes_punted; }
 
         /// Time of the last \c write() operation.
         /// This can be cast to \c std::chrono::time_point<double>
@@ -457,6 +470,14 @@ namespace SVFS {
         /// Thread mutex. This adds about 5-10% execution time compared with a single threaded version.
         mutable std::mutex m_mutex;
 #endif
+        /// The total count of blocks that have been erased either directly or by punting.
+        size_t m_blocks_erased;
+        /// The total count of bytes that have been erased either directly or by punting.
+        size_t m_bytes_erased;
+        /// The count of blocks that have been erased by punting.
+        size_t m_blocks_punted;
+        /// The count of bytes that have been erased by punting.
+        size_t m_bytes_punted;
     private:
         void _throw_diff(t_fpos fpos, const char *data, t_map::const_iterator iter, size_t index_iter) const;
 

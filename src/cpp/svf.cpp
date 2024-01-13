@@ -887,6 +887,8 @@ namespace SVFS {
         size_t ret = iter->second.data.size();
         m_bytes_total -= ret;
         m_svf.erase(iter);
+        m_blocks_erased++;
+        m_bytes_erased += ret;
         return ret;
     }
 
@@ -1025,11 +1027,13 @@ namespace SVFS {
             for (const auto &iter: touch_fpos_map) {
                 if (m_svf.size() > 1 and m_bytes_total >= cache_size_upper_bound) {
                     ret += _erase_no_lock(iter.second);
+                    m_blocks_punted++;
                 } else {
                     break;
                 }
             }
         }
+        m_bytes_punted += ret;
         return ret;
     }
 
