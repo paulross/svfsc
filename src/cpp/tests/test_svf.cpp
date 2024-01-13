@@ -1851,8 +1851,90 @@ namespace SVFS {
             std::string test_name(__FUNCTION__);
             int result = 0; // Success
             SparseVirtualFile svf("", 0.0);
-            svf.write(64, test_data_bytes_512, 128);
+
             auto time_start = std::chrono::high_resolution_clock::now();
+
+            // Values should be zero
+            result |= svf.blocks_erased() != 0;
+            result |= svf.bytes_erased() != 0;
+
+            svf.write(64, test_data_bytes_512, 128);
+
+            // Values should be zero
+            result |= svf.blocks_erased() != 0;
+            result |= svf.bytes_erased() != 0;
+
+            // Values should not be zero
+            svf.erase(64);
+            result |= svf.blocks_erased() != 1;
+            result |= svf.bytes_erased() != 128;
+
+            std::chrono::duration<double> time_exec = std::chrono::high_resolution_clock::now() - time_start;
+            TestResult test_result = TestResult(__PRETTY_FUNCTION__, test_name, result, "", time_exec.count(),
+                                                svf.num_bytes());
+            results.push_back(test_result);
+            count.add_result(test_result.result());
+            return count;
+        }
+
+        TestCount test_erase_updates_counters_not_punt(t_test_results &results) {
+            TestCount count;
+            std::string test_name(__FUNCTION__);
+            int result = 0; // Success
+            SparseVirtualFile svf("", 0.0);
+
+            auto time_start = std::chrono::high_resolution_clock::now();
+
+            // Values should be zero
+            result |= svf.blocks_punted() != 0;
+            result |= svf.bytes_punted() != 0;
+
+            svf.write(64, test_data_bytes_512, 128);
+
+            // Values should be zero
+            result |= svf.blocks_punted() != 0;
+            result |= svf.bytes_punted() != 0;
+
+            // Values should be zero as nothing got punted.
+            svf.erase(64);
+            result |= svf.blocks_punted() != 0;
+            result |= svf.bytes_punted() != 0;
+
+            std::chrono::duration<double> time_exec = std::chrono::high_resolution_clock::now() - time_start;
+            TestResult test_result = TestResult(__PRETTY_FUNCTION__, test_name, result, "", time_exec.count(),
+                                                svf.num_bytes());
+            results.push_back(test_result);
+            count.add_result(test_result.result());
+            return count;
+        }
+
+        TestCount test_punt_updates_counters(t_test_results &results) {
+            TestCount count;
+            std::string test_name(__FUNCTION__);
+            int result = 0; // Success
+            SparseVirtualFile svf("", 0.0);
+
+            auto time_start = std::chrono::high_resolution_clock::now();
+
+            // Values should be zero
+            result |= svf.blocks_punted() != 0;
+            result |= svf.bytes_punted() != 0;
+
+            svf.write(64, test_data_bytes_512, 128);
+            svf.write(512, test_data_bytes_512, 64);
+
+            // Values should be zero
+            result |= svf.blocks_punted() != 0;
+            result |= svf.bytes_punted() != 0;
+            result |= svf.num_blocks() != 2;
+
+            // Now punt to upperbound of 256, should leave one block.
+            svf.lru_punt(128 + 32);
+            result |= svf.num_blocks() != 1;
+
+            result |= svf.blocks_punted() != 1;
+            result |= svf.bytes_punted() != 128;
+
             std::chrono::duration<double> time_exec = std::chrono::high_resolution_clock::now() - time_start;
             TestResult test_result = TestResult(__PRETTY_FUNCTION__, test_name, result, "", time_exec.count(),
                                                 svf.num_bytes());
@@ -1932,6 +2014,8 @@ namespace SVFS {
 #if INCLUDE_TESTS
             // erase() causes m_blocks_erased and m_bytes_erased to be updated.
             count += test_erase_updates_counters(results);
+            count += test_erase_updates_counters_not_punt(results);
+            count += test_punt_updates_counters(results);
 #endif
             return count;
         }
