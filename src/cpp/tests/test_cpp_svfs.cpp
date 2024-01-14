@@ -42,7 +42,7 @@ namespace SVFS {
 
             auto time_start = std::chrono::high_resolution_clock::now();
             std::string version = SVFS_CPP_VERSION;
-            result |= version != "0.3.0";
+            result |= version != "0.4.0rc0";
             std::chrono::duration<double> time_exec = std::chrono::high_resolution_clock::now() - time_start;
             TestResult test_result = TestResult(__PRETTY_FUNCTION__, test_name, result, "", time_exec.count(), 1);
             results.push_back(test_result);
@@ -70,7 +70,7 @@ namespace SVFS {
             TestCount count;
 
             auto time_start = std::chrono::high_resolution_clock::now();
-            result |= SVFS_CPP_VERSION_MINOR != 3;
+            result |= SVFS_CPP_VERSION_MINOR != 4;
             std::chrono::duration<double> time_exec = std::chrono::high_resolution_clock::now() - time_start;
             TestResult test_result = TestResult(__PRETTY_FUNCTION__, test_name, result, "", time_exec.count(), 1);
             results.push_back(test_result);
@@ -98,7 +98,7 @@ namespace SVFS {
             TestCount count;
 
             auto time_start = std::chrono::high_resolution_clock::now();
-            result |= std::string(SVFS_CPP_VERSION_SUFFIX) != "";
+            result |= std::string(SVFS_CPP_VERSION_SUFFIX) != "rc0";
             std::chrono::duration<double> time_exec = std::chrono::high_resolution_clock::now() - time_start;
             TestResult test_result = TestResult(__PRETTY_FUNCTION__, test_name, result, "", time_exec.count(), 1);
             results.push_back(test_result);
