@@ -161,7 +161,7 @@ def _sim_write_index(vr_count, lr_count):
     bytes_write = 0
     # print()
     # t = time.perf_counter()
-    assert file_system.count_write(ID) == count_write
+    assert file_system.count_write() == count_write
     for vr in range(vr_count):
         fpos = 80 + vr * 8004
         # print(f'Write vr fpos={fpos}')
