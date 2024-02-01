@@ -930,19 +930,19 @@ namespace SVFS {
         std::set<t_block_touch> block_touches;
 
         while (iter != m_svf.end()) {
-            t_fpos fpos = iter->first;
-            size_t size = iter->second.data.size();
             if (iter->second.data.empty()) {
                 return ERROR_EMPTY_BLOCK;
             }
-            if (iter != m_svf.begin() && fpos == prev_fpos && size == prev_size) {
-                return ERROR_DUPLICATE_BLOCK;
-            }
-            if (iter != m_svf.begin() && prev_fpos + prev_size == iter->first) {
-                return ERROR_ADJACENT_BLOCKS;
-            }
-            if (iter != m_svf.begin() && prev_fpos + prev_size > iter->first) {
-                return ERROR_BLOCKS_OVERLAP;
+            if (iter != m_svf.begin()) {
+                if (prev_fpos == iter->first && prev_size == iter->second.data.size()) {
+                    return ERROR_DUPLICATE_BLOCK;
+                }
+                if (prev_fpos + prev_size == iter->first) {
+                    return ERROR_ADJACENT_BLOCKS;
+                }
+                if (prev_fpos + prev_size > iter->first) {
+                    return ERROR_BLOCKS_OVERLAP;
+                }
             }
             if (block_touches.find(iter->second.block_touch) != block_touches.end()) {
                 // Duplicate block_touches value

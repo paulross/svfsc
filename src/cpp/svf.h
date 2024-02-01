@@ -239,7 +239,7 @@ namespace SVFS {
             explicit ExceptionSparseVirtualFileErase(const std::string &in_msg) : ExceptionSparseVirtualFile(in_msg) {}
         };
 
-    } //namespace Exceptions {
+    } // namespace Exceptions {
 
 #pragma mark - typedefs
 
@@ -249,7 +249,7 @@ namespace SVFS {
     typedef std::pair<t_fpos, size_t> t_seek_read;
     /** Typedef for a vector of (\c seek() followed by a \c read() ) lengths. */
     typedef std::vector<t_seek_read> t_seek_reads;
-    /** Counter type that increments on every data 'touch' */
+    /** Counter type that increments on every data 'touch'. */
     typedef uint32_t t_block_touch;
     /** Map of block touch (smallest is younger) to file position block. */
     typedef std::map<t_block_touch, t_fpos> t_block_touches;
@@ -326,6 +326,7 @@ namespace SVFS {
         /// Create a new fragmentation list of seek/read instructions.
         [[nodiscard]] t_seek_reads need(t_fpos fpos, size_t len, size_t greedy_length = 0) const noexcept;
         /// Create a new fragmentation list of seek/read instructions from a list of seek read instructions.
+        /// Non-const argument as it will be sorted in-place.
         [[nodiscard]] t_seek_reads need_many(t_seek_reads &seek_reads, size_t greedy_length = 0) const noexcept;
 
         /// Executes the data deletion strategy.
@@ -393,12 +394,14 @@ namespace SVFS {
         [[nodiscard]] size_t bytes_punted() const noexcept { return m_bytes_punted; }
 
         /// Time of the last \c write() operation.
+        /// If no writes have been made this returns \c std::chrono::time_point<std::chrono::system_clock>::min()
         /// This can be cast to \c std::chrono::time_point<double>
         [[nodiscard]] std::chrono::time_point<std::chrono::system_clock> time_write() const noexcept {
             return m_time_write;
         }
 
         /// Time of the last \c read() operation.
+        /// If no reads have been made this returns \c std::chrono::time_point<std::chrono::system_clock>::min()
         /// This can be cast to \c std::chrono::time_point<double>
         [[nodiscard]] std::chrono::time_point<std::chrono::system_clock> time_read() const noexcept {
             return m_time_read;
@@ -434,7 +437,7 @@ namespace SVFS {
     private:
         /// The SVF ID
         std::string m_id;
-        /// The original file modification data a UNIX time. This is used for consistency checking.
+        /// The original file modification date as UNIX time. This is used for consistency checking.
         double m_file_mod_time;
         /// The SVF configuration.
         tSparseVirtualFileConfig m_config;
