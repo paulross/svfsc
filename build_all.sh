@@ -188,4 +188,6 @@ create_documentation
 echo "===> dist/ result:"
 show_results_of_dist
 #deactivate_virtual_environment
+echo "===> Date:"
+date
 echo "===> All done"

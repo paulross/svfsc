@@ -22,7 +22,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">Sparse Virtual File System
-   &#160;<span id="projectnumber">0.3.0</span>
+   &#160;<span id="projectnumber">0.4.0rc0</span>
    </div>
    <div id="projectbrief">A Sparse Virtual File System.</div>
   </td>
@@ -109,7 +109,7 @@ Public Member Functions</h2></td></tr>
 <tr class="memdesc:ade33f55fdcee892fbc10a44aa219b6c5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Create a new fragmentation list of seek/read instructions.  <a href="class_s_v_f_s_1_1_sparse_virtual_file.html#ade33f55fdcee892fbc10a44aa219b6c5">More...</a><br /></td></tr>
 <tr class="separator:ade33f55fdcee892fbc10a44aa219b6c5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1a687c5d6ccbc55dcee600eaf5e6e9b7"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespace_s_v_f_s.html#a5674f69324a17c418f065ce57c90538e">t_seek_reads</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_s_v_f_s_1_1_sparse_virtual_file.html#a1a687c5d6ccbc55dcee600eaf5e6e9b7">need_many</a> (<a class="el" href="namespace_s_v_f_s.html#a5674f69324a17c418f065ce57c90538e">t_seek_reads</a> &amp;seek_reads, size_t greedy_length=0) const noexcept</td></tr>
-<tr class="memdesc:a1a687c5d6ccbc55dcee600eaf5e6e9b7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Create a new fragmentation list of seek/read instructions from a list of seek read instructions.  <a href="class_s_v_f_s_1_1_sparse_virtual_file.html#a1a687c5d6ccbc55dcee600eaf5e6e9b7">More...</a><br /></td></tr>
+<tr class="memdesc:a1a687c5d6ccbc55dcee600eaf5e6e9b7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Given many [(file position, lengths), ...] what data do I need that I don't yet have?  <a href="class_s_v_f_s_1_1_sparse_virtual_file.html#a1a687c5d6ccbc55dcee600eaf5e6e9b7">More...</a><br /></td></tr>
 <tr class="separator:a1a687c5d6ccbc55dcee600eaf5e6e9b7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a60494f093b0d344c2287564a6e0c053d"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_s_v_f_s_1_1_sparse_virtual_file.html#a60494f093b0d344c2287564a6e0c053d">clear</a> () noexcept</td></tr>
 <tr class="memdesc:a60494f093b0d344c2287564a6e0c053d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Executes the data deletion strategy.  <a href="class_s_v_f_s_1_1_sparse_virtual_file.html#a60494f093b0d344c2287564a6e0c053d">More...</a><br /></td></tr>
@@ -158,6 +158,18 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a009ac567b03d6496a26d3f64de9ff66d"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_s_v_f_s_1_1_sparse_virtual_file.html#a009ac567b03d6496a26d3f64de9ff66d">bytes_read</a> () const noexcept</td></tr>
 <tr class="memdesc:a009ac567b03d6496a26d3f64de9ff66d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Count of total bytes read with <code><a class="el" href="class_s_v_f_s_1_1_sparse_virtual_file.html#ad92b513994c68322312358db4197ac94" title="Read data and write to the buffer provided by the caller. This is non-const as it updates the non-con...">read()</a></code> operations.  <a href="class_s_v_f_s_1_1_sparse_virtual_file.html#a009ac567b03d6496a26d3f64de9ff66d">More...</a><br /></td></tr>
 <tr class="separator:a009ac567b03d6496a26d3f64de9ff66d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a98702dcd0f564aeda8ccb7ee89769e62"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_s_v_f_s_1_1_sparse_virtual_file.html#a98702dcd0f564aeda8ccb7ee89769e62">blocks_erased</a> () const noexcept</td></tr>
+<tr class="memdesc:a98702dcd0f564aeda8ccb7ee89769e62"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the The total count of blocks that have been erased either directly or by punting.  <a href="class_s_v_f_s_1_1_sparse_virtual_file.html#a98702dcd0f564aeda8ccb7ee89769e62">More...</a><br /></td></tr>
+<tr class="separator:a98702dcd0f564aeda8ccb7ee89769e62"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a44fb876940069e8b38725a46a2d65639"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_s_v_f_s_1_1_sparse_virtual_file.html#a44fb876940069e8b38725a46a2d65639">bytes_erased</a> () const noexcept</td></tr>
+<tr class="memdesc:a44fb876940069e8b38725a46a2d65639"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the The total count of bytes that have been erased either directly or by punting.  <a href="class_s_v_f_s_1_1_sparse_virtual_file.html#a44fb876940069e8b38725a46a2d65639">More...</a><br /></td></tr>
+<tr class="separator:a44fb876940069e8b38725a46a2d65639"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3330aa5412a65040135012a9866b2a60"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_s_v_f_s_1_1_sparse_virtual_file.html#a3330aa5412a65040135012a9866b2a60">blocks_punted</a> () const noexcept</td></tr>
+<tr class="memdesc:a3330aa5412a65040135012a9866b2a60"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the The total count of blocks that have been erased by punting.  <a href="class_s_v_f_s_1_1_sparse_virtual_file.html#a3330aa5412a65040135012a9866b2a60">More...</a><br /></td></tr>
+<tr class="separator:a3330aa5412a65040135012a9866b2a60"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7720aa1fedeebcc3847b262aa151df60"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_s_v_f_s_1_1_sparse_virtual_file.html#a7720aa1fedeebcc3847b262aa151df60">bytes_punted</a> () const noexcept</td></tr>
+<tr class="memdesc:a7720aa1fedeebcc3847b262aa151df60"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the The total count of bytes that have been erased by punting.  <a href="class_s_v_f_s_1_1_sparse_virtual_file.html#a7720aa1fedeebcc3847b262aa151df60">More...</a><br /></td></tr>
+<tr class="separator:a7720aa1fedeebcc3847b262aa151df60"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4dad8e7b97912c6c5b54a5230fc306ac"><td class="memItemLeft" align="right" valign="top">std::chrono::time_point&lt; std::chrono::system_clock &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_s_v_f_s_1_1_sparse_virtual_file.html#a4dad8e7b97912c6c5b54a5230fc306ac">time_write</a> () const noexcept</td></tr>
 <tr class="separator:a4dad8e7b97912c6c5b54a5230fc306ac"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a91bf020a4ff40d4d232bf8ff695c84a7"><td class="memItemLeft" align="right" valign="top">std::chrono::time_point&lt; std::chrono::system_clock &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_s_v_f_s_1_1_sparse_virtual_file.html#a91bf020a4ff40d4d232bf8ff695c84a7">time_read</a> () const noexcept</td></tr>
@@ -251,7 +263,7 @@ Private Attributes</h2></td></tr>
 <tr class="memdesc:ae77810bd9ca991f4b462bb5d671026f7"><td class="mdescLeft">&#160;</td><td class="mdescRight">The SVF ID.  <a href="class_s_v_f_s_1_1_sparse_virtual_file.html#ae77810bd9ca991f4b462bb5d671026f7">More...</a><br /></td></tr>
 <tr class="separator:ae77810bd9ca991f4b462bb5d671026f7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ade5930e519f16ef64d6023381c2b010b"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_s_v_f_s_1_1_sparse_virtual_file.html#ade5930e519f16ef64d6023381c2b010b">m_file_mod_time</a></td></tr>
-<tr class="memdesc:ade5930e519f16ef64d6023381c2b010b"><td class="mdescLeft">&#160;</td><td class="mdescRight">The original file modification data a UNIX time. This is used for consistency checking.  <a href="class_s_v_f_s_1_1_sparse_virtual_file.html#ade5930e519f16ef64d6023381c2b010b">More...</a><br /></td></tr>
+<tr class="memdesc:ade5930e519f16ef64d6023381c2b010b"><td class="mdescLeft">&#160;</td><td class="mdescRight">The original file modification date as UNIX time. This is used for consistency checking.  <a href="class_s_v_f_s_1_1_sparse_virtual_file.html#ade5930e519f16ef64d6023381c2b010b">More...</a><br /></td></tr>
 <tr class="separator:ade5930e519f16ef64d6023381c2b010b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a356bad14f44aaca0b0e0a334295a3d87"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespace_s_v_f_s.html#a1eab55d2643d9e51c4f4595b78afe9af">tSparseVirtualFileConfig</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_s_v_f_s_1_1_sparse_virtual_file.html#a356bad14f44aaca0b0e0a334295a3d87">m_config</a></td></tr>
 <tr class="memdesc:a356bad14f44aaca0b0e0a334295a3d87"><td class="mdescLeft">&#160;</td><td class="mdescRight">The SVF configuration.  <a href="class_s_v_f_s_1_1_sparse_virtual_file.html#a356bad14f44aaca0b0e0a334295a3d87">More...</a><br /></td></tr>
@@ -284,6 +296,18 @@ Private Attributes</h2></td></tr>
 <tr class="memitem:ad4ca5dd3feac91a4b891ebc13fe8ba6e"><td class="memItemLeft" align="right" valign="top">std::mutex&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_s_v_f_s_1_1_sparse_virtual_file.html#ad4ca5dd3feac91a4b891ebc13fe8ba6e">m_mutex</a></td></tr>
 <tr class="memdesc:ad4ca5dd3feac91a4b891ebc13fe8ba6e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Thread mutex. This adds about 5-10% execution time compared with a single threaded version.  <a href="class_s_v_f_s_1_1_sparse_virtual_file.html#ad4ca5dd3feac91a4b891ebc13fe8ba6e">More...</a><br /></td></tr>
 <tr class="separator:ad4ca5dd3feac91a4b891ebc13fe8ba6e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a50c71f2fd2d1aba0de7f4a38d10ae044"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_s_v_f_s_1_1_sparse_virtual_file.html#a50c71f2fd2d1aba0de7f4a38d10ae044">m_blocks_erased</a></td></tr>
+<tr class="memdesc:a50c71f2fd2d1aba0de7f4a38d10ae044"><td class="mdescLeft">&#160;</td><td class="mdescRight">The total count of blocks that have been erased either directly or by punting.  <a href="class_s_v_f_s_1_1_sparse_virtual_file.html#a50c71f2fd2d1aba0de7f4a38d10ae044">More...</a><br /></td></tr>
+<tr class="separator:a50c71f2fd2d1aba0de7f4a38d10ae044"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a49040796a4b59d7d2ac4285ec71ae3de"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_s_v_f_s_1_1_sparse_virtual_file.html#a49040796a4b59d7d2ac4285ec71ae3de">m_bytes_erased</a></td></tr>
+<tr class="memdesc:a49040796a4b59d7d2ac4285ec71ae3de"><td class="mdescLeft">&#160;</td><td class="mdescRight">The total count of bytes that have been erased either directly or by punting.  <a href="class_s_v_f_s_1_1_sparse_virtual_file.html#a49040796a4b59d7d2ac4285ec71ae3de">More...</a><br /></td></tr>
+<tr class="separator:a49040796a4b59d7d2ac4285ec71ae3de"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a29a124b18adfd859010434f7966780d9"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_s_v_f_s_1_1_sparse_virtual_file.html#a29a124b18adfd859010434f7966780d9">m_blocks_punted</a></td></tr>
+<tr class="memdesc:a29a124b18adfd859010434f7966780d9"><td class="mdescLeft">&#160;</td><td class="mdescRight">The count of blocks that have been erased by punting.  <a href="class_s_v_f_s_1_1_sparse_virtual_file.html#a29a124b18adfd859010434f7966780d9">More...</a><br /></td></tr>
+<tr class="separator:a29a124b18adfd859010434f7966780d9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1b4a550ca8131b0f1b7a814ae6d367d0"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_s_v_f_s_1_1_sparse_virtual_file.html#a1b4a550ca8131b0f1b7a814ae6d367d0">m_bytes_punted</a></td></tr>
+<tr class="memdesc:a1b4a550ca8131b0f1b7a814ae6d367d0"><td class="mdescLeft">&#160;</td><td class="mdescRight">The count of bytes that have been erased by punting.  <a href="class_s_v_f_s_1_1_sparse_virtual_file.html#a1b4a550ca8131b0f1b7a814ae6d367d0">More...</a><br /></td></tr>
+<tr class="separator:a1b4a550ca8131b0f1b7a814ae6d367d0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Implementation of a <em>Sparse Virtual File</em>. </p>
@@ -313,7 +337,7 @@ Private Attributes</h2></td></tr>
 
 <p>Typedef for the map of file blocks &lt;file_position, data&gt;. </p>
 
-<p class="definition">Definition at line <a class="el" href="svf_8h_source.html#l00451">451</a> of file <a class="el" href="svf_8h_source.html">svf.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="svf_8h_source.html#l00467">467</a> of file <a class="el" href="svf_8h_source.html">svf.h</a>.</p>
 
 </div>
 </div>
@@ -356,7 +380,7 @@ Private Attributes</h2></td></tr>
 </td></tr>
 </table>
 
-<p class="definition">Definition at line <a class="el" href="svf_8h_source.html#l00486">486</a> of file <a class="el" href="svf_8h_source.html">svf.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="svf_8h_source.html#l00510">510</a> of file <a class="el" href="svf_8h_source.html">svf.h</a>.</p>
 
 </div>
 </div>
@@ -496,7 +520,7 @@ Private Attributes</h2></td></tr>
 
 <p>Destruction just clears the internal map. </p>
 
-<p class="definition">Definition at line <a class="el" href="svf_8h_source.html#l00419">419</a> of file <a class="el" href="svf_8h_source.html">svf.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="svf_8h_source.html#l00435">435</a> of file <a class="el" href="svf_8h_source.html">svf.h</a>.</p>
 
 </div>
 </div>
@@ -576,7 +600,7 @@ Private Attributes</h2></td></tr>
 <p>Callers can use this to make informed decisions about punting older blocks.</p>
 <dl class="section return"><dt>Returns</dt><dd>A map std::map&lt;t_block_touch, t_fpos&gt;. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="svf_8cpp_source.html#l00983">983</a> of file <a class="el" href="svf_8cpp_source.html">svf.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="svf_8cpp_source.html#l00985">985</a> of file <a class="el" href="svf_8cpp_source.html">svf.cpp</a>.</p>
 
 </div>
 </div>
@@ -652,7 +676,7 @@ Private Attributes</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Last known file position. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="svf_8cpp_source.html#l01064">1064</a> of file <a class="el" href="svf_8cpp_source.html">svf.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="svf_8cpp_source.html#l01068">1068</a> of file <a class="el" href="svf_8cpp_source.html">svf.cpp</a>.</p>
 
 </div>
 </div>
@@ -683,7 +707,7 @@ Private Attributes</h2></td></tr>
 <p>Of course this is not the EOF position as we may not have been offered that yet. This does not have use a lock.</p>
 <dl class="section return"><dt>Returns</dt><dd>The last know file position. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="svf_8cpp_source.html#l01045">1045</a> of file <a class="el" href="svf_8cpp_source.html">svf.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="svf_8cpp_source.html#l01049">1049</a> of file <a class="el" href="svf_8cpp_source.html">svf.cpp</a>.</p>
 
 </div>
 </div>
@@ -1139,7 +1163,7 @@ Private Attributes</h2></td></tr>
 
 <p>Return the latest value of the monotonically increasing block_touch value. </p>
 
-<p class="definition">Definition at line <a class="el" href="svf_8h_source.html#l00395">395</a> of file <a class="el" href="svf_8h_source.html">svf.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="svf_8h_source.html#l00411">411</a> of file <a class="el" href="svf_8h_source.html">svf.h</a>.</p>
 
 </div>
 </div>
@@ -1170,7 +1194,7 @@ Private Attributes</h2></td></tr>
 <p>Callers can use this to make informed decisions about punting older blocks.</p>
 <dl class="section return"><dt>Returns</dt><dd>A map std::map&lt;t_block_touch, t_fpos&gt;. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="svf_8cpp_source.html#l01001">1001</a> of file <a class="el" href="svf_8cpp_source.html">svf.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="svf_8cpp_source.html#l01003">1003</a> of file <a class="el" href="svf_8cpp_source.html">svf.cpp</a>.</p>
 
 </div>
 </div>
@@ -1205,6 +1229,122 @@ Private Attributes</h2></td></tr>
 
 </div>
 </div>
+<a id="a98702dcd0f564aeda8ccb7ee89769e62"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a98702dcd0f564aeda8ccb7ee89769e62">&#9670;&nbsp;</a></span>blocks_erased()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">size_t SVFS::SparseVirtualFile::blocks_erased </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Returns the The total count of blocks that have been erased either directly or by punting. </p>
+
+<p class="definition">Definition at line <a class="el" href="svf_8h_source.html#l00388">388</a> of file <a class="el" href="svf_8h_source.html">svf.h</a>.</p>
+
+</div>
+</div>
+<a id="a3330aa5412a65040135012a9866b2a60"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3330aa5412a65040135012a9866b2a60">&#9670;&nbsp;</a></span>blocks_punted()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">size_t SVFS::SparseVirtualFile::blocks_punted </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Returns the The total count of blocks that have been erased by punting. </p>
+
+<p class="definition">Definition at line <a class="el" href="svf_8h_source.html#l00392">392</a> of file <a class="el" href="svf_8h_source.html">svf.h</a>.</p>
+
+</div>
+</div>
+<a id="a44fb876940069e8b38725a46a2d65639"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a44fb876940069e8b38725a46a2d65639">&#9670;&nbsp;</a></span>bytes_erased()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">size_t SVFS::SparseVirtualFile::bytes_erased </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Returns the The total count of bytes that have been erased either directly or by punting. </p>
+
+<p class="definition">Definition at line <a class="el" href="svf_8h_source.html#l00390">390</a> of file <a class="el" href="svf_8h_source.html">svf.h</a>.</p>
+
+</div>
+</div>
+<a id="a7720aa1fedeebcc3847b262aa151df60"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7720aa1fedeebcc3847b262aa151df60">&#9670;&nbsp;</a></span>bytes_punted()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">size_t SVFS::SparseVirtualFile::bytes_punted </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Returns the The total count of bytes that have been erased by punting. </p>
+
+<p class="definition">Definition at line <a class="el" href="svf_8h_source.html#l00394">394</a> of file <a class="el" href="svf_8h_source.html">svf.h</a>.</p>
+
+</div>
+</div>
 <a id="a009ac567b03d6496a26d3f64de9ff66d"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a009ac567b03d6496a26d3f64de9ff66d">&#9670;&nbsp;</a></span>bytes_read()</h2>
 
@@ -1230,7 +1370,7 @@ Private Attributes</h2></td></tr>
 
 <p>Count of total bytes read with <code><a class="el" href="class_s_v_f_s_1_1_sparse_virtual_file.html#ad92b513994c68322312358db4197ac94" title="Read data and write to the buffer provided by the caller. This is non-const as it updates the non-con...">read()</a></code> operations. </p>
 
-<p class="definition">Definition at line <a class="el" href="svf_8h_source.html#l00380">380</a> of file <a class="el" href="svf_8h_source.html">svf.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="svf_8h_source.html#l00385">385</a> of file <a class="el" href="svf_8h_source.html">svf.h</a>.</p>
 
 </div>
 </div>
@@ -1259,7 +1399,7 @@ Private Attributes</h2></td></tr>
 
 <p>Count of total bytes written with <code><a class="el" href="class_s_v_f_s_1_1_sparse_virtual_file.html#a5ae9a0a31892a3b41581ab888dd1323c" title="Write the data a the given file position.">write()</a></code> operations. </p>
 
-<p class="definition">Definition at line <a class="el" href="svf_8h_source.html#l00377">377</a> of file <a class="el" href="svf_8h_source.html">svf.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="svf_8h_source.html#l00382">382</a> of file <a class="el" href="svf_8h_source.html">svf.h</a>.</p>
 
 </div>
 </div>
@@ -1322,7 +1462,7 @@ m_time_write, m_time_read are maintained. </dd></dl>
 
 <p>The configuration. </p>
 
-<p class="definition">Definition at line <a class="el" href="svf_8h_source.html#l00368">368</a> of file <a class="el" href="svf_8h_source.html">svf.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="svf_8h_source.html#l00373">373</a> of file <a class="el" href="svf_8h_source.html">svf.h</a>.</p>
 
 </div>
 </div>
@@ -1351,7 +1491,7 @@ m_time_write, m_time_read are maintained. </dd></dl>
 
 <p>Count of <code><a class="el" href="class_s_v_f_s_1_1_sparse_virtual_file.html#ad92b513994c68322312358db4197ac94" title="Read data and write to the buffer provided by the caller. This is non-const as it updates the non-con...">read()</a></code> operations. </p>
 
-<p class="definition">Definition at line <a class="el" href="svf_8h_source.html#l00374">374</a> of file <a class="el" href="svf_8h_source.html">svf.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="svf_8h_source.html#l00379">379</a> of file <a class="el" href="svf_8h_source.html">svf.h</a>.</p>
 
 </div>
 </div>
@@ -1380,7 +1520,7 @@ m_time_write, m_time_read are maintained. </dd></dl>
 
 <p>Count of <code><a class="el" href="class_s_v_f_s_1_1_sparse_virtual_file.html#a5ae9a0a31892a3b41581ab888dd1323c" title="Write the data a the given file position.">write()</a></code> operations. </p>
 
-<p class="definition">Definition at line <a class="el" href="svf_8h_source.html#l00371">371</a> of file <a class="el" href="svf_8h_source.html">svf.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="svf_8h_source.html#l00376">376</a> of file <a class="el" href="svf_8h_source.html">svf.h</a>.</p>
 
 </div>
 </div>
@@ -1411,7 +1551,7 @@ m_time_write, m_time_read are maintained. </dd></dl>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Size of the block that was removed. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="svf_8cpp_source.html#l00901">901</a> of file <a class="el" href="svf_8cpp_source.html">svf.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="svf_8cpp_source.html#l00903">903</a> of file <a class="el" href="svf_8cpp_source.html">svf.cpp</a>.</p>
 
 </div>
 </div>
@@ -1440,7 +1580,7 @@ m_time_write, m_time_read are maintained. </dd></dl>
 
 <p>The file modification time as a double representing UNIX seconds. </p>
 
-<p class="definition">Definition at line <a class="el" href="svf_8h_source.html#l00365">365</a> of file <a class="el" href="svf_8h_source.html">svf.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="svf_8h_source.html#l00370">370</a> of file <a class="el" href="svf_8h_source.html">svf.h</a>.</p>
 
 </div>
 </div>
@@ -1469,7 +1609,7 @@ m_time_write, m_time_read are maintained. </dd></dl>
 </div><div class="memdoc">
 <p>Check the clients file modification time has changed. Caller has to decide what to do... </p>
 
-<p class="definition">Definition at line <a class="el" href="svf_8h_source.html#l00356">356</a> of file <a class="el" href="svf_8h_source.html">svf.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="svf_8h_source.html#l00361">361</a> of file <a class="el" href="svf_8h_source.html">svf.h</a>.</p>
 
 </div>
 </div>
@@ -1548,7 +1688,7 @@ m_time_write, m_time_read are maintained. </dd></dl>
 
 <p>The ID of the file. </p>
 
-<p class="definition">Definition at line <a class="el" href="svf_8h_source.html#l00362">362</a> of file <a class="el" href="svf_8h_source.html">svf.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="svf_8h_source.html#l00367">367</a> of file <a class="el" href="svf_8h_source.html">svf.h</a>.</p>
 
 </div>
 </div>
@@ -1586,7 +1726,7 @@ m_time_write, m_time_read are maintained. </dd></dl>
 </ul>
 <dl class="section return"><dt>Returns</dt><dd>An error condition or <code>ERROR_NONE</code> if the integrity is correct. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="svf_8cpp_source.html#l00923">923</a> of file <a class="el" href="svf_8cpp_source.html">svf.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="svf_8cpp_source.html#l00925">925</a> of file <a class="el" href="svf_8cpp_source.html">svf.cpp</a>.</p>
 
 </div>
 </div>
@@ -1618,7 +1758,7 @@ m_time_write, m_time_read are maintained. </dd></dl>
 <p>Of course this is not the EOF position as we may not have been offered that yet.</p>
 <dl class="section return"><dt>Returns</dt><dd>The last known file position. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="svf_8cpp_source.html#l00968">968</a> of file <a class="el" href="svf_8cpp_source.html">svf.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="svf_8cpp_source.html#l00970">970</a> of file <a class="el" href="svf_8cpp_source.html">svf.cpp</a>.</p>
 
 </div>
 </div>
@@ -1646,7 +1786,7 @@ m_time_write, m_time_read are maintained. </dd></dl>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="svf_8cpp_source.html#l01017">1017</a> of file <a class="el" href="svf_8cpp_source.html">svf.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="svf_8cpp_source.html#l01019">1019</a> of file <a class="el" href="svf_8cpp_source.html">svf.cpp</a>.</p>
 
 </div>
 </div>
@@ -1693,7 +1833,7 @@ m_time_write, m_time_read are maintained. </dd></dl>
 <p>Create a new fragmentation list of seek/read instructions. </p>
 <p>Given a file position and a length what data do I need that I don't yet have?</p>
 <p>This takes an optional argument <code>greedy_length</code> that can be useful when dealing with remote files on high latency networks. The <code>greedy_length</code> will determine the minimum read length and this may well change a series of small reads into a shorter series of larger reads. This might well improve the read performance at the expense of cacheing extra unused data.</p>
-<dl class="section see"><dt>See also</dt><dd><a class="el" href="class_s_v_f_s_1_1_sparse_virtual_file.html#a1a687c5d6ccbc55dcee600eaf5e6e9b7" title="Create a new fragmentation list of seek/read instructions from a list of seek read instructions.">need_many()</a></dd></dl>
+<dl class="section see"><dt>See also</dt><dd><a class="el" href="class_s_v_f_s_1_1_sparse_virtual_file.html#a1a687c5d6ccbc55dcee600eaf5e6e9b7" title="Given many [(file position, lengths), ...] what data do I need that I don&#39;t yet have?">need_many()</a></dd></dl>
 <dl class="section note"><dt>Note</dt><dd>The <code>greedy_length</code> might create read values that already exist in the SVF. If <code>SFVS::tSparseVirtualFileConfig</code> <code>compare_for_diff</code> is true then this will trigger a data comparison.</dd>
 <dd>
 If a <code>greedy_length</code> is given this will be the <em>minimum</em> size of the length of the required block. If the length of the required block is so large (because of existing blocks likely to be coalesced) then the user might want to split the length, for example, into multiple (smaller) GET requests which will then be coalesced on <code><a class="el" href="class_s_v_f_s_1_1_sparse_virtual_file.html#a5ae9a0a31892a3b41581ab888dd1323c" title="Write the data a the given file position.">write()</a></code> </dd></dl>
@@ -1746,8 +1886,8 @@ If a <code>greedy_length</code> is given this will be the <em>minimum</em> size 
 </table>
 </div><div class="memdoc">
 
-<p>Create a new fragmentation list of seek/read instructions from a list of seek read instructions. </p>
-<p>Given many [(file position, lengths), ...] what data do I need that I don't yet have?</p>
+<p>Given many [(file position, lengths), ...] what data do I need that I don't yet have? </p>
+<p>Create a new fragmentation list of seek/read instructions from a list of seek read instructions. Non-const argument as it will be sorted in-place.</p>
 <p>This takes an optional argument <code>greedy_length</code> that can be useful when dealing with remote files on high latency networks. The <code>greedy_length</code> will determine the minimum read length and this may well change a series of small reads into a shorter series of larger reads. This might well improve the read performance at the expense of cacheing extra unused data.</p>
 <dl class="section see"><dt>See also</dt><dd><a class="el" href="class_s_v_f_s_1_1_sparse_virtual_file.html#ade33f55fdcee892fbc10a44aa219b6c5" title="Create a new fragmentation list of seek/read instructions.">need()</a></dd></dl>
 <dl class="section note"><dt>Note</dt><dd>The <code>greedy_length</code> might create read values that already exist in the SVF. If <code>SFVS::tSparseVirtualFileConfig</code> <code>compare_for_diff</code> is true then this will trigger a data comparison.</dd>
@@ -1792,7 +1932,7 @@ If a <code>greedy_length</code> is given this will be the <em>minimum</em> size 
 
 <p>Number of blocks used. </p>
 
-<p class="definition">Definition at line <a class="el" href="svf_8h_source.html#l00349">349</a> of file <a class="el" href="svf_8h_source.html">svf.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="svf_8h_source.html#l00354">354</a> of file <a class="el" href="svf_8h_source.html">svf.h</a>.</p>
 
 </div>
 </div>
@@ -1821,7 +1961,7 @@ If a <code>greedy_length</code> is given this will be the <em>minimum</em> size 
 
 <p>Gives exact number of data bytes held. </p>
 
-<p class="definition">Definition at line <a class="el" href="svf_8h_source.html#l00346">346</a> of file <a class="el" href="svf_8h_source.html">svf.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="svf_8h_source.html#l00351">351</a> of file <a class="el" href="svf_8h_source.html">svf.h</a>.</p>
 
 </div>
 </div>
@@ -1979,9 +2119,9 @@ If a <code>greedy_length</code> is given this will be the <em>minimum</em> size 
   </tr>
 </table>
 </div><div class="memdoc">
-<p>Time of the last <code><a class="el" href="class_s_v_f_s_1_1_sparse_virtual_file.html#ad92b513994c68322312358db4197ac94" title="Read data and write to the buffer provided by the caller. This is non-const as it updates the non-con...">read()</a></code> operation. This can be cast to <code>std::chrono::time_point&lt;double&gt;</code> </p>
+<p>Time of the last <code><a class="el" href="class_s_v_f_s_1_1_sparse_virtual_file.html#ad92b513994c68322312358db4197ac94" title="Read data and write to the buffer provided by the caller. This is non-const as it updates the non-con...">read()</a></code> operation. If no reads have been made this returns <code>std::chrono::time_point&lt;std::chrono::system_clock&gt;::min()</code> This can be cast to <code>std::chrono::time_point&lt;double&gt;</code> </p>
 
-<p class="definition">Definition at line <a class="el" href="svf_8h_source.html#l00390">390</a> of file <a class="el" href="svf_8h_source.html">svf.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="svf_8h_source.html#l00406">406</a> of file <a class="el" href="svf_8h_source.html">svf.h</a>.</p>
 
 </div>
 </div>
@@ -2007,9 +2147,9 @@ If a <code>greedy_length</code> is given this will be the <em>minimum</em> size 
   </tr>
 </table>
 </div><div class="memdoc">
-<p>Time of the last <code><a class="el" href="class_s_v_f_s_1_1_sparse_virtual_file.html#a5ae9a0a31892a3b41581ab888dd1323c" title="Write the data a the given file position.">write()</a></code> operation. This can be cast to <code>std::chrono::time_point&lt;double&gt;</code> </p>
+<p>Time of the last <code><a class="el" href="class_s_v_f_s_1_1_sparse_virtual_file.html#a5ae9a0a31892a3b41581ab888dd1323c" title="Write the data a the given file position.">write()</a></code> operation. If no writes have been made this returns <code>std::chrono::time_point&lt;std::chrono::system_clock&gt;::min()</code> This can be cast to <code>std::chrono::time_point&lt;double&gt;</code> </p>
 
-<p class="definition">Definition at line <a class="el" href="svf_8h_source.html#l00384">384</a> of file <a class="el" href="svf_8h_source.html">svf.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="svf_8h_source.html#l00399">399</a> of file <a class="el" href="svf_8h_source.html">svf.h</a>.</p>
 
 </div>
 </div>
@@ -2112,7 +2252,111 @@ If a <code>greedy_length</code> is given this will be the <em>minimum</em> size 
 
 <p>A monotonically increasing integer that indicates the age of a block, smaller is older. </p>
 
-<p class="definition">Definition at line <a class="el" href="svf_8h_source.html#l00455">455</a> of file <a class="el" href="svf_8h_source.html">svf.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="svf_8h_source.html#l00471">471</a> of file <a class="el" href="svf_8h_source.html">svf.h</a>.</p>
+
+</div>
+</div>
+<a id="a50c71f2fd2d1aba0de7f4a38d10ae044"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a50c71f2fd2d1aba0de7f4a38d10ae044">&#9670;&nbsp;</a></span>m_blocks_erased</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">size_t SVFS::SparseVirtualFile::m_blocks_erased</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>The total count of blocks that have been erased either directly or by punting. </p>
+
+<p class="definition">Definition at line <a class="el" href="svf_8h_source.html#l00477">477</a> of file <a class="el" href="svf_8h_source.html">svf.h</a>.</p>
+
+</div>
+</div>
+<a id="a29a124b18adfd859010434f7966780d9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a29a124b18adfd859010434f7966780d9">&#9670;&nbsp;</a></span>m_blocks_punted</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">size_t SVFS::SparseVirtualFile::m_blocks_punted</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>The count of blocks that have been erased by punting. </p>
+
+<p class="definition">Definition at line <a class="el" href="svf_8h_source.html#l00481">481</a> of file <a class="el" href="svf_8h_source.html">svf.h</a>.</p>
+
+</div>
+</div>
+<a id="a49040796a4b59d7d2ac4285ec71ae3de"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a49040796a4b59d7d2ac4285ec71ae3de">&#9670;&nbsp;</a></span>m_bytes_erased</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">size_t SVFS::SparseVirtualFile::m_bytes_erased</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>The total count of bytes that have been erased either directly or by punting. </p>
+
+<p class="definition">Definition at line <a class="el" href="svf_8h_source.html#l00479">479</a> of file <a class="el" href="svf_8h_source.html">svf.h</a>.</p>
+
+</div>
+</div>
+<a id="a1b4a550ca8131b0f1b7a814ae6d367d0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1b4a550ca8131b0f1b7a814ae6d367d0">&#9670;&nbsp;</a></span>m_bytes_punted</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">size_t SVFS::SparseVirtualFile::m_bytes_punted</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>The count of bytes that have been erased by punting. </p>
+
+<p class="definition">Definition at line <a class="el" href="svf_8h_source.html#l00483">483</a> of file <a class="el" href="svf_8h_source.html">svf.h</a>.</p>
 
 </div>
 </div>
@@ -2137,7 +2381,7 @@ If a <code>greedy_length</code> is given this will be the <em>minimum</em> size 
 </div><div class="memdoc">
 <p>Access statistics: total bytes read. </p><dl class="section note"><dt>Note</dt><dd>These include any duplicate reads. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="svf_8h_source.html#l00439">439</a> of file <a class="el" href="svf_8h_source.html">svf.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="svf_8h_source.html#l00455">455</a> of file <a class="el" href="svf_8h_source.html">svf.h</a>.</p>
 
 </div>
 </div>
@@ -2163,7 +2407,7 @@ If a <code>greedy_length</code> is given this will be the <em>minimum</em> size 
 
 <p>Total number of bytes in this SVF. </p>
 
-<p class="definition">Definition at line <a class="el" href="svf_8h_source.html#l00429">429</a> of file <a class="el" href="svf_8h_source.html">svf.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="svf_8h_source.html#l00445">445</a> of file <a class="el" href="svf_8h_source.html">svf.h</a>.</p>
 
 </div>
 </div>
@@ -2188,7 +2432,7 @@ If a <code>greedy_length</code> is given this will be the <em>minimum</em> size 
 </div><div class="memdoc">
 <p>Access statistics: total bytes written. </p><dl class="section note"><dt>Note</dt><dd>These include any duplicate writes. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="svf_8h_source.html#l00436">436</a> of file <a class="el" href="svf_8h_source.html">svf.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="svf_8h_source.html#l00452">452</a> of file <a class="el" href="svf_8h_source.html">svf.h</a>.</p>
 
 </div>
 </div>
@@ -2214,7 +2458,7 @@ If a <code>greedy_length</code> is given this will be the <em>minimum</em> size 
 
 <p>The SVF configuration. </p>
 
-<p class="definition">Definition at line <a class="el" href="svf_8h_source.html#l00427">427</a> of file <a class="el" href="svf_8h_source.html">svf.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="svf_8h_source.html#l00443">443</a> of file <a class="el" href="svf_8h_source.html">svf.h</a>.</p>
 
 </div>
 </div>
@@ -2240,7 +2484,7 @@ If a <code>greedy_length</code> is given this will be the <em>minimum</em> size 
 
 <p>Access statistics: count of read operations. </p>
 
-<p class="definition">Definition at line <a class="el" href="svf_8h_source.html#l00433">433</a> of file <a class="el" href="svf_8h_source.html">svf.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="svf_8h_source.html#l00449">449</a> of file <a class="el" href="svf_8h_source.html">svf.h</a>.</p>
 
 </div>
 </div>
@@ -2266,7 +2510,7 @@ If a <code>greedy_length</code> is given this will be the <em>minimum</em> size 
 
 <p>Access statistics: count of write operations. </p>
 
-<p class="definition">Definition at line <a class="el" href="svf_8h_source.html#l00431">431</a> of file <a class="el" href="svf_8h_source.html">svf.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="svf_8h_source.html#l00447">447</a> of file <a class="el" href="svf_8h_source.html">svf.h</a>.</p>
 
 </div>
 </div>
@@ -2290,9 +2534,9 @@ If a <code>greedy_length</code> is given this will be the <em>minimum</em> size 
 </table>
 </div><div class="memdoc">
 
-<p>The original file modification data a UNIX time. This is used for consistency checking. </p>
+<p>The original file modification date as UNIX time. This is used for consistency checking. </p>
 
-<p class="definition">Definition at line <a class="el" href="svf_8h_source.html#l00425">425</a> of file <a class="el" href="svf_8h_source.html">svf.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="svf_8h_source.html#l00441">441</a> of file <a class="el" href="svf_8h_source.html">svf.h</a>.</p>
 
 </div>
 </div>
@@ -2318,7 +2562,7 @@ If a <code>greedy_length</code> is given this will be the <em>minimum</em> size 
 
 <p>The SVF ID. </p>
 
-<p class="definition">Definition at line <a class="el" href="svf_8h_source.html#l00423">423</a> of file <a class="el" href="svf_8h_source.html">svf.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="svf_8h_source.html#l00439">439</a> of file <a class="el" href="svf_8h_source.html">svf.h</a>.</p>
 
 </div>
 </div>
@@ -2344,7 +2588,7 @@ If a <code>greedy_length</code> is given this will be the <em>minimum</em> size 
 
 <p>Thread mutex. This adds about 5-10% execution time compared with a single threaded version. </p>
 
-<p class="definition">Definition at line <a class="el" href="svf_8h_source.html#l00458">458</a> of file <a class="el" href="svf_8h_source.html">svf.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="svf_8h_source.html#l00474">474</a> of file <a class="el" href="svf_8h_source.html">svf.h</a>.</p>
 
 </div>
 </div>
@@ -2370,7 +2614,7 @@ If a <code>greedy_length</code> is given this will be the <em>minimum</em> size 
 
 <p>The actual SVF. </p>
 
-<p class="definition">Definition at line <a class="el" href="svf_8h_source.html#l00453">453</a> of file <a class="el" href="svf_8h_source.html">svf.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="svf_8h_source.html#l00469">469</a> of file <a class="el" href="svf_8h_source.html">svf.h</a>.</p>
 
 </div>
 </div>
@@ -2396,7 +2640,7 @@ If a <code>greedy_length</code> is given this will be the <em>minimum</em> size 
 
 <p>Last access real-time timestamp for a read. </p>
 
-<p class="definition">Definition at line <a class="el" href="svf_8h_source.html#l00443">443</a> of file <a class="el" href="svf_8h_source.html">svf.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="svf_8h_source.html#l00459">459</a> of file <a class="el" href="svf_8h_source.html">svf.h</a>.</p>
 
 </div>
 </div>
@@ -2422,13 +2666,13 @@ If a <code>greedy_length</code> is given this will be the <em>minimum</em> size 
 
 <p>Last access real-time timestamp for a write. </p>
 
-<p class="definition">Definition at line <a class="el" href="svf_8h_source.html#l00441">441</a> of file <a class="el" href="svf_8h_source.html">svf.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="svf_8h_source.html#l00457">457</a> of file <a class="el" href="svf_8h_source.html">svf.h</a>.</p>
 
 </div>
 </div>
 <hr/>The documentation for this class was generated from the following files:<ul>
-<li>/Users/paulross/CLionProjects/cppSVF/src/cpp/<a class="el" href="svf_8h_source.html">svf.h</a></li>
-<li>/Users/paulross/CLionProjects/cppSVF/src/cpp/<a class="el" href="svf_8cpp_source.html">svf.cpp</a></li>
+<li>/Users/engun/CLionProjects/cppSVF/src/cpp/<a class="el" href="svf_8h_source.html">svf.h</a></li>
+<li>/Users/engun/CLionProjects/cppSVF/src/cpp/<a class="el" href="svf_8cpp_source.html">svf.cpp</a></li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->

@@ -2,7 +2,6 @@ cmake_minimum_required(VERSION 3.13)
 project(cppSVF)
 
 set(CMAKE_CXX_STANDARD 17)
-#set(CMAKE_C_FLAGS "-std=c99")
 
 add_compile_definitions(SVF_THREAD_SAFE)
 add_compile_definitions(SVFS_THREAD_SAFE)
@@ -18,8 +17,24 @@ ENDIF(CMAKE_BUILD_TYPE MATCHES Debug)
 # ld: warning: ignoring file /usr/local/Frameworks/Python.framework/Versions/3.11/lib/libpython3.11.dylib, building for macOS-arm64 but attempting to link with file built for macOS-x86_64
 set(CMAKE_OSX_ARCHITECTURES "x86_64")
 
+# Need to match with setup.py except where there Python specific compiler option such as
+# '-Wno-c++11-compat-deprecated-writable-strings'
+# extra_compile_args = [
+#    ...,
+#]
 add_compile_options(
-    "-Wall" "-Wpedantic" "-Wextra" "-fexceptions"
+    # Make all warnings into errors.
+    "-Werror"
+    # Fail at first error.
+    "-Wfatal-errors"
+    # ISO C/C++ compatibility.
+    "-Wpedantic"
+    # All warnings.
+    "-Wall"
+    # Addition warnings on top of -Wall
+    "-Wextra"
+    # Enable exception handling, we use these, possibly not needed as out CPython code is C++ but iot is not harmful.
+    "-fexceptions"
     "$<$<CONFIG:DEBUG>:-O0;-g3;-ggdb>"
 )
 

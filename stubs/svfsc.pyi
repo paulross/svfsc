@@ -1,4 +1,4 @@
-# Auto-generated from svfsc version 0.4.0rc0 at 2024-01-16 13:37:58.073377+00:00 UTC
+# Auto-generated from svfsc version 0.4.0rc0 by stubgen_simple.py at 2024-02-01 15:23:39.243068+00:00 UTC
 import typing
 import datetime
 

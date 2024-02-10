@@ -9,14 +9,24 @@ from distutils.core import Extension
 # CFLAGS_RELEASE = $(CFLAGS) -O2 -DNDEBUG
 # CFLAGS_DEBUG = $(CFLAGS) -g3 -O0 -DDEBUG=1
 extra_compile_args = [
-    '-Wall',
-    '-Wextra',
+    # Make all warnings into errors.
     '-Werror',
+    # Fail at first error.
     '-Wfatal-errors',
+    # ISO C/C++ compatibility.
+    '-Wpedantic',
+    # All warnings.
+    '-Wall',
+    # Addition warnings on top of -Wall
+    '-Wextra',
+    # Enable exception handling, we use these, possibly not needed as out CPython code is C++ but iot is not harmful.
+    '-fexceptions',
+
     # Some internal Python library code does not like this.
     '-Wno-c++11-compat-deprecated-writable-strings',
-    '-std=c++11',
+    '-std=c++17',
     # '-Isrc/cpp',
+
     # We implement mutex with Python's thread locking:
     # AcquireLock _lock(self);
     # So we don't want the overhead of C++'s thread locking as well.
@@ -100,7 +110,7 @@ setup(
     keywords=['svf', 'svfs','svfsc',],
     # https://pypi.org/classifiers/
     classifiers=[
-        'Development Status :: 4 - Beta',
+        'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: MIT License',
         'Natural Language :: English',

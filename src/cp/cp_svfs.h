@@ -36,6 +36,7 @@
 
 #include <Python.h>
 #include "structmember.h"
+#include <ctime>
 #include "datetime.h"
 
 #ifdef WITH_THREAD

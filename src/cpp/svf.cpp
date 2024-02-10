@@ -475,7 +475,7 @@ namespace SVFS {
             } else {
                 // Existing block.first is <= fpos
                 if (fpos > _file_position_immediatly_after_block(iter)) {
-                    // No overlap so just write new block
+                    // No overlap so just write new block after the last one
                     _write_new_block(fpos, data, len, m_svf.end());
                 } else {
                     // Append new to existing block, possibly coalescing existing blocks.
