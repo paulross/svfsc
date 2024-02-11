@@ -32,7 +32,7 @@
 #include "cpp_svfs.h"
 
 /** @brief The version as a string. */
-const char *SVFS_CPP_VERSION = "0.4.0rc0";
+const char *SVFS_CPP_VERSION = "0.4.0";
 
 /** @brief Major version number. */
 int SVFS_CPP_VERSION_MAJOR = 0;
