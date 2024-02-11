@@ -14,13 +14,15 @@ extra_compile_args = [
     # Fail at first error.
     '-Wfatal-errors',
     # ISO C/C++ compatibility.
-    '-Wpedantic',
+    # Linux/gcc 11.4.0 does not like this.
+    #'-Wpedantic',
     # All warnings.
     '-Wall',
     # Addition warnings on top of -Wall
     '-Wextra',
 
     # Additional flags to satisfy Linux/gcc 11.4.0
+    '-Wno-error=missing-field-initializers',
     '-Wno-missing-field-initializers',
     '-Wno-cast-function-type',
     '-Wno-unknown-pragmas',
