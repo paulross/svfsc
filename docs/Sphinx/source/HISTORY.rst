@@ -1,7 +1,7 @@
 History
 ##################
 
-0.4.0 (2024-02-10)
+0.4.0 (2024-02-11)
 =====================
 
 - Add counters for blocks/bytes erased and blocks/bytes punted and then their associated APIs.
