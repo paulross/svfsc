@@ -19,7 +19,13 @@ extra_compile_args = [
     '-Wall',
     # Addition warnings on top of -Wall
     '-Wextra',
-    # Enable exception handling, we use these, possibly not needed as out CPython code is C++ but iot is not harmful.
+
+    # Additional flags to satisfy Linux/gcc 11.4.0
+    '-Wno-missing-field-initializers',
+    '-Wno-cast-function-type',
+    '-Wno-unknown-pragmas',
+
+    # Enable exception handling, we use these, possibly not needed as out CPython code is C++ but it is not harmful.
     '-fexceptions',
 
     # Some internal Python library code does not like this.

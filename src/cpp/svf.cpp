@@ -29,6 +29,8 @@
  @endverbatim
  */
 
+#include <algorithm>
+#include <cstring>
 #include <iostream>
 #include <iterator>
 #include <sstream>
@@ -923,8 +925,8 @@ namespace SVFS {
      */
     SparseVirtualFile::ERROR_CONDITION
     SparseVirtualFile::integrity() const noexcept {
-        t_fpos prev_fpos;
-        size_t prev_size;
+        t_fpos prev_fpos = 0;
+        size_t prev_size = 0;
         t_map::const_iterator iter = m_svf.begin();
         size_t byte_count = 0;
         std::set<t_block_touch> block_touches;

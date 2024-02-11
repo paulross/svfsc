@@ -1413,7 +1413,7 @@ cp_SparseVirtualFileSystem_config(cp_SparseVirtualFileSystem *self) {
 // END: SVF functions
 #pragma mark END: SVFS functions
 
-// Mapping method for __len__
+// Mapping method for __len__ returns -1 on error.
 static Py_ssize_t
 cp_SparseVirtualFileSystem_mapping_length(PyObject * self) {
     ASSERT_FUNCTION_ENTRY_SVFS(p_svfs);
@@ -1421,7 +1421,7 @@ cp_SparseVirtualFileSystem_mapping_length(PyObject * self) {
         return ((cp_SparseVirtualFileSystem *) self)->p_svfs->size();
     } catch (const std::exception &err) {
         PyErr_Format(PyExc_RuntimeError, "%s: FATAL caught std::exception %s", __FUNCTION__, err.what());
-        return NULL;
+        return -1;
     }
 }
 
