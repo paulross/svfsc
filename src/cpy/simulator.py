@@ -63,11 +63,16 @@ class Communications:
     def transmit(self, data_bytes: bytes, direction: str) -> None:
         t = self.latency_one_way_s
         self.time_latency += self.latency_one_way_s
+        t_bandwidth = 0
         if self.bandwidth_bps:
             t_bandwidth = 8 * len(data_bytes) / self.bandwidth_bps
             t += t_bandwidth
             self.time_bandwidth += t_bandwidth
         logger.debug('COMMS_: %s length %d delay %.3f (ms)', direction, len(data_bytes), t * 1000)
+        logger.info(
+            'COMMS_: %s length %d delay %.3f + %.3f = %.3f (ms)',
+            direction, len(data_bytes), self.latency_one_way_s * 1000, t_bandwidth * 1000, t * 1000
+        )
         self.time_total += t
         if self.realtime:
             time.sleep(t)
@@ -86,6 +91,7 @@ class Server:
         t += length / self.read_rate_byte_per_s
         self.total_time += t
         logger.debug('SERVER: fpos %d length %d delay %.3f (ms)', file_position, length, t * 1000)
+        logger.info('SERVER: fpos %d length %d delay %.3f (ms)', file_position, length, t * 1000)
         if self.realtime:
             time.sleep(t)
         self.file_position = file_position
@@ -129,6 +135,7 @@ class Client:
                 logger.debug(f'CLIENT:    need {need}')
                 for fpos, length in need:
                     logger.debug(f'CLIENT:    need fpos {fpos:16,d} length {length:6,d} ({fpos + length:16,d})')
+                    logger.info(f'CLIENT: -> need fpos {fpos:16,d} length {length:6,d}')
                     # Crude simulation of a GET request.
                     client_server_message = f'GET File position {fpos} length {length}'.encode('ascii')
                     self.comms.transmit(client_server_message, 'Client->Server')
@@ -139,6 +146,7 @@ class Client:
                     time_svf += time.perf_counter() - time_svf_start
                     logger.debug(
                         f'CLIENT:   wrote fpos {fpos:16,d} length {len(result):6,d} ({fpos + len(result):16,d})')
+                    logger.info('CLIENT: <- wrote fpos %d length %d delay %.3f (ms)', fpos, length, time_svf * 1000)
                 if not svf.has_data(fpos_demand, length_demand):
                     logger.error(
                         f'CLIENT: demands fpos {fpos_demand:16,d} length {length_demand:6,d} ({fpos_demand + length_demand:16,d})'
