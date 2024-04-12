@@ -100,8 +100,8 @@ class Server:
 
 @dataclasses.dataclass
 class RunResult:
-    has_hits: int
-    has_misses: int
+    cache_hits: int
+    cache_misses: int
     minimal_bytes: int
     num_bytes: int
     sizeof: int
@@ -225,7 +225,9 @@ def main():
     time_start = time.perf_counter()
     result = 0
     parser = argparse.ArgumentParser(description='Simulate reading into a SVF.', prog=__file__)
-    parser.add_argument('-l', '--log-level', dest='log_level', type=int, default=20, help='Log level.')
+    parser.add_argument('-l', '--log-level', dest='log_level', type=int, default=20,
+                        help='Log level. [default: %(default)d]'
+                        )
     parser.add_argument('--latency', type=float, default=10,
                         help='Communications channel latency (NOTE: one way) in ms. [default: %(default)d]')
     parser.add_argument('--bandwidth', type=float, default=50,
@@ -235,6 +237,10 @@ def main():
                         help='Server seek rate in million bytes per second. [default: %(default)d]')
     parser.add_argument('--read-rate', type=float, default=50,
                         help='Server read rate in million bytes per second. [default: %(default)d]')
+    parser.add_argument('--get-cost', type=float, default=0.0005,
+                        help='The cost of GET in currency per 1000 GET requests. [default: %(default)d]')
+    parser.add_argument('--egress-cost', type=float, default=0.1,
+                        help='The cost of egress data in currency per GB. [default: %(default)d]')
     parser.add_argument('--greedy-length', type=int, default=-1,
                         help=(
                             'The greedy length to read fragments from the server.'
@@ -253,15 +259,16 @@ def main():
     print('Simulator setup:')
     print(f'Network latency (one way) {args.latency:.3f} (ms) bandwidth {args.bandwidth:.3f} (M bits/s)')
     print(f'Server seek rate {args.seek_rate:.3f} (M bytes/s) read rate {args.read_rate:.3f} (M bytes/s)')
+    print(f'Cost GET {args.get_cost:.6f} (per 1000 GET requests) egress {args.egress_cost:.3f} (per GB)')
     # for name in ('EXAMPLE_FILE_POSITIONS_LENGTHS_TIFF_CMU_1',):
     # for name in ('EXAMPLE_FILE_POSITIONS_LENGTHS_SYNTHETIC',):
     t_start = time.perf_counter()
     for name in sim_examples.EXAMPLE_FILE_POSITIONS_LENGTHS:
         if args.greedy_length == -1:  # Default greedy-length, use a range
-            greedy_length = 0
+            greedy_length = 1
             # for greedy_length in (1024,):
             # for greedy_length in range(0, 1024 + 32, 32):
-            while greedy_length <= 2048 * 4 * 4 * 4:
+            while greedy_length <= 1 << 22: #2048 * 4 * 4 * 4 * 4:
                 logger.info('Running %s with %d file actions and greedy_length %d', name,
                             len(sim_examples.EXAMPLE_FILE_POSITIONS_LENGTHS[name]), greedy_length)
                 result = run(
@@ -271,12 +278,13 @@ def main():
                 if name not in results_time:
                     results_time[name] = []
                 results_time[name].append((greedy_length, result))
-                if greedy_length == 0:
-                    greedy_length = 1
-                elif greedy_length == 1:
-                    greedy_length = 16
-                else:
-                    greedy_length *= 2
+                # if greedy_length == 0:
+                #     greedy_length = 1
+                # elif greedy_length == 1:
+                #     greedy_length = 16
+                # else:
+                #     greedy_length *= 2
+                greedy_length *= 2
         else:
             logger.info('Running %s with %d file actions and greedy_length %d', name,
                         len(sim_examples.EXAMPLE_FILE_POSITIONS_LENGTHS[name]), args.greedy_length)
@@ -288,20 +296,37 @@ def main():
                 results_time[name] = []
             results_time[name].append((args.greedy_length, result))
     for key in results_time:
+        # Cost of downloading the complete file
+        file_size = sim_examples.EXAMPLE_FILE_POSITIONS_SIZES[key]
+        whole_file_get_cost = 1 * args.get_cost / 1000
+        whole_file_egress_cost = file_size * args.egress_cost / (1 << 30)
+        whole_file_total_cost = whole_file_get_cost + whole_file_egress_cost
         print(f'{key}:')
         print(
             f'{"greedy_length":>14} {"Time(ms)":>10}'
             f' {"Hits":>8} {"Miss":>8} {"Hits%":>8}'
             f' {"Min. Bytes":>12} {"Act. Bytes":>12} {"Act. / Min.":>12}'
             f' {"sizeof":>10} {"Overhead":>8} {"sizeof / Act.":>14}'
+            f' {"GET Cost":>12} {"Egress Cost":>12} {"Total Cost":>12}'
+            f' {"Whole File Cost":>15}'
         )
         for greedy_length, result in results_time[key]:
+            get_cost = result.cache_misses * args.get_cost / 1000
+            egress_cost = result.num_bytes * args.egress_cost / (1 << 30)
             print(
-                f'{greedy_length:14} {result.time_exec * 1000 :10.1f} {result.has_hits:8d} {result.has_misses:8d}'
-                f' {result.has_hits / (result.has_hits + result.has_misses):8.3%}'
+                f'{greedy_length:14} {result.time_exec * 1000 :10.1f} {result.cache_hits:8d} {result.cache_misses:8d}'
+                f' {result.cache_hits / (result.cache_hits + result.cache_misses):8.3%}'
                 f' {result.minimal_bytes:12d} {result.num_bytes:12d} {result.num_bytes / result.minimal_bytes:12.3%}'
                 f' {result.sizeof:10d} {result.sizeof - result.num_bytes:+8d} {result.sizeof / result.num_bytes:14.3%}'
+                f' {get_cost:12.6f} {egress_cost:12.6f} {get_cost + egress_cost:12.6f} {whole_file_total_cost:15.6f}'
             )
+        print(
+            f'Cost of downloading complete file'
+            f' [{file_size / (1 << 30):.6f} GB]:'
+            f' GET: {whole_file_get_cost:.6f}'
+            f' Egress: {whole_file_egress_cost:.6f}'
+            f' Total: {whole_file_total_cost:.6f}'
+        )
     print(f'Execution time: {time.perf_counter() - time_start:10.3f} (s)')
     return 0
 
