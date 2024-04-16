@@ -87,8 +87,12 @@ class Server:
         self.total_time = 0.0
 
     def get(self, file_position: int, length: int) -> bytes:
-        t = abs(file_position - self.file_position) / self.seek_rate_byte_per_s
-        t += length / self.read_rate_byte_per_s
+        if self.seek_rate_byte_per_s:
+            t = abs(file_position - self.file_position) / self.seek_rate_byte_per_s
+        else:
+            t = 0.0
+        if self.read_rate_byte_per_s:
+            t += length / self.read_rate_byte_per_s
         self.total_time += t
         logger.debug('SERVER: fpos %d length %d delay %.3f (ms)', file_position, length, t * 1000)
         logger.info('SERVER: fpos %d length %d delay %.3f (ms)', file_position, length, t * 1000)
@@ -171,14 +175,24 @@ class Client:
             'Blocks: %d bytes: %d sizeof: %d overhead: %d', svf.num_blocks(), svf.num_bytes(), svf.size_of(),
             svf.size_of() - svf.num_bytes()
         )
-        logger.info(
-            f'Comms laten: {self.comms.time_latency * 1000:10.3f} (ms)'
-            f' ({self.comms.time_latency / self.comms.time_total:6.1%}) of Comms total.'
-        )
-        logger.info(
-            f'Comms bwidt: {self.comms.time_bandwidth * 1000:10.3f} (ms)'
-            f' ({self.comms.time_bandwidth / self.comms.time_total:6.1%}) of Comms total.'
-        )
+        if self.comms.time_total:
+            logger.info(
+                f'Comms laten: {self.comms.time_latency * 1000:10.3f} (ms)'
+                f' ({self.comms.time_latency / self.comms.time_total:6.1%}) of Comms total.'
+            )
+            logger.info(
+                f'Comms bwidt: {self.comms.time_bandwidth * 1000:10.3f} (ms)'
+                f' ({self.comms.time_bandwidth / self.comms.time_total:6.1%}) of Comms total.'
+            )
+        else:
+            logger.info(
+                f'Comms laten: {self.comms.time_latency * 1000:10.3f} (ms)'
+                f' ({"N/A":6}) of Comms total.'
+            )
+            logger.info(
+                f'Comms bwidt: {self.comms.time_bandwidth * 1000:10.3f} (ms)'
+                f' ({"N/A":6}) of Comms total.'
+            )
         percent_str = '+' * int(0.5 + 50 * self.comms.time_total / time_exec)
         logger.info(
             f'Comms time : {self.comms.time_total * 1000:10.3f} (ms) ({self.comms.time_total / time_exec:6.1%})'
