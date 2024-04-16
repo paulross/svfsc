@@ -1,15 +1,15 @@
 set title "Over Head of a Greedy Read."
 
 set xlabel "Size of Greedy Read (bytes)"
-#set xrange [0.1:100]
-#set logscale x
+#set xrange [0:1e6]
+set logscale x
 #set xrange [0.01:100]
 
 # First line specification refers to major grid lines in both x and y, the second to minor grid lines in x and y.
 set grid xtics mxtics ytics mytics linetype -1 linewidth 1, linetype 0 linewidth 1
 
-#set logscale y
 set ylabel "Bytes Read Relative to Minimal Case (%)"
+set logscale y
 # set yrange [1:]
 # set ytics 8,35,3
 

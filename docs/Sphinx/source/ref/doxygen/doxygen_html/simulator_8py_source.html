@@ -22,7 +22,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">Sparse Virtual File System
-   &#160;<span id="projectnumber">0.4.0</span>
+   &#160;<span id="projectnumber">0.4.1rc0</span>
    </div>
    <div id="projectbrief">A Sparse Virtual File System.</div>
   </td>
@@ -160,257 +160,271 @@ $(function() {
 <div class="line"><a name="l00087"></a><span class="lineno"><a class="line" href="classsrc_1_1cpy_1_1simulator_1_1_server.html#ad98a4563e45ae941815eb05dedfcaf41">   87</a></span>&#160;        self.<a class="code" href="classsrc_1_1cpy_1_1simulator_1_1_server.html#ad98a4563e45ae941815eb05dedfcaf41">total_time</a>total_time = 0.0</div>
 <div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160; </div>
 <div class="line"><a name="l00089"></a><span class="lineno"><a class="line" href="classsrc_1_1cpy_1_1simulator_1_1_server.html#abfa43ea7a1cf11c46e1e280983d14a81">   89</a></span>&#160;    <span class="keyword">def </span><a class="code" href="classsrc_1_1cpy_1_1simulator_1_1_server.html#abfa43ea7a1cf11c46e1e280983d14a81">get</a>(self, file_position: int, length: int) -&gt; bytes:</div>
-<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;        t = abs(file_position - self.<a class="code" href="classsrc_1_1cpy_1_1simulator_1_1_server.html#acd64fbc2f4fb8dc7618197e33b437b5b">file_position</a>file_position) / self.<a class="code" href="classsrc_1_1cpy_1_1simulator_1_1_server.html#a52ff42bdad89443911ea325f4ab471cd">seek_rate_byte_per_s</a>seek_rate_byte_per_s</div>
-<div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;        t += length / self.<a class="code" href="classsrc_1_1cpy_1_1simulator_1_1_server.html#ab10d960cae8f969e8a9368f0e06569a9">read_rate_byte_per_s</a>read_rate_byte_per_s</div>
-<div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;        self.<a class="code" href="classsrc_1_1cpy_1_1simulator_1_1_server.html#ad98a4563e45ae941815eb05dedfcaf41">total_time</a>total_time += t</div>
-<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;        logger.debug(<span class="stringliteral">&#39;SERVER: fpos %d length %d delay %.3f (ms)&#39;</span>, file_position, length, t * 1000)</div>
-<div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;        logger.info(<span class="stringliteral">&#39;SERVER: fpos %d length %d delay %.3f (ms)&#39;</span>, file_position, length, t * 1000)</div>
-<div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160;        <span class="keywordflow">if</span> self.<a class="code" href="classsrc_1_1cpy_1_1simulator_1_1_server.html#a938d3dd66ed93531f30f09880e7cd6eb">realtime</a>realtime:</div>
-<div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160;            time.sleep(t)</div>
-<div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;        self.<a class="code" href="classsrc_1_1cpy_1_1simulator_1_1_server.html#acd64fbc2f4fb8dc7618197e33b437b5b">file_position</a>file_position = file_position</div>
-<div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160;        <span class="keywordflow">return</span> b<span class="stringliteral">&#39; &#39;</span> * length</div>
-<div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160; </div>
-<div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160; </div>
-<div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160;<span class="preprocessor">@dataclasses.dataclass</span></div>
-<div class="line"><a name="l00102"></a><span class="lineno"><a class="line" href="classsrc_1_1cpy_1_1simulator_1_1_run_result.html">  102</a></span>&#160;<span class="keyword">class </span><a class="code" href="classsrc_1_1cpy_1_1simulator_1_1_run_result.html">RunResult</a>:</div>
-<div class="line"><a name="l00103"></a><span class="lineno">  103</span>&#160;    cache_hits: int</div>
-<div class="line"><a name="l00104"></a><span class="lineno">  104</span>&#160;    cache_misses: int</div>
-<div class="line"><a name="l00105"></a><span class="lineno">  105</span>&#160;    minimal_bytes: int</div>
-<div class="line"><a name="l00106"></a><span class="lineno">  106</span>&#160;    num_bytes: int</div>
-<div class="line"><a name="l00107"></a><span class="lineno">  107</span>&#160;    sizeof: int</div>
-<div class="line"><a name="l00108"></a><span class="lineno">  108</span>&#160;    time_exec: float</div>
-<div class="line"><a name="l00109"></a><span class="lineno">  109</span>&#160; </div>
-<div class="line"><a name="l00110"></a><span class="lineno">  110</span>&#160; </div>
-<div class="line"><a name="l00111"></a><span class="lineno"><a class="line" href="classsrc_1_1cpy_1_1simulator_1_1_client.html">  111</a></span>&#160;<span class="keyword">class </span><a class="code" href="classsrc_1_1cpy_1_1simulator_1_1_client.html">Client</a>:</div>
-<div class="line"><a name="l00112"></a><span class="lineno"><a class="line" href="classsrc_1_1cpy_1_1simulator_1_1_client.html#aed9c4c304e3b389ab9875fca6c609b83">  112</a></span>&#160;    <span class="keyword">def </span><a class="code" href="classsrc_1_1cpy_1_1simulator_1_1_client.html#aed9c4c304e3b389ab9875fca6c609b83">__init__</a>(self, comms: Communications, server: Server):</div>
-<div class="line"><a name="l00113"></a><span class="lineno"><a class="line" href="classsrc_1_1cpy_1_1simulator_1_1_client.html#a93b39a9b23a27204b9fbf0937fbbb992">  113</a></span>&#160;        self.<a class="code" href="classsrc_1_1cpy_1_1simulator_1_1_client.html#a93b39a9b23a27204b9fbf0937fbbb992">comms</a>comms = comms</div>
-<div class="line"><a name="l00114"></a><span class="lineno"><a class="line" href="classsrc_1_1cpy_1_1simulator_1_1_client.html#ae71ab1efd66999a4e8a1376cc69ee0f9">  114</a></span>&#160;        self.<a class="code" href="classsrc_1_1cpy_1_1simulator_1_1_client.html#ae71ab1efd66999a4e8a1376cc69ee0f9">server</a>server = server</div>
-<div class="line"><a name="l00115"></a><span class="lineno">  115</span>&#160; </div>
-<div class="line"><a name="l00116"></a><span class="lineno"><a class="line" href="classsrc_1_1cpy_1_1simulator_1_1_client.html#a7081ef07e345b4a354af08893190b138">  116</a></span>&#160;    <span class="keyword">def </span><a class="code" href="classsrc_1_1cpy_1_1simulator_1_1_client.html#a7081ef07e345b4a354af08893190b138">run</a>(self, seek_reads: typing.Tuple[typing.Tuple[int, int], ...], greedy_length: int) -&gt; RunResult:</div>
-<div class="line"><a name="l00117"></a><span class="lineno">  117</span>&#160;        time_start = time.perf_counter()</div>
-<div class="line"><a name="l00118"></a><span class="lineno">  118</span>&#160;        svf = svfsc.cSVF(<span class="stringliteral">&#39;ID&#39;</span>)</div>
-<div class="line"><a name="l00119"></a><span class="lineno">  119</span>&#160;        time_svf = 0.0</div>
-<div class="line"><a name="l00120"></a><span class="lineno">  120</span>&#160;        has_hits = has_misses = 0</div>
-<div class="line"><a name="l00121"></a><span class="lineno">  121</span>&#160;        minimal_bytes = 0</div>
-<div class="line"><a name="l00122"></a><span class="lineno">  122</span>&#160;        <span class="keywordflow">for</span> fpos_demand, length_demand <span class="keywordflow">in</span> seek_reads:</div>
-<div class="line"><a name="l00123"></a><span class="lineno">  123</span>&#160;            minimal_bytes += length_demand</div>
-<div class="line"><a name="l00124"></a><span class="lineno">  124</span>&#160;            blocks = [f<span class="stringliteral">&#39;({fpos:,d} : {length:,d} : {fpos + length:,d})&#39;</span> <span class="keywordflow">for</span> fpos, length <span class="keywordflow">in</span> svf.blocks()]</div>
-<div class="line"><a name="l00125"></a><span class="lineno">  125</span>&#160;            logger.debug(<span class="stringliteral">&#39;CLIENT:  blocks was: %s&#39;</span>, blocks)</div>
-<div class="line"><a name="l00126"></a><span class="lineno">  126</span>&#160;            logger.debug(</div>
-<div class="line"><a name="l00127"></a><span class="lineno">  127</span>&#160;                f<span class="stringliteral">&#39;CLIENT: demands fpos {fpos_demand:16,d} length {length_demand:6,d} ({fpos_demand + length_demand:16,d})&#39;</span>)</div>
-<div class="line"><a name="l00128"></a><span class="lineno">  128</span>&#160;            time_svf_start = time.perf_counter()</div>
-<div class="line"><a name="l00129"></a><span class="lineno">  129</span>&#160;            has_data = svf.has_data(fpos_demand, length_demand)</div>
-<div class="line"><a name="l00130"></a><span class="lineno">  130</span>&#160;            time_svf += time.perf_counter() - time_svf_start</div>
-<div class="line"><a name="l00131"></a><span class="lineno">  131</span>&#160;            <span class="keywordflow">if</span> <span class="keywordflow">not</span> has_data:</div>
-<div class="line"><a name="l00132"></a><span class="lineno">  132</span>&#160;                time_svf_start = time.perf_counter()</div>
-<div class="line"><a name="l00133"></a><span class="lineno">  133</span>&#160;                need = svf.need(fpos_demand, length_demand, greedy_length)</div>
-<div class="line"><a name="l00134"></a><span class="lineno">  134</span>&#160;                time_svf += time.perf_counter() - time_svf_start</div>
-<div class="line"><a name="l00135"></a><span class="lineno">  135</span>&#160;                logger.debug(f<span class="stringliteral">&#39;CLIENT:    need {need}&#39;</span>)</div>
-<div class="line"><a name="l00136"></a><span class="lineno">  136</span>&#160;                <span class="keywordflow">for</span> fpos, length <span class="keywordflow">in</span> need:</div>
-<div class="line"><a name="l00137"></a><span class="lineno">  137</span>&#160;                    logger.debug(f<span class="stringliteral">&#39;CLIENT:    need fpos {fpos:16,d} length {length:6,d} ({fpos + length:16,d})&#39;</span>)</div>
-<div class="line"><a name="l00138"></a><span class="lineno">  138</span>&#160;                    logger.info(f<span class="stringliteral">&#39;CLIENT: -&gt; need fpos {fpos:16,d} length {length:6,d}&#39;</span>)</div>
-<div class="line"><a name="l00139"></a><span class="lineno">  139</span>&#160;                    <span class="comment"># Crude simulation of a GET request.</span></div>
-<div class="line"><a name="l00140"></a><span class="lineno">  140</span>&#160;                    client_server_message = f<span class="stringliteral">&#39;GET File position {fpos} length {length}&#39;</span>.encode(<span class="stringliteral">&#39;ascii&#39;</span>)</div>
-<div class="line"><a name="l00141"></a><span class="lineno">  141</span>&#160;                    self.<a class="code" href="classsrc_1_1cpy_1_1simulator_1_1_client.html#a93b39a9b23a27204b9fbf0937fbbb992">comms</a>comms.transmit(client_server_message, <span class="stringliteral">&#39;Client-&gt;Server&#39;</span>)</div>
-<div class="line"><a name="l00142"></a><span class="lineno">  142</span>&#160;                    result = self.<a class="code" href="classsrc_1_1cpy_1_1simulator_1_1_client.html#ae71ab1efd66999a4e8a1376cc69ee0f9">server</a>server.get(fpos, length)</div>
-<div class="line"><a name="l00143"></a><span class="lineno">  143</span>&#160;                    self.<a class="code" href="classsrc_1_1cpy_1_1simulator_1_1_client.html#a93b39a9b23a27204b9fbf0937fbbb992">comms</a>comms.transmit(result, <span class="stringliteral">&#39;Server-&gt;Client&#39;</span>)</div>
-<div class="line"><a name="l00144"></a><span class="lineno">  144</span>&#160;                    time_svf_start = time.perf_counter()</div>
-<div class="line"><a name="l00145"></a><span class="lineno">  145</span>&#160;                    svf.write(fpos, result)</div>
-<div class="line"><a name="l00146"></a><span class="lineno">  146</span>&#160;                    time_svf += time.perf_counter() - time_svf_start</div>
-<div class="line"><a name="l00147"></a><span class="lineno">  147</span>&#160;                    logger.debug(</div>
-<div class="line"><a name="l00148"></a><span class="lineno">  148</span>&#160;                        f<span class="stringliteral">&#39;CLIENT:   wrote fpos {fpos:16,d} length {len(result):6,d} ({fpos + len(result):16,d})&#39;</span>)</div>
-<div class="line"><a name="l00149"></a><span class="lineno">  149</span>&#160;                    logger.info(<span class="stringliteral">&#39;CLIENT: &lt;- wrote fpos %d length %d delay %.3f (ms)&#39;</span>, fpos, length, time_svf * 1000)</div>
-<div class="line"><a name="l00150"></a><span class="lineno">  150</span>&#160;                <span class="keywordflow">if</span> <span class="keywordflow">not</span> svf.has_data(fpos_demand, length_demand):</div>
-<div class="line"><a name="l00151"></a><span class="lineno">  151</span>&#160;                    logger.error(</div>
-<div class="line"><a name="l00152"></a><span class="lineno">  152</span>&#160;                        f<span class="stringliteral">&#39;CLIENT: demands fpos {fpos_demand:16,d} length {length_demand:6,d} ({fpos_demand + length_demand:16,d})&#39;</span></div>
-<div class="line"><a name="l00153"></a><span class="lineno">  153</span>&#160;                    )</div>
-<div class="line"><a name="l00154"></a><span class="lineno">  154</span>&#160;                    blocks = [f<span class="stringliteral">&#39;({fpos:,d} : {length:,d} : {fpos + length:,d})&#39;</span> <span class="keywordflow">for</span> fpos, length <span class="keywordflow">in</span> svf.blocks()]</div>
-<div class="line"><a name="l00155"></a><span class="lineno">  155</span>&#160;                    logger.error(<span class="stringliteral">&#39;CLIENT:  blocks now: %s&#39;</span>, blocks)</div>
-<div class="line"><a name="l00156"></a><span class="lineno">  156</span>&#160;                    <span class="keyword">assert</span> 0</div>
-<div class="line"><a name="l00157"></a><span class="lineno">  157</span>&#160;                has_misses += 1</div>
-<div class="line"><a name="l00158"></a><span class="lineno">  158</span>&#160;            <span class="keywordflow">else</span>:</div>
-<div class="line"><a name="l00159"></a><span class="lineno">  159</span>&#160;                logger.debug(</div>
-<div class="line"><a name="l00160"></a><span class="lineno">  160</span>&#160;                    f<span class="stringliteral">&#39;CLIENT:     has fpos {fpos_demand:16,d} length {length_demand:6,d} ({fpos_demand + length_demand:16,d})&#39;</span></div>
-<div class="line"><a name="l00161"></a><span class="lineno">  161</span>&#160;                )</div>
-<div class="line"><a name="l00162"></a><span class="lineno">  162</span>&#160;                has_hits += 1</div>
-<div class="line"><a name="l00163"></a><span class="lineno">  163</span>&#160; </div>
-<div class="line"><a name="l00164"></a><span class="lineno">  164</span>&#160;            time_svf_start = time.perf_counter()</div>
-<div class="line"><a name="l00165"></a><span class="lineno">  165</span>&#160;            svf.read(fpos_demand, length_demand)</div>
-<div class="line"><a name="l00166"></a><span class="lineno">  166</span>&#160;            time_svf += time.perf_counter() - time_svf_start</div>
-<div class="line"><a name="l00167"></a><span class="lineno">  167</span>&#160;        time_exec = time.perf_counter() - time_start</div>
-<div class="line"><a name="l00168"></a><span class="lineno">  168</span>&#160;        time_exec = self.<a class="code" href="classsrc_1_1cpy_1_1simulator_1_1_client.html#a93b39a9b23a27204b9fbf0937fbbb992">comms</a>comms.time_total + self.<a class="code" href="classsrc_1_1cpy_1_1simulator_1_1_client.html#ae71ab1efd66999a4e8a1376cc69ee0f9">server</a>server.total_time + time_svf</div>
-<div class="line"><a name="l00169"></a><span class="lineno">  169</span>&#160;        logger.info(<span class="stringliteral">&#39;has(): hits: %d misses: %d&#39;</span>, has_hits, has_misses)</div>
-<div class="line"><a name="l00170"></a><span class="lineno">  170</span>&#160;        logger.info(</div>
-<div class="line"><a name="l00171"></a><span class="lineno">  171</span>&#160;            <span class="stringliteral">&#39;Blocks: %d bytes: %d sizeof: %d overhead: %d&#39;</span>, svf.num_blocks(), svf.num_bytes(), svf.size_of(),</div>
-<div class="line"><a name="l00172"></a><span class="lineno">  172</span>&#160;            svf.size_of() - svf.num_bytes()</div>
-<div class="line"><a name="l00173"></a><span class="lineno">  173</span>&#160;        )</div>
+<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;        <span class="keywordflow">if</span> self.<a class="code" href="classsrc_1_1cpy_1_1simulator_1_1_server.html#a52ff42bdad89443911ea325f4ab471cd">seek_rate_byte_per_s</a>seek_rate_byte_per_s:</div>
+<div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;            t = abs(file_position - self.<a class="code" href="classsrc_1_1cpy_1_1simulator_1_1_server.html#acd64fbc2f4fb8dc7618197e33b437b5b">file_position</a>file_position) / self.<a class="code" href="classsrc_1_1cpy_1_1simulator_1_1_server.html#a52ff42bdad89443911ea325f4ab471cd">seek_rate_byte_per_s</a>seek_rate_byte_per_s</div>
+<div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;        <span class="keywordflow">else</span>:</div>
+<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;            t = 0.0</div>
+<div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;        <span class="keywordflow">if</span> self.<a class="code" href="classsrc_1_1cpy_1_1simulator_1_1_server.html#ab10d960cae8f969e8a9368f0e06569a9">read_rate_byte_per_s</a>read_rate_byte_per_s:</div>
+<div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160;            t += length / self.<a class="code" href="classsrc_1_1cpy_1_1simulator_1_1_server.html#ab10d960cae8f969e8a9368f0e06569a9">read_rate_byte_per_s</a>read_rate_byte_per_s</div>
+<div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160;        self.<a class="code" href="classsrc_1_1cpy_1_1simulator_1_1_server.html#ad98a4563e45ae941815eb05dedfcaf41">total_time</a>total_time += t</div>
+<div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;        logger.debug(<span class="stringliteral">&#39;SERVER: fpos %d length %d delay %.3f (ms)&#39;</span>, file_position, length, t * 1000)</div>
+<div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160;        logger.info(<span class="stringliteral">&#39;SERVER: fpos %d length %d delay %.3f (ms)&#39;</span>, file_position, length, t * 1000)</div>
+<div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160;        <span class="keywordflow">if</span> self.<a class="code" href="classsrc_1_1cpy_1_1simulator_1_1_server.html#a938d3dd66ed93531f30f09880e7cd6eb">realtime</a>realtime:</div>
+<div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160;            time.sleep(t)</div>
+<div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160;        self.<a class="code" href="classsrc_1_1cpy_1_1simulator_1_1_server.html#acd64fbc2f4fb8dc7618197e33b437b5b">file_position</a>file_position = file_position</div>
+<div class="line"><a name="l00102"></a><span class="lineno">  102</span>&#160;        <span class="keywordflow">return</span> b<span class="stringliteral">&#39; &#39;</span> * length</div>
+<div class="line"><a name="l00103"></a><span class="lineno">  103</span>&#160; </div>
+<div class="line"><a name="l00104"></a><span class="lineno">  104</span>&#160; </div>
+<div class="line"><a name="l00105"></a><span class="lineno">  105</span>&#160;<span class="preprocessor">@dataclasses.dataclass</span></div>
+<div class="line"><a name="l00106"></a><span class="lineno"><a class="line" href="classsrc_1_1cpy_1_1simulator_1_1_run_result.html">  106</a></span>&#160;<span class="keyword">class </span><a class="code" href="classsrc_1_1cpy_1_1simulator_1_1_run_result.html">RunResult</a>:</div>
+<div class="line"><a name="l00107"></a><span class="lineno">  107</span>&#160;    cache_hits: int</div>
+<div class="line"><a name="l00108"></a><span class="lineno">  108</span>&#160;    cache_misses: int</div>
+<div class="line"><a name="l00109"></a><span class="lineno">  109</span>&#160;    minimal_bytes: int</div>
+<div class="line"><a name="l00110"></a><span class="lineno">  110</span>&#160;    num_bytes: int</div>
+<div class="line"><a name="l00111"></a><span class="lineno">  111</span>&#160;    sizeof: int</div>
+<div class="line"><a name="l00112"></a><span class="lineno">  112</span>&#160;    time_exec: float</div>
+<div class="line"><a name="l00113"></a><span class="lineno">  113</span>&#160; </div>
+<div class="line"><a name="l00114"></a><span class="lineno">  114</span>&#160; </div>
+<div class="line"><a name="l00115"></a><span class="lineno"><a class="line" href="classsrc_1_1cpy_1_1simulator_1_1_client.html">  115</a></span>&#160;<span class="keyword">class </span><a class="code" href="classsrc_1_1cpy_1_1simulator_1_1_client.html">Client</a>:</div>
+<div class="line"><a name="l00116"></a><span class="lineno"><a class="line" href="classsrc_1_1cpy_1_1simulator_1_1_client.html#aed9c4c304e3b389ab9875fca6c609b83">  116</a></span>&#160;    <span class="keyword">def </span><a class="code" href="classsrc_1_1cpy_1_1simulator_1_1_client.html#aed9c4c304e3b389ab9875fca6c609b83">__init__</a>(self, comms: Communications, server: Server):</div>
+<div class="line"><a name="l00117"></a><span class="lineno"><a class="line" href="classsrc_1_1cpy_1_1simulator_1_1_client.html#a93b39a9b23a27204b9fbf0937fbbb992">  117</a></span>&#160;        self.<a class="code" href="classsrc_1_1cpy_1_1simulator_1_1_client.html#a93b39a9b23a27204b9fbf0937fbbb992">comms</a>comms = comms</div>
+<div class="line"><a name="l00118"></a><span class="lineno"><a class="line" href="classsrc_1_1cpy_1_1simulator_1_1_client.html#ae71ab1efd66999a4e8a1376cc69ee0f9">  118</a></span>&#160;        self.<a class="code" href="classsrc_1_1cpy_1_1simulator_1_1_client.html#ae71ab1efd66999a4e8a1376cc69ee0f9">server</a>server = server</div>
+<div class="line"><a name="l00119"></a><span class="lineno">  119</span>&#160; </div>
+<div class="line"><a name="l00120"></a><span class="lineno"><a class="line" href="classsrc_1_1cpy_1_1simulator_1_1_client.html#a7081ef07e345b4a354af08893190b138">  120</a></span>&#160;    <span class="keyword">def </span><a class="code" href="classsrc_1_1cpy_1_1simulator_1_1_client.html#a7081ef07e345b4a354af08893190b138">run</a>(self, seek_reads: typing.Tuple[typing.Tuple[int, int], ...], greedy_length: int) -&gt; RunResult:</div>
+<div class="line"><a name="l00121"></a><span class="lineno">  121</span>&#160;        time_start = time.perf_counter()</div>
+<div class="line"><a name="l00122"></a><span class="lineno">  122</span>&#160;        svf = svfsc.cSVF(<span class="stringliteral">&#39;ID&#39;</span>)</div>
+<div class="line"><a name="l00123"></a><span class="lineno">  123</span>&#160;        time_svf = 0.0</div>
+<div class="line"><a name="l00124"></a><span class="lineno">  124</span>&#160;        has_hits = has_misses = 0</div>
+<div class="line"><a name="l00125"></a><span class="lineno">  125</span>&#160;        minimal_bytes = 0</div>
+<div class="line"><a name="l00126"></a><span class="lineno">  126</span>&#160;        <span class="keywordflow">for</span> fpos_demand, length_demand <span class="keywordflow">in</span> seek_reads:</div>
+<div class="line"><a name="l00127"></a><span class="lineno">  127</span>&#160;            minimal_bytes += length_demand</div>
+<div class="line"><a name="l00128"></a><span class="lineno">  128</span>&#160;            blocks = [f<span class="stringliteral">&#39;({fpos:,d} : {length:,d} : {fpos + length:,d})&#39;</span> <span class="keywordflow">for</span> fpos, length <span class="keywordflow">in</span> svf.blocks()]</div>
+<div class="line"><a name="l00129"></a><span class="lineno">  129</span>&#160;            logger.debug(<span class="stringliteral">&#39;CLIENT:  blocks was: %s&#39;</span>, blocks)</div>
+<div class="line"><a name="l00130"></a><span class="lineno">  130</span>&#160;            logger.debug(</div>
+<div class="line"><a name="l00131"></a><span class="lineno">  131</span>&#160;                f<span class="stringliteral">&#39;CLIENT: demands fpos {fpos_demand:16,d} length {length_demand:6,d} ({fpos_demand + length_demand:16,d})&#39;</span>)</div>
+<div class="line"><a name="l00132"></a><span class="lineno">  132</span>&#160;            time_svf_start = time.perf_counter()</div>
+<div class="line"><a name="l00133"></a><span class="lineno">  133</span>&#160;            has_data = svf.has_data(fpos_demand, length_demand)</div>
+<div class="line"><a name="l00134"></a><span class="lineno">  134</span>&#160;            time_svf += time.perf_counter() - time_svf_start</div>
+<div class="line"><a name="l00135"></a><span class="lineno">  135</span>&#160;            <span class="keywordflow">if</span> <span class="keywordflow">not</span> has_data:</div>
+<div class="line"><a name="l00136"></a><span class="lineno">  136</span>&#160;                time_svf_start = time.perf_counter()</div>
+<div class="line"><a name="l00137"></a><span class="lineno">  137</span>&#160;                need = svf.need(fpos_demand, length_demand, greedy_length)</div>
+<div class="line"><a name="l00138"></a><span class="lineno">  138</span>&#160;                time_svf += time.perf_counter() - time_svf_start</div>
+<div class="line"><a name="l00139"></a><span class="lineno">  139</span>&#160;                logger.debug(f<span class="stringliteral">&#39;CLIENT:    need {need}&#39;</span>)</div>
+<div class="line"><a name="l00140"></a><span class="lineno">  140</span>&#160;                <span class="keywordflow">for</span> fpos, length <span class="keywordflow">in</span> need:</div>
+<div class="line"><a name="l00141"></a><span class="lineno">  141</span>&#160;                    logger.debug(f<span class="stringliteral">&#39;CLIENT:    need fpos {fpos:16,d} length {length:6,d} ({fpos + length:16,d})&#39;</span>)</div>
+<div class="line"><a name="l00142"></a><span class="lineno">  142</span>&#160;                    logger.info(f<span class="stringliteral">&#39;CLIENT: -&gt; need fpos {fpos:16,d} length {length:6,d}&#39;</span>)</div>
+<div class="line"><a name="l00143"></a><span class="lineno">  143</span>&#160;                    <span class="comment"># Crude simulation of a GET request.</span></div>
+<div class="line"><a name="l00144"></a><span class="lineno">  144</span>&#160;                    client_server_message = f<span class="stringliteral">&#39;GET File position {fpos} length {length}&#39;</span>.encode(<span class="stringliteral">&#39;ascii&#39;</span>)</div>
+<div class="line"><a name="l00145"></a><span class="lineno">  145</span>&#160;                    self.<a class="code" href="classsrc_1_1cpy_1_1simulator_1_1_client.html#a93b39a9b23a27204b9fbf0937fbbb992">comms</a>comms.transmit(client_server_message, <span class="stringliteral">&#39;Client-&gt;Server&#39;</span>)</div>
+<div class="line"><a name="l00146"></a><span class="lineno">  146</span>&#160;                    result = self.<a class="code" href="classsrc_1_1cpy_1_1simulator_1_1_client.html#ae71ab1efd66999a4e8a1376cc69ee0f9">server</a>server.get(fpos, length)</div>
+<div class="line"><a name="l00147"></a><span class="lineno">  147</span>&#160;                    self.<a class="code" href="classsrc_1_1cpy_1_1simulator_1_1_client.html#a93b39a9b23a27204b9fbf0937fbbb992">comms</a>comms.transmit(result, <span class="stringliteral">&#39;Server-&gt;Client&#39;</span>)</div>
+<div class="line"><a name="l00148"></a><span class="lineno">  148</span>&#160;                    time_svf_start = time.perf_counter()</div>
+<div class="line"><a name="l00149"></a><span class="lineno">  149</span>&#160;                    svf.write(fpos, result)</div>
+<div class="line"><a name="l00150"></a><span class="lineno">  150</span>&#160;                    time_svf += time.perf_counter() - time_svf_start</div>
+<div class="line"><a name="l00151"></a><span class="lineno">  151</span>&#160;                    logger.debug(</div>
+<div class="line"><a name="l00152"></a><span class="lineno">  152</span>&#160;                        f<span class="stringliteral">&#39;CLIENT:   wrote fpos {fpos:16,d} length {len(result):6,d} ({fpos + len(result):16,d})&#39;</span>)</div>
+<div class="line"><a name="l00153"></a><span class="lineno">  153</span>&#160;                    logger.info(<span class="stringliteral">&#39;CLIENT: &lt;- wrote fpos %d length %d delay %.3f (ms)&#39;</span>, fpos, length, time_svf * 1000)</div>
+<div class="line"><a name="l00154"></a><span class="lineno">  154</span>&#160;                <span class="keywordflow">if</span> <span class="keywordflow">not</span> svf.has_data(fpos_demand, length_demand):</div>
+<div class="line"><a name="l00155"></a><span class="lineno">  155</span>&#160;                    logger.error(</div>
+<div class="line"><a name="l00156"></a><span class="lineno">  156</span>&#160;                        f<span class="stringliteral">&#39;CLIENT: demands fpos {fpos_demand:16,d} length {length_demand:6,d} ({fpos_demand + length_demand:16,d})&#39;</span></div>
+<div class="line"><a name="l00157"></a><span class="lineno">  157</span>&#160;                    )</div>
+<div class="line"><a name="l00158"></a><span class="lineno">  158</span>&#160;                    blocks = [f<span class="stringliteral">&#39;({fpos:,d} : {length:,d} : {fpos + length:,d})&#39;</span> <span class="keywordflow">for</span> fpos, length <span class="keywordflow">in</span> svf.blocks()]</div>
+<div class="line"><a name="l00159"></a><span class="lineno">  159</span>&#160;                    logger.error(<span class="stringliteral">&#39;CLIENT:  blocks now: %s&#39;</span>, blocks)</div>
+<div class="line"><a name="l00160"></a><span class="lineno">  160</span>&#160;                    <span class="keyword">assert</span> 0</div>
+<div class="line"><a name="l00161"></a><span class="lineno">  161</span>&#160;                has_misses += 1</div>
+<div class="line"><a name="l00162"></a><span class="lineno">  162</span>&#160;            <span class="keywordflow">else</span>:</div>
+<div class="line"><a name="l00163"></a><span class="lineno">  163</span>&#160;                logger.debug(</div>
+<div class="line"><a name="l00164"></a><span class="lineno">  164</span>&#160;                    f<span class="stringliteral">&#39;CLIENT:     has fpos {fpos_demand:16,d} length {length_demand:6,d} ({fpos_demand + length_demand:16,d})&#39;</span></div>
+<div class="line"><a name="l00165"></a><span class="lineno">  165</span>&#160;                )</div>
+<div class="line"><a name="l00166"></a><span class="lineno">  166</span>&#160;                has_hits += 1</div>
+<div class="line"><a name="l00167"></a><span class="lineno">  167</span>&#160; </div>
+<div class="line"><a name="l00168"></a><span class="lineno">  168</span>&#160;            time_svf_start = time.perf_counter()</div>
+<div class="line"><a name="l00169"></a><span class="lineno">  169</span>&#160;            svf.read(fpos_demand, length_demand)</div>
+<div class="line"><a name="l00170"></a><span class="lineno">  170</span>&#160;            time_svf += time.perf_counter() - time_svf_start</div>
+<div class="line"><a name="l00171"></a><span class="lineno">  171</span>&#160;        time_exec = time.perf_counter() - time_start</div>
+<div class="line"><a name="l00172"></a><span class="lineno">  172</span>&#160;        time_exec = self.<a class="code" href="classsrc_1_1cpy_1_1simulator_1_1_client.html#a93b39a9b23a27204b9fbf0937fbbb992">comms</a>comms.time_total + self.<a class="code" href="classsrc_1_1cpy_1_1simulator_1_1_client.html#ae71ab1efd66999a4e8a1376cc69ee0f9">server</a>server.total_time + time_svf</div>
+<div class="line"><a name="l00173"></a><span class="lineno">  173</span>&#160;        logger.info(<span class="stringliteral">&#39;has(): hits: %d misses: %d&#39;</span>, has_hits, has_misses)</div>
 <div class="line"><a name="l00174"></a><span class="lineno">  174</span>&#160;        logger.info(</div>
-<div class="line"><a name="l00175"></a><span class="lineno">  175</span>&#160;            f<span class="stringliteral">&#39;Comms laten: {self.comms.time_latency * 1000:10.3f} (ms)&#39;</span></div>
-<div class="line"><a name="l00176"></a><span class="lineno">  176</span>&#160;            f<span class="stringliteral">&#39; ({self.comms.time_latency / self.comms.time_total:6.1%}) of Comms total.&#39;</span></div>
+<div class="line"><a name="l00175"></a><span class="lineno">  175</span>&#160;            <span class="stringliteral">&#39;Blocks: %d bytes: %d sizeof: %d overhead: %d&#39;</span>, svf.num_blocks(), svf.num_bytes(), svf.size_of(),</div>
+<div class="line"><a name="l00176"></a><span class="lineno">  176</span>&#160;            svf.size_of() - svf.num_bytes()</div>
 <div class="line"><a name="l00177"></a><span class="lineno">  177</span>&#160;        )</div>
-<div class="line"><a name="l00178"></a><span class="lineno">  178</span>&#160;        logger.info(</div>
-<div class="line"><a name="l00179"></a><span class="lineno">  179</span>&#160;            f<span class="stringliteral">&#39;Comms bwidt: {self.comms.time_bandwidth * 1000:10.3f} (ms)&#39;</span></div>
-<div class="line"><a name="l00180"></a><span class="lineno">  180</span>&#160;            f<span class="stringliteral">&#39; ({self.comms.time_bandwidth / self.comms.time_total:6.1%}) of Comms total.&#39;</span></div>
-<div class="line"><a name="l00181"></a><span class="lineno">  181</span>&#160;        )</div>
-<div class="line"><a name="l00182"></a><span class="lineno">  182</span>&#160;        percent_str = <span class="stringliteral">&#39;+&#39;</span> * int(0.5 + 50 * self.<a class="code" href="classsrc_1_1cpy_1_1simulator_1_1_client.html#a93b39a9b23a27204b9fbf0937fbbb992">comms</a>comms.time_total / time_exec)</div>
-<div class="line"><a name="l00183"></a><span class="lineno">  183</span>&#160;        logger.info(</div>
-<div class="line"><a name="l00184"></a><span class="lineno">  184</span>&#160;            f<span class="stringliteral">&#39;Comms time : {self.comms.time_total * 1000:10.3f} (ms) ({self.comms.time_total / time_exec:6.1%})&#39;</span></div>
-<div class="line"><a name="l00185"></a><span class="lineno">  185</span>&#160;            f<span class="stringliteral">&#39; {percent_str}&#39;</span></div>
-<div class="line"><a name="l00186"></a><span class="lineno">  186</span>&#160;        )</div>
-<div class="line"><a name="l00187"></a><span class="lineno">  187</span>&#160;        percent_str = <span class="stringliteral">&#39;+&#39;</span> * int(0.5 + 50 * self.<a class="code" href="classsrc_1_1cpy_1_1simulator_1_1_client.html#ae71ab1efd66999a4e8a1376cc69ee0f9">server</a>server.total_time / time_exec)</div>
-<div class="line"><a name="l00188"></a><span class="lineno">  188</span>&#160;        logger.info(</div>
-<div class="line"><a name="l00189"></a><span class="lineno">  189</span>&#160;            f<span class="stringliteral">&#39;Server time: {self.server.total_time * 1000:10.3f} (ms) ({self.server.total_time / time_exec:6.1%})&#39;</span></div>
-<div class="line"><a name="l00190"></a><span class="lineno">  190</span>&#160;            f<span class="stringliteral">&#39; {percent_str}&#39;</span></div>
-<div class="line"><a name="l00191"></a><span class="lineno">  191</span>&#160;        )</div>
-<div class="line"><a name="l00192"></a><span class="lineno">  192</span>&#160;        percent_str = <span class="stringliteral">&#39;+&#39;</span> * int(0.5 + 50 * time_svf / time_exec)</div>
-<div class="line"><a name="l00193"></a><span class="lineno">  193</span>&#160;        logger.info(</div>
-<div class="line"><a name="l00194"></a><span class="lineno">  194</span>&#160;            f<span class="stringliteral">&#39;SVF time   : {time_svf * 1000:10.3f} (ms) ({time_svf / time_exec:6.1%})&#39;</span></div>
-<div class="line"><a name="l00195"></a><span class="lineno">  195</span>&#160;            f<span class="stringliteral">&#39; {percent_str}&#39;</span></div>
-<div class="line"><a name="l00196"></a><span class="lineno">  196</span>&#160;        )</div>
-<div class="line"><a name="l00197"></a><span class="lineno">  197</span>&#160;        <span class="comment"># time_residual = time_exec - self.comms.total_time - self.server.total_time - time_svf</span></div>
-<div class="line"><a name="l00198"></a><span class="lineno">  198</span>&#160;        <span class="comment"># percent_str = &#39;+&#39; * int(0.5 + 50 * time_residual / time_exec)</span></div>
-<div class="line"><a name="l00199"></a><span class="lineno">  199</span>&#160;        <span class="comment"># logger.info(</span></div>
-<div class="line"><a name="l00200"></a><span class="lineno">  200</span>&#160;        <span class="comment">#     f&#39;Residual   : {time_residual * 1000:10.3f} (ms) ({time_residual / time_exec:6.1%})&#39;</span></div>
-<div class="line"><a name="l00201"></a><span class="lineno">  201</span>&#160;        <span class="comment">#     f&#39; {percent_str}&#39;</span></div>
-<div class="line"><a name="l00202"></a><span class="lineno">  202</span>&#160;        <span class="comment"># )</span></div>
-<div class="line"><a name="l00203"></a><span class="lineno">  203</span>&#160;        logger.info(f<span class="stringliteral">&#39;Total      : {time_exec * 1000:10.3f} (ms) ({time_exec / time_exec:6.1%})&#39;</span>)</div>
-<div class="line"><a name="l00204"></a><span class="lineno">  204</span>&#160;        logger.info(<span class="stringliteral">&#39;SVF contents: %s Execution time: %.3f (s) %.3f (Mb/s)&#39;</span>,</div>
-<div class="line"><a name="l00205"></a><span class="lineno">  205</span>&#160;                    svf.num_bytes(), time_exec, svf.num_bytes() / time_exec / 1024 ** 2</div>
-<div class="line"><a name="l00206"></a><span class="lineno">  206</span>&#160;                    )</div>
-<div class="line"><a name="l00207"></a><span class="lineno">  207</span>&#160;        <span class="keywordflow">return</span> <a class="code" href="classsrc_1_1cpy_1_1simulator_1_1_run_result.html">RunResult</a>(has_hits, has_misses, minimal_bytes, svf.num_bytes(), svf.size_of(),</div>
-<div class="line"><a name="l00208"></a><span class="lineno">  208</span>&#160;                         self.<a class="code" href="classsrc_1_1cpy_1_1simulator_1_1_client.html#a93b39a9b23a27204b9fbf0937fbbb992">comms</a>comms.time_total + self.<a class="code" href="classsrc_1_1cpy_1_1simulator_1_1_client.html#ae71ab1efd66999a4e8a1376cc69ee0f9">server</a>server.total_time + time_svf</div>
-<div class="line"><a name="l00209"></a><span class="lineno">  209</span>&#160;                         )</div>
-<div class="line"><a name="l00210"></a><span class="lineno">  210</span>&#160; </div>
-<div class="line"><a name="l00211"></a><span class="lineno">  211</span>&#160; </div>
-<div class="line"><a name="l00212"></a><span class="lineno"><a class="line" href="namespacesrc_1_1cpy_1_1simulator.html#ab9485394b42e27dd2c6a488e154c5593">  212</a></span>&#160;<span class="keyword">def </span><a class="code" href="namespacesrc_1_1cpy_1_1simulator.html#ab9485394b42e27dd2c6a488e154c5593">run</a>(</div>
-<div class="line"><a name="l00213"></a><span class="lineno">  213</span>&#160;        events: typing.Tuple[typing.Tuple[int, int], ...],</div>
-<div class="line"><a name="l00214"></a><span class="lineno">  214</span>&#160;        greedy_length: int,</div>
-<div class="line"><a name="l00215"></a><span class="lineno">  215</span>&#160;        latency_s: float, bandwidth_bit_ps: float,</div>
-<div class="line"><a name="l00216"></a><span class="lineno">  216</span>&#160;        seek_rate_byte_per_s: float, read_rate_byte_per_s: float, realtime: bool</div>
-<div class="line"><a name="l00217"></a><span class="lineno">  217</span>&#160;) -&gt; RunResult:</div>
-<div class="line"><a name="l00218"></a><span class="lineno">  218</span>&#160;    comms = <a class="code" href="classsrc_1_1cpy_1_1simulator_1_1_communications.html">Communications</a>(latency_s, bandwidth_bit_ps, realtime=realtime)</div>
-<div class="line"><a name="l00219"></a><span class="lineno">  219</span>&#160;    server = <a class="code" href="classsrc_1_1cpy_1_1simulator_1_1_server.html">Server</a>(seek_rate_byte_per_s, read_rate_byte_per_s, realtime=realtime)</div>
-<div class="line"><a name="l00220"></a><span class="lineno">  220</span>&#160;    client = <a class="code" href="classsrc_1_1cpy_1_1simulator_1_1_client.html">Client</a>(comms, server)</div>
-<div class="line"><a name="l00221"></a><span class="lineno">  221</span>&#160;    <span class="keywordflow">return</span> client.run(events, greedy_length)</div>
-<div class="line"><a name="l00222"></a><span class="lineno">  222</span>&#160; </div>
-<div class="line"><a name="l00223"></a><span class="lineno">  223</span>&#160; </div>
-<div class="line"><a name="l00224"></a><span class="lineno"><a class="line" href="namespacesrc_1_1cpy_1_1simulator.html#a01c03d07856b00df79f607b6ae30d142">  224</a></span>&#160;<span class="keyword">def </span><a class="code" href="namespacesrc_1_1cpy_1_1simulator.html#a01c03d07856b00df79f607b6ae30d142">main</a>():</div>
-<div class="line"><a name="l00225"></a><span class="lineno">  225</span>&#160;    time_start = time.perf_counter()</div>
-<div class="line"><a name="l00226"></a><span class="lineno">  226</span>&#160;    result = 0</div>
-<div class="line"><a name="l00227"></a><span class="lineno">  227</span>&#160;    parser = argparse.ArgumentParser(description=<span class="stringliteral">&#39;Simulate reading into a SVF.&#39;</span>, prog=__file__)</div>
-<div class="line"><a name="l00228"></a><span class="lineno">  228</span>&#160;    parser.add_argument(<span class="stringliteral">&#39;-l&#39;</span>, <span class="stringliteral">&#39;--log-level&#39;</span>, dest=<span class="stringliteral">&#39;log_level&#39;</span>, type=int, default=20,</div>
-<div class="line"><a name="l00229"></a><span class="lineno">  229</span>&#160;                        help=<span class="stringliteral">&#39;Log level. [default: %(default)d]&#39;</span></div>
-<div class="line"><a name="l00230"></a><span class="lineno">  230</span>&#160;                        )</div>
-<div class="line"><a name="l00231"></a><span class="lineno">  231</span>&#160;    parser.add_argument(<span class="stringliteral">&#39;--latency&#39;</span>, type=float, default=10,</div>
-<div class="line"><a name="l00232"></a><span class="lineno">  232</span>&#160;                        help=<span class="stringliteral">&#39;Communications channel latency (NOTE: one way) in ms. [default: %(default)d]&#39;</span>)</div>
-<div class="line"><a name="l00233"></a><span class="lineno">  233</span>&#160;    parser.add_argument(<span class="stringliteral">&#39;--bandwidth&#39;</span>, type=float, default=50,</div>
-<div class="line"><a name="l00234"></a><span class="lineno">  234</span>&#160;                        help=<span class="stringliteral">&#39;Communications channel bandwidth in million bits per second.&#39;</span></div>
-<div class="line"><a name="l00235"></a><span class="lineno">  235</span>&#160;                             <span class="stringliteral">&#39; Zero is infinite bandwidth. [default: %(default)d]&#39;</span>)</div>
-<div class="line"><a name="l00236"></a><span class="lineno">  236</span>&#160;    parser.add_argument(<span class="stringliteral">&#39;--seek-rate&#39;</span>, type=float, default=10000,</div>
-<div class="line"><a name="l00237"></a><span class="lineno">  237</span>&#160;                        help=<span class="stringliteral">&#39;Server seek rate in million bytes per second. [default: %(default)d]&#39;</span>)</div>
-<div class="line"><a name="l00238"></a><span class="lineno">  238</span>&#160;    parser.add_argument(<span class="stringliteral">&#39;--read-rate&#39;</span>, type=float, default=50,</div>
-<div class="line"><a name="l00239"></a><span class="lineno">  239</span>&#160;                        help=<span class="stringliteral">&#39;Server read rate in million bytes per second. [default: %(default)d]&#39;</span>)</div>
-<div class="line"><a name="l00240"></a><span class="lineno">  240</span>&#160;    parser.add_argument(<span class="stringliteral">&#39;--get-cost&#39;</span>, type=float, default=0.0005,</div>
-<div class="line"><a name="l00241"></a><span class="lineno">  241</span>&#160;                        help=<span class="stringliteral">&#39;The cost of GET in currency per 1000 GET requests. [default: %(default)d]&#39;</span>)</div>
-<div class="line"><a name="l00242"></a><span class="lineno">  242</span>&#160;    parser.add_argument(<span class="stringliteral">&#39;--egress-cost&#39;</span>, type=float, default=0.1,</div>
-<div class="line"><a name="l00243"></a><span class="lineno">  243</span>&#160;                        help=<span class="stringliteral">&#39;The cost of egress data in currency per GB. [default: %(default)d]&#39;</span>)</div>
-<div class="line"><a name="l00244"></a><span class="lineno">  244</span>&#160;    parser.add_argument(<span class="stringliteral">&#39;--greedy-length&#39;</span>, type=int, default=-1,</div>
-<div class="line"><a name="l00245"></a><span class="lineno">  245</span>&#160;                        help=(</div>
-<div class="line"><a name="l00246"></a><span class="lineno">  246</span>&#160;                            <span class="stringliteral">&#39;The greedy length to read fragments from the server.&#39;</span></div>
-<div class="line"><a name="l00247"></a><span class="lineno">  247</span>&#160;                            <span class="stringliteral">&#39; Zero means read every fragment.&#39;</span></div>
-<div class="line"><a name="l00248"></a><span class="lineno">  248</span>&#160;                            <span class="stringliteral">&#39; Default is to run through a range of greedy lengths and report the performance.&#39;</span></div>
-<div class="line"><a name="l00249"></a><span class="lineno">  249</span>&#160;                            <span class="stringliteral">&#39; [default: %(default)d]&#39;</span></div>
-<div class="line"><a name="l00250"></a><span class="lineno">  250</span>&#160;                        )</div>
-<div class="line"><a name="l00251"></a><span class="lineno">  251</span>&#160;                        )</div>
-<div class="line"><a name="l00252"></a><span class="lineno">  252</span>&#160;    parser.add_argument(<span class="stringliteral">&#39;--realtime&#39;</span>, action=<span class="stringliteral">&quot;store_true&quot;</span>, default=<span class="keyword">False</span>,</div>
-<div class="line"><a name="l00253"></a><span class="lineno">  253</span>&#160;                        help=<span class="stringliteral">&#39;Run in realtime (may be slow). [default: %(default)d]&#39;</span>)</div>
-<div class="line"><a name="l00254"></a><span class="lineno">  254</span>&#160;    args = parser.parse_args()</div>
-<div class="line"><a name="l00255"></a><span class="lineno">  255</span>&#160;    <span class="comment"># print(&#39;Args:&#39;, args)</span></div>
-<div class="line"><a name="l00256"></a><span class="lineno">  256</span>&#160;    logging.basicConfig(level=args.log_level, format=LOG_FORMAT_NO_PROCESS, stream=sys.stdout)</div>
-<div class="line"><a name="l00257"></a><span class="lineno">  257</span>&#160; </div>
-<div class="line"><a name="l00258"></a><span class="lineno">  258</span>&#160;    results_time: typing.Dict[str, typing.List[typing.Tuple[int, RunResult]]] = {}</div>
-<div class="line"><a name="l00259"></a><span class="lineno">  259</span>&#160;    print(<span class="stringliteral">&#39;Simulator setup:&#39;</span>)</div>
-<div class="line"><a name="l00260"></a><span class="lineno">  260</span>&#160;    print(f<span class="stringliteral">&#39;Network latency (one way) {args.latency:.3f} (ms) bandwidth {args.bandwidth:.3f} (M bits/s)&#39;</span>)</div>
-<div class="line"><a name="l00261"></a><span class="lineno">  261</span>&#160;    print(f<span class="stringliteral">&#39;Server seek rate {args.seek_rate:.3f} (M bytes/s) read rate {args.read_rate:.3f} (M bytes/s)&#39;</span>)</div>
-<div class="line"><a name="l00262"></a><span class="lineno">  262</span>&#160;    print(f<span class="stringliteral">&#39;Cost GET {args.get_cost:.6f} (per 1000 GET requests) egress {args.egress_cost:.3f} (per GB)&#39;</span>)</div>
-<div class="line"><a name="l00263"></a><span class="lineno">  263</span>&#160;    <span class="comment"># for name in (&#39;EXAMPLE_FILE_POSITIONS_LENGTHS_TIFF_CMU_1&#39;,):</span></div>
-<div class="line"><a name="l00264"></a><span class="lineno">  264</span>&#160;    <span class="comment"># for name in (&#39;EXAMPLE_FILE_POSITIONS_LENGTHS_SYNTHETIC&#39;,):</span></div>
-<div class="line"><a name="l00265"></a><span class="lineno">  265</span>&#160;    t_start = time.perf_counter()</div>
-<div class="line"><a name="l00266"></a><span class="lineno">  266</span>&#160;    <span class="keywordflow">for</span> name <span class="keywordflow">in</span> sim_examples.EXAMPLE_FILE_POSITIONS_LENGTHS:</div>
-<div class="line"><a name="l00267"></a><span class="lineno">  267</span>&#160;        <span class="keywordflow">if</span> args.greedy_length == -1:  <span class="comment"># Default greedy-length, use a range</span></div>
-<div class="line"><a name="l00268"></a><span class="lineno">  268</span>&#160;            greedy_length = 1</div>
-<div class="line"><a name="l00269"></a><span class="lineno">  269</span>&#160;            <span class="comment"># for greedy_length in (1024,):</span></div>
-<div class="line"><a name="l00270"></a><span class="lineno">  270</span>&#160;            <span class="comment"># for greedy_length in range(0, 1024 + 32, 32):</span></div>
-<div class="line"><a name="l00271"></a><span class="lineno">  271</span>&#160;            <span class="keywordflow">while</span> greedy_length &lt;= 1 &lt;&lt; 22: <span class="comment">#2048 * 4 * 4 * 4 * 4:</span></div>
-<div class="line"><a name="l00272"></a><span class="lineno">  272</span>&#160;                logger.info(<span class="stringliteral">&#39;Running %s with %d file actions and greedy_length %d&#39;</span>, name,</div>
-<div class="line"><a name="l00273"></a><span class="lineno">  273</span>&#160;                            len(sim_examples.EXAMPLE_FILE_POSITIONS_LENGTHS[name]), greedy_length)</div>
-<div class="line"><a name="l00274"></a><span class="lineno">  274</span>&#160;                result = <a class="code" href="namespacesrc_1_1cpy_1_1simulator.html#ab9485394b42e27dd2c6a488e154c5593">run</a>(</div>
-<div class="line"><a name="l00275"></a><span class="lineno">  275</span>&#160;                    sim_examples.EXAMPLE_FILE_POSITIONS_LENGTHS[name], greedy_length,</div>
-<div class="line"><a name="l00276"></a><span class="lineno">  276</span>&#160;                    args.latency / 1000, args.bandwidth * 1e6, args.seek_rate * 1e6, args.read_rate * 1e6, args.realtime</div>
-<div class="line"><a name="l00277"></a><span class="lineno">  277</span>&#160;                )</div>
-<div class="line"><a name="l00278"></a><span class="lineno">  278</span>&#160;                <span class="keywordflow">if</span> name <span class="keywordflow">not</span> <span class="keywordflow">in</span> results_time:</div>
-<div class="line"><a name="l00279"></a><span class="lineno">  279</span>&#160;                    results_time[name] = []</div>
-<div class="line"><a name="l00280"></a><span class="lineno">  280</span>&#160;                results_time[name].append((greedy_length, result))</div>
-<div class="line"><a name="l00281"></a><span class="lineno">  281</span>&#160;                <span class="comment"># if greedy_length == 0:</span></div>
-<div class="line"><a name="l00282"></a><span class="lineno">  282</span>&#160;                <span class="comment">#     greedy_length = 1</span></div>
-<div class="line"><a name="l00283"></a><span class="lineno">  283</span>&#160;                <span class="comment"># elif greedy_length == 1:</span></div>
-<div class="line"><a name="l00284"></a><span class="lineno">  284</span>&#160;                <span class="comment">#     greedy_length = 16</span></div>
-<div class="line"><a name="l00285"></a><span class="lineno">  285</span>&#160;                <span class="comment"># else:</span></div>
-<div class="line"><a name="l00286"></a><span class="lineno">  286</span>&#160;                <span class="comment">#     greedy_length *= 2</span></div>
-<div class="line"><a name="l00287"></a><span class="lineno">  287</span>&#160;                greedy_length *= 2</div>
-<div class="line"><a name="l00288"></a><span class="lineno">  288</span>&#160;        <span class="keywordflow">else</span>:</div>
-<div class="line"><a name="l00289"></a><span class="lineno">  289</span>&#160;            logger.info(<span class="stringliteral">&#39;Running %s with %d file actions and greedy_length %d&#39;</span>, name,</div>
-<div class="line"><a name="l00290"></a><span class="lineno">  290</span>&#160;                        len(sim_examples.EXAMPLE_FILE_POSITIONS_LENGTHS[name]), args.greedy_length)</div>
-<div class="line"><a name="l00291"></a><span class="lineno">  291</span>&#160;            result = <a class="code" href="namespacesrc_1_1cpy_1_1simulator.html#ab9485394b42e27dd2c6a488e154c5593">run</a>(</div>
-<div class="line"><a name="l00292"></a><span class="lineno">  292</span>&#160;                sim_examples.EXAMPLE_FILE_POSITIONS_LENGTHS[name], args.greedy_length,</div>
-<div class="line"><a name="l00293"></a><span class="lineno">  293</span>&#160;                args.latency / 1000, args.bandwidth * 1e6, args.seek_rate * 1e6, args.read_rate * 1e6, args.realtime</div>
-<div class="line"><a name="l00294"></a><span class="lineno">  294</span>&#160;            )</div>
-<div class="line"><a name="l00295"></a><span class="lineno">  295</span>&#160;            <span class="keywordflow">if</span> name <span class="keywordflow">not</span> <span class="keywordflow">in</span> results_time:</div>
-<div class="line"><a name="l00296"></a><span class="lineno">  296</span>&#160;                results_time[name] = []</div>
-<div class="line"><a name="l00297"></a><span class="lineno">  297</span>&#160;            results_time[name].append((args.greedy_length, result))</div>
-<div class="line"><a name="l00298"></a><span class="lineno">  298</span>&#160;    <span class="keywordflow">for</span> key <span class="keywordflow">in</span> results_time:</div>
-<div class="line"><a name="l00299"></a><span class="lineno">  299</span>&#160;        <span class="comment"># Cost of downloading the complete file</span></div>
-<div class="line"><a name="l00300"></a><span class="lineno">  300</span>&#160;        file_size = sim_examples.EXAMPLE_FILE_POSITIONS_SIZES[key]</div>
-<div class="line"><a name="l00301"></a><span class="lineno">  301</span>&#160;        whole_file_get_cost = 1 * args.get_cost / 1000</div>
-<div class="line"><a name="l00302"></a><span class="lineno">  302</span>&#160;        whole_file_egress_cost = file_size * args.egress_cost / (1 &lt;&lt; 30)</div>
-<div class="line"><a name="l00303"></a><span class="lineno">  303</span>&#160;        whole_file_total_cost = whole_file_get_cost + whole_file_egress_cost</div>
-<div class="line"><a name="l00304"></a><span class="lineno">  304</span>&#160;        print(f<span class="stringliteral">&#39;{key}:&#39;</span>)</div>
-<div class="line"><a name="l00305"></a><span class="lineno">  305</span>&#160;        print(</div>
-<div class="line"><a name="l00306"></a><span class="lineno">  306</span>&#160;            f<span class="stringliteral">&#39;{&quot;greedy_length&quot;:&gt;14} {&quot;Time(ms)&quot;:&gt;10}&#39;</span></div>
-<div class="line"><a name="l00307"></a><span class="lineno">  307</span>&#160;            f<span class="stringliteral">&#39; {&quot;Hits&quot;:&gt;8} {&quot;Miss&quot;:&gt;8} {&quot;Hits%&quot;:&gt;8}&#39;</span></div>
-<div class="line"><a name="l00308"></a><span class="lineno">  308</span>&#160;            f<span class="stringliteral">&#39; {&quot;Min. Bytes&quot;:&gt;12} {&quot;Act. Bytes&quot;:&gt;12} {&quot;Act. / Min.&quot;:&gt;12}&#39;</span></div>
-<div class="line"><a name="l00309"></a><span class="lineno">  309</span>&#160;            f<span class="stringliteral">&#39; {&quot;sizeof&quot;:&gt;10} {&quot;Overhead&quot;:&gt;8} {&quot;sizeof / Act.&quot;:&gt;14}&#39;</span></div>
-<div class="line"><a name="l00310"></a><span class="lineno">  310</span>&#160;            f<span class="stringliteral">&#39; {&quot;GET Cost&quot;:&gt;12} {&quot;Egress Cost&quot;:&gt;12} {&quot;Total Cost&quot;:&gt;12}&#39;</span></div>
-<div class="line"><a name="l00311"></a><span class="lineno">  311</span>&#160;            f<span class="stringliteral">&#39; {&quot;Whole File Cost&quot;:&gt;15}&#39;</span></div>
-<div class="line"><a name="l00312"></a><span class="lineno">  312</span>&#160;        )</div>
-<div class="line"><a name="l00313"></a><span class="lineno">  313</span>&#160;        <span class="keywordflow">for</span> greedy_length, result <span class="keywordflow">in</span> results_time[key]:</div>
-<div class="line"><a name="l00314"></a><span class="lineno">  314</span>&#160;            get_cost = result.cache_misses * args.get_cost / 1000</div>
-<div class="line"><a name="l00315"></a><span class="lineno">  315</span>&#160;            egress_cost = result.num_bytes * args.egress_cost / (1 &lt;&lt; 30)</div>
-<div class="line"><a name="l00316"></a><span class="lineno">  316</span>&#160;            print(</div>
-<div class="line"><a name="l00317"></a><span class="lineno">  317</span>&#160;                f<span class="stringliteral">&#39;{greedy_length:14} {result.time_exec * 1000 :10.1f} {result.cache_hits:8d} {result.cache_misses:8d}&#39;</span></div>
-<div class="line"><a name="l00318"></a><span class="lineno">  318</span>&#160;                f<span class="stringliteral">&#39; {result.cache_hits / (result.cache_hits + result.cache_misses):8.3%}&#39;</span></div>
-<div class="line"><a name="l00319"></a><span class="lineno">  319</span>&#160;                f<span class="stringliteral">&#39; {result.minimal_bytes:12d} {result.num_bytes:12d} {result.num_bytes / result.minimal_bytes:12.3%}&#39;</span></div>
-<div class="line"><a name="l00320"></a><span class="lineno">  320</span>&#160;                f<span class="stringliteral">&#39; {result.sizeof:10d} {result.sizeof - result.num_bytes:+8d} {result.sizeof / result.num_bytes:14.3%}&#39;</span></div>
-<div class="line"><a name="l00321"></a><span class="lineno">  321</span>&#160;                f<span class="stringliteral">&#39; {get_cost:12.6f} {egress_cost:12.6f} {get_cost + egress_cost:12.6f} {whole_file_total_cost:15.6f}&#39;</span></div>
-<div class="line"><a name="l00322"></a><span class="lineno">  322</span>&#160;            )</div>
-<div class="line"><a name="l00323"></a><span class="lineno">  323</span>&#160;        print(</div>
-<div class="line"><a name="l00324"></a><span class="lineno">  324</span>&#160;            f<span class="stringliteral">&#39;Cost of downloading complete file&#39;</span></div>
-<div class="line"><a name="l00325"></a><span class="lineno">  325</span>&#160;            f<span class="stringliteral">&#39; [{file_size / (1 &lt;&lt; 30):.6f} GB]:&#39;</span></div>
-<div class="line"><a name="l00326"></a><span class="lineno">  326</span>&#160;            f<span class="stringliteral">&#39; GET: {whole_file_get_cost:.6f}&#39;</span></div>
-<div class="line"><a name="l00327"></a><span class="lineno">  327</span>&#160;            f<span class="stringliteral">&#39; Egress: {whole_file_egress_cost:.6f}&#39;</span></div>
-<div class="line"><a name="l00328"></a><span class="lineno">  328</span>&#160;            f<span class="stringliteral">&#39; Total: {whole_file_total_cost:.6f}&#39;</span></div>
-<div class="line"><a name="l00329"></a><span class="lineno">  329</span>&#160;        )</div>
-<div class="line"><a name="l00330"></a><span class="lineno">  330</span>&#160;    print(f<span class="stringliteral">&#39;Execution time: {time.perf_counter() - time_start:10.3f} (s)&#39;</span>)</div>
-<div class="line"><a name="l00331"></a><span class="lineno">  331</span>&#160;    <span class="keywordflow">return</span> 0</div>
-<div class="line"><a name="l00332"></a><span class="lineno">  332</span>&#160; </div>
-<div class="line"><a name="l00333"></a><span class="lineno">  333</span>&#160; </div>
-<div class="line"><a name="l00334"></a><span class="lineno">  334</span>&#160;<span class="keywordflow">if</span> __name__ == <span class="stringliteral">&#39;__main__&#39;</span>:</div>
-<div class="line"><a name="l00335"></a><span class="lineno">  335</span>&#160;    exit(<a class="code" href="namespacesrc_1_1cpy_1_1simulator.html#a01c03d07856b00df79f607b6ae30d142">main</a>())</div>
-<div class="ttc" id="aclasssrc_1_1cpy_1_1simulator_1_1_client_html"><div class="ttname"><a href="classsrc_1_1cpy_1_1simulator_1_1_client.html">src.cpy.simulator.Client</a></div><div class="ttdef"><b>Definition:</b> <a href="simulator_8py_source.html#l00111">simulator.py:111</a></div></div>
-<div class="ttc" id="aclasssrc_1_1cpy_1_1simulator_1_1_client_html_a7081ef07e345b4a354af08893190b138"><div class="ttname"><a href="classsrc_1_1cpy_1_1simulator_1_1_client.html#a7081ef07e345b4a354af08893190b138">src.cpy.simulator.Client.run</a></div><div class="ttdeci">RunResult run(self, typing.Tuple[typing.Tuple[int, int],...] seek_reads, int greedy_length)</div><div class="ttdef"><b>Definition:</b> <a href="simulator_8py_source.html#l00116">simulator.py:116</a></div></div>
-<div class="ttc" id="aclasssrc_1_1cpy_1_1simulator_1_1_client_html_a93b39a9b23a27204b9fbf0937fbbb992"><div class="ttname"><a href="classsrc_1_1cpy_1_1simulator_1_1_client.html#a93b39a9b23a27204b9fbf0937fbbb992">src.cpy.simulator.Client.comms</a></div><div class="ttdeci">comms</div><div class="ttdef"><b>Definition:</b> <a href="simulator_8py_source.html#l00113">simulator.py:113</a></div></div>
-<div class="ttc" id="aclasssrc_1_1cpy_1_1simulator_1_1_client_html_ae71ab1efd66999a4e8a1376cc69ee0f9"><div class="ttname"><a href="classsrc_1_1cpy_1_1simulator_1_1_client.html#ae71ab1efd66999a4e8a1376cc69ee0f9">src.cpy.simulator.Client.server</a></div><div class="ttdeci">server</div><div class="ttdef"><b>Definition:</b> <a href="simulator_8py_source.html#l00114">simulator.py:114</a></div></div>
-<div class="ttc" id="aclasssrc_1_1cpy_1_1simulator_1_1_client_html_aed9c4c304e3b389ab9875fca6c609b83"><div class="ttname"><a href="classsrc_1_1cpy_1_1simulator_1_1_client.html#aed9c4c304e3b389ab9875fca6c609b83">src.cpy.simulator.Client.__init__</a></div><div class="ttdeci">def __init__(self, Communications comms, Server server)</div><div class="ttdef"><b>Definition:</b> <a href="simulator_8py_source.html#l00112">simulator.py:112</a></div></div>
+<div class="line"><a name="l00178"></a><span class="lineno">  178</span>&#160;        <span class="keywordflow">if</span> self.<a class="code" href="classsrc_1_1cpy_1_1simulator_1_1_client.html#a93b39a9b23a27204b9fbf0937fbbb992">comms</a>comms.time_total:</div>
+<div class="line"><a name="l00179"></a><span class="lineno">  179</span>&#160;            logger.info(</div>
+<div class="line"><a name="l00180"></a><span class="lineno">  180</span>&#160;                f<span class="stringliteral">&#39;Comms laten: {self.comms.time_latency * 1000:10.3f} (ms)&#39;</span></div>
+<div class="line"><a name="l00181"></a><span class="lineno">  181</span>&#160;                f<span class="stringliteral">&#39; ({self.comms.time_latency / self.comms.time_total:6.1%}) of Comms total.&#39;</span></div>
+<div class="line"><a name="l00182"></a><span class="lineno">  182</span>&#160;            )</div>
+<div class="line"><a name="l00183"></a><span class="lineno">  183</span>&#160;            logger.info(</div>
+<div class="line"><a name="l00184"></a><span class="lineno">  184</span>&#160;                f<span class="stringliteral">&#39;Comms bwidt: {self.comms.time_bandwidth * 1000:10.3f} (ms)&#39;</span></div>
+<div class="line"><a name="l00185"></a><span class="lineno">  185</span>&#160;                f<span class="stringliteral">&#39; ({self.comms.time_bandwidth / self.comms.time_total:6.1%}) of Comms total.&#39;</span></div>
+<div class="line"><a name="l00186"></a><span class="lineno">  186</span>&#160;            )</div>
+<div class="line"><a name="l00187"></a><span class="lineno">  187</span>&#160;        <span class="keywordflow">else</span>:</div>
+<div class="line"><a name="l00188"></a><span class="lineno">  188</span>&#160;            logger.info(</div>
+<div class="line"><a name="l00189"></a><span class="lineno">  189</span>&#160;                f<span class="stringliteral">&#39;Comms laten: {self.comms.time_latency * 1000:10.3f} (ms)&#39;</span></div>
+<div class="line"><a name="l00190"></a><span class="lineno">  190</span>&#160;                f<span class="stringliteral">&#39; ({&quot;N/A&quot;:6}) of Comms total.&#39;</span></div>
+<div class="line"><a name="l00191"></a><span class="lineno">  191</span>&#160;            )</div>
+<div class="line"><a name="l00192"></a><span class="lineno">  192</span>&#160;            logger.info(</div>
+<div class="line"><a name="l00193"></a><span class="lineno">  193</span>&#160;                f<span class="stringliteral">&#39;Comms bwidt: {self.comms.time_bandwidth * 1000:10.3f} (ms)&#39;</span></div>
+<div class="line"><a name="l00194"></a><span class="lineno">  194</span>&#160;                f<span class="stringliteral">&#39; ({&quot;N/A&quot;:6}) of Comms total.&#39;</span></div>
+<div class="line"><a name="l00195"></a><span class="lineno">  195</span>&#160;            )</div>
+<div class="line"><a name="l00196"></a><span class="lineno">  196</span>&#160;        percent_str = <span class="stringliteral">&#39;+&#39;</span> * int(0.5 + 50 * self.<a class="code" href="classsrc_1_1cpy_1_1simulator_1_1_client.html#a93b39a9b23a27204b9fbf0937fbbb992">comms</a>comms.time_total / time_exec)</div>
+<div class="line"><a name="l00197"></a><span class="lineno">  197</span>&#160;        logger.info(</div>
+<div class="line"><a name="l00198"></a><span class="lineno">  198</span>&#160;            f<span class="stringliteral">&#39;Comms time : {self.comms.time_total * 1000:10.3f} (ms) ({self.comms.time_total / time_exec:6.1%})&#39;</span></div>
+<div class="line"><a name="l00199"></a><span class="lineno">  199</span>&#160;            f<span class="stringliteral">&#39; {percent_str}&#39;</span></div>
+<div class="line"><a name="l00200"></a><span class="lineno">  200</span>&#160;        )</div>
+<div class="line"><a name="l00201"></a><span class="lineno">  201</span>&#160;        percent_str = <span class="stringliteral">&#39;+&#39;</span> * int(0.5 + 50 * self.<a class="code" href="classsrc_1_1cpy_1_1simulator_1_1_client.html#ae71ab1efd66999a4e8a1376cc69ee0f9">server</a>server.total_time / time_exec)</div>
+<div class="line"><a name="l00202"></a><span class="lineno">  202</span>&#160;        logger.info(</div>
+<div class="line"><a name="l00203"></a><span class="lineno">  203</span>&#160;            f<span class="stringliteral">&#39;Server time: {self.server.total_time * 1000:10.3f} (ms) ({self.server.total_time / time_exec:6.1%})&#39;</span></div>
+<div class="line"><a name="l00204"></a><span class="lineno">  204</span>&#160;            f<span class="stringliteral">&#39; {percent_str}&#39;</span></div>
+<div class="line"><a name="l00205"></a><span class="lineno">  205</span>&#160;        )</div>
+<div class="line"><a name="l00206"></a><span class="lineno">  206</span>&#160;        percent_str = <span class="stringliteral">&#39;+&#39;</span> * int(0.5 + 50 * time_svf / time_exec)</div>
+<div class="line"><a name="l00207"></a><span class="lineno">  207</span>&#160;        logger.info(</div>
+<div class="line"><a name="l00208"></a><span class="lineno">  208</span>&#160;            f<span class="stringliteral">&#39;SVF time   : {time_svf * 1000:10.3f} (ms) ({time_svf / time_exec:6.1%})&#39;</span></div>
+<div class="line"><a name="l00209"></a><span class="lineno">  209</span>&#160;            f<span class="stringliteral">&#39; {percent_str}&#39;</span></div>
+<div class="line"><a name="l00210"></a><span class="lineno">  210</span>&#160;        )</div>
+<div class="line"><a name="l00211"></a><span class="lineno">  211</span>&#160;        <span class="comment"># time_residual = time_exec - self.comms.total_time - self.server.total_time - time_svf</span></div>
+<div class="line"><a name="l00212"></a><span class="lineno">  212</span>&#160;        <span class="comment"># percent_str = &#39;+&#39; * int(0.5 + 50 * time_residual / time_exec)</span></div>
+<div class="line"><a name="l00213"></a><span class="lineno">  213</span>&#160;        <span class="comment"># logger.info(</span></div>
+<div class="line"><a name="l00214"></a><span class="lineno">  214</span>&#160;        <span class="comment">#     f&#39;Residual   : {time_residual * 1000:10.3f} (ms) ({time_residual / time_exec:6.1%})&#39;</span></div>
+<div class="line"><a name="l00215"></a><span class="lineno">  215</span>&#160;        <span class="comment">#     f&#39; {percent_str}&#39;</span></div>
+<div class="line"><a name="l00216"></a><span class="lineno">  216</span>&#160;        <span class="comment"># )</span></div>
+<div class="line"><a name="l00217"></a><span class="lineno">  217</span>&#160;        logger.info(f<span class="stringliteral">&#39;Total      : {time_exec * 1000:10.3f} (ms) ({time_exec / time_exec:6.1%})&#39;</span>)</div>
+<div class="line"><a name="l00218"></a><span class="lineno">  218</span>&#160;        logger.info(<span class="stringliteral">&#39;SVF contents: %s Execution time: %.3f (s) %.3f (Mb/s)&#39;</span>,</div>
+<div class="line"><a name="l00219"></a><span class="lineno">  219</span>&#160;                    svf.num_bytes(), time_exec, svf.num_bytes() / time_exec / 1024 ** 2</div>
+<div class="line"><a name="l00220"></a><span class="lineno">  220</span>&#160;                    )</div>
+<div class="line"><a name="l00221"></a><span class="lineno">  221</span>&#160;        <span class="keywordflow">return</span> <a class="code" href="classsrc_1_1cpy_1_1simulator_1_1_run_result.html">RunResult</a>(has_hits, has_misses, minimal_bytes, svf.num_bytes(), svf.size_of(),</div>
+<div class="line"><a name="l00222"></a><span class="lineno">  222</span>&#160;                         self.<a class="code" href="classsrc_1_1cpy_1_1simulator_1_1_client.html#a93b39a9b23a27204b9fbf0937fbbb992">comms</a>comms.time_total + self.<a class="code" href="classsrc_1_1cpy_1_1simulator_1_1_client.html#ae71ab1efd66999a4e8a1376cc69ee0f9">server</a>server.total_time + time_svf</div>
+<div class="line"><a name="l00223"></a><span class="lineno">  223</span>&#160;                         )</div>
+<div class="line"><a name="l00224"></a><span class="lineno">  224</span>&#160; </div>
+<div class="line"><a name="l00225"></a><span class="lineno">  225</span>&#160; </div>
+<div class="line"><a name="l00226"></a><span class="lineno"><a class="line" href="namespacesrc_1_1cpy_1_1simulator.html#ab9485394b42e27dd2c6a488e154c5593">  226</a></span>&#160;<span class="keyword">def </span><a class="code" href="namespacesrc_1_1cpy_1_1simulator.html#ab9485394b42e27dd2c6a488e154c5593">run</a>(</div>
+<div class="line"><a name="l00227"></a><span class="lineno">  227</span>&#160;        events: typing.Tuple[typing.Tuple[int, int], ...],</div>
+<div class="line"><a name="l00228"></a><span class="lineno">  228</span>&#160;        greedy_length: int,</div>
+<div class="line"><a name="l00229"></a><span class="lineno">  229</span>&#160;        latency_s: float, bandwidth_bit_ps: float,</div>
+<div class="line"><a name="l00230"></a><span class="lineno">  230</span>&#160;        seek_rate_byte_per_s: float, read_rate_byte_per_s: float, realtime: bool</div>
+<div class="line"><a name="l00231"></a><span class="lineno">  231</span>&#160;) -&gt; RunResult:</div>
+<div class="line"><a name="l00232"></a><span class="lineno">  232</span>&#160;    comms = <a class="code" href="classsrc_1_1cpy_1_1simulator_1_1_communications.html">Communications</a>(latency_s, bandwidth_bit_ps, realtime=realtime)</div>
+<div class="line"><a name="l00233"></a><span class="lineno">  233</span>&#160;    server = <a class="code" href="classsrc_1_1cpy_1_1simulator_1_1_server.html">Server</a>(seek_rate_byte_per_s, read_rate_byte_per_s, realtime=realtime)</div>
+<div class="line"><a name="l00234"></a><span class="lineno">  234</span>&#160;    client = <a class="code" href="classsrc_1_1cpy_1_1simulator_1_1_client.html">Client</a>(comms, server)</div>
+<div class="line"><a name="l00235"></a><span class="lineno">  235</span>&#160;    <span class="keywordflow">return</span> client.run(events, greedy_length)</div>
+<div class="line"><a name="l00236"></a><span class="lineno">  236</span>&#160; </div>
+<div class="line"><a name="l00237"></a><span class="lineno">  237</span>&#160; </div>
+<div class="line"><a name="l00238"></a><span class="lineno"><a class="line" href="namespacesrc_1_1cpy_1_1simulator.html#a01c03d07856b00df79f607b6ae30d142">  238</a></span>&#160;<span class="keyword">def </span><a class="code" href="namespacesrc_1_1cpy_1_1simulator.html#a01c03d07856b00df79f607b6ae30d142">main</a>():</div>
+<div class="line"><a name="l00239"></a><span class="lineno">  239</span>&#160;    time_start = time.perf_counter()</div>
+<div class="line"><a name="l00240"></a><span class="lineno">  240</span>&#160;    result = 0</div>
+<div class="line"><a name="l00241"></a><span class="lineno">  241</span>&#160;    parser = argparse.ArgumentParser(description=<span class="stringliteral">&#39;Simulate reading into a SVF.&#39;</span>, prog=__file__)</div>
+<div class="line"><a name="l00242"></a><span class="lineno">  242</span>&#160;    parser.add_argument(<span class="stringliteral">&#39;-l&#39;</span>, <span class="stringliteral">&#39;--log-level&#39;</span>, dest=<span class="stringliteral">&#39;log_level&#39;</span>, type=int, default=20,</div>
+<div class="line"><a name="l00243"></a><span class="lineno">  243</span>&#160;                        help=<span class="stringliteral">&#39;Log level. [default: %(default)d]&#39;</span></div>
+<div class="line"><a name="l00244"></a><span class="lineno">  244</span>&#160;                        )</div>
+<div class="line"><a name="l00245"></a><span class="lineno">  245</span>&#160;    parser.add_argument(<span class="stringliteral">&#39;--latency&#39;</span>, type=float, default=10,</div>
+<div class="line"><a name="l00246"></a><span class="lineno">  246</span>&#160;                        help=<span class="stringliteral">&#39;Communications channel latency (NOTE: one way) in ms. [default: %(default)d]&#39;</span>)</div>
+<div class="line"><a name="l00247"></a><span class="lineno">  247</span>&#160;    parser.add_argument(<span class="stringliteral">&#39;--bandwidth&#39;</span>, type=float, default=50,</div>
+<div class="line"><a name="l00248"></a><span class="lineno">  248</span>&#160;                        help=<span class="stringliteral">&#39;Communications channel bandwidth in million bits per second.&#39;</span></div>
+<div class="line"><a name="l00249"></a><span class="lineno">  249</span>&#160;                             <span class="stringliteral">&#39; Zero is infinite bandwidth. [default: %(default)d]&#39;</span>)</div>
+<div class="line"><a name="l00250"></a><span class="lineno">  250</span>&#160;    parser.add_argument(<span class="stringliteral">&#39;--seek-rate&#39;</span>, type=float, default=10000,</div>
+<div class="line"><a name="l00251"></a><span class="lineno">  251</span>&#160;                        help=<span class="stringliteral">&#39;Server seek rate in million bytes per second. [default: %(default)d]&#39;</span>)</div>
+<div class="line"><a name="l00252"></a><span class="lineno">  252</span>&#160;    parser.add_argument(<span class="stringliteral">&#39;--read-rate&#39;</span>, type=float, default=50,</div>
+<div class="line"><a name="l00253"></a><span class="lineno">  253</span>&#160;                        help=<span class="stringliteral">&#39;Server read rate in million bytes per second. [default: %(default)d]&#39;</span>)</div>
+<div class="line"><a name="l00254"></a><span class="lineno">  254</span>&#160;    parser.add_argument(<span class="stringliteral">&#39;--get-cost&#39;</span>, type=float, default=0.0005,</div>
+<div class="line"><a name="l00255"></a><span class="lineno">  255</span>&#160;                        help=<span class="stringliteral">&#39;The cost of GET in currency per 1000 GET requests. [default: %(default)d]&#39;</span>)</div>
+<div class="line"><a name="l00256"></a><span class="lineno">  256</span>&#160;    parser.add_argument(<span class="stringliteral">&#39;--egress-cost&#39;</span>, type=float, default=0.1,</div>
+<div class="line"><a name="l00257"></a><span class="lineno">  257</span>&#160;                        help=<span class="stringliteral">&#39;The cost of egress data in currency per GB. [default: %(default)d]&#39;</span>)</div>
+<div class="line"><a name="l00258"></a><span class="lineno">  258</span>&#160;    parser.add_argument(<span class="stringliteral">&#39;--greedy-length&#39;</span>, type=int, default=-1,</div>
+<div class="line"><a name="l00259"></a><span class="lineno">  259</span>&#160;                        help=(</div>
+<div class="line"><a name="l00260"></a><span class="lineno">  260</span>&#160;                            <span class="stringliteral">&#39;The greedy length to read fragments from the server.&#39;</span></div>
+<div class="line"><a name="l00261"></a><span class="lineno">  261</span>&#160;                            <span class="stringliteral">&#39; Zero means read every fragment.&#39;</span></div>
+<div class="line"><a name="l00262"></a><span class="lineno">  262</span>&#160;                            <span class="stringliteral">&#39; Default is to run through a range of greedy lengths and report the performance.&#39;</span></div>
+<div class="line"><a name="l00263"></a><span class="lineno">  263</span>&#160;                            <span class="stringliteral">&#39; [default: %(default)d]&#39;</span></div>
+<div class="line"><a name="l00264"></a><span class="lineno">  264</span>&#160;                        )</div>
+<div class="line"><a name="l00265"></a><span class="lineno">  265</span>&#160;                        )</div>
+<div class="line"><a name="l00266"></a><span class="lineno">  266</span>&#160;    parser.add_argument(<span class="stringliteral">&#39;--realtime&#39;</span>, action=<span class="stringliteral">&quot;store_true&quot;</span>, default=<span class="keyword">False</span>,</div>
+<div class="line"><a name="l00267"></a><span class="lineno">  267</span>&#160;                        help=<span class="stringliteral">&#39;Run in realtime (may be slow). [default: %(default)d]&#39;</span>)</div>
+<div class="line"><a name="l00268"></a><span class="lineno">  268</span>&#160;    args = parser.parse_args()</div>
+<div class="line"><a name="l00269"></a><span class="lineno">  269</span>&#160;    <span class="comment"># print(&#39;Args:&#39;, args)</span></div>
+<div class="line"><a name="l00270"></a><span class="lineno">  270</span>&#160;    logging.basicConfig(level=args.log_level, format=LOG_FORMAT_NO_PROCESS, stream=sys.stdout)</div>
+<div class="line"><a name="l00271"></a><span class="lineno">  271</span>&#160; </div>
+<div class="line"><a name="l00272"></a><span class="lineno">  272</span>&#160;    results_time: typing.Dict[str, typing.List[typing.Tuple[int, RunResult]]] = {}</div>
+<div class="line"><a name="l00273"></a><span class="lineno">  273</span>&#160;    print(<span class="stringliteral">&#39;Simulator setup:&#39;</span>)</div>
+<div class="line"><a name="l00274"></a><span class="lineno">  274</span>&#160;    print(f<span class="stringliteral">&#39;Network latency (one way) {args.latency:.3f} (ms) bandwidth {args.bandwidth:.3f} (M bits/s)&#39;</span>)</div>
+<div class="line"><a name="l00275"></a><span class="lineno">  275</span>&#160;    print(f<span class="stringliteral">&#39;Server seek rate {args.seek_rate:.3f} (M bytes/s) read rate {args.read_rate:.3f} (M bytes/s)&#39;</span>)</div>
+<div class="line"><a name="l00276"></a><span class="lineno">  276</span>&#160;    print(f<span class="stringliteral">&#39;Cost GET {args.get_cost:.6f} (per 1000 GET requests) egress {args.egress_cost:.3f} (per GB)&#39;</span>)</div>
+<div class="line"><a name="l00277"></a><span class="lineno">  277</span>&#160;    <span class="comment"># for name in (&#39;EXAMPLE_FILE_POSITIONS_LENGTHS_TIFF_CMU_1&#39;,):</span></div>
+<div class="line"><a name="l00278"></a><span class="lineno">  278</span>&#160;    <span class="comment"># for name in (&#39;EXAMPLE_FILE_POSITIONS_LENGTHS_SYNTHETIC&#39;,):</span></div>
+<div class="line"><a name="l00279"></a><span class="lineno">  279</span>&#160;    t_start = time.perf_counter()</div>
+<div class="line"><a name="l00280"></a><span class="lineno">  280</span>&#160;    <span class="keywordflow">for</span> name <span class="keywordflow">in</span> sim_examples.EXAMPLE_FILE_POSITIONS_LENGTHS:</div>
+<div class="line"><a name="l00281"></a><span class="lineno">  281</span>&#160;        <span class="keywordflow">if</span> args.greedy_length == -1:  <span class="comment"># Default greedy-length, use a range</span></div>
+<div class="line"><a name="l00282"></a><span class="lineno">  282</span>&#160;            greedy_length = 1</div>
+<div class="line"><a name="l00283"></a><span class="lineno">  283</span>&#160;            <span class="comment"># for greedy_length in (1024,):</span></div>
+<div class="line"><a name="l00284"></a><span class="lineno">  284</span>&#160;            <span class="comment"># for greedy_length in range(0, 1024 + 32, 32):</span></div>
+<div class="line"><a name="l00285"></a><span class="lineno">  285</span>&#160;            <span class="keywordflow">while</span> greedy_length &lt;= 1 &lt;&lt; 22: <span class="comment">#2048 * 4 * 4 * 4 * 4:</span></div>
+<div class="line"><a name="l00286"></a><span class="lineno">  286</span>&#160;                logger.info(<span class="stringliteral">&#39;Running %s with %d file actions and greedy_length %d&#39;</span>, name,</div>
+<div class="line"><a name="l00287"></a><span class="lineno">  287</span>&#160;                            len(sim_examples.EXAMPLE_FILE_POSITIONS_LENGTHS[name]), greedy_length)</div>
+<div class="line"><a name="l00288"></a><span class="lineno">  288</span>&#160;                result = <a class="code" href="namespacesrc_1_1cpy_1_1simulator.html#ab9485394b42e27dd2c6a488e154c5593">run</a>(</div>
+<div class="line"><a name="l00289"></a><span class="lineno">  289</span>&#160;                    sim_examples.EXAMPLE_FILE_POSITIONS_LENGTHS[name], greedy_length,</div>
+<div class="line"><a name="l00290"></a><span class="lineno">  290</span>&#160;                    args.latency / 1000, args.bandwidth * 1e6, args.seek_rate * 1e6, args.read_rate * 1e6, args.realtime</div>
+<div class="line"><a name="l00291"></a><span class="lineno">  291</span>&#160;                )</div>
+<div class="line"><a name="l00292"></a><span class="lineno">  292</span>&#160;                <span class="keywordflow">if</span> name <span class="keywordflow">not</span> <span class="keywordflow">in</span> results_time:</div>
+<div class="line"><a name="l00293"></a><span class="lineno">  293</span>&#160;                    results_time[name] = []</div>
+<div class="line"><a name="l00294"></a><span class="lineno">  294</span>&#160;                results_time[name].append((greedy_length, result))</div>
+<div class="line"><a name="l00295"></a><span class="lineno">  295</span>&#160;                <span class="comment"># if greedy_length == 0:</span></div>
+<div class="line"><a name="l00296"></a><span class="lineno">  296</span>&#160;                <span class="comment">#     greedy_length = 1</span></div>
+<div class="line"><a name="l00297"></a><span class="lineno">  297</span>&#160;                <span class="comment"># elif greedy_length == 1:</span></div>
+<div class="line"><a name="l00298"></a><span class="lineno">  298</span>&#160;                <span class="comment">#     greedy_length = 16</span></div>
+<div class="line"><a name="l00299"></a><span class="lineno">  299</span>&#160;                <span class="comment"># else:</span></div>
+<div class="line"><a name="l00300"></a><span class="lineno">  300</span>&#160;                <span class="comment">#     greedy_length *= 2</span></div>
+<div class="line"><a name="l00301"></a><span class="lineno">  301</span>&#160;                greedy_length *= 2</div>
+<div class="line"><a name="l00302"></a><span class="lineno">  302</span>&#160;        <span class="keywordflow">else</span>:</div>
+<div class="line"><a name="l00303"></a><span class="lineno">  303</span>&#160;            logger.info(<span class="stringliteral">&#39;Running %s with %d file actions and greedy_length %d&#39;</span>, name,</div>
+<div class="line"><a name="l00304"></a><span class="lineno">  304</span>&#160;                        len(sim_examples.EXAMPLE_FILE_POSITIONS_LENGTHS[name]), args.greedy_length)</div>
+<div class="line"><a name="l00305"></a><span class="lineno">  305</span>&#160;            result = <a class="code" href="namespacesrc_1_1cpy_1_1simulator.html#ab9485394b42e27dd2c6a488e154c5593">run</a>(</div>
+<div class="line"><a name="l00306"></a><span class="lineno">  306</span>&#160;                sim_examples.EXAMPLE_FILE_POSITIONS_LENGTHS[name], args.greedy_length,</div>
+<div class="line"><a name="l00307"></a><span class="lineno">  307</span>&#160;                args.latency / 1000, args.bandwidth * 1e6, args.seek_rate * 1e6, args.read_rate * 1e6, args.realtime</div>
+<div class="line"><a name="l00308"></a><span class="lineno">  308</span>&#160;            )</div>
+<div class="line"><a name="l00309"></a><span class="lineno">  309</span>&#160;            <span class="keywordflow">if</span> name <span class="keywordflow">not</span> <span class="keywordflow">in</span> results_time:</div>
+<div class="line"><a name="l00310"></a><span class="lineno">  310</span>&#160;                results_time[name] = []</div>
+<div class="line"><a name="l00311"></a><span class="lineno">  311</span>&#160;            results_time[name].append((args.greedy_length, result))</div>
+<div class="line"><a name="l00312"></a><span class="lineno">  312</span>&#160;    <span class="keywordflow">for</span> key <span class="keywordflow">in</span> results_time:</div>
+<div class="line"><a name="l00313"></a><span class="lineno">  313</span>&#160;        <span class="comment"># Cost of downloading the complete file</span></div>
+<div class="line"><a name="l00314"></a><span class="lineno">  314</span>&#160;        file_size = sim_examples.EXAMPLE_FILE_POSITIONS_SIZES[key]</div>
+<div class="line"><a name="l00315"></a><span class="lineno">  315</span>&#160;        whole_file_get_cost = 1 * args.get_cost / 1000</div>
+<div class="line"><a name="l00316"></a><span class="lineno">  316</span>&#160;        whole_file_egress_cost = file_size * args.egress_cost / (1 &lt;&lt; 30)</div>
+<div class="line"><a name="l00317"></a><span class="lineno">  317</span>&#160;        whole_file_total_cost = whole_file_get_cost + whole_file_egress_cost</div>
+<div class="line"><a name="l00318"></a><span class="lineno">  318</span>&#160;        print(f<span class="stringliteral">&#39;{key}:&#39;</span>)</div>
+<div class="line"><a name="l00319"></a><span class="lineno">  319</span>&#160;        print(</div>
+<div class="line"><a name="l00320"></a><span class="lineno">  320</span>&#160;            f<span class="stringliteral">&#39;{&quot;greedy_length&quot;:&gt;14} {&quot;Time(ms)&quot;:&gt;10}&#39;</span></div>
+<div class="line"><a name="l00321"></a><span class="lineno">  321</span>&#160;            f<span class="stringliteral">&#39; {&quot;Hits&quot;:&gt;8} {&quot;Miss&quot;:&gt;8} {&quot;Hits%&quot;:&gt;8}&#39;</span></div>
+<div class="line"><a name="l00322"></a><span class="lineno">  322</span>&#160;            f<span class="stringliteral">&#39; {&quot;Min. Bytes&quot;:&gt;12} {&quot;Act. Bytes&quot;:&gt;12} {&quot;Act. / Min.&quot;:&gt;12}&#39;</span></div>
+<div class="line"><a name="l00323"></a><span class="lineno">  323</span>&#160;            f<span class="stringliteral">&#39; {&quot;sizeof&quot;:&gt;10} {&quot;Overhead&quot;:&gt;8} {&quot;sizeof / Act.&quot;:&gt;14}&#39;</span></div>
+<div class="line"><a name="l00324"></a><span class="lineno">  324</span>&#160;            f<span class="stringliteral">&#39; {&quot;GET Cost&quot;:&gt;12} {&quot;Egress Cost&quot;:&gt;12} {&quot;Total Cost&quot;:&gt;12}&#39;</span></div>
+<div class="line"><a name="l00325"></a><span class="lineno">  325</span>&#160;            f<span class="stringliteral">&#39; {&quot;Whole File Cost&quot;:&gt;15}&#39;</span></div>
+<div class="line"><a name="l00326"></a><span class="lineno">  326</span>&#160;        )</div>
+<div class="line"><a name="l00327"></a><span class="lineno">  327</span>&#160;        <span class="keywordflow">for</span> greedy_length, result <span class="keywordflow">in</span> results_time[key]:</div>
+<div class="line"><a name="l00328"></a><span class="lineno">  328</span>&#160;            get_cost = result.cache_misses * args.get_cost / 1000</div>
+<div class="line"><a name="l00329"></a><span class="lineno">  329</span>&#160;            egress_cost = result.num_bytes * args.egress_cost / (1 &lt;&lt; 30)</div>
+<div class="line"><a name="l00330"></a><span class="lineno">  330</span>&#160;            print(</div>
+<div class="line"><a name="l00331"></a><span class="lineno">  331</span>&#160;                f<span class="stringliteral">&#39;{greedy_length:14} {result.time_exec * 1000 :10.1f} {result.cache_hits:8d} {result.cache_misses:8d}&#39;</span></div>
+<div class="line"><a name="l00332"></a><span class="lineno">  332</span>&#160;                f<span class="stringliteral">&#39; {result.cache_hits / (result.cache_hits + result.cache_misses):8.3%}&#39;</span></div>
+<div class="line"><a name="l00333"></a><span class="lineno">  333</span>&#160;                f<span class="stringliteral">&#39; {result.minimal_bytes:12d} {result.num_bytes:12d} {result.num_bytes / result.minimal_bytes:12.3%}&#39;</span></div>
+<div class="line"><a name="l00334"></a><span class="lineno">  334</span>&#160;                f<span class="stringliteral">&#39; {result.sizeof:10d} {result.sizeof - result.num_bytes:+8d} {result.sizeof / result.num_bytes:14.3%}&#39;</span></div>
+<div class="line"><a name="l00335"></a><span class="lineno">  335</span>&#160;                f<span class="stringliteral">&#39; {get_cost:12.6f} {egress_cost:12.6f} {get_cost + egress_cost:12.6f} {whole_file_total_cost:15.6f}&#39;</span></div>
+<div class="line"><a name="l00336"></a><span class="lineno">  336</span>&#160;            )</div>
+<div class="line"><a name="l00337"></a><span class="lineno">  337</span>&#160;        print(</div>
+<div class="line"><a name="l00338"></a><span class="lineno">  338</span>&#160;            f<span class="stringliteral">&#39;Cost of downloading complete file&#39;</span></div>
+<div class="line"><a name="l00339"></a><span class="lineno">  339</span>&#160;            f<span class="stringliteral">&#39; [{file_size / (1 &lt;&lt; 30):.6f} GB]:&#39;</span></div>
+<div class="line"><a name="l00340"></a><span class="lineno">  340</span>&#160;            f<span class="stringliteral">&#39; GET: {whole_file_get_cost:.6f}&#39;</span></div>
+<div class="line"><a name="l00341"></a><span class="lineno">  341</span>&#160;            f<span class="stringliteral">&#39; Egress: {whole_file_egress_cost:.6f}&#39;</span></div>
+<div class="line"><a name="l00342"></a><span class="lineno">  342</span>&#160;            f<span class="stringliteral">&#39; Total: {whole_file_total_cost:.6f}&#39;</span></div>
+<div class="line"><a name="l00343"></a><span class="lineno">  343</span>&#160;        )</div>
+<div class="line"><a name="l00344"></a><span class="lineno">  344</span>&#160;    print(f<span class="stringliteral">&#39;Execution time: {time.perf_counter() - time_start:10.3f} (s)&#39;</span>)</div>
+<div class="line"><a name="l00345"></a><span class="lineno">  345</span>&#160;    <span class="keywordflow">return</span> 0</div>
+<div class="line"><a name="l00346"></a><span class="lineno">  346</span>&#160; </div>
+<div class="line"><a name="l00347"></a><span class="lineno">  347</span>&#160; </div>
+<div class="line"><a name="l00348"></a><span class="lineno">  348</span>&#160;<span class="keywordflow">if</span> __name__ == <span class="stringliteral">&#39;__main__&#39;</span>:</div>
+<div class="line"><a name="l00349"></a><span class="lineno">  349</span>&#160;    exit(<a class="code" href="namespacesrc_1_1cpy_1_1simulator.html#a01c03d07856b00df79f607b6ae30d142">main</a>())</div>
+<div class="ttc" id="aclasssrc_1_1cpy_1_1simulator_1_1_client_html"><div class="ttname"><a href="classsrc_1_1cpy_1_1simulator_1_1_client.html">src.cpy.simulator.Client</a></div><div class="ttdef"><b>Definition:</b> <a href="simulator_8py_source.html#l00115">simulator.py:115</a></div></div>
+<div class="ttc" id="aclasssrc_1_1cpy_1_1simulator_1_1_client_html_a7081ef07e345b4a354af08893190b138"><div class="ttname"><a href="classsrc_1_1cpy_1_1simulator_1_1_client.html#a7081ef07e345b4a354af08893190b138">src.cpy.simulator.Client.run</a></div><div class="ttdeci">RunResult run(self, typing.Tuple[typing.Tuple[int, int],...] seek_reads, int greedy_length)</div><div class="ttdef"><b>Definition:</b> <a href="simulator_8py_source.html#l00120">simulator.py:120</a></div></div>
+<div class="ttc" id="aclasssrc_1_1cpy_1_1simulator_1_1_client_html_a93b39a9b23a27204b9fbf0937fbbb992"><div class="ttname"><a href="classsrc_1_1cpy_1_1simulator_1_1_client.html#a93b39a9b23a27204b9fbf0937fbbb992">src.cpy.simulator.Client.comms</a></div><div class="ttdeci">comms</div><div class="ttdef"><b>Definition:</b> <a href="simulator_8py_source.html#l00117">simulator.py:117</a></div></div>
+<div class="ttc" id="aclasssrc_1_1cpy_1_1simulator_1_1_client_html_ae71ab1efd66999a4e8a1376cc69ee0f9"><div class="ttname"><a href="classsrc_1_1cpy_1_1simulator_1_1_client.html#ae71ab1efd66999a4e8a1376cc69ee0f9">src.cpy.simulator.Client.server</a></div><div class="ttdeci">server</div><div class="ttdef"><b>Definition:</b> <a href="simulator_8py_source.html#l00118">simulator.py:118</a></div></div>
+<div class="ttc" id="aclasssrc_1_1cpy_1_1simulator_1_1_client_html_aed9c4c304e3b389ab9875fca6c609b83"><div class="ttname"><a href="classsrc_1_1cpy_1_1simulator_1_1_client.html#aed9c4c304e3b389ab9875fca6c609b83">src.cpy.simulator.Client.__init__</a></div><div class="ttdeci">def __init__(self, Communications comms, Server server)</div><div class="ttdef"><b>Definition:</b> <a href="simulator_8py_source.html#l00116">simulator.py:116</a></div></div>
 <div class="ttc" id="aclasssrc_1_1cpy_1_1simulator_1_1_communications_html"><div class="ttname"><a href="classsrc_1_1cpy_1_1simulator_1_1_communications.html">src.cpy.simulator.Communications</a></div><div class="ttdef"><b>Definition:</b> <a href="simulator_8py_source.html#l00051">simulator.py:51</a></div></div>
 <div class="ttc" id="aclasssrc_1_1cpy_1_1simulator_1_1_communications_html_a1feaef69c2ffc4554bf63a135b800ef5"><div class="ttname"><a href="classsrc_1_1cpy_1_1simulator_1_1_communications.html#a1feaef69c2ffc4554bf63a135b800ef5">src.cpy.simulator.Communications.latency_one_way_s</a></div><div class="ttdeci">latency_one_way_s</div><div class="ttdef"><b>Definition:</b> <a href="simulator_8py_source.html#l00056">simulator.py:56</a></div></div>
 <div class="ttc" id="aclasssrc_1_1cpy_1_1simulator_1_1_communications_html_a51b3235d1534f8c0de18eb7f3a1ae197"><div class="ttname"><a href="classsrc_1_1cpy_1_1simulator_1_1_communications.html#a51b3235d1534f8c0de18eb7f3a1ae197">src.cpy.simulator.Communications.transmit</a></div><div class="ttdeci">None transmit(self, bytes data_bytes, str direction)</div><div class="ttdef"><b>Definition:</b> <a href="simulator_8py_source.html#l00063">simulator.py:63</a></div></div>
@@ -420,7 +434,7 @@ $(function() {
 <div class="ttc" id="aclasssrc_1_1cpy_1_1simulator_1_1_communications_html_ac130ba65ac592b7aa4ed1476839629ff"><div class="ttname"><a href="classsrc_1_1cpy_1_1simulator_1_1_communications.html#ac130ba65ac592b7aa4ed1476839629ff">src.cpy.simulator.Communications.bandwidth_bps</a></div><div class="ttdeci">bandwidth_bps</div><div class="ttdef"><b>Definition:</b> <a href="simulator_8py_source.html#l00057">simulator.py:57</a></div></div>
 <div class="ttc" id="aclasssrc_1_1cpy_1_1simulator_1_1_communications_html_acc78ea63d5ea775c3987f901ef08c247"><div class="ttname"><a href="classsrc_1_1cpy_1_1simulator_1_1_communications.html#acc78ea63d5ea775c3987f901ef08c247">src.cpy.simulator.Communications.time_total</a></div><div class="ttdeci">time_total</div><div class="ttdef"><b>Definition:</b> <a href="simulator_8py_source.html#l00061">simulator.py:61</a></div></div>
 <div class="ttc" id="aclasssrc_1_1cpy_1_1simulator_1_1_communications_html_ad47a26a3bf3546a86d49dd3df0a52430"><div class="ttname"><a href="classsrc_1_1cpy_1_1simulator_1_1_communications.html#ad47a26a3bf3546a86d49dd3df0a52430">src.cpy.simulator.Communications.__init__</a></div><div class="ttdeci">def __init__(self, float latency_one_way_s, float bandwidth_bps, bool realtime=False)</div><div class="ttdef"><b>Definition:</b> <a href="simulator_8py_source.html#l00054">simulator.py:54</a></div></div>
-<div class="ttc" id="aclasssrc_1_1cpy_1_1simulator_1_1_run_result_html"><div class="ttname"><a href="classsrc_1_1cpy_1_1simulator_1_1_run_result.html">src.cpy.simulator.RunResult</a></div><div class="ttdef"><b>Definition:</b> <a href="simulator_8py_source.html#l00102">simulator.py:102</a></div></div>
+<div class="ttc" id="aclasssrc_1_1cpy_1_1simulator_1_1_run_result_html"><div class="ttname"><a href="classsrc_1_1cpy_1_1simulator_1_1_run_result.html">src.cpy.simulator.RunResult</a></div><div class="ttdef"><b>Definition:</b> <a href="simulator_8py_source.html#l00106">simulator.py:106</a></div></div>
 <div class="ttc" id="aclasssrc_1_1cpy_1_1simulator_1_1_server_html"><div class="ttname"><a href="classsrc_1_1cpy_1_1simulator_1_1_server.html">src.cpy.simulator.Server</a></div><div class="ttdef"><b>Definition:</b> <a href="simulator_8py_source.html#l00081">simulator.py:81</a></div></div>
 <div class="ttc" id="aclasssrc_1_1cpy_1_1simulator_1_1_server_html_a2e770878b81f28a164f0471691ac7332"><div class="ttname"><a href="classsrc_1_1cpy_1_1simulator_1_1_server.html#a2e770878b81f28a164f0471691ac7332">src.cpy.simulator.Server.__init__</a></div><div class="ttdeci">def __init__(self, float seek_rate_byte_per_s, float read_rate_byte_per_s, bool realtime=False)</div><div class="ttdef"><b>Definition:</b> <a href="simulator_8py_source.html#l00082">simulator.py:82</a></div></div>
 <div class="ttc" id="aclasssrc_1_1cpy_1_1simulator_1_1_server_html_a52ff42bdad89443911ea325f4ab471cd"><div class="ttname"><a href="classsrc_1_1cpy_1_1simulator_1_1_server.html#a52ff42bdad89443911ea325f4ab471cd">src.cpy.simulator.Server.seek_rate_byte_per_s</a></div><div class="ttdeci">seek_rate_byte_per_s</div><div class="ttdef"><b>Definition:</b> <a href="simulator_8py_source.html#l00083">simulator.py:83</a></div></div>
@@ -430,8 +444,8 @@ $(function() {
 <div class="ttc" id="aclasssrc_1_1cpy_1_1simulator_1_1_server_html_acd64fbc2f4fb8dc7618197e33b437b5b"><div class="ttname"><a href="classsrc_1_1cpy_1_1simulator_1_1_server.html#acd64fbc2f4fb8dc7618197e33b437b5b">src.cpy.simulator.Server.file_position</a></div><div class="ttdeci">file_position</div><div class="ttdef"><b>Definition:</b> <a href="simulator_8py_source.html#l00086">simulator.py:86</a></div></div>
 <div class="ttc" id="aclasssrc_1_1cpy_1_1simulator_1_1_server_html_ad98a4563e45ae941815eb05dedfcaf41"><div class="ttname"><a href="classsrc_1_1cpy_1_1simulator_1_1_server.html#ad98a4563e45ae941815eb05dedfcaf41">src.cpy.simulator.Server.total_time</a></div><div class="ttdeci">total_time</div><div class="ttdef"><b>Definition:</b> <a href="simulator_8py_source.html#l00087">simulator.py:87</a></div></div>
 <div class="ttc" id="anamespacesrc_1_1cpy_1_1sim__examples_html"><div class="ttname"><a href="namespacesrc_1_1cpy_1_1sim__examples.html">src.cpy.sim_examples</a></div><div class="ttdef"><b>Definition:</b> <a href="sim__examples_8py_source.html#l00001">sim_examples.py:1</a></div></div>
-<div class="ttc" id="anamespacesrc_1_1cpy_1_1simulator_html_a01c03d07856b00df79f607b6ae30d142"><div class="ttname"><a href="namespacesrc_1_1cpy_1_1simulator.html#a01c03d07856b00df79f607b6ae30d142">src.cpy.simulator.main</a></div><div class="ttdeci">def main()</div><div class="ttdef"><b>Definition:</b> <a href="simulator_8py_source.html#l00224">simulator.py:224</a></div></div>
-<div class="ttc" id="anamespacesrc_1_1cpy_1_1simulator_html_ab9485394b42e27dd2c6a488e154c5593"><div class="ttname"><a href="namespacesrc_1_1cpy_1_1simulator.html#ab9485394b42e27dd2c6a488e154c5593">src.cpy.simulator.run</a></div><div class="ttdeci">RunResult run(typing.Tuple[typing.Tuple[int, int],...] events, int greedy_length, float latency_s, float bandwidth_bit_ps, float seek_rate_byte_per_s, float read_rate_byte_per_s, bool realtime)</div><div class="ttdef"><b>Definition:</b> <a href="simulator_8py_source.html#l00212">simulator.py:217</a></div></div>
+<div class="ttc" id="anamespacesrc_1_1cpy_1_1simulator_html_a01c03d07856b00df79f607b6ae30d142"><div class="ttname"><a href="namespacesrc_1_1cpy_1_1simulator.html#a01c03d07856b00df79f607b6ae30d142">src.cpy.simulator.main</a></div><div class="ttdeci">def main()</div><div class="ttdef"><b>Definition:</b> <a href="simulator_8py_source.html#l00238">simulator.py:238</a></div></div>
+<div class="ttc" id="anamespacesrc_1_1cpy_1_1simulator_html_ab9485394b42e27dd2c6a488e154c5593"><div class="ttname"><a href="namespacesrc_1_1cpy_1_1simulator.html#ab9485394b42e27dd2c6a488e154c5593">src.cpy.simulator.run</a></div><div class="ttdeci">RunResult run(typing.Tuple[typing.Tuple[int, int],...] events, int greedy_length, float latency_s, float bandwidth_bit_ps, float seek_rate_byte_per_s, float read_rate_byte_per_s, bool realtime)</div><div class="ttdef"><b>Definition:</b> <a href="simulator_8py_source.html#l00226">simulator.py:231</a></div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
