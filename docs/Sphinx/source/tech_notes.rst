@@ -707,7 +707,7 @@ The compromise is to provide APIs that can assist the caller who has full knowle
 threads.
 The caller is responsible for deciding when and how much to punt.
 
-The SVF marks each block with and integer that represents the age of last use (the so-called 'touch' integer).
+The SVF marks each block with an integer that represents the age of last use (the so-called 'touch' integer).
 This integer starts at 0 and monotonically increases with each read/write so older blocks have lower values.
 When blocks are coalesced the resulting block is marked as being newest regardless of the touch values of the previous
 blocks.
