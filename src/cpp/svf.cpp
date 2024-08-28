@@ -116,12 +116,11 @@ namespace SVFS {
         t_val new_value;
         new_value.data.reserve(len);
         new_value.block_touch = m_block_touch++;
-        while (len) {
-            new_value.data.push_back(*data);
-            --len;
-            ++data;
-            ++m_bytes_total;
-        }
+
+        // A simpler call thant the loop but not necessarily faster. See git commit 2024-08-28
+        new_value.data.insert(new_value.data.end(), data, data + len);
+        m_bytes_total += len;
+
         auto size_before_insert = m_svf.size();
         m_svf.insert(hint, {fpos, std::move(new_value)});
         // Sanity check that we really have added a new block (rather than replacing one).
