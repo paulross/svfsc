@@ -288,9 +288,14 @@ The y axis shows the additional, strictly unnecessary, memory used by the SVF:
 
 .. image:: ../../plots/images/py_sim_greedy_overhead.png
 
-These data examples will help a user to tune the SVF balancing the tradeoffs of speed and memory usage (selected data):
+Here is an summary with some selected, but representative, files from 200 MB to 2GB.
+The left axis shows the read time (relative to using a greedy length of 64kB) which descends steeply as the cache size
+increases.
+On the right is the additional memory need above the minimal:
 
 .. image:: ../../plots/images/py_sim_greedy_overhead_cf_time.png
+
+These data examples will help a user to tune the SVF balancing the tradeoffs of speed and memory usage.
 
 A Comparison Against a Local File Read
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

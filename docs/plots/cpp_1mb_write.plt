@@ -34,4 +34,9 @@ set output "images/cpp_1mb_write.png"   # choose the output device
 plot "data/cpp_1mb_write_coalesced.dat" using 1:($7 / 1000) t "Time to Write (Coalesced)." with linespoints axes x1y1 pt 3 lw 2, \
     "data/cpp_1mb_write_uncoalesced.dat" using 1:($7 / 1000) t "Time to Write (Not Coalesced)." with linespoints axes x1y1 pt 3 lw 2
 
+# set output "images/cpp_1mb_write_block_size_time.png"   # choose the output device
+
+# plot "data/cpp_1mb_write_coalesced.dat" using 1:($7 * 1024**2 / $1) t "Time/block (Coalesced)." with linespoints axes x1y1 pt 3 lw 2, \
+    "data/cpp_1mb_write_uncoalesced.dat" using 1:($7 * 1024**2 / $1) t "Time/block (Not Coalesced)." with linespoints axes x1y1 pt 3 lw 2
+
 reset

@@ -27,6 +27,8 @@ set datafile separator whitespace
 set key right
 #set key off
 
+set title "Overhead of a Greedy Read in Percent of Data."
+
 set terminal png size 800,500           # choose the file format
 
 set output "images/py_sim_greedy_overhead_percent.png"   # choose the output device
@@ -40,6 +42,7 @@ plot "data/py_sim_greedy_CMU-1.dat" using 1:(100 * $7 / $6) t "CMU-1" with lines
     "data/py_sim_greedy_TUPAC-TR-006.dat" using 1:(100 * $7 / $6) t "TUPAC-TR-006" with linespoints axes x1y1 pt 3 lw 2
 
 set output "images/py_sim_greedy_total_bytes_read.png"   # choose the output device
+set title "Total Memory used by the SVF Cache."
 set ylabel "Total Bytes Read (Mb)"
 #set logscale x
 
@@ -52,6 +55,7 @@ plot "data/py_sim_greedy_CMU-1.dat" using 1:($7 / 1024**2) t "CMU-1" with linesp
     "data/py_sim_greedy_TUPAC-TR-006.dat" using 1:($7 / 1024**2) t "TUPAC-TR-006" with linespoints axes x1y1 pt 3 lw 2
 
 set output "images/py_sim_greedy_overhead.png"   # choose the output device
+set title "Extra Memory used by the SVF Cache Above the Data Size."
 set ylabel "Overhead (Mb)"
 #set logscale x
 
@@ -92,6 +96,8 @@ set key top
     "data/py_sim_greedy_TUPAC-TR-006.dat" using 1:(($9 - $6) / 1024**2) t "Memory TUPAC-TR-006" with linespoints axes x1y2 pt 3 lw 2
 
 # Reduced set
+
+set title "Read Time and Memory Overhead with Different SVF Cache Greedy Sizes."
 
 set key top center
 set yrange [0.1:1e5]
