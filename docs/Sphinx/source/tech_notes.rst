@@ -275,16 +275,22 @@ for different ``greedy_length`` values.
 
 .. image:: ../../plots/images/py_sim_greedy_hits_misses.png
 
+The Additional Overhead of Greedy Reads
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 The minor drawback is that more bytes are read than strictly necessary.
 For example with CMU-1.tiff and ``greedy_length=0`` the minimal byte set is
 256,566 bytes total. With a ``greedy_length=131,072`` the total number of bytes read is 1,179,648.
 This is about 4x the minimal read but still about 1/200 of the original file.
 
-Here are examples off the total amount of data read for different ``greedy_length`` values:
-
-.. note:: Linear scale
+Here are examples off the extra overhead of greedy reads for different ``greedy_length`` values.
+The y axis shows the additional, strictly unnecessary, memory used by the SVF:
 
 .. image:: ../../plots/images/py_sim_greedy_overhead.png
+
+These data examples will help a user to tune the SVF balancing the tradeoffs of speed and memory usage (selected data):
+
+.. image:: ../../plots/images/py_sim_greedy_overhead_cf_time.png
 
 A Comparison Against a Local File Read
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
