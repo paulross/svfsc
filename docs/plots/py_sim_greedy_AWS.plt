@@ -13,11 +13,6 @@ set ylabel "Time (s)"
 # set yrange [1:]
 # set ytics 8,35,3
 
-#set logscale y2
-#set y2label "Cache Nisses"
-# set y2range [1:1e9]
-#set y2tics
-
 set pointsize 1
 set datafile separator whitespace
 # Curve fit
@@ -59,6 +54,13 @@ set grid xtics mxtics ytics mytics linetype -1 linewidth 1, linetype 0 linewidth
 set terminal png size 800,500           # choose the file format
 set output "images/py_sim_greedy_AWS_cost.png"   # choose the output device
 
+set logscale y2
+set y2label "Cost Ratio (Download / Read Metadata)"
+set y2range [0.1:1e5]
+set y2tics
+
+set key top right
+
 #plot "data/py_sim_greedy_AWS_CMU-1.dat" using 1:12 t "CMU-1 GET Cost" with linespoints axes x1y1 pt 3 lw 2, \
     "data/py_sim_greedy_AWS_CMU-1.dat" using 1:13 t "CMU-1 Egress Cost" with linespoints axes x1y1 pt 3 lw 2, \
     "data/py_sim_greedy_AWS_CMU-1.dat" using 1:14 t "CMU-1 Total Cost" with linespoints axes x1y1 pt 3 lw 2, \
@@ -84,9 +86,11 @@ set output "images/py_sim_greedy_AWS_cost.png"   # choose the output device
      "data/py_sim_greedy_AWS_TUPAC-TR-001.dat" using 1:14 t "TUPAC-TR-001 Total Cost" with linespoints axes x1y1 pt 3 lw 2, \
      "data/py_sim_greedy_AWS_TUPAC-TR-001.dat" using 1:15 t "TUPAC-TR-001 Download Cost" with lines axes x1y1 lw 2
 
-plot "data/py_sim_greedy_AWS_CMU-1.dat" using 1:14 t "CMU-1 Total Cost" with linespoints axes x1y1 pt 3 lw 2, \
-     "data/py_sim_greedy_AWS_CMU-1.dat" using 1:15 t "CMU-1 Download Cost" with lines axes x1y1 lw 2, \
-     "data/py_sim_greedy_AWS_TUPAC-TR-001.dat" using 1:14 t "TUPAC-TR-001 Total Cost" with linespoints axes x1y1 pt 3 lw 2, \
-     "data/py_sim_greedy_AWS_TUPAC-TR-001.dat" using 1:15 t "TUPAC-TR-001 Download Cost" with lines axes x1y1 lw 2
+plot "data/py_sim_greedy_AWS_CMU-1.dat" using 1:14 t "CMU-1 Metadata Cost" with lines axes x1y1 lw 3, \
+     "data/py_sim_greedy_AWS_CMU-1.dat" using 1:15 t "CMU-1 Download Cost" with lines axes x1y1 lw 3, \
+     "data/py_sim_greedy_AWS_CMU-1.dat" using 1:($15 / $14) t "CMU-1 Ratio [Right]" with lines axes x1y2 lw 3, \
+     "data/py_sim_greedy_AWS_TUPAC-TR-001.dat" using 1:14 t "TUPAC-TR-001 Metadata Cost" with lines axes x1y1 lw 3, \
+     "data/py_sim_greedy_AWS_TUPAC-TR-001.dat" using 1:15 t "TUPAC-TR-001 Download Cost" with lines axes x1y1 lw 3, \
+     "data/py_sim_greedy_AWS_TUPAC-TR-001.dat" using 1:($15 / $14) t "TUPAC-TR-001 Ratio [Right]" with lines axes x1y2 lw 3
 
 reset
