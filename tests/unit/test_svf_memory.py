@@ -22,8 +22,10 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 import pickle
+import time
 
 import psutil
+from pymemtrace import cPyMemTrace
 import pytest
 
 import svfsc
@@ -209,3 +211,42 @@ def test_memory_SVF_write_and_punt():
         f' end: {proc.memory_info().rss:12,d}'
         f' ∆RSS: {d_rss:+12,d}')
     assert d_rss < 40e6
+
+def test_memory_SVF_write_and_punt_pymemtrace():
+    """Write a load of blocks (128Mb) not coalesced, then coalsesce them then punt down to one blocks 1MB under
+    pymemtrace's cPyMemTrace.Profile."""
+    block_length = 1024 * 1024
+    block_count = 8
+    with cPyMemTrace.Profile(0):
+        ID = 'id'
+        svf = svfsc.cSVF(ID, 1.0)
+        for repeat in range(4):
+            fpos = 0
+            # print(f'Pass: {repeat}')
+            for f, b in svf.blocks():
+                svf.erase(f)
+            # print(f'Num blocks= {svf.num_blocks():8d}')
+            assert svf.num_blocks() == 0
+            for block_index in range(block_count):
+                # Not coalesced
+                svf.write(fpos, b' ' * block_length)
+                fpos += block_length * 2
+            assert svf.num_blocks() == block_count
+
+            # print(f'Num blocks= {svf.num_blocks():8d}')
+            # for f, b in svf.blocks():
+            #     print(f'Block: {f:8d} {b:8d} {f + b:8d}')
+
+            fpos = block_length
+            for block_index in range(block_count):
+                # Now coalesce
+                # print(f'Writing to {fpos:8d} {block_length:8d} ends {fpos + block_length:8d} Num blocks= {svf.num_blocks():8d}')
+                svf.write(fpos, b' ' * block_length)
+                fpos += block_length * 2
+            assert svf.num_blocks() == 1
+            svf.lru_punt(1024**2)
+        time.sleep(1.0)
+        for f, b in svf.blocks():
+            svf.erase(f)
+        svf.lru_punt(1024**2)
+        time.sleep(1.0)

@@ -60,6 +60,9 @@ tmp/
 # PyCharm
 .idea/
 
+# pymemtrace log files
+*.log
+
 # CMake
 cmake-build-debug/
 cmake-build-release/
