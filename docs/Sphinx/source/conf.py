@@ -7,9 +7,9 @@
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
 project = 'svfsc'
-copyright = '2023-2024, Paul Ross'
+copyright = '2023-2025, Paul Ross'
 author = 'Paul Ross'
-release = '0.4.1rc0'
+release = '0.4.1'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration

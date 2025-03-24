@@ -7,7 +7,7 @@
  * @verbatim
     MIT License
 
-    Copyright (c) 2023 Paul Ross
+    Copyright (c) 2023-2025 Paul Ross
 
     Permission is hereby granted, free of charge, to any person obtaining a copy
     of this software and associated documentation files (the "Software"), to deal
@@ -32,7 +32,7 @@
 #include "cpp_svfs.h"
 
 /** @brief The version as a string. */
-const char *SVFS_CPP_VERSION = "0.4.1rc0";
+const char *SVFS_CPP_VERSION = "0.4.1";
 
 /** @brief Major version number. */
 int SVFS_CPP_VERSION_MAJOR = 0;
@@ -41,4 +41,4 @@ int SVFS_CPP_VERSION_MINOR = 4;
 /** @brief Patch version number. */
 int SVFS_CPP_VERSION_PATCH = 1;
 /** @brief Version suffix string, could be "rc2" for example. */
-const char *SVFS_CPP_VERSION_SUFFIX = "rc0";
+const char *SVFS_CPP_VERSION_SUFFIX = "";

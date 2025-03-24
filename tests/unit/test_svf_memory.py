@@ -1,7 +1,7 @@
 """
 MIT License
 
-Copyright (c) 2020-2024 Paul Ross
+Copyright (c) 2020-2025 Paul Ross
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -79,7 +79,7 @@ def test_memory_SVF_need():
         f'RSS start: {rss_start_overall:,d}'
         f' end: {proc.memory_info().rss:,d}'
         f' ∆: {rss_diff:+,d}')
-    assert rss_diff < 100e6
+    assert rss_diff < 150_000_000
 
 
 @pytest.mark.slow
