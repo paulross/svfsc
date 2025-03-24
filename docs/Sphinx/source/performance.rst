@@ -39,16 +39,26 @@ Write
 
 This show the performance of writing 1MB of data to a ``SVF`` in two ways:
 
-- Each write is contiguous with a previous one so the blocks are always coalesced. The ``SVF`` always contains only one block.
-- Each write is *not* contiguous with a previous one so the blocks are *never* coalesced. The ``SVF`` eventually contains as many blocks as writes.
+- Each write is contiguous with a previous one so the blocks are always coalesced. The ``SVF`` always contains only one
+  block.
+- Each write is *not* contiguous with a previous one so the blocks are *never* coalesced. The ``SVF`` eventually
+  contains as many blocks as writes.
+
+The C++ test functions are, respectively:
+
+- ``SVFS::Test::test_perf_write_1M_coalesced(SVFS::Test::t_test_results &)``.
+- ``SVFS::Test::test_perf_write_1M_uncoalesced(SVFS::Test::t_test_results &)``.
 
 .. image:: ../../plots/images/cpp_1mb_write.png
 
-In the case of storing 1M one byte blocks the ``SVF`` consumes 34,603,192 bytes of memory, so x33.
-In the case of a 256 byte block size the ``SVF`` consumes 1,179,832 bytes of memory, just a 12.5% premium.
-
 The one byte block size performance corresponds to 14 MB/s (coalesced) and 3.1 MB/s (un-coalesced).
 The 256 byte block size performance corresponds to 445 MB/s (coalesced) and 456 MB/s (un-coalesced).
+
+SVF Memory Overhead
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In the case of storing 1M one byte blocks the ``SVF`` consumes 34,603,192 bytes of memory, so x33.
+In the case of a 256 byte block size the ``SVF`` consumes 1,179,832 bytes of memory, just a 12.5% premium.
 
 Multi-threaded Writes
 ---------------------

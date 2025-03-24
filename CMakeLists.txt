@@ -17,6 +17,30 @@ ENDIF(CMAKE_BUILD_TYPE MATCHES Debug)
 # ld: warning: ignoring file /usr/local/Frameworks/Python.framework/Versions/3.11/lib/libpython3.11.dylib, building for macOS-arm64 but attempting to link with file built for macOS-x86_64
 set(CMAKE_OSX_ARCHITECTURES "x86_64")
 
+if(CMAKE_CXX_COMPILER_LOADED)
+    message(STATUS "          Compiler path: ${CMAKE_CXX_COMPILER}")
+    message(STATUS "            Compiler ID: ${CMAKE_CXX_COMPILER_ID}")
+    message(STATUS "       Compiler version: ${CMAKE_CXX_COMPILER_VERSION}")
+    message(STATUS "Compiler is part of GCC: ${CMAKE_COMPILER_IS_GNUCXX}")
+else()
+    message(FATAL_ERROR "Compiler is not loaded.")
+endif()
+
+# Need to match with setup.py except where there Python specific compiler option such as
+# '-Wno-c++11-compat-deprecated-writable-strings'
+# extra_compile_args = [
+#    ...,
+#]
+# See also https://stackoverflow.com/questions/724664/python-distutils-how-to-get-a-compiler-that-is-going-to-be-used
+if (CMAKE_COMPILER_IS_GNUCXX)
+    add_compile_options(
+        # Additional flags to satisfy Linux/gcc 11.4.0
+        "-Wno-missing-field-initializers"
+        "-Wno-cast-function-type"
+        "-Wno-unknown-pragmas"
+    )
+endif ()
+
 # Need to match with setup.py except where there Python specific compiler option such as
 # '-Wno-c++11-compat-deprecated-writable-strings'
 # extra_compile_args = [
@@ -34,19 +58,14 @@ add_compile_options(
     # Addition warnings on top of -Wall
     "-Wextra"
 
-    # Additional flags to satisfy Linux/gcc 11.4.0
-    "-Wno-missing-field-initializers"
-    "-Wno-cast-function-type"
-    "-Wno-unknown-pragmas"
-
     # Enable exception handling, we use these, possibly not needed as out CPython code is C++ but it is not harmful.
     "-fexceptions"
     "$<$<CONFIG:DEBUG>:-O0;-g3;-ggdb>"
 )
 
-link_directories(
-    /Library/Frameworks/Python.framework/Versions/3.11/lib
-)
+#link_directories(
+#    /Library/Frameworks/Python.framework/Versions/3.11/lib
+#)
 
 add_executable(
         cppSVF
@@ -94,6 +113,7 @@ ELSE()
     MESSAGE(FATAL_ERROR "Unable to find Python libraries.")
 ENDIF()
 
+link_directories(${PYTHON_LIBRARY})
 
 target_link_libraries(cppSVF ${PYTHON_LIBRARIES})
 

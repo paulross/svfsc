@@ -105,7 +105,7 @@ test_requirements = [
 
 setup(
     name='svfsc',
-    version='0.4.0',
+    version='0.4.1',
     ext_modules=[svfs_extension, ],
     description="Sparse Virtual File System Cache implemented in C++.",
     long_description=readme + '\n\n' + history,
@@ -130,6 +130,7 @@ setup(
         'Programming Language :: Python :: 3.10',
         'Programming Language :: Python :: 3.11',
         'Programming Language :: Python :: 3.12',
+        'Programming Language :: Python :: 3.13',
         'Topic :: Software Development :: Libraries',
     ],
     test_suite='tests',

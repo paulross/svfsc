@@ -1,6 +1,15 @@
 History
 ##################
 
+0.4.1 (2025-03-24)
+=====================
+
+- Documentation improvements.
+- Add AWS cost to simulator.
+- Add svfsc.cSVF.clear()
+- Support for Python 3.8, 3.9, 3.10, 3.11, 3.12, 3.13.
+- Development Status :: 5 - Production/Stable
+
 0.4.0 (2024-02-11)
 =====================
 

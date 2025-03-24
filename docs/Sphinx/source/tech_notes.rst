@@ -275,16 +275,27 @@ for different ``greedy_length`` values.
 
 .. image:: ../../plots/images/py_sim_greedy_hits_misses.png
 
+The Additional Overhead of Greedy Reads
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 The minor drawback is that more bytes are read than strictly necessary.
 For example with CMU-1.tiff and ``greedy_length=0`` the minimal byte set is
 256,566 bytes total. With a ``greedy_length=131,072`` the total number of bytes read is 1,179,648.
 This is about 4x the minimal read but still about 1/200 of the original file.
 
-Here are examples off the total amount of data read for different ``greedy_length`` values:
-
-.. note:: Linear scale
+Here are examples off the extra overhead of greedy reads for different ``greedy_length`` values.
+The y axis shows the additional, strictly unnecessary, memory used by the SVF:
 
 .. image:: ../../plots/images/py_sim_greedy_overhead.png
+
+Here is an summary with some selected, but representative, files from 200 MB to 2GB.
+The left axis shows the read time (relative to using a greedy length of 64kB) which descends steeply as the cache size
+increases.
+On the right is the additional memory need above the minimal:
+
+.. image:: ../../plots/images/py_sim_greedy_overhead_cf_time.png
+
+These data examples will help a user to tune the SVF balancing the tradeoffs of speed and memory usage.
 
 A Comparison Against a Local File Read
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -343,7 +354,7 @@ So choosing a decent greedy length can get the remote performance within hailing
 file performance.
 
 The Effect of Simulated Network Latency
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+--------------------------------------------------------
 
 With the simulator we can experiment with various values of network latency (each way), bandwidth and greedy reads.
 For example here is the result of reading TIFF metadata with different network latencies.
@@ -361,7 +372,7 @@ The poor performance of high latency networks can be improved greatly by using g
 High (64 KB) greedy reads can transform high latency (50 ms) networks to about 10x their ZLIB time.
 
 The Effect of Simulated Network Bandwidth
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+--------------------------------------------------------
 
 Here is the result of different bandwidths for a network latency (each way) of 10 ms.
 
@@ -383,8 +394,8 @@ Again, medium greedy reads (optimum around 8 to 32 KB) can transform low bandwid
 
     \newpage
 
-Amazon AWS Cloud Example
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Amazon AWS Cloud Performance
+--------------------------------------------------------
 
 Here is an example simulation where the TIFF files are on an AWS server with a typical connection latency (each way) of 100 ms and
 a bandwidth of 1 MB/s (8Mb/s).
@@ -392,6 +403,21 @@ a bandwidth of 1 MB/s (8Mb/s).
 .. image:: ../../plots/images/py_sim_greedy_AWS.png
 
 These values are very close to some measured data of TIFF files on AWS.
+
+Amazon AWS Cloud Cost
+--------------------------------------------------------
+
+Here is a cost estimate for two example files based on a GET cost of 0.0005 / 1000 GET requests and an
+egress cost of 0.1 per GB for different greedy lengths.
+CMU-1 is 0.19GB and TUPAC_TR_001 is 2.1GB.
+
+The horizontal lines show the total cost of downloading the AWS file on to local storage, 0.2 for TUPAC_TR_001
+and 0.02 for CMU-1.
+This shows that the cost of getting TIFF metadata with an optimum greedy length is typically 1/400 the cost of
+downloading the complete file to do so.
+
+.. image:: ../../plots/images/py_sim_greedy_AWS_cost.png
+
 
 Running the Simulator
 ---------------------
@@ -692,7 +718,7 @@ The compromise is to provide APIs that can assist the caller who has full knowle
 threads.
 The caller is responsible for deciding when and how much to punt.
 
-The SVF marks each block with and integer that represents the age of last use (the so-called 'touch' integer).
+The SVF marks each block with an integer that represents the age of last use (the so-called 'touch' integer).
 This integer starts at 0 and monotonically increases with each read/write so older blocks have lower values.
 When blocks are coalesced the resulting block is marked as being newest regardless of the touch values of the previous
 blocks.

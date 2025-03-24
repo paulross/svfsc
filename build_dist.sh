@@ -8,13 +8,14 @@
 # https://bertvv.github.io/cheat-sheets/Bash.html
 #
 # This is a cut down version of build_all.sh that just builds and tests platform specific distributions.
+# This merely omits the C++ build and C++ tests.
 
 set -o errexit  # abort on nonzero exitstatus
 set -o nounset  # abort on unbound variable
 set -o pipefail # don't hide errors within pipes
 
 # For current versions see https://devguide.python.org/versions/
-PYTHON_VERSIONS=('3.8' '3.9' '3.10' '3.11' '3.12')
+PYTHON_VERSIONS=('3.8' '3.9' '3.10' '3.11' '3.12' '3.13')
 # Used for venvs
 PYTHON_VENV_ROOT="${HOME}/pyenvs"
 PROJECT_NAME="svfsc"
@@ -95,6 +96,25 @@ create_and_test_bdist_wheel() {
   done
 }
 
+create_sdist() {
+  echo "---> Running setup for sdist:"
+  python setup.py sdist
+}
+
+create_documentation() {
+  echo "---> Python version:"
+  which python
+  python -VV
+  echo "---> pip list:"
+  pip list
+  echo "---> Building documentation:"
+  cd docs
+  ./build_docs.sh
+  cd ..
+  echo "---> Generating stub file:"
+  python stubgen_simple.py
+}
+
 report_all_versions_and_setups() {
   echo "---> Reporting all versions..."
   for version in ${PYTHON_VERSIONS[*]}; do
@@ -143,9 +163,13 @@ echo "===> Creating virtual environments"
 create_virtual_environments
 echo "===> Creating binary wheels"
 create_and_test_bdist_wheel
+echo "===> Creating source distribution"
+create_sdist
 echo "===> All versions and setups:"
 report_all_versions_and_setups
 echo "===> Building documentation:"
+create_documentation
+echo "===> dist/ result:"
 show_results_of_dist
 #deactivate_virtual_environment
 echo "===> Date:"

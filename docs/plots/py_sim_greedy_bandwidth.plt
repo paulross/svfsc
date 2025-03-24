@@ -1,7 +1,7 @@
 set title "Effect of Network Bandwidth, Latency 10 ms. Server Seek 10 GB/s Read 50 MB/s."
 
 set xlabel "Size of Greedy Read (bytes)"
-set xrange [1:1e6]
+#set xrange [1:1e6]
 set logscale x
 #set xrange [0.01:100]
 

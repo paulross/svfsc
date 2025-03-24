@@ -7,7 +7,7 @@
  * @verbatim
     MIT License
 
-    Copyright (c) 2020-2024 Paul Ross
+    Copyright (c) 2020-2025 Paul Ross
 
     Permission is hereby granted, free of charge, to any person obtaining a copy
     of this software and associated documentation files (the "Software"), to deal
@@ -42,7 +42,7 @@ namespace SVFS {
 
             auto time_start = std::chrono::high_resolution_clock::now();
             std::string version = SVFS_CPP_VERSION;
-            result |= version != "0.4.0";
+            result |= version != "0.4.1";
             std::chrono::duration<double> time_exec = std::chrono::high_resolution_clock::now() - time_start;
             TestResult test_result = TestResult(__PRETTY_FUNCTION__, test_name, result, "", time_exec.count(), 1);
             results.push_back(test_result);
@@ -84,7 +84,7 @@ namespace SVFS {
             TestCount count;
 
             auto time_start = std::chrono::high_resolution_clock::now();
-            result |= SVFS_CPP_VERSION_PATCH != 0;
+            result |= SVFS_CPP_VERSION_PATCH != 1;
             std::chrono::duration<double> time_exec = std::chrono::high_resolution_clock::now() - time_start;
             TestResult test_result = TestResult(__PRETTY_FUNCTION__, test_name, result, "", time_exec.count(), 1);
             results.push_back(test_result);
@@ -98,7 +98,7 @@ namespace SVFS {
             TestCount count;
 
             auto time_start = std::chrono::high_resolution_clock::now();
-            result |= std::string(SVFS_CPP_VERSION_SUFFIX) != "rc0";
+            result |= std::string(SVFS_CPP_VERSION_SUFFIX) != "";
             std::chrono::duration<double> time_exec = std::chrono::high_resolution_clock::now() - time_start;
             TestResult test_result = TestResult(__PRETTY_FUNCTION__, test_name, result, "", time_exec.count(), 1);
             results.push_back(test_result);
