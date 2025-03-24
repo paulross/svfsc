@@ -320,6 +320,67 @@ def test_SVF_erase_counters(blocks, erase_fpos):
 
 
 @pytest.mark.parametrize(
+    'blocks, erase_fpos, expected_message',
+    (
+            (
+                    ((12, b' '),),
+                    0,
+                    'cp_SparseVirtualFile_erase(): Can not erase from a SVF. ERROR:'
+                    ' SparseVirtualFile::erase(): Non-existent file position 0 at start of block.',
+            ),
+
+    ),
+    ids=[
+        'Simple erase raises',
+    ],
+)
+def test_SVF_erase_raises(blocks, erase_fpos, expected_message):
+    s = svfsc.cSVF('id', 1.0)
+    for fpos, data in blocks:
+        s.write(fpos, data)
+    with pytest.raises(IOError) as err:
+        s.erase(erase_fpos)
+    assert err.value.args[0] == expected_message
+
+
+@pytest.mark.parametrize(
+    'blocks, erase_fpos',
+    (
+            (
+                    ((12, b' '),),
+                    12,
+            ),
+
+    ),
+    ids=[
+        'Simple erase',
+    ],
+)
+def test_SVF_clear(blocks, erase_fpos):
+    s = svfsc.cSVF('id', 1.0)
+    for fpos, data in blocks:
+        s.write(fpos, data)
+    assert s.has_data(erase_fpos, 1)
+    s.clear()
+    assert not s.has_data(erase_fpos, 1)
+    # Check  m_file_mod_time is maintained.
+    s.file_mod_time_matches(1.0)
+    assert s.num_blocks() == 0
+    assert s.num_bytes() == 0
+    # Check counters are reset.
+    assert s.blocks_erased() == 0
+    assert s.count_write() == 0
+    assert s.count_read() == 0
+    assert s.bytes_write() == 0
+    assert s.bytes_read() == 0
+    assert s.block_touch() == 0
+    assert s.blocks_erased() == 0
+    assert s.bytes_erased() == 0
+    assert s.blocks_punted() == 0
+    assert s.bytes_punted() == 0
+
+
+@pytest.mark.parametrize(
     'blocks, punt_level',
     (
             (
@@ -344,30 +405,6 @@ def test_SVF_punt_counters(blocks, punt_level):
     assert s.bytes_erased() == 2
     assert s.blocks_punted() == 1
     assert s.bytes_punted() == 2
-
-
-@pytest.mark.parametrize(
-    'blocks, erase_fpos, expected_message',
-    (
-            (
-                    ((12, b' '),),
-                    0,
-                    'cp_SparseVirtualFile_erase(): Can not erase from a SVF. ERROR:'
-                    ' SparseVirtualFile::erase(): Non-existent file position 0 at start of block.',
-            ),
-
-    ),
-    ids=[
-        'Simple erase raises',
-    ],
-)
-def test_SVF_erase_raises(blocks, erase_fpos, expected_message):
-    s = svfsc.cSVF('id', 1.0)
-    for fpos, data in blocks:
-        s.write(fpos, data)
-    with pytest.raises(IOError) as err:
-        s.erase(erase_fpos)
-    assert err.value.args[0] == expected_message
 
 
 @pytest.mark.parametrize(

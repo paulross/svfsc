@@ -547,6 +547,25 @@ cp_SparseVirtualFile_erase(cp_SparseVirtualFile *self, PyObject *args, PyObject 
 }
 
 PyDoc_STRVAR(
+        cp_SparseVirtualFile_clear_docstring,
+        "clear(self) -> None\n\n"
+        "Clear all the data from the Sparse Virtual File."
+        " This removes all data and resets the internal counters."
+        " Modification times are maintained."
+);
+
+static PyObject *
+cp_SparseVirtualFile_clear(cp_SparseVirtualFile *self) {
+    ASSERT_FUNCTION_ENTRY_SVF(pSvf);
+
+    AcquireLockSVF _lock(self);
+
+    self->pSvf->clear();
+
+    Py_RETURN_NONE;
+}
+
+PyDoc_STRVAR(
         cp_SparseVirtualFile_need_docstring,
         "need(self, file_position: int, length: int, greedy_length: int = 0) -> typing.Tuple[typing.Tuple[int, int], ...]\n\n"
         "Given a file_position and length this returns a ordered list ``[(file_position, length), ...]`` of seek/read"
@@ -1419,6 +1438,10 @@ static PyMethodDef cp_SparseVirtualFile_methods[] = {
                 "erase",                 (PyCFunction) cp_SparseVirtualFile_erase,              METH_VARARGS |
                                                                                                 METH_KEYWORDS,
                         cp_SparseVirtualFile_erase_docstring
+        },
+        {
+                "clear",                 (PyCFunction) cp_SparseVirtualFile_clear,              METH_NOARGS,
+                        cp_SparseVirtualFile_clear_docstring
         },
         {
                 "need",                  (PyCFunction) cp_SparseVirtualFile_need,               METH_VARARGS |

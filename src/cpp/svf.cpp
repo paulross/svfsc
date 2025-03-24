@@ -841,9 +841,7 @@ namespace SVFS {
      *
      * This removes all data and resets the internal counters.
      *
-     * @note m_coalesce, m_file_mod_time are maintained.
-     *
-     * @note m_time_write, m_time_read are maintained.
+     * @note m_file_mod_time is maintained.
      */
     void SparseVirtualFile::clear() noexcept {
         SVF_ASSERT(integrity() == ERROR_NONE);
@@ -851,8 +849,6 @@ namespace SVFS {
         std::lock_guard<std::mutex> mutex(m_mutex);
 #endif
         // Maintain ID and constructor arguments.
-//        m_time_write = std::chrono::time_point<std::chrono::system_clock>::min();
-//        m_time_read = std::chrono::time_point<std::chrono::system_clock>::min();
         if (m_config.overwrite_on_exit) {
             for (auto &iter: m_svf) {
                 iter.second.data.assign(iter.second.data.size(), OVERWRITE_CHAR);
@@ -864,6 +860,13 @@ namespace SVFS {
         m_count_read = 0;
         m_bytes_write = 0;
         m_bytes_read = 0;
+        m_time_write = std::chrono::time_point<std::chrono::system_clock>::min();
+        m_time_read = std::chrono::time_point<std::chrono::system_clock>::min();
+        m_block_touch = 0;
+        m_blocks_erased = 0;
+        m_bytes_erased = 0;
+        m_blocks_punted = 0;
+        m_bytes_punted = 0;
         SVF_ASSERT(integrity() == ERROR_NONE);
     }
 
