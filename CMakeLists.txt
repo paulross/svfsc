@@ -63,9 +63,9 @@ add_compile_options(
     "$<$<CONFIG:DEBUG>:-O0;-g3;-ggdb>"
 )
 
-link_directories(
-    /Library/Frameworks/Python.framework/Versions/3.11/lib
-)
+#link_directories(
+#    /Library/Frameworks/Python.framework/Versions/3.11/lib
+#)
 
 add_executable(
         cppSVF
@@ -113,6 +113,7 @@ ELSE()
     MESSAGE(FATAL_ERROR "Unable to find Python libraries.")
 ENDIF()
 
+link_directories(${PYTHON_LIBRARY})
 
 target_link_libraries(cppSVF ${PYTHON_LIBRARIES})
 
