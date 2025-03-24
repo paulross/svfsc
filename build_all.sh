@@ -12,7 +12,8 @@ set -o nounset  # abort on unbound variable
 set -o pipefail # don't hide errors within pipes
 
 # For current versions see https://devguide.python.org/versions/
-PYTHON_VERSIONS=('3.8' '3.9' '3.10' '3.11' '3.12')
+# Takes about 5 to 8 minutes per Python version.
+PYTHON_VERSIONS=('3.8' '3.9' '3.10' '3.11' '3.12' '3.13')
 # Used for venvs
 PYTHON_VENV_ROOT="${HOME}/pyenvs"
 PROJECT_NAME="svfsc"
