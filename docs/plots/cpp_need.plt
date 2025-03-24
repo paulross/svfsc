@@ -9,7 +9,7 @@ set logscale x
 set grid xtics mxtics ytics mytics linetype -1 linewidth 1, linetype 0 linewidth 1
 
 set logscale y
-set ylabel "Relative Performance (seconds/sizeof need())"
+set ylabel "Relative Performance (µs/sizeof need())"
 # set yrange [1:]
 # set ytics 8,35,3
 
@@ -25,12 +25,13 @@ set datafile separator whitespace
 #fit cost(x) "data/perf_size_of.dat" using 1:2 via a,b
 
 #set key right
-set key off
+#set key off
 
 set terminal png size 800,500           # choose the file format
 
 set output "images/cpp_need.png"   # choose the output device
 
-plot "data/cpp_need.dat" using 1:(1e-3 * $8 / ($7 / $1)) t "Time." with linespoints axes x1y1 pt 3 lw 2
+plot "data/cpp_need.dat" using 1:(1e3 * $8 / ($7 / $1)) t "Time (µs)." with linespoints axes x1y1 pt 3 lw 2, \
+    "data/cpp_need.dat" using 1:(0.2 + 1e-4 * $1) t "y = 0.2 + 1e-4 * x" with lines axes x1y1 lw 2
 
 reset

@@ -9,14 +9,14 @@ set logscale x
 set grid xtics mxtics ytics mytics linetype -1 linewidth 1, linetype 0 linewidth 1
 
 set logscale y
-set ylabel "Additional Memory Overhead (bytes)"
+set ylabel "Total Memory (bytes)"
 # set yrange [1:]
 # set ytics 8,35,3
 
-#set logscale y2
-#set y2label "Cache Nisses"
-# set y2range [1:1e9]
-#set y2tics
+set logscale y2
+set y2label "Overhead per block (bytes)"
+set y2range [10:1e6]
+set y2tics
 
 set pointsize 1
 set datafile separator whitespace
@@ -37,8 +37,8 @@ set output "images/size_of_overhead.png"   # choose the output device
 #plot "data/size_of_overhead.dat" using 2:($2 * 64) t "64 bytes per block" with lines axes x1y1 lw 4, \
     "data/size_of_overhead.dat" using 2:5 t "Actual overhead (bytes)" with lines axes x1y1 lw 2
 
-plot "data/size_of_overhead.dat" using 2:5 t "Actual overhead (bytes)" with lines axes x1y1 lw 4, \
-    "data/size_of_overhead.dat" using 2:($2 * 64) t "64 bytes per block" with lines axes x1y1 lw 2
-
+plot "data/size_of_overhead.dat" using 2:5 t "Total Memory (bytes) [left]" with lines axes x1y1 lw 4, \
+    "data/size_of_overhead.dat" using 2:($2 * 64) t "64 bytes per block [left]" with lines axes x1y1 lw 2, \
+    "data/size_of_overhead.dat" using 2:($5 / $2) t "Overhead per block (bytes) [right]" with lines axes x1y2 lw 3
 
 reset
