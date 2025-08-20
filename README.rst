@@ -20,7 +20,7 @@ available but *parts of it can be obtained* without reading the whole file.
 A Sparse Virtual File (SVF) is represented internally as a map of blocks of data with the key being their file
 offsets.
 Any write to an SVF will coalesce these blocks where possible.
-There is no cache punting strategy implemented so an SVF always accumulates data.
+There is a manual cache punting strategy.
 A Sparse Virtual File System (SVFS) is an extension of this to provide a key/value store where the key is a file ID
 and the value a Sparse Virtual File.
 
