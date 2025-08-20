@@ -1,7 +1,7 @@
 """
 MIT License
 
-Copyright (c) 2020-2024 Paul Ross
+Copyright (c) 2020-2025 Paul Ross
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -50,11 +50,11 @@ def test_has_versions(attribute):
 @pytest.mark.parametrize(
     'attribute, value',
     (
-            ('SVFS_CPP_VERSION', '0.4.1rc0'),
+            ('SVFS_CPP_VERSION', '0.4.1'),
             ('SVFS_CPP_VERSION_MAJOR', 0),
             ('SVFS_CPP_VERSION_MINOR', 4),
             ('SVFS_CPP_VERSION_PATCH', 1),
-            ('SVFS_CPP_VERSION_SUFFIX', 'rc0'),
+            ('SVFS_CPP_VERSION_SUFFIX', ''),
     )
 )
 def test_value_versions(attribute, value):

@@ -1,7 +1,7 @@
 History
 ##################
 
-0.4.1rc0 (TODO)
+0.4.1 (2025-03-24)
 =====================
 
 - Documentation improvements.
